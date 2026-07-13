@@ -5,7 +5,7 @@ const CACHE_NAME='cutcoach-v2.3.0';
 const APP_SHELL=[
   './','./index.html','./style.css?v=2.3.0','./core.js?v=2.3.0','./render.js?v=2.3.0',
   './actions.js?v=2.3.0','./app.js?v=2.3.0','./manifest.webmanifest?v=2.3.0','./icon.svg',
-  './apple-touch-icon.png?v=2.3.0','./icon-192.png?v=2.3.0','./icon-512.png?v=2.3.0'
+  './apple-touch-icon.png?v=2.3.0','./icon-192.png?v=2.3.0'
 ];
 
 self.addEventListener('install',event=>{
