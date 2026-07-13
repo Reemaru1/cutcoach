@@ -1,11 +1,15 @@
 'use strict';
 
 const CACHE_PREFIX='cutcoach-';
-const CACHE_NAME='cutcoach-v2.2.0';
-const APP_SHELL=['./','./index.html','./style.css?v=2.2.0','./core.js?v=2.2.0','./render.js?v=2.2.0','./actions.js?v=2.2.0','./app.js?v=2.2.0','./manifest.webmanifest?v=2.2.0','./icon.svg'];
+const CACHE_NAME='cutcoach-v2.3.0';
+const APP_SHELL=[
+  './','./index.html','./style.css?v=2.3.0','./core.js?v=2.3.0','./render.js?v=2.3.0',
+  './actions.js?v=2.3.0','./app.js?v=2.3.0','./manifest.webmanifest?v=2.3.0','./icon.svg',
+  './apple-touch-icon.png?v=2.3.0','./icon-192.png?v=2.3.0','./icon-512.png?v=2.3.0'
+];
 
 self.addEventListener('install',event=>{
-  event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)).then(()=>self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)));
 });
 self.addEventListener('activate',event=>{
   event.waitUntil(
@@ -30,10 +34,13 @@ self.addEventListener('fetch',event=>{
     })());
     return;
   }
-  const refresh=fetch(request,{cache:'no-store'}).then(async response=>{
-    if(response.ok){const cache=await caches.open(CACHE_NAME);await cache.put(request,response.clone());}
-    return response;
-  });
-  event.waitUntil(refresh.then(()=>undefined).catch(()=>undefined));
-  event.respondWith(caches.match(request).then(cached=>cached||refresh.catch(()=>Response.error())));
+  event.respondWith((async()=>{
+    const cached=await caches.match(request);
+    if(cached)return cached;
+    try{
+      const response=await fetch(request,{cache:'no-store'});
+      if(response.ok){const cache=await caches.open(CACHE_NAME);await cache.put(request,response.clone());}
+      return response;
+    }catch{return Response.error();}
+  })());
 });
