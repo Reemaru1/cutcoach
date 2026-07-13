@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='3.6.0';
+  const VERSION='3.7.0';
   const LIB='cutcoach_library_v1';
   const OVR='cutcoach_library_overrides_v1';
   const COMPLETE_PREVIOUS='cutcoach_previous_complete_v1';
