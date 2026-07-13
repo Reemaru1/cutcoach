@@ -14,6 +14,13 @@
     const version=document.querySelector('#appVersion');if(version)version.textContent='Version 3.0.1';
   }
 
+  function supportedFormats(){
+    if(typeof Html5QrcodeSupportedFormats!=='object')return undefined;
+    return [Html5QrcodeSupportedFormats.QR_CODE,Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,Html5QrcodeSupportedFormats.CODE_128,Html5QrcodeSupportedFormats.CODE_39].filter(Number.isFinite);
+  }
+
+  function createScanner(){return new Html5Qrcode('scannerReader',supportedFormats(),false);}
+
   function scannerFrame(){
     const frame=document.querySelector('.scanner-frame');
     if(!frame)return null;
@@ -29,8 +36,8 @@
       const file=event.target.files?.[0];event.target.value='';if(!file)return;
       await stopScanner();
       if(typeof Html5Qrcode!=='function'){setStatus('Scanner konnte nicht geladen werden. Bitte Code manuell eingeben.');return;}
-      scannerFrame();scanner=new Html5Qrcode('scannerReader',false);
-      try{setStatus('Foto wird ausgewertet …');const code=await scanner.scanFile(file,true);handleCode(code);}
+      scannerFrame();scanner=createScanner();
+      try{setStatus('Foto wird ausgewertet …');const code=await scanner.scanFile(file,true);await handleCode(code);}
       catch{setStatus('Auf dem Foto wurde kein Barcode erkannt. Näher herangehen und erneut versuchen.');}
       finally{try{scanner?.clear();}catch{}scanner=null;}
     });
@@ -43,10 +50,8 @@
     if(typeof Html5Qrcode!=='function'){
       setStatus('Scanner wird geladen … Bitte kurz warten und erneut auf Scannen tippen.');return;
     }
-    await stopScanner(false);scannerFrame();scanner=new Html5Qrcode('scannerReader',false);
-    const formats=typeof Html5QrcodeSupportedFormats==='object'?[Html5QrcodeSupportedFormats.QR_CODE,Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,Html5QrcodeSupportedFormats.CODE_128,Html5QrcodeSupportedFormats.CODE_39].filter(Number.isFinite):undefined;
+    await stopScanner(false);scannerFrame();scanner=createScanner();
     const config={fps:12,qrbox:(width,height)=>({width:Math.floor(Math.min(width*.88,360)),height:Math.floor(Math.min(height*.42,180))}),aspectRatio:1.45,disableFlip:false};
-    if(formats?.length)config.formatsToSupport=formats;
     try{
       setStatus('Kamerazugriff erlauben und Barcode mittig in den Rahmen halten.');
       scanning=true;
