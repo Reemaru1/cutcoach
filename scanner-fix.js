@@ -7,11 +7,23 @@
   function waitForLibrary(){
     const button=document.querySelector('#scanCode');
     if(!button){setTimeout(waitForLibrary,120);return;}
+    injectStyles();
     button.onclick=startScanner;
     document.querySelectorAll('[data-library-close]').forEach(close=>close.addEventListener('click',stopScanner,true));
     document.querySelector('#scannerModal')?.addEventListener('click',event=>{if(event.target.id==='scannerModal')stopScanner();},true);
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')stopScanner();});
-    const version=document.querySelector('#appVersion');if(version)version.textContent='Version 3.0.1';
+    const originalRenderMeta=window.renderMeta;
+    if(typeof originalRenderMeta==='function')window.renderMeta=function(){originalRenderMeta();setVersion();};
+    setVersion();
+  }
+
+  function setVersion(){const version=document.querySelector('#appVersion');if(version)version.textContent='Version 3.0.1';}
+
+  function injectStyles(){
+    if(document.querySelector('#scannerFixStyles'))return;
+    const style=document.createElement('style');style.id='scannerFixStyles';
+    style.textContent='.scanner-reader{width:100%;height:100%;overflow:hidden}.scanner-reader video{width:100%!important;height:100%!important;object-fit:cover!important}.scanner-reader canvas{max-width:100%;max-height:100%}.scanner-reader>div{border:0!important}.scanner-photo{display:block;text-align:center;margin-top:10px}.scanner-photo input{display:none}.scanner-frame .scan-line{pointer-events:none;z-index:5}';
+    document.head.appendChild(style);
   }
 
   function supportedFormats(){
@@ -48,7 +60,7 @@
   async function startScanner(){
     openModal('scannerModal');document.querySelector('#manualCode').value='';scannerFrame();addPhotoFallback();
     if(typeof Html5Qrcode!=='function'){
-      setStatus('Scanner wird geladen … Bitte kurz warten und erneut auf Scannen tippen.');return;
+      setStatus('Scanner wird noch geladen. Bitte kurz warten und erneut auf „Scannen“ tippen.');return;
     }
     await stopScanner(false);scannerFrame();scanner=createScanner();
     const config={fps:12,qrbox:(width,height)=>({width:Math.floor(Math.min(width*.88,360)),height:Math.floor(Math.min(height*.42,180))}),aspectRatio:1.45,disableFlip:false};
