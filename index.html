@@ -2,23 +2,43 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#090d18">
+  <meta name="application-name" content="CutCoach">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="CutCoach">
+  <meta name="description" content="Persönliches Ernährungs-, Gewichts- und Trainingsjournal">
   <title>CutCoach</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="icon" href="icon.svg">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="app">
-  <header>
-    <div class="brand"><img src="icon.svg" alt=""><div><h1>CutCoach</h1><p id="dateLabel"></p></div></div>
-    <button class="ghost" id="installInfo">📲 Installieren</button>
+  <header class="app-header">
+    <div class="brand">
+      <img src="icon.svg" alt="">
+      <div>
+        <h1>CutCoach</h1>
+        <p id="dateLabel"></p>
+      </div>
+    </div>
+    <button class="ghost install-button" id="installInfo" type="button"><span aria-hidden="true">📲</span><span class="install-label">Installieren</span></button>
   </header>
+
+  <div class="date-nav" aria-label="Tag auswählen">
+    <button id="previousDay" type="button" aria-label="Vorheriger Tag">‹</button>
+    <label class="date-field">
+      <span class="sr-only">Datum</span>
+      <input id="datePicker" type="date" aria-label="Datum auswählen">
+    </label>
+    <button id="nextDay" type="button" aria-label="Nächster Tag">›</button>
+    <button class="today-button" id="todayButton" type="button">Heute</button>
+  </div>
+
+  <div class="offline-banner" id="offlineBanner" role="status">Offline – deine Einträge werden weiterhin lokal gespeichert.</div>
 
   <main>
     <section class="screen active" data-screen="today">
@@ -26,55 +46,104 @@
         <div>
           <span class="badge">🔥 Fettverlust</span>
           <div class="kcal"><strong id="kcalTotal">0</strong><small> kcal</small></div>
-          <p><span id="kcalRemain">2300</span> kcal bis zum Ziel</p>
+          <p id="kcalStatus">2300 kcal übrig</p>
         </div>
-        <div class="score"><strong id="score">–</strong><small>/10</small></div>
-        <div class="bar full"><i id="kcalBar"></i></div>
+        <div class="score" id="scoreRing">
+          <strong id="score">–</strong>
+          <small id="scoreCaption">vorläufig</small>
+        </div>
+        <div class="bar full" aria-label="Kalorienfortschritt"><i id="kcalBar"></i></div>
       </div>
 
       <div class="grid macros">
-        <article class="card"><label>💪 Eiweiß</label><strong><span id="proteinTotal">0</span><small> / <span id="proteinGoal">190</span> g</small></strong><div class="bar"><i id="proteinBar"></i></div></article>
-        <article class="card"><label>🍚 Kohlenhydrate</label><strong><span id="carbsTotal">0</span><small> / <span id="carbsGoal">200</span> g</small></strong><div class="bar"><i id="carbsBar"></i></div></article>
-        <article class="card"><label>🥑 Fett</label><strong><span id="fatTotal">0</span><small> / <span id="fatGoal">65</span> g</small></strong><div class="bar"><i id="fatBar"></i></div></article>
-        <article class="card"><label>⚖️ Gewicht</label><strong><span id="todayWeight">–</span><small> kg</small></strong><button class="secondary" data-open="weightModal">Eintragen</button></article>
+        <article class="card">
+          <label>💪 Eiweiß <span id="proteinRemaining">190 g fehlen</span></label>
+          <strong><span id="proteinTotal">0</span><small> / <span id="proteinGoal">190</span> g</small></strong>
+          <div class="bar"><i id="proteinBar"></i></div>
+        </article>
+        <article class="card">
+          <label>🍚 Kohlenhydrate <span id="carbsRemaining">200 g fehlen</span></label>
+          <strong><span id="carbsTotal">0</span><small> / <span id="carbsGoal">200</span> g</small></strong>
+          <div class="bar"><i id="carbsBar"></i></div>
+        </article>
+        <article class="card">
+          <label>🥑 Fett <span id="fatRemaining">65 g fehlen</span></label>
+          <strong><span id="fatTotal">0</span><small> / <span id="fatGoal">65</span> g</small></strong>
+          <div class="bar"><i id="fatBar"></i></div>
+        </article>
+        <article class="card">
+          <label>⚖️ Gewicht <span>Morgens</span></label>
+          <strong><span id="todayWeight">–</span><small> kg</small></strong>
+          <button class="secondary" data-open="weightModal" type="button">Eintragen</button>
+        </article>
       </div>
 
       <article class="card steps-card">
         <label>👣 Schritte <span>Ziel <b id="stepGoal">6000</b></span></label>
-        <div class="inline"><input id="stepsInput" type="number" inputmode="numeric" placeholder="Schritte"><button id="saveSteps">Speichern</button></div>
+        <div class="inline">
+          <input id="stepsInput" type="number" aria-label="Schritte eingeben" inputmode="numeric" min="0" max="100000" step="1" placeholder="Schritte">
+          <button id="saveSteps" type="button">Speichern</button>
+        </div>
         <div class="bar"><i id="stepsBar"></i></div>
       </article>
 
       <div class="grid checks">
-        <article class="card"><label>🏋️ Gym heute?</label><div class="choice"><button data-gym="true">Ja</button><button data-gym="false">Nein</button></div></article>
-        <article class="card"><label>🍺 Alkohol?</label><div class="choice"><button data-alcohol="true" class="danger">Ja</button><button data-alcohol="false">Nein</button></div></article>
+        <article class="card">
+          <label>🏋️ Gym heute?</label>
+          <div class="choice">
+            <button data-gym="true" type="button">Ja</button>
+            <button data-gym="false" type="button">Nein</button>
+          </div>
+        </article>
+        <article class="card">
+          <label>🍺 Alkohol?</label>
+          <div class="choice">
+            <button data-alcohol="true" class="danger" type="button">Ja</button>
+            <button data-alcohol="false" type="button">Nein</button>
+          </div>
+        </article>
       </div>
 
       <h2>Tagesauswertung</h2>
       <article class="card summary">
-        <div><label>Defizit*</label><strong><span id="deficit">–</span><small> kcal</small></strong></div>
-        <div><label>Gym diese Woche</label><strong><span id="gymWeek">0</span><small> / 5</small></strong></div>
+        <div><label id="energyBalanceLabel">Defizit*</label><strong><span id="deficit">–</span><small> kcal</small></strong></div>
+        <div><label>Gym · 7 Tage</label><strong><span id="gymWeek">0</span><small> / <span id="gymWeekGoal">5</span></small></strong></div>
         <div><label>Schritte</label><strong id="stepsView">0</strong></div>
         <p id="feedback">Trage deine Daten ein. Danach bekommst du eine ehrliche Bewertung.</p>
-        <small class="hint">* Nur eine Schätzung anhand deiner Erhaltungskalorien.</small>
+        <div class="completion" id="completionText">Noch keine Tagesdaten eingetragen.</div>
+        <small class="hint">* Nur eine Schätzung anhand deiner eingestellten Erhaltungskalorien.</small>
       </article>
     </section>
 
     <section class="screen" data-screen="food">
-      <div class="section-title"><h2>Ernährung</h2><button data-open="mealModal">+ Mahlzeit</button></div>
-      <div class="stats card"><div><label>Kalorien</label><strong id="foodKcal">0</strong></div><div><label>Eiweiß</label><strong><span id="foodProtein">0</span><small> g</small></strong></div><div><label>Noch offen</label><strong><span id="foodOpen">2300</span><small> kcal</small></strong></div></div>
+      <div class="section-title">
+        <h2>Ernährung</h2>
+        <button data-open="mealModal" type="button">+ Mahlzeit</button>
+      </div>
+      <div class="stats card">
+        <div><label>Kalorien</label><strong id="foodKcal">0</strong></div>
+        <div><label>Eiweiß</label><strong><span id="foodProtein">0</span><small> g</small></strong></div>
+        <div><label id="foodBalanceLabel">Noch offen</label><strong><span id="foodOpen">2300</span><small> kcal</small></strong></div>
+      </div>
       <div id="mealList"></div>
     </section>
 
     <section class="screen" data-screen="progress">
-      <div class="section-title"><h2>Fortschritt</h2><button data-open="weightModal">+ Gewicht</button></div>
-      <article class="card"><label>Kalorien – letzte 7 Tage</label><div id="weekBars" class="week-bars"></div></article>
+      <div class="section-title">
+        <div><h2>Fortschritt</h2><small class="range-label" id="rangeLabel"></small></div>
+        <button data-open="weightModal" type="button">+ Gewicht</button>
+      </div>
+      <article class="card">
+        <label>Kalorien · letzte 7 Tage <span id="avgCalories">Ø –</span></label>
+        <div id="weekBars" class="week-bars"></div>
+      </article>
       <div class="grid progress-grid">
         <article class="card"><label>Gewichtstrend</label><strong><span id="weightTrend">–</span><small> kg</small></strong></article>
-        <article class="card"><label>Ø Eiweiß</label><strong><span id="avgProtein">0</span><small> g</small></strong></article>
+        <article class="card"><label>Ø Eiweiß</label><strong><span id="avgProtein">–</span><small> g</small></strong></article>
         <article class="card"><label>Gym</label><strong><span id="weekGym">0</span><small> Einheiten</small></strong></article>
-        <article class="card"><label>Ø Schritte</label><strong id="avgSteps">0</strong></article>
+        <article class="card"><label>Ø Schritte</label><strong id="avgSteps">–</strong></article>
       </div>
+      <div class="notice goal-notice" id="goalStatus">Trage dein Wunschgewicht in den Einstellungen ein.</div>
       <h2>Gewichtsverlauf</h2>
       <article class="card" id="weightHistory"></article>
       <h2>Empfehlung</h2>
@@ -84,35 +153,85 @@
     <section class="screen" data-screen="settings">
       <h2>Ziele & Einstellungen</h2>
       <article class="card settings">
-        <div class="two"><label>Alter<input id="setAge" type="number"></label><label>Größe (cm)<input id="setHeight" type="number"></label></div>
-        <div class="two"><label>Kalorienziel<input id="setCalories" type="number"></label><label>Erhaltungskalorien<input id="setMaintenance" type="number"></label></div>
-        <div class="two"><label>Eiweiß (g)<input id="setProtein" type="number"></label><label>Fett (g)<input id="setFat" type="number"></label></div>
-        <div class="two"><label>Kohlenhydrate (g)<input id="setCarbs" type="number"></label><label>Schritte<input id="setSteps" type="number"></label></div>
-        <div class="two"><label>Gym/Woche<input id="setGymGoal" type="number"></label><label>Wunschgewicht<input id="setGoalWeight" type="number" step="0.1"></label></div>
-        <button id="saveSettings">Einstellungen speichern</button>
+        <div class="two">
+          <label>Alter<input id="setAge" type="number" min="14" max="100" inputmode="numeric"></label>
+          <label>Größe (cm)<input id="setHeight" type="number" min="120" max="230" inputmode="numeric"></label>
+        </div>
+        <div class="two">
+          <label>Kalorienziel<input id="setCalories" type="number" min="1200" max="6000" inputmode="numeric"></label>
+          <label>Erhaltungskalorien<input id="setMaintenance" type="number" min="1500" max="7000" inputmode="numeric"></label>
+        </div>
+        <div class="two">
+          <label>Eiweiß (g)<input id="setProtein" type="number" min="50" max="350" inputmode="numeric"></label>
+          <label>Fett (g)<input id="setFat" type="number" min="30" max="200" inputmode="numeric"></label>
+        </div>
+        <div class="two">
+          <label>Kohlenhydrate (g)<input id="setCarbs" type="number" min="0" max="800" inputmode="numeric"></label>
+          <label>Schritte<input id="setSteps" type="number" min="0" max="50000" inputmode="numeric"></label>
+        </div>
+        <div class="two">
+          <label>Gym/Woche<input id="setGymGoal" type="number" min="0" max="7" inputmode="numeric"></label>
+          <label>Wunschgewicht (kg)<input id="setGoalWeight" type="number" min="30" max="300" step="0.1" inputmode="decimal"></label>
+        </div>
+        <button id="saveSettings" type="button">Einstellungen speichern</button>
       </article>
-      <h2>Daten</h2>
+
+      <h2>Daten & Sicherheit</h2>
       <article class="card data-actions">
-        <button id="exportData" class="secondary">Backup exportieren</button>
-        <label class="secondary file">Backup importieren<input id="importData" type="file" accept="application/json"></label>
-        <button id="resetData" class="delete-btn">Alle Daten löschen</button>
+        <div class="backup-status" id="backupStatus">Noch kein Backup erstellt.</div>
+        <button id="exportData" class="secondary" type="button">Backup exportieren</button>
+        <label class="secondary file">Backup importieren<input id="importData" type="file" accept=".json,application/json"></label>
+        <button id="resetData" class="delete-btn" type="button">Alle Daten löschen</button>
       </article>
-      <div class="notice">Deine persönlichen Einträge werden nur lokal auf diesem iPhone gespeichert. Der öffentliche GitHub-Code enthält keine Gewichts- oder Essensdaten.</div>
+      <div class="notice">Deine persönlichen Einträge bleiben lokal auf diesem Gerät. Sie werden nicht in dein öffentliches GitHub-Repository hochgeladen.</div>
+      <div class="app-meta"><span id="onlineStatus">Online</span><span id="appVersion">Version</span></div>
     </section>
   </main>
 </div>
 
-<nav>
-  <button class="active" data-tab="today"><span>◉</span>Heute</button>
-  <button data-tab="food"><span>🍽️</span>Ernährung</button>
-  <button data-tab="progress"><span>📈</span>Fortschritt</button>
-  <button data-tab="settings"><span>⚙️</span>Einstellungen</button>
+<nav aria-label="Hauptnavigation">
+  <button class="active" data-tab="today" type="button"><span>◉</span>Heute</button>
+  <button data-tab="food" type="button"><span>🍽️</span>Ernährung</button>
+  <button data-tab="progress" type="button"><span>📈</span>Fortschritt</button>
+  <button data-tab="settings" type="button"><span>⚙️</span>Einstellungen</button>
 </nav>
 
-<div class="modal" id="mealModal"><div class="sheet"><div class="sheet-head"><h2>Mahlzeit hinzufügen</h2><button data-close>×</button></div><label>Name<input id="mealName" placeholder="z. B. Skyr mit Proteinpulver"></label><label>Kategorie<select id="mealType"><option>Frühstück</option><option>Mittagessen</option><option>Abendessen</option><option>Snack</option></select></label><div class="two"><label>Kalorien<input id="mealCalories" type="number" inputmode="numeric"></label><label>Eiweiß (g)<input id="mealProtein" type="number" inputmode="decimal"></label></div><div class="two"><label>Kohlenhydrate (g)<input id="mealCarbs" type="number" inputmode="decimal"></label><label>Fett (g)<input id="mealFat" type="number" inputmode="decimal"></label></div><button id="saveMeal">Mahlzeit speichern</button></div></div>
-<div class="modal" id="weightModal"><div class="sheet"><div class="sheet-head"><h2>Gewicht eintragen</h2><button data-close>×</button></div><label>Gewicht in kg<input id="weightInput" type="number" inputmode="decimal" step="0.1" placeholder="z. B. 95,0"></label><button id="saveWeight">Gewicht speichern</button></div></div>
-<div class="modal" id="onboardingModal"><div class="sheet"><h2>Willkommen bei CutCoach</h2><div class="notice">Voreingestellt: 2300 kcal, 190 g Eiweiß, 6000 Schritte und fünf Gym-Einheiten.</div><label>Startgewicht (kg)<input id="startWeight" type="number" inputmode="decimal" step="0.1"></label><label>Wunschgewicht (optional)<input id="startGoal" type="number" inputmode="decimal" step="0.1"></label><button id="startApp">Offiziell starten 💪</button></div></div>
-<div id="toast"></div>
+<div class="modal" id="mealModal" role="dialog" aria-modal="true" aria-labelledby="mealModalTitle">
+  <div class="sheet">
+    <div class="sheet-head"><h2 id="mealModalTitle">Mahlzeit hinzufügen</h2><button data-close type="button" aria-label="Schließen">×</button></div>
+    <label>Name<input id="mealName" maxlength="80" autocomplete="off" placeholder="z. B. Skyr mit Proteinpulver"></label>
+    <label>Kategorie<select id="mealType"><option>Frühstück</option><option>Mittagessen</option><option>Abendessen</option><option>Snack</option></select></label>
+    <div class="two">
+      <label>Kalorien<input id="mealCalories" type="number" inputmode="numeric" min="1" max="10000"></label>
+      <label>Eiweiß (g)<input id="mealProtein" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label>
+    </div>
+    <div class="two">
+      <label>Kohlenhydrate (g)<input id="mealCarbs" type="number" inputmode="decimal" min="0" max="1000" step="0.1"></label>
+      <label>Fett (g)<input id="mealFat" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label>
+    </div>
+    <button id="saveMeal" type="button">Mahlzeit speichern</button>
+  </div>
+</div>
+
+<div class="modal" id="weightModal" role="dialog" aria-modal="true" aria-labelledby="weightModalTitle">
+  <div class="sheet">
+    <div class="sheet-head"><h2 id="weightModalTitle">Gewicht eintragen</h2><button data-close type="button" aria-label="Schließen">×</button></div>
+    <label>Gewicht in kg<input id="weightInput" type="number" inputmode="decimal" min="30" max="300" step="0.1" placeholder="z. B. 95,0"></label>
+    <button id="saveWeight" type="button">Gewicht speichern</button>
+  </div>
+</div>
+
+<div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+  <div class="sheet">
+    <h2 id="onboardingTitle">Willkommen bei CutCoach</h2>
+    <div class="notice">Voreingestellt: 2300 kcal, 190 g Eiweiß, 6000 Schritte und fünf Gym-Einheiten pro Woche.</div>
+    <label>Startgewicht (kg)<input id="startWeight" type="number" inputmode="decimal" min="30" max="300" step="0.1"></label>
+    <label>Wunschgewicht (optional)<input id="startGoal" type="number" inputmode="decimal" min="30" max="300" step="0.1"></label>
+    <button id="startApp" type="button">Offiziell starten 💪</button>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
 <script src="app.js"></script>
 </body>
 </html>
