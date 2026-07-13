@@ -1,9 +1,12 @@
 'use strict';
 
-const APP_VERSION = '2.2.0';
+const APP_VERSION = '2.3.0';
 const STORAGE_KEY = 'cutcoach_v2';
 const RECOVERY_KEY = 'cutcoach_recovery_raw';
-const SCHEMA_VERSION = 4;
+const PREVIOUS_STATE_KEY = 'cutcoach_previous_state';
+const SCHEMA_VERSION = 5;
+const MAX_DAYS = 5000;
+const MAX_MEALS_PER_DAY = 500;
 const MEAL_TYPES = ['Frühstück', 'Mittagessen', 'Abendessen', 'Snack'];
 const DEFAULTS = {
   settings: { age:28, height:179, calories:2300, maintenance:3000, protein:190, fat:65, carbs:200, steps:6000, gymGoal:5, goalWeight:null },
@@ -14,14 +17,18 @@ const DEFAULTS = {
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
 let startupWarning = null;
+let storageAvailable = true;
+let storageReadOnly = false;
+let saveErrorShown = false;
 let state = loadState();
-let lastSavedSnapshot = '';
-try{ lastSavedSnapshot=localStorage.getItem(STORAGE_KEY)||''; }catch{}
+let lastSavedSnapshot = readStorage(STORAGE_KEY) || '';
 let selectedDate = todayKey();
 let editingMealId = null;
 let toastTimer = null;
 let deferredInstallPrompt = null;
 let lastFocusedElement = null;
+let serviceWorkerRegistration = null;
+let updateRequested = false;
 
 function deepClone(value){ return JSON.parse(JSON.stringify(value)); }
 function parseNumber(value){
@@ -45,6 +52,34 @@ function makeId(){
   if(globalThis.crypto?.randomUUID) return crypto.randomUUID();
   return `${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
 }
+function cleanText(value,maxLength=80){
+  return String(value??'').replace(/[\u0000-\u001F\u007F]/g,' ').replace(/\s+/g,' ').trim().slice(0,maxLength);
+}
+function safeId(value){
+  const candidate=String(value??'').trim();
+  return /^[A-Za-z0-9._:-]{1,128}$/.test(candidate)?candidate:makeId();
+}
+function schemaVersionOf(raw){
+  const parsed=parseNumber(raw?.meta?.schemaVersion ?? raw?.schemaVersion);
+  return parsed===null?0:Math.max(0,Math.round(parsed));
+}
+function validTimestamp(value){
+  if(typeof value!=='string')return null;
+  const timestamp=Date.parse(value);
+  return Number.isFinite(timestamp)?new Date(timestamp).toISOString():null;
+}
+function readStorage(key){
+  if(!storageAvailable)return null;
+  try{return localStorage.getItem(key);}catch(error){storageAvailable=false;console.error(error);return null;}
+}
+function writeStorage(key,value){
+  if(!storageAvailable||storageReadOnly)return false;
+  try{localStorage.setItem(key,value);return true;}catch(error){storageAvailable=false;console.error(error);return false;}
+}
+function removeStorage(key){
+  if(!storageAvailable)return false;
+  try{localStorage.removeItem(key);return true;}catch(error){storageAvailable=false;console.error(error);return false;}
+}
 function sanitizeSettings(settings={}){
   return {
     age:bounded(settings.age,28,14,100,true), height:bounded(settings.height,179,120,230,true),
@@ -55,11 +90,11 @@ function sanitizeSettings(settings={}){
   };
 }
 function sanitizeMeal(meal={},fallbackId=makeId()){
-  const name=String(meal.name??'').trim().slice(0,80);
+  const name=cleanText(meal.name,80);
   const calories=bounded(meal.calories,0,0,10000);
   if(!name || calories<=0) return null;
   return {
-    id:String(meal.id??fallbackId), name,
+    id:safeId(meal.id??fallbackId), name,
     type:MEAL_TYPES.includes(meal.type)?meal.type:'Snack', calories,
     protein:bounded(meal.protein,0,0,500), carbs:bounded(meal.carbs,0,0,1000), fat:bounded(meal.fat,0,0,500)
   };
@@ -68,7 +103,7 @@ function sanitizeDay(raw={},legacyZeroSteps=false){
   const ids=new Set();
   const meals=[];
   if(Array.isArray(raw.meals)){
-    for(const item of raw.meals.slice(0,500)){
+    for(const item of raw.meals.slice(0,MAX_MEALS_PER_DAY)){
       const meal=sanitizeMeal(item);
       if(!meal)continue;
       while(ids.has(meal.id)) meal.id=makeId();
@@ -92,54 +127,64 @@ function dateFromKey(key){
 }
 function validDateKey(key){ return /^\d{4}-\d{2}-\d{2}$/.test(String(key)) && keyFromDate(dateFromKey(key))===key; }
 function shiftKey(key,days){ const date=dateFromKey(key); date.setDate(date.getDate()+days); return keyFromDate(date); }
-function sanitizeState(raw={}){
+function sanitizeState(raw={},options={}){
+  if(!raw||typeof raw!=='object'||Array.isArray(raw))raw={};
+  const sourceSchema=schemaVersionOf(raw);
+  if(options.rejectFuture&&sourceSchema>SCHEMA_VERSION)throw new Error('future-schema');
   const result=deepClone(DEFAULTS);
   result.settings=sanitizeSettings(raw.settings);
   result.onboarded=Boolean(raw.onboarded);
-  const oldSchema=bounded(raw.meta?.schemaVersion,0,0,SCHEMA_VERSION,true);
   result.meta={
     schemaVersion:SCHEMA_VERSION,
-    createdAt:typeof raw.meta?.createdAt==='string'?raw.meta.createdAt:new Date().toISOString(),
-    lastBackupAt:typeof raw.meta?.lastBackupAt==='string'?raw.meta.lastBackupAt:null
+    createdAt:validTimestamp(raw.meta?.createdAt)||new Date().toISOString(),
+    lastBackupAt:validTimestamp(raw.meta?.lastBackupAt)
   };
-  if(raw.days && typeof raw.days==='object'){
-    const entries=Object.entries(raw.days).filter(([key])=>validDateKey(key)).sort(([a],[b])=>a.localeCompare(b)).slice(-5000);
-    for(const [key,value] of entries) result.days[key]=sanitizeDay(value,oldSchema<4);
+  if(raw.days && typeof raw.days==='object' && !Array.isArray(raw.days)){
+    const entries=Object.entries(raw.days).filter(([key])=>validDateKey(key)).sort(([a],[b])=>a.localeCompare(b)).slice(-MAX_DAYS);
+    for(const [key,value] of entries) result.days[key]=sanitizeDay(value,sourceSchema<4);
   }
   return result;
 }
 function loadState(){
-  let raw=null;
-  try{ raw=localStorage.getItem(STORAGE_KEY); }catch(error){ console.error(error); startupWarning='Lokaler Speicher ist nicht verfügbar. Bitte Browser-Einstellungen prüfen.'; return sanitizeState(DEFAULTS); }
-  if(!raw) return sanitizeState(DEFAULTS);
-  try{ return sanitizeState(JSON.parse(raw)); }
-  catch(error){
+  const raw=readStorage(STORAGE_KEY);
+  if(!storageAvailable){startupWarning='Lokaler Speicher ist nicht verfügbar. Änderungen können nach dem Schließen verloren gehen.';return sanitizeState(DEFAULTS);}
+  if(!raw)return sanitizeState(DEFAULTS);
+  try{
+    const parsed=JSON.parse(raw);
+    if(schemaVersionOf(parsed)>SCHEMA_VERSION){
+      writeStorage(RECOVERY_KEY,raw);
+      storageReadOnly=true;
+      startupWarning='Diese Daten stammen aus einer neueren CutCoach-Version. Sie wurden nicht überschrieben und können als Rohdaten exportiert werden.';
+      return sanitizeState(DEFAULTS);
+    }
+    return sanitizeState(parsed);
+  }catch(error){
     console.error(error);
-    try{ localStorage.setItem(RECOVERY_KEY,raw); }catch{}
-    startupWarning='Beschädigte Altdaten wurden separat gesichert. Bitte zunächst ein neues Backup exportieren.';
+    writeStorage(RECOVERY_KEY,raw);
+    startupWarning='Beschädigte Altdaten wurden separat gesichert. Du kannst die Rohdaten unter Einstellungen exportieren.';
     return sanitizeState(DEFAULTS);
   }
 }
 function saveState(force=false){
+  if(storageReadOnly)return false;
   try{
     const snapshot=JSON.stringify(state);
-    if(!force && snapshot===lastSavedSnapshot) return true;
-    localStorage.setItem(STORAGE_KEY,snapshot);
-    lastSavedSnapshot=snapshot;
-    return true;
+    if(!force && snapshot===lastSavedSnapshot)return true;
+    if(!writeStorage(STORAGE_KEY,snapshot))throw new Error('storage-write-failed');
+    lastSavedSnapshot=snapshot; saveErrorShown=false; return true;
   }catch(error){
     console.error(error);
-    toast('Speichern fehlgeschlagen – bitte sofort ein Backup erstellen.');
+    if(!saveErrorShown){toast('Speichern fehlgeschlagen – bitte sofort ein Backup erstellen.');saveErrorShown=true;}
     return false;
   }
 }
 function day(key=selectedDate,create=true){
-  if(!validDateKey(key)) return sanitizeDay();
-  if(!state.days[key]&&create) state.days[key]=sanitizeDay();
+  if(!validDateKey(key))return sanitizeDay();
+  if(!state.days[key]&&create)state.days[key]=sanitizeDay();
   return state.days[key]||sanitizeDay();
 }
 function isDayEmpty(data){ return !data.meals.length && data.weight===null && data.steps===null && data.gym===null && data.alcohol===null; }
-function pruneDay(key=selectedDate){ if(state.days[key]&&isDayEmpty(state.days[key])) delete state.days[key]; }
+function pruneDay(key=selectedDate){ if(state.days[key]&&isDayEmpty(state.days[key]))delete state.days[key]; }
 function totals(key=selectedDate){
   return day(key,false).meals.reduce((sum,meal)=>({
     calories:sum.calories+meal.calories, protein:sum.protein+meal.protein,
@@ -158,17 +203,17 @@ function escapeHtml(value){ return String(value).replace(/[&<>"']/g,char=>({'&':
 function toast(message){
   const element=$('#toast'); if(!element)return;
   clearTimeout(toastTimer); element.textContent=message; element.classList.add('show');
-  toastTimer=setTimeout(()=>element.classList.remove('show'),2400);
+  toastTimer=setTimeout(()=>element.classList.remove('show'),2600);
 }
 function openModal(id){
   const modal=$(`#${id}`); if(!modal)return;
-  lastFocusedElement=document.activeElement; modal.classList.add('open'); document.body.classList.add('modal-open');
-  setTimeout(()=>{ const target=modal.querySelector('input:not([type="hidden"]),select,textarea')||modal.querySelector('button'); target?.focus(); },80);
+  lastFocusedElement=document.activeElement; modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); document.body.classList.add('modal-open');
+  setTimeout(()=>{const target=modal.querySelector('input:not([type="hidden"]),select,textarea,button');target?.focus();},80);
 }
 function closeModal(modal){
-  modal?.classList.remove('open');
-  if(!$('.modal.open')) document.body.classList.remove('modal-open');
-  if(lastFocusedElement instanceof HTMLElement) lastFocusedElement.focus({preventScroll:true});
+  modal?.classList.remove('open'); modal?.setAttribute('aria-hidden','true');
+  if(!$('.modal.open'))document.body.classList.remove('modal-open');
+  if(lastFocusedElement instanceof HTMLElement)lastFocusedElement.focus({preventScroll:true});
   lastFocusedElement=null;
 }
 function range(end,count=7){
@@ -179,3 +224,5 @@ function range(end,count=7){
   }
   return result;
 }
+function hasRecoveryData(){return Boolean(readStorage(RECOVERY_KEY));}
+function hasPreviousState(){return Boolean(readStorage(PREVIOUS_STATE_KEY));}
