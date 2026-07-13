@@ -18,8 +18,8 @@
 <body>
   <main>
     <div class="spinner" id="spinner"></div>
-    <h1>CutCoach wird aktualisiert</h1>
-    <p id="status">Alter Offline-Cache wird entfernt. Deine persönlichen Einträge bleiben erhalten.</p>
+    <h1>Scanner 2.0 wird installiert</h1>
+    <p id="status">Alter CutCoach-Cache wird entfernt. Deine persönlichen Einträge und deine Bibliothek bleiben erhalten.</p>
     <button id="retry" type="button">Erneut versuchen</button>
   </main>
   <script>
@@ -37,18 +37,19 @@
           const keys=await caches.keys();
           await Promise.all(keys.filter(key=>key.startsWith('cutcoach-')).map(key=>caches.delete(key)));
         }
-        status.textContent='Aktueller Offline-Modus wird installiert …';
+        status.textContent='Scanner 2.0 und aktueller Offline-Modus werden installiert …';
         if('serviceWorker' in navigator){
-          await navigator.serviceWorker.register('./sw.js?v=3.0.1-force',{scope:'./',updateViaCache:'none'});
+          const registration=await navigator.serviceWorker.register('./sw.js?v=3.1.0-force',{scope:'./',updateViaCache:'none'});
+          await registration.update();
           await navigator.serviceWorker.ready;
         }
         status.textContent='Update erfolgreich. CutCoach wird geöffnet …';
-        setTimeout(()=>location.replace('./?updated=301#library'),700);
+        setTimeout(()=>location.replace('./?updated=310#library'),900);
       }catch(error){
         console.error(error);
         document.querySelector('#spinner').style.display='none';
         status.className='error';
-        status.textContent='Das Update konnte nicht automatisch abgeschlossen werden. Bitte Internetverbindung prüfen und erneut versuchen.';
+        status.textContent='Das Update konnte nicht abgeschlossen werden. Internetverbindung prüfen und erneut versuchen.';
         retry.style.display='block';
       }
     }
