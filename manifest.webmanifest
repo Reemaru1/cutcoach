@@ -1,0 +1,14 @@
+{
+  "name": "CutCoach",
+  "short_name": "CutCoach",
+  "description": "Persönliches Ernährungs-, Gewichts- und Trainingsjournal",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070a12",
+  "theme_color": "#090d18",
+  "icons": [
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
