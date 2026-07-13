@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='3.9.0';
+  const VERSION='4.0.0';
   const baseRender=window.render;
 
   function activityModel(key=selectedDate){
@@ -10,16 +10,20 @@
     const gymAdjustment=data.gym===true?180:0;
     return {stepAdjustment,gymAdjustment,totalAdjustment:stepAdjustment+gymAdjustment,adjustedMaintenance:settings.maintenance+stepAdjustment+gymAdjustment};
   }
-
   function fatBand(settings){return {min:settings.fat*.8,max:settings.fat*1.2};}
   function scoreLabel(score){if(score===null)return 'Noch offen';if(score>=8.5)return 'Sehr stark';if(score>=7)return 'Solider Tag';if(score>=5.5)return 'Ausbaufähig';return 'Heute nachsteuern';}
+  function relativeDayLabel(key){
+    const today=todayKey(),yesterday=shiftKey(today,-1);
+    if(key===today)return 'Heute';
+    if(key===yesterday)return 'Gestern';
+    return dateFromKey(key).toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit'});
+  }
 
   window.completionStatus=function(){
     const t=totals(),data=day(selectedDate,false),items=[['Ernährung',t.calories>0],['Schritte',data.steps!==null||state.settings.steps===0],['Training',data.gym!==null],['Alkohol',data.alcohol!==null]];
     const done=items.filter(([,complete])=>complete).length;
     return {done,total:items.length,complete:done===items.length,missing:items.filter(([,complete])=>!complete).map(([name])=>name)};
   };
-
   window.dailyScore=function(){
     const t=totals(),data=day(selectedDate,false),settings=state.settings;if(t.calories<=0)return null;
     const delta=t.calories-settings.calories,abs=Math.abs(delta),proteinRatio=t.protein/Math.max(1,settings.protein),band=fatBand(settings);
@@ -33,7 +37,6 @@
     const tracking=[data.steps!==null||settings.steps===0,data.gym!==null,data.alcohol!==null].filter(Boolean).length/3*.5;
     return Math.round(clamp(calorieScore+proteinScore+fatScore+stepScore+gymScore+alcoholScore+tracking,0,10)*10)/10;
   };
-
   function dayStatus(t,settings,effective){
     const proteinGap=Math.max(0,settings.protein-t.protein),band=fatBand(settings);
     if(t.calories===0)return {text:'📝 Tag starten',tone:'neutral'};
@@ -43,7 +46,6 @@
     if(t.fat>band.max)return {text:'🥑 Fett im Blick',tone:'focus'};
     return {text:'🔥 Kurs halten',tone:'good'};
   }
-
   function focusLine(t,settings,effective){
     const proteinGap=Math.max(0,settings.protein-t.protein),remaining=settings.calories-t.calories,band=fatBand(settings);
     if(effective>1000&&proteinGap>20)return '🎯 Proteinreich essen und Defizit nicht weiter vergrößern';
@@ -54,7 +56,6 @@
     if(remaining>400)return `🎯 Noch rund ${fmt(remaining)} kcal sinnvoll verteilen`;
     return '🎯 Kurs halten';
   }
-
   window.feedback=function(){
     const t=totals(),data=day(selectedDate,false),settings=state.settings,activity=activityModel(),effective=activity.adjustedMaintenance-t.calories;
     if(!t.calories)return '🎯 Erste Mahlzeit eintragen\nℹ️ Aktivität später ergänzen';
@@ -73,35 +74,49 @@
   }
   function showInfo(title,text){ensureInfoModal();setText('#coachInfoTitle',title);setText('#coachInfoText',text);openModal('coachInfoModal');}
   function addInfoButton(card,title,text){
-    if(!card)return;const label=card.querySelector(':scope > label');if(!label||label.querySelector('.coach-info-button'))return;
-    const button=document.createElement('button');button.type='button';button.className='coach-info-button';button.setAttribute('aria-label',`${title} erklären`);button.textContent='i';button.onclick=event=>{event.preventDefault();event.stopPropagation();showInfo(title,text);};label.append(button);
+    if(!card)return;const label=card.querySelector(':scope > label');if(!label)return;
+    let button=label.querySelector('.coach-info-button');
+    if(!button){button=document.createElement('button');button.type='button';button.className='coach-info-button';button.textContent='i';label.append(button);}
+    button.setAttribute('aria-label',`${title} erklären`);button.onclick=event=>{event.preventDefault();event.stopPropagation();showInfo(title,text);};
   }
-
   function syncStepSaveState(){
     const input=document.querySelector('#stepsInput'),button=document.querySelector('#saveSteps');if(!input||!button)return;
     const saved=day(selectedDate,false).steps;button.disabled=String(saved??'')===String(input.value??'');
   }
-
+  function preventDoubleTapZoom(){
+    if(document.documentElement.dataset.noDoubleTap)return;document.documentElement.dataset.noDoubleTap='1';
+    let lastTouch=0;
+    document.addEventListener('touchend',event=>{const now=Date.now();if(now-lastTouch<300&&!event.target.closest('input,textarea,select'))event.preventDefault();lastTouch=now;},{passive:false});
+    document.addEventListener('gesturestart',event=>event.preventDefault(),{passive:false});
+  }
+  function normalizeWeightLabel(card,latest){
+    const label=card?.querySelector(':scope > label');if(!label)return;
+    label.replaceChildren();
+    const title=document.createElement('span');title.className='card-title';title.textContent='⚖️ Gewicht';
+    const meta=document.createElement('span');meta.className='card-meta';meta.textContent=latest?`zuletzt ${dateFromKey(latest[0]).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})}`:'optional';
+    label.append(title,meta);
+    addInfoButton(card,'Gewichtstrend','Tägliches Wiegen ist freiwillig. Mehrere Morgenmessungen pro Woche ergeben einen aussagekräftigeren Trend als ein einzelner Wert.');
+  }
   function ensureUi(){
-    const brandTitle=document.querySelector('.brand h1');if(brandTitle)brandTitle.textContent='Heute';document.querySelectorAll('.coach-helper').forEach(node=>node.remove());
+    document.querySelectorAll('.coach-helper').forEach(node=>node.remove());
     const cards={fat:document.querySelector('.macros .card:nth-child(3)'),weight:document.querySelector('.macros .card:nth-child(4)'),steps:document.querySelector('.steps-card'),gym:document.querySelector('.checks .card:nth-child(1)'),alcohol:document.querySelector('.checks .card:nth-child(2)')};
     addInfoButton(cards.fat,'Fett','Fett ist ein Zielbereich, keine harte Obergrenze. Es unterstützt Sättigung, Hormone und die Aufnahme fettlöslicher Vitamine.');
-    addInfoButton(cards.weight,'Gewichtstrend','Tägliches Wiegen ist freiwillig. Mehrere Morgenmessungen pro Woche ergeben einen aussagekräftigeren Trend als ein einzelner Wert.');
     addInfoButton(cards.steps,'Schritte','CutCoach berücksichtigt nur die Abweichung von deinem Schrittziel. So wird Bewegung nicht doppelt in der Energiebilanz gezählt.');
     addInfoButton(cards.gym,'Training','Krafttraining unterstützt Muskelerhalt und Wochenziel. Der Energieaufschlag ist bewusst konservativ geschätzt.');
     addInfoButton(cards.alcohol,'Alkohol','Alkohol verändert dein Kalorienziel nicht automatisch, wirkt sich aber negativ auf Regeneration und Tagesnote aus.');
     if(cards.steps&&!document.querySelector('#activityImpact')){const impact=document.createElement('div');impact.id='activityImpact';impact.className='activity-impact';cards.steps.append(impact);}
     const stepsInput=document.querySelector('#stepsInput');if(stepsInput&&!stepsInput.dataset.coachBound){stepsInput.dataset.coachBound='1';stepsInput.addEventListener('input',syncStepSaveState);}
-    ensureInfoModal();
+    ensureInfoModal();preventDoubleTapZoom();
   }
-
   function renderEnhancements(){
     ensureUi();
     const settings=state.settings,data=day(selectedDate,false),t=totals(),activity=activityModel(),score=dailyScore(),status=completionStatus(),effective=activity.adjustedMaintenance-t.calories,band=fatBand(settings),version=document.querySelector('#appVersion');
     if(version)version.textContent=`Version ${VERSION}`;
-    const latest=weightEntries(selectedDate).at(-1);setText('#todayWeight',latest?fmt(latest[1].weight,1):'–');
-    const weightLabel=document.querySelector('.macros .card:nth-child(4)>label');if(weightLabel){const nodes=weightLabel.querySelectorAll('span');if(nodes[0])nodes[0].textContent='⚖️ Gewichtstrend';if(nodes[1])nodes[1].textContent=latest?`zuletzt ${dateFromKey(latest[0]).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})}`:'optional';}
-    const weightButton=document.querySelector('.macros .card:nth-child(4) button.secondary');if(weightButton)weightButton.textContent=data.weight===null?'Heute messen':'Messung ändern';
+    const pageLabel=relativeDayLabel(selectedDate),brandTitle=document.querySelector('.brand h1'),todayButton=document.querySelector('#todayButton');
+    if(brandTitle)brandTitle.textContent=pageLabel;
+    if(todayButton){todayButton.hidden=selectedDate===todayKey();todayButton.textContent='Zu heute';}
+    const latest=weightEntries(selectedDate).at(-1),weightCard=document.querySelector('.macros .card:nth-child(4)');setText('#todayWeight',latest?fmt(latest[1].weight,1):'–');normalizeWeightLabel(weightCard,latest);
+    const weightButton=weightCard?.querySelector('button.secondary');if(weightButton)weightButton.textContent=data.weight===null?'Heute messen':'Messung ändern';
     const proteinLabel=document.querySelector('.macros .card:nth-child(1)>label span');if(proteinLabel)proteinLabel.textContent=`Ziel ${fmt(settings.protein)} g`;
     const carbsLabel=document.querySelector('.macros .card:nth-child(2)>label span');if(carbsLabel)carbsLabel.textContent='Richtwert';
     const fatLabel=document.querySelector('.macros .card:nth-child(3)>label span');if(fatLabel)fatLabel.textContent=`${fmt(band.min)}–${fmt(band.max)} g`;
@@ -115,7 +130,6 @@
     const summary=document.querySelector('.summary');if(summary){summary.classList.toggle('large-deficit',t.calories>0&&effective>1000);summary.classList.toggle('surplus',t.calories>0&&effective<0);}
     syncStepSaveState();
   }
-
   window.render=function(){baseRender();renderEnhancements();};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{ensureUi();window.render();},{once:true});else{ensureUi();window.render();}
 })();
