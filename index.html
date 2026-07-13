@@ -4,22 +4,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#090d18">
+  <meta name="color-scheme" content="dark">
+  <meta name="format-detection" content="telephone=no">
   <meta name="application-name" content="CutCoach">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="CutCoach">
   <meta name="description" content="Persönliches Ernährungs-, Gewichts- und Trainingsjournal">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>CutCoach</title>
-  <link rel="manifest" href="manifest.webmanifest?v=2.2.0">
-  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="manifest" href="manifest.webmanifest?v=2.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=2.3.0">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css?v=2.2.0">
-  <script src="core.js?v=2.2.0" defer></script>
-  <script src="render.js?v=2.2.0" defer></script>
-  <script src="actions.js?v=2.2.0" defer></script>
-  <script src="app.js?v=2.2.0" defer></script>
+  <link rel="stylesheet" href="style.css?v=2.3.0">
+  <script src="core.js?v=2.3.0" defer></script>
+  <script src="render.js?v=2.3.0" defer></script>
+  <script src="actions.js?v=2.3.0" defer></script>
+  <script src="app.js?v=2.3.0" defer></script>
 </head>
 <body>
+<noscript><div class="noscript">CutCoach benötigt JavaScript. Bitte aktiviere JavaScript in Safari.</div></noscript>
 <div class="app">
   <header class="app-header">
     <div class="brand">
@@ -37,7 +41,7 @@
   </div>
 
   <div class="offline-banner" id="offlineBanner" role="status">Offline – deine Einträge werden weiterhin lokal gespeichert.</div>
-  <div class="update-banner" id="updateBanner" role="status">
+  <div class="update-banner" id="updateBanner" role="status" aria-live="polite">
     <span>Eine neue CutCoach-Version ist bereit.</span>
     <button id="reloadUpdate" type="button">Jetzt laden</button>
   </div>
@@ -50,7 +54,7 @@
           <div class="kcal"><strong id="kcalTotal">0</strong><small> kcal</small></div>
           <p id="kcalStatus">2300 kcal übrig</p>
         </div>
-        <div class="score" id="scoreRing"><strong id="score">–</strong><small id="scoreCaption">vorläufig</small></div>
+        <div class="score" id="scoreRing" aria-label="Tagesnote"><strong id="score">–</strong><small id="scoreCaption">vorläufig</small></div>
         <div class="bar full" aria-label="Kalorienfortschritt"><i id="kcalBar"></i></div>
       </div>
 
@@ -64,7 +68,7 @@
       <article class="card steps-card">
         <label>👣 Schritte <span>Ziel <b id="stepGoal">6000</b></span></label>
         <div class="inline with-clear">
-          <input id="stepsInput" type="number" aria-label="Schritte eingeben" inputmode="numeric" min="0" max="100000" step="1" placeholder="Schritte">
+          <input id="stepsInput" type="number" aria-label="Schritte eingeben" inputmode="numeric" min="0" max="100000" step="1" enterkeyhint="done" placeholder="Schritte">
           <button id="saveSteps" type="button">Speichern</button>
           <button id="clearSteps" class="secondary compact" type="button" aria-label="Schritteintrag entfernen">×</button>
         </div>
@@ -72,8 +76,8 @@
       </article>
 
       <div class="grid checks">
-        <article class="card"><label>🏋️ Gym heute?</label><div class="choice"><button data-gym="true" type="button">Ja</button><button data-gym="false" type="button">Nein</button></div></article>
-        <article class="card"><label>🍺 Alkohol?</label><div class="choice"><button data-alcohol="true" class="danger" type="button">Ja</button><button data-alcohol="false" type="button">Nein</button></div></article>
+        <article class="card"><label>🏋️ Gym heute?</label><div class="choice"><button data-gym="true" type="button" aria-pressed="false">Ja</button><button data-gym="false" type="button" aria-pressed="false">Nein</button></div></article>
+        <article class="card"><label>🍺 Alkohol?</label><div class="choice"><button data-alcohol="true" class="danger" type="button" aria-pressed="false">Ja</button><button data-alcohol="false" type="button" aria-pressed="false">Nein</button></div></article>
       </div>
 
       <h2>Tagesauswertung</h2>
@@ -88,7 +92,10 @@
     </section>
 
     <section class="screen" data-screen="food">
-      <div class="section-title"><h2>Ernährung</h2><button data-open="mealModal" type="button">+ Mahlzeit</button></div>
+      <div class="section-title">
+        <h2>Ernährung</h2>
+        <div class="section-actions"><button id="copyPreviousMeals" class="secondary" type="button">Vortag</button><button data-open="mealModal" type="button">+ Mahlzeit</button></div>
+      </div>
       <div class="stats card">
         <div><label>Kalorien</label><strong id="foodKcal">0</strong></div>
         <div><label>Eiweiß</label><strong><span id="foodProtein">0</span><small> g</small></strong></div>
@@ -125,27 +132,32 @@
       </article>
 
       <h2>Daten & Sicherheit</h2>
-      <div class="notice data-warning" id="dataWarning" hidden></div>
+      <div class="notice data-warning" id="dataWarning" hidden><span id="dataWarningMessage"></span><button id="dismissDataWarning" type="button" aria-label="Hinweis schließen">×</button></div>
       <article class="card data-actions">
         <div class="backup-status" id="backupStatus">Noch kein Backup erstellt.</div>
+        <div class="data-summary" id="dataSummary">0 Tage · 0 Mahlzeiten</div>
+        <div class="storage-status" id="storageStatus">Lokale Speicherung wird geprüft …</div>
         <button id="exportData" class="secondary" type="button">Backup exportieren</button>
         <label class="secondary file">Backup importieren<input id="importData" type="file" accept=".json,application/json"></label>
+        <button id="restorePrevious" class="secondary" type="button" hidden>Vorherigen Stand wiederherstellen</button>
+        <button id="exportRecovery" class="secondary" type="button" hidden>Gesicherte Rohdaten exportieren</button>
         <button id="resetData" class="delete-btn" type="button">Alle Daten löschen</button>
       </article>
       <div class="notice">Deine persönlichen Einträge bleiben lokal auf diesem Gerät. Sie werden nicht in dein öffentliches GitHub-Repository hochgeladen.</div>
+      <div class="notice health-note">CutCoach ersetzt keine medizinische Beratung. Ein dauerhaftes Defizit von etwa 1 kg pro Woche kann je nach Ausgangsgewicht sehr aggressiv sein.</div>
       <div class="app-meta"><span id="onlineStatus">Online</span><span id="appVersion">Version</span></div>
     </section>
   </main>
 </div>
 
 <nav aria-label="Hauptnavigation">
-  <button class="active" data-tab="today" type="button"><span>◉</span>Heute</button>
-  <button data-tab="food" type="button"><span>🍽️</span>Ernährung</button>
-  <button data-tab="progress" type="button"><span>📈</span>Fortschritt</button>
-  <button data-tab="settings" type="button"><span>⚙️</span>Einstellungen</button>
+  <button class="active" data-tab="today" type="button" aria-current="page"><span>◉</span>Heute</button>
+  <button data-tab="food" type="button" aria-current="false"><span>🍽️</span>Ernährung</button>
+  <button data-tab="progress" type="button" aria-current="false"><span>📈</span>Fortschritt</button>
+  <button data-tab="settings" type="button" aria-current="false"><span>⚙️</span>Einstellungen</button>
 </nav>
 
-<div class="modal" id="mealModal" role="dialog" aria-modal="true" aria-labelledby="mealModalTitle">
+<div class="modal" id="mealModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="mealModalTitle">
   <div class="sheet">
     <div class="sheet-head"><h2 id="mealModalTitle">Mahlzeit hinzufügen</h2><button data-close type="button" aria-label="Schließen">×</button></div>
     <label>Name<input id="mealName" maxlength="80" autocomplete="off" placeholder="z. B. Skyr mit Proteinpulver"></label>
@@ -156,15 +168,15 @@
   </div>
 </div>
 
-<div class="modal" id="weightModal" role="dialog" aria-modal="true" aria-labelledby="weightModalTitle">
+<div class="modal" id="weightModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="weightModalTitle">
   <div class="sheet">
     <div class="sheet-head"><h2 id="weightModalTitle">Gewicht eintragen</h2><button data-close type="button" aria-label="Schließen">×</button></div>
-    <label>Gewicht in kg<input id="weightInput" type="number" inputmode="decimal" min="30" max="300" step="0.1" placeholder="z. B. 95,0"></label>
+    <label>Gewicht in kg<input id="weightInput" type="number" inputmode="decimal" min="30" max="300" step="0.1" enterkeyhint="done" placeholder="z. B. 95,0"></label>
     <div class="button-row"><button id="saveWeight" type="button">Gewicht speichern</button><button id="clearWeight" class="secondary danger-secondary" type="button">Eintrag entfernen</button></div>
   </div>
 </div>
 
-<div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+<div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="onboardingTitle">
   <div class="sheet">
     <h2 id="onboardingTitle">Willkommen bei CutCoach</h2>
     <div class="notice">Voreingestellt: 2300 kcal, 190 g Eiweiß, 6000 Schritte und fünf Gym-Einheiten pro Woche.</div>
