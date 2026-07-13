@@ -1,6 +1,6 @@
 'use strict';
 
-const APP_VERSION = '2.1.0';
+const APP_VERSION = '2.1.1';
 const STORAGE_KEY = 'cutcoach_v2';
 const SCHEMA_VERSION = 3;
 const MEAL_TYPES = ['Frühstück', 'Mittagessen', 'Abendessen', 'Snack'];
