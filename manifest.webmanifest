@@ -4,6 +4,7 @@
   "short_name": "CutCoach",
   "description": "Persönliches Ernährungs-, Gewichts- und Trainingsjournal",
   "lang": "de-DE",
+  "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -12,7 +13,9 @@
   "background_color": "#070a12",
   "theme_color": "#090d18",
   "categories": ["health", "fitness", "lifestyle"],
+  "prefer_related_applications": false,
   "icons": [
-    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"},
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"maskable"}
   ]
 }
