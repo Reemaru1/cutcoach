@@ -1,22 +1,25 @@
 'use strict';
 
 const CACHE_PREFIX='cutcoach-';
-const CACHE_NAME='cutcoach-v3.1.0';
+const CACHE_NAME='cutcoach-v3.2.0';
 const SCANNER_CDN='https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
 const APP_SHELL=[
   './','./index.html','./style.css?v=2.3.0','./core.js?v=2.3.0','./render.js?v=2.3.0',
   './actions.js?v=2.3.0','./app.js?v=2.3.0','./manifest.webmanifest?v=2.3.0','./icon.svg',
   './apple-touch-icon.png?v=2.3.0','./icon-192.png?v=2.3.0','./library.js?v=3.0.0',
-  './library-init.js?v=3.0.0','./library.css?v=3.0.0','./scanner-v2.js?v=3.1.0','./update.html'
+  './library-init.js?v=3.0.0','./library.css?v=3.0.0','./scanner-v2.js?v=3.1.0','./off-lookup.js?v=3.2.0','./update.html'
 ];
 
 function injectApp(html){
-  let page=html.replace("script-src 'self'","script-src 'self' https://cdn.jsdelivr.net");
+  let page=html
+    .replace("script-src 'self'","script-src 'self' https://cdn.jsdelivr.net")
+    .replace("connect-src 'self'","connect-src 'self' https://world.openfoodfacts.org");
   const scripts=[];
   if(!page.includes('html5-qrcode@2.3.8'))scripts.push(`<script src="${SCANNER_CDN}" defer></script>`);
   if(!page.includes('library.js?v=3.0.0'))scripts.push('<script src="library.js?v=3.0.0" defer></script>');
   if(!page.includes('library-init.js?v=3.0.0'))scripts.push('<script src="library-init.js?v=3.0.0" defer></script>');
   if(!page.includes('scanner-v2.js?v=3.1.0'))scripts.push('<script src="scanner-v2.js?v=3.1.0" defer></script>');
+  if(!page.includes('off-lookup.js?v=3.2.0'))scripts.push('<script src="off-lookup.js?v=3.2.0" defer></script>');
   return scripts.length?page.replace('</body>',`${scripts.join('')}</body>`):page;
 }
 
