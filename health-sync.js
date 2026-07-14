@@ -21,6 +21,15 @@
     const today=date.toDateString()===new Date().toDateString();
     return today?`heute ${date.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}`:date.toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
   }
+  function parseStepNumber(value){
+    let text=String(value??'').trim().replace(/[\s\u00a0\u202f]/g,'');
+    if(!text)return null;
+    text=text.replace(/([,.])0+$/,'');
+    if(/^\d{1,3}([.,]\d{3})+$/.test(text))text=text.replace(/[.,]/g,'');
+    if(!/^\d{1,6}$/.test(text))return null;
+    const number=Math.round(Number(text));
+    return Number.isFinite(number)&&number>=0&&number<=MAX_STEPS?number:null;
+  }
   function cleanHash(){
     try{history.replaceState(null,'',`${location.pathname}${location.search}#today`);}catch{location.hash='today';}
   }
@@ -31,10 +40,8 @@
     else if(raw.startsWith('health-sync&'))query=raw.slice('health-sync&'.length);
     else if(raw.startsWith('syncSteps='))query=raw.replace(/^syncSteps=/,'steps=');
     else return null;
-    const params=new URLSearchParams(query),rawSteps=String(params.get('steps')??'').trim();
-    if(!/^\d{1,6}$/.test(rawSteps))return {error:'Die übergebene Schrittzahl ist ungültig.'};
-    const steps=Math.round(Number(rawSteps));
-    if(!Number.isFinite(steps)||steps<0||steps>MAX_STEPS)return {error:'Die Schrittzahl muss zwischen 0 und 100.000 liegen.'};
+    const params=new URLSearchParams(query),steps=parseStepNumber(params.get('steps'));
+    if(steps===null)return {error:'Die übergebene Schrittzahl ist ungültig.'};
     const date=String(params.get('date')||todayKey());
     if(!validDateKey(date)||date>todayKey())return {error:'Das übergebene Datum ist ungültig.'};
     const source=/^(fitness)$/i.test(params.get('source')||'')?'fitness':'health';
@@ -87,10 +94,8 @@
       modal.onclick=event=>{if(event.target===modal)close();};
       document.querySelector('#healthSyncCopy').onclick=async()=>{try{await copyText(document.querySelector('#healthSyncBaseUrl').textContent);toast('Basisadresse kopiert.');}catch{toast('Kopieren nicht möglich.');}};
       document.querySelector('#healthSyncTest').onclick=()=>{
-        const input=document.querySelector('#healthSyncTestInput'),raw=input.value.trim();
-        if(!/^\d{1,6}$/.test(raw)){toast('Bitte eine gültige Schrittzahl eingeben.');return;}
-        const steps=Math.round(Number(raw));
-        if(!Number.isFinite(steps)||steps<0||steps>MAX_STEPS){toast('Bitte eine gültige Schrittzahl eingeben.');return;}
+        const input=document.querySelector('#healthSyncTestInput'),steps=parseStepNumber(input.value);
+        if(steps===null){toast('Bitte eine gültige Schrittzahl eingeben.');return;}
         if(!confirm(`${fmt(steps)} Schritte als Health-Sync-Test für heute übernehmen?`))return;
         if(applySync({steps,date:todayKey(),source:'health'}))close();
       };
