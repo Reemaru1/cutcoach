@@ -1,13 +1,13 @@
 'use strict';
 (function(){
-  const VERSION='4.7.0';
+  const VERSION='4.8.0';
   const LIB='cutcoach_library_v1';
   const OVR='cutcoach_library_overrides_v1';
   const WATER='cutcoach_water_v1';
   const HEALTH='cutcoach_health_sync_v1';
   const COMPLETE_PREVIOUS='cutcoach_previous_complete_v1';
   const readJson=(key,fallback)=>{try{const parsed=JSON.parse(localStorage.getItem(key)||'null');return parsed??fallback}catch{return fallback}};
-  const library=()=>{try{return window.CutCoachLibrary?.exportData?.()||readJson(LIB,{version:1,items:[]})}catch{return{version:1,items:[]}};
+  const library=()=>{try{return window.CutCoachLibrary?.exportData?.()||readJson(LIB,{version:1,items:[]})}catch{return{version:1,items:[]}}};
   const overrides=()=>{const value=readJson(OVR,{});return value&&typeof value==='object'&&!Array.isArray(value)?value:{}};
   const hydration=()=>{const value=readJson(WATER,{});return value&&typeof value==='object'&&!Array.isArray(value)?value:{}};
   const healthSync=()=>{const value=readJson(HEALTH,{});return value&&typeof value==='object'&&!Array.isArray(value)?value:{}};
