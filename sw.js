@@ -1,64 +1,12 @@
 'use strict';
 const CACHE_PREFIX='cutcoach-';
-const CACHE_NAME='cutcoach-v5.1.0';
+const CACHE_NAME='cutcoach-v5.2.0';
 const SCANNER_CDN='https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
 const SUPABASE_ORIGIN='https://jzaktqzpiqhtjzstprmo.supabase.co';
-const APP_SHELL=['./','./index.html','./style.css?v=2.3.0','./core.js?v=2.3.0','./render.js?v=2.3.0','./actions.js?v=2.3.0','./app.js?v=2.3.0','./manifest.webmanifest?v=2.3.0','./icon.svg','./apple-touch-icon.png?v=2.3.0','./icon-192.png?v=2.3.0','./library.js?v=3.0.0','./library-init.js?v=3.0.0','./library.css?v=3.0.0','./scanner-v2.js?v=3.1.0','./off-lookup.js?v=3.5.0','./upgrade-340.js?v=5.1.0','./upgrade-360.css?v=4.2.0','./upgrade-420.css?v=4.2.0','./upgrade-430.css?v=4.3.0','./health-sync.css?v=4.5.0','./health-setup.css?v=5.1.0','./upgrade-360.js?v=4.2.0','./upgrade-430.js?v=4.3.0','./upgrade-440.js?v=4.4.0','./health-sync.js?v=5.1.0','./health-setup.js?v=5.1.0','./update.html'];
-function injectApp(html){
-  let page=html
-    .replace('width=device-width,initial-scale=1,viewport-fit=cover','width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover')
-    .replace("script-src 'self'","script-src 'self' https://cdn.jsdelivr.net")
-    .replace("connect-src 'self'",`connect-src 'self' https://world.openfoodfacts.org ${SUPABASE_ORIGIN}`)
-    .replace("img-src 'self' data:","img-src 'self' data: https://images.openfoodfacts.org https://static.openfoodfacts.org");
-  const head=[],scripts=[];
-  if(!page.includes('upgrade-360.css?v=4.2.0'))head.push('<link rel="stylesheet" href="upgrade-360.css?v=4.2.0">');
-  if(!page.includes('upgrade-420.css?v=4.2.0'))head.push('<link rel="stylesheet" href="upgrade-420.css?v=4.2.0">');
-  if(!page.includes('upgrade-430.css?v=4.3.0'))head.push('<link rel="stylesheet" href="upgrade-430.css?v=4.3.0">');
-  if(!page.includes('health-sync.css?v=4.5.0'))head.push('<link rel="stylesheet" href="health-sync.css?v=4.5.0">');
-  if(!page.includes('health-setup.css?v=5.1.0'))head.push('<link rel="stylesheet" href="health-setup.css?v=5.1.0">');
-  if(!page.includes('html5-qrcode@2.3.8'))scripts.push(`<script src="${SCANNER_CDN}" defer></script>`);
-  if(!page.includes('library.js?v=3.0.0'))scripts.push('<script src="library.js?v=3.0.0" defer></script>');
-  if(!page.includes('library-init.js?v=3.0.0'))scripts.push('<script src="library-init.js?v=3.0.0" defer></script>');
-  if(!page.includes('scanner-v2.js?v=3.1.0'))scripts.push('<script src="scanner-v2.js?v=3.1.0" defer></script>');
-  if(!page.includes('off-lookup.js?v=3.5.0'))scripts.push('<script src="off-lookup.js?v=3.5.0" defer></script>');
-  if(!page.includes('upgrade-340.js?v=5.1.0'))scripts.push('<script src="upgrade-340.js?v=5.1.0" defer></script>');
-  if(!page.includes('upgrade-360.js?v=4.2.0'))scripts.push('<script src="upgrade-360.js?v=4.2.0" defer></script>');
-  if(!page.includes('upgrade-430.js?v=4.3.0'))scripts.push('<script src="upgrade-430.js?v=4.3.0" defer></script>');
-  if(!page.includes('upgrade-440.js?v=4.4.0'))scripts.push('<script src="upgrade-440.js?v=4.4.0" defer></script>');
-  if(!page.includes('health-sync.js?v=5.1.0'))scripts.push('<script src="health-sync.js?v=5.1.0" defer></script>');
-  if(!page.includes('health-setup.js?v=5.1.0'))scripts.push('<script src="health-setup.js?v=5.1.0" defer></script>');
-  if(head.length)page=page.replace('</head>',head.join('')+'</head>');
-  return scripts.length?page.replace('</body>',scripts.join('')+'</body>'):page;
-}
-async function preparePage(response){
-  const html=injectApp(await response.text()),headers=new Headers(response.headers);
-  headers.set('content-type','text/html; charset=utf-8');
-  headers.set('cache-control','no-cache');
-  return new Response(html,{status:response.status,statusText:response.statusText,headers});
-}
+const APP_SHELL=['./','./index.html','./style.css?v=2.3.0','./core.js?v=2.3.0','./render.js?v=2.3.0','./actions.js?v=2.3.0','./app.js?v=2.3.0','./manifest.webmanifest?v=2.3.0','./icon.svg','./apple-touch-icon.png?v=2.3.0','./icon-192.png?v=2.3.0','./library.js?v=3.0.0','./library-init.js?v=3.0.0','./library.css?v=3.0.0','./scanner-v2.js?v=3.1.0','./off-lookup.js?v=3.5.0','./upgrade-340.js?v=5.2.0','./upgrade-360.css?v=4.2.0','./upgrade-420.css?v=4.2.0','./upgrade-430.css?v=4.3.0','./health-sync.css?v=4.5.0','./health-setup.css?v=5.1.0','./upgrade-360.js?v=4.2.0','./upgrade-430.js?v=4.3.0','./upgrade-440.js?v=4.4.0','./health-sync.js?v=5.2.0','./health-setup.js?v=5.2.0','./update.html'];
+function injectApp(html){let page=html.replace('width=device-width,initial-scale=1,viewport-fit=cover','width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover').replace("script-src 'self'","script-src 'self' https://cdn.jsdelivr.net").replace("connect-src 'self'",`connect-src 'self' https://world.openfoodfacts.org ${SUPABASE_ORIGIN}`).replace("img-src 'self' data:","img-src 'self' data: https://images.openfoodfacts.org https://static.openfoodfacts.org");const head=[],scripts=[];if(!page.includes('upgrade-360.css?v=4.2.0'))head.push('<link rel="stylesheet" href="upgrade-360.css?v=4.2.0">');if(!page.includes('upgrade-420.css?v=4.2.0'))head.push('<link rel="stylesheet" href="upgrade-420.css?v=4.2.0">');if(!page.includes('upgrade-430.css?v=4.3.0'))head.push('<link rel="stylesheet" href="upgrade-430.css?v=4.3.0">');if(!page.includes('health-sync.css?v=4.5.0'))head.push('<link rel="stylesheet" href="health-sync.css?v=4.5.0">');if(!page.includes('health-setup.css?v=5.1.0'))head.push('<link rel="stylesheet" href="health-setup.css?v=5.1.0">');if(!page.includes('html5-qrcode@2.3.8'))scripts.push(`<script src="${SCANNER_CDN}" defer></script>`);if(!page.includes('library.js?v=3.0.0'))scripts.push('<script src="library.js?v=3.0.0" defer></script>');if(!page.includes('library-init.js?v=3.0.0'))scripts.push('<script src="library-init.js?v=3.0.0" defer></script>');if(!page.includes('scanner-v2.js?v=3.1.0'))scripts.push('<script src="scanner-v2.js?v=3.1.0" defer></script>');if(!page.includes('off-lookup.js?v=3.5.0'))scripts.push('<script src="off-lookup.js?v=3.5.0" defer></script>');if(!page.includes('upgrade-340.js?v=5.2.0'))scripts.push('<script src="upgrade-340.js?v=5.2.0" defer></script>');if(!page.includes('upgrade-360.js?v=4.2.0'))scripts.push('<script src="upgrade-360.js?v=4.2.0" defer></script>');if(!page.includes('upgrade-430.js?v=4.3.0'))scripts.push('<script src="upgrade-430.js?v=4.3.0" defer></script>');if(!page.includes('upgrade-440.js?v=4.4.0'))scripts.push('<script src="upgrade-440.js?v=4.4.0" defer></script>');if(!page.includes('health-sync.js?v=5.2.0'))scripts.push('<script src="health-sync.js?v=5.2.0" defer></script>');if(!page.includes('health-setup.js?v=5.2.0'))scripts.push('<script src="health-setup.js?v=5.2.0" defer></script>');if(head.length)page=page.replace('</head>',head.join('')+'</head>');return scripts.length?page.replace('</body>',scripts.join('')+'</body>'):page}
+async function preparePage(response){const html=injectApp(await response.text()),headers=new Headers(response.headers);headers.set('content-type','text/html; charset=utf-8');headers.set('cache-control','no-cache');return new Response(html,{status:response.status,statusText:response.statusText,headers})}
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL))));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith(CACHE_PREFIX)&&key!==CACHE_NAME).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
-self.addEventListener('message',event=>{if(event.data?.type==='SKIP_WAITING')self.skipWaiting();});
-self.addEventListener('fetch',event=>{
-  const request=event.request;
-  if(request.method!=='GET'||request.headers.has('range'))return;
-  const url=new URL(request.url);
-  if(url.origin!==self.location.origin)return;
-  if(request.mode==='navigate'){
-    event.respondWith((async()=>{
-      try{
-        const network=await fetch(request,{cache:'no-store'}),page=await preparePage(network);
-        if(page.ok)await(await caches.open(CACHE_NAME)).put('./index.html',page.clone());
-        return page;
-      }catch{return(await caches.match('./index.html'))||Response.error();}
-    })());
-    return;
-  }
-  event.respondWith((async()=>{
-    try{
-      const response=await fetch(request,{cache:'no-store'});
-      if(response.ok)await(await caches.open(CACHE_NAME)).put(request,response.clone());
-      return response;
-    }catch{return(await caches.match(request))||Response.error();}
-  })());
-});
+self.addEventListener('message',event=>{if(event.data?.type==='SKIP_WAITING')self.skipWaiting()});
+self.addEventListener('fetch',event=>{const request=event.request;if(request.method!=='GET'||request.headers.has('range'))return;const url=new URL(request.url);if(url.origin!==self.location.origin)return;if(url.pathname.endsWith('/health-bridge.html')){event.respondWith(fetch(request,{cache:'no-store'}));return}if(request.mode==='navigate'){event.respondWith((async()=>{try{const network=await fetch(request,{cache:'no-store'}),page=await preparePage(network);if(page.ok)await(await caches.open(CACHE_NAME)).put('./index.html',page.clone());return page}catch{return(await caches.match('./index.html'))||Response.error()}})());return}event.respondWith((async()=>{try{const response=await fetch(request,{cache:'no-store'});if(response.ok)await(await caches.open(CACHE_NAME)).put(request,response.clone());return response}catch{return(await caches.match(request))||Response.error()}})())});
