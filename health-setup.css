@@ -1,52 +1,9 @@
-.health-premium-card{display:grid;gap:14px;margin-top:16px;padding:18px;border:1px solid rgba(127,180,255,.24);border-radius:20px;background:linear-gradient(145deg,rgba(22,31,49,.98),rgba(13,20,34,.98));box-shadow:inset 0 1px rgba(255,255,255,.035)}
+.health-premium-card{display:grid;gap:12px;margin-top:16px;padding:16px;border:1px solid rgba(127,180,255,.24);border-radius:20px;background:linear-gradient(145deg,rgba(22,31,49,.98),rgba(13,20,34,.98));box-shadow:inset 0 1px rgba(255,255,255,.035)}
 .health-premium-card[data-state="connected"]{border-color:rgba(114,227,166,.4);background:linear-gradient(145deg,rgba(18,52,45,.92),rgba(11,27,35,.98))}
-.health-premium-head{display:grid;grid-template-columns:46px 1fr 12px;gap:12px;align-items:center}
-.health-premium-icon{display:grid;place-items:center;width:46px;height:46px;border-radius:15px;background:linear-gradient(145deg,#ff6b82,#b53f70);color:#fff;font-size:21px;box-shadow:0 8px 22px rgba(255,91,114,.2)}
-.health-premium-head small{display:block;margin-bottom:3px;color:var(--muted);font-size:11px}
-.health-premium-head strong{display:block;font-size:16px;line-height:1.25}
-.health-status-dot{width:10px;height:10px;border-radius:50%;background:#ff6b72;box-shadow:0 0 0 5px rgba(255,107,114,.1)}
-.health-premium-card[data-state="connected"] .health-status-dot{background:var(--accent);box-shadow:0 0 0 5px rgba(114,227,166,.1)}
-.health-premium-card>p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
-.health-premium-meta{display:flex;align-items:end;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.04)}
-.health-premium-meta span{font-size:20px;font-weight:850}
-.health-premium-meta small{color:var(--muted);text-align:right}
-.health-premium-card>button{width:100%;min-height:48px;border-radius:14px;font-weight:850}
-.health-cloud-sheet,.health-friend-sheet{max-width:540px}
-.cloud-status-card{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:center;margin:6px 0 16px;padding:14px;border:1px solid rgba(255,190,92,.2);border-radius:16px;background:rgba(255,190,92,.07)}
-.cloud-status-card[data-state="success"]{border-color:rgba(114,227,166,.3);background:rgba(114,227,166,.08)}
-.cloud-status-card[data-state="error"]{border-color:rgba(255,107,114,.3);background:rgba(255,107,114,.08)}
-.cloud-status-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:rgba(127,180,255,.13);font-size:22px}
-.cloud-status-card strong,.cloud-status-card small{display:block}
-.cloud-status-card small{margin-top:3px;color:var(--muted);line-height:1.4}
-.cloud-step{display:grid;grid-template-columns:32px 1fr;gap:12px;margin:12px 0;padding:15px;border-radius:17px;background:rgba(255,255,255,.035)}
-.cloud-step-number{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:rgba(127,180,255,.15);color:#dceaff;font-weight:900}
-.cloud-step h3,.cloud-friends h3{margin:2px 0 6px;font-size:17px}
-.cloud-step p,.cloud-friends p{margin:0 0 12px;color:var(--muted);line-height:1.5}
-.cloud-step button,.cloud-friends button,.health-friend-sheet button{width:100%;min-height:46px;margin-top:8px;border-radius:13px;font-weight:800}
-.cloud-copy-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px}
-.cloud-copy-row code,.cloud-template,#healthFriendCode{display:block;padding:11px;border-radius:12px;background:rgba(127,180,255,.08);color:#dceaff;overflow-wrap:anywhere;font-size:11px;line-height:1.45}
-.cloud-copy-row button{width:auto;min-width:94px;margin:0}
-.cloud-step details{margin:10px 0;color:var(--muted)}
-.cloud-step summary{cursor:pointer;font-weight:700}
-.cloud-template{margin-top:8px}
-.cloud-friends{margin-top:16px;padding:16px;border:1px solid rgba(127,180,255,.16);border-radius:17px;background:rgba(127,180,255,.045)}
-.cloud-friends label{display:grid;gap:7px}
-.cloud-friends input{width:100%}
-.health-check-result{display:grid;gap:4px;margin-top:10px;padding:12px;border-radius:13px;text-align:left}
-.health-check-result.success{background:rgba(114,227,166,.1);color:var(--accent)}
-.health-check-result.pending{background:rgba(255,190,92,.09);color:#ffd18a}
-.health-check-result span{color:var(--muted);font-size:12px;line-height:1.4}
-.friend-setup-hero{display:flex;align-items:center;justify-content:center;gap:12px;margin:18px 0;font-size:30px}
-.friend-setup-hero span{color:var(--muted);font-size:18px}
-.health-friend-sheet ol{display:grid;gap:12px;padding-left:22px;color:var(--muted);line-height:1.45}
-.health-sync-panel{display:none!important}
-@media(max-width:480px){
-  .health-premium-card{padding:16px}
-  .health-premium-head{grid-template-columns:42px 1fr 10px}
-  .health-premium-icon{width:42px;height:42px}
-  .health-cloud-sheet,.health-friend-sheet{padding:18px}
-  .cloud-step{grid-template-columns:28px 1fr;padding:13px}
-  .cloud-step-number{width:27px;height:27px}
-  .cloud-copy-row{grid-template-columns:1fr}
-  .cloud-copy-row button{width:100%}
-}
+.health-premium-head{display:grid;grid-template-columns:44px 1fr 12px;gap:12px;align-items:center}
+.health-premium-icon{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:linear-gradient(145deg,#ff6b82,#b53f70);color:#fff;font-size:20px;box-shadow:0 8px 22px rgba(255,91,114,.2)}
+.health-premium-head small{display:block;margin-bottom:3px;color:var(--muted);font-size:11px}.health-premium-head strong{display:block;font-size:16px;line-height:1.25}.health-status-dot{width:10px;height:10px;border-radius:50%;background:#ff6b72;box-shadow:0 0 0 5px rgba(255,107,114,.1)}.health-premium-card[data-state="connected"] .health-status-dot{background:var(--accent);box-shadow:0 0 0 5px rgba(114,227,166,.1)}
+.health-premium-card>p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}.health-premium-meta{display:flex;align-items:end;justify-content:space-between;gap:12px;padding:11px 13px;border-radius:13px;background:rgba(255,255,255,.04)}.health-premium-meta span{font-size:20px;font-weight:850}.health-premium-meta small{color:var(--muted);text-align:right}.health-card-actions{display:grid;grid-template-columns:1fr auto;gap:9px}.health-card-actions button{min-height:44px;margin:0;border-radius:13px;font-weight:800}.health-card-actions .secondary{min-width:92px}
+.health-cloud-sheet{max-width:520px}.health-cloud-sheet.simple{padding-bottom:max(22px,env(safe-area-inset-bottom))}.cloud-status-card{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:center;margin:6px 0 16px;padding:14px;border:1px solid rgba(255,190,92,.2);border-radius:16px;background:rgba(255,190,92,.07)}.cloud-status-card[data-state="success"]{border-color:rgba(114,227,166,.3);background:rgba(114,227,166,.08)}.cloud-status-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:rgba(127,180,255,.13);font-size:22px}.cloud-status-card strong,.cloud-status-card small{display:block}.cloud-status-card small{margin-top:3px;color:var(--muted);line-height:1.4}
+.cloud-simple-copy{margin:0 0 12px;color:var(--muted);line-height:1.5}.cloud-step{display:grid;grid-template-columns:32px 1fr;gap:12px;margin:12px 0;padding:15px;border-radius:17px;background:rgba(255,255,255,.035)}.cloud-step-number{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:rgba(127,180,255,.15);color:#dceaff;font-weight:900}.cloud-step h3{margin:2px 0 6px;font-size:17px}.cloud-step p{margin:0 0 12px;color:var(--muted);line-height:1.5}.cloud-step button,#healthReadyPanel>button{width:100%;min-height:46px;margin-top:8px;border-radius:13px;font-weight:800}.cloud-template{display:block;margin-top:8px;padding:11px;border-radius:12px;background:rgba(127,180,255,.08);color:#dceaff;overflow-wrap:anywhere;font-size:11px;line-height:1.45}.cloud-advanced{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.025);color:var(--muted)}.cloud-advanced summary{cursor:pointer;font-weight:750}.cloud-advanced p{margin:10px 0 0;line-height:1.45}.health-check-result{display:grid;gap:4px;margin-top:10px;padding:12px;border-radius:13px;text-align:left}.health-check-result.success{background:rgba(114,227,166,.1);color:var(--accent)}.health-check-result.pending{background:rgba(255,190,92,.09);color:#ffd18a}.health-check-result span{color:var(--muted);font-size:12px;line-height:1.4}.health-sync-panel{display:none!important}
+@media(max-width:480px){.health-premium-card{padding:15px}.health-card-actions{grid-template-columns:1fr}.health-card-actions .secondary{width:100%}.health-cloud-sheet{padding:18px}.cloud-step{grid-template-columns:28px 1fr;padding:13px}.cloud-step-number{width:27px;height:27px}}
