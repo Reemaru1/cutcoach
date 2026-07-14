@@ -53,10 +53,13 @@
   function applySync(payload){
     const data=day(payload.date,true),previous=data.steps;
     data.steps=payload.steps;
-    if(!saveState(true)){toast('Health-Sync konnte nicht gespeichert werden.');return false;}
+    if(!saveState(true)){
+      data.steps=previous;pruneDay(payload.date);toast('Health-Sync konnte nicht gespeichert werden.');return false;
+    }
     rememberSync(payload,previous);
     selectedDate=payload.date;
     cleanHash();
+    document.querySelector('[data-tab="today"]')?.click();
     window.render();
     const context=standalone()?'CutCoach':'Safari';
     toast(`${sourceLabel(payload.source)}: ${fmt(payload.steps)} Schritte übernommen · ${context}`);
@@ -78,16 +81,18 @@
       bar?.insertAdjacentHTML('afterend','<div class="health-sync-panel" id="healthSyncPanel" data-state="ready"><div class="health-sync-status" aria-live="polite"><span class="health-sync-heart" aria-hidden="true">♥</span><div><strong id="healthSyncTitle">Health-Sync bereit</strong><small id="healthSyncText">Noch nicht eingerichtet</small></div></div><button type="button" class="secondary health-sync-open" id="healthSyncOpen">Einrichten</button></div>');
     }
     if(!document.querySelector('#healthSyncModal')){
-      document.body.insertAdjacentHTML('beforeend','<div class="modal" id="healthSyncModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="healthSyncModalTitle"><div class="sheet health-sync-sheet"><div class="sheet-head"><div><h2 id="healthSyncModalTitle">Apple Health synchronisieren</h2><small>Kostenlos über Kurzbefehle</small></div><button type="button" id="healthSyncClose" aria-label="Schließen">×</button></div><div class="health-sync-explainer"><span>1</span><p>In Kurzbefehle die heutigen Gesundheitsdaten vom Typ <b>Schritte</b> suchen.</p><span>2</span><p>Die <b>Summe</b> dieser Schrittwerte berechnen.</p><span>3</span><p>Die Summe hinter die folgende Basisadresse setzen und anschließend die URL öffnen.</p></div><div class="health-sync-url"><code id="healthSyncBaseUrl">https://reemaru1.github.io/cutcoach/#health-sync?steps=</code><button type="button" id="healthSyncCopy">Basisadresse kopieren</button></div><div class="health-sync-automation"><strong>Nahezu automatisch</strong><p>Nutze diesen Kurzbefehl als CutCoach-Startsymbol und ergänze persönliche Automationen, zum Beispiel morgens, mittags und abends. Der aktuelle Gesamtwert ersetzt den alten Wert; es wird nichts doppelt addiert.</p></div><div class="health-sync-test"><label>Übertragung testen<input id="healthSyncTestInput" type="number" min="0" max="100000" inputmode="numeric" placeholder="z. B. 4500"></label><button type="button" id="healthSyncTest">Testwert übernehmen</button><small>Der Test ersetzt die heutige Schrittzahl.</small></div></div></div>');
+      document.body.insertAdjacentHTML('beforeend','<div class="modal" id="healthSyncModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="healthSyncModalTitle"><div class="sheet health-sync-sheet"><div class="sheet-head"><div><h2 id="healthSyncModalTitle">Apple Health synchronisieren</h2><small>Kostenlos über Kurzbefehle</small></div><button type="button" id="healthSyncClose" aria-label="Schließen">×</button></div><div class="health-sync-explainer"><span>1</span><p>In Kurzbefehle die heutigen Gesundheitsdaten vom Typ <b>Schritte</b> suchen.</p><span>2</span><p>Die <b>Summe</b> dieser Schrittwerte berechnen.</p><span>3</span><p>Die Summe hinter die folgende Basisadresse setzen und anschließend die URL öffnen.</p></div><div class="health-sync-url"><code id="healthSyncBaseUrl">https://reemaru1.github.io/cutcoach/#health-sync?steps=</code><button type="button" id="healthSyncCopy">Basisadresse kopieren</button></div><div class="health-sync-automation"><strong>Nahezu automatisch</strong><p>Nutze diesen Kurzbefehl als CutCoach-Startsymbol und ergänze persönliche Automationen, zum Beispiel morgens, mittags und abends. Der aktuelle Gesamtwert ersetzt den alten Wert; es wird nichts doppelt addiert.</p><p class="health-sync-context-note">Beim ersten echten Lauf prüfen wir, ob iOS den Link direkt in CutCoach oder in Safari öffnet.</p></div><div class="health-sync-test"><label>Übertragung testen<input id="healthSyncTestInput" type="number" min="0" max="100000" inputmode="numeric" placeholder="z. B. 4500"></label><button type="button" id="healthSyncTest">Testwert übernehmen</button><small>Der Test ersetzt die heutige Schrittzahl.</small></div></div></div>');
       const modal=document.querySelector('#healthSyncModal'),close=()=>closeModal(modal);
       document.querySelector('#healthSyncClose').onclick=close;
       modal.onclick=event=>{if(event.target===modal)close();};
       document.querySelector('#healthSyncCopy').onclick=async()=>{try{await copyText(document.querySelector('#healthSyncBaseUrl').textContent);toast('Basisadresse kopiert.');}catch{toast('Kopieren nicht möglich.');}};
       document.querySelector('#healthSyncTest').onclick=()=>{
-        const input=document.querySelector('#healthSyncTestInput'),steps=Math.round(Number(input.value));
+        const input=document.querySelector('#healthSyncTestInput'),raw=input.value.trim();
+        if(!/^\d{1,6}$/.test(raw)){toast('Bitte eine gültige Schrittzahl eingeben.');return;}
+        const steps=Math.round(Number(raw));
         if(!Number.isFinite(steps)||steps<0||steps>MAX_STEPS){toast('Bitte eine gültige Schrittzahl eingeben.');return;}
         if(!confirm(`${fmt(steps)} Schritte als Health-Sync-Test für heute übernehmen?`))return;
-        applySync({steps,date:todayKey(),source:'health'});close();
+        if(applySync({steps,date:todayKey(),source:'health'}))close();
       };
     }
     const open=document.querySelector('#healthSyncOpen');if(open&&!open.dataset.bound){open.dataset.bound='1';open.onclick=()=>openModal('healthSyncModal');}
@@ -110,6 +115,7 @@
   }
   function postRender(){ensureUi();renderStatus();const version=document.querySelector('#appVersion');if(version)version.textContent=`Version ${VERSION}`;}
 
+  window.CutCoachHealthSync={version:VERSION,process:processIncoming};
   window.render=function(){baseRender();postRender();};
   window.addEventListener('hashchange',processIncoming);
   window.addEventListener('pageshow',()=>{processIncoming();postRender();});
