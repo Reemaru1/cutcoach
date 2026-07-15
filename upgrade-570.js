@@ -39,7 +39,7 @@
   function undoWater(){
     const record=undoRecord();
     if(!record||record.date!==selectedDate||Number(record.current)!==waterFor())return;
-    writeWater(record.previous,false);clearUndo();toast?.('Letzte Wasseränderung zurückgenommen.');
+    clearUndo();writeWater(record.previous,false);toast?.('Letzte Wasseränderung zurückgenommen.');
   }
   function hasDiaryEntry(key){
     const data=day(key,false);
