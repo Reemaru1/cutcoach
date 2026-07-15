@@ -1,0 +1,8 @@
+/* CutCoach 6.0.11 – reliable step controls */
+#today560 #journalSteps{display:block!important;white-space:nowrap!important}
+#today560 .journal-step-editor{grid-template-columns:minmax(0,1fr) auto auto!important;align-items:center!important}
+#today560 .journal-step-save-link,#today560 .journal-step-clear-link{display:grid;place-items:center;min-height:48px;text-decoration:none;font:inherit;font-weight:850;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#today560 .journal-step-save-link{padding:0 20px;border-radius:15px;background:linear-gradient(100deg,#78b7ff,#72e7aa);color:#07111a}
+#today560 .journal-step-save-link.disabled{opacity:.45;pointer-events:auto}
+#today560 .journal-step-clear-link{width:48px;border:1px solid rgba(151,170,205,.22);border-radius:15px;background:linear-gradient(145deg,#111a2a,#0a101b);color:#eef3fb;font-size:27px}
+@media(max-width:390px){#today560 .journal-step-save-link{padding:0 16px}#today560 .journal-step-clear-link{width:44px}}
