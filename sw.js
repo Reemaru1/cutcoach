@@ -1,10 +1,10 @@
 'use strict';
-importScripts('./runtime-manifest.js?v=6.0.11');
+importScripts('./runtime-manifest.js?v=6.0.12');
 
 const RUNTIME=self.CUTCOACH_RUNTIME;
 const CACHE_PREFIX='cutcoach-';
 const CACHE_NAME=`cutcoach-v${RUNTIME.version}`;
-const APP_SHELL=['./','./index.html','./runtime-manifest.js?v=6.0.11',...RUNTIME.baseAssets,...RUNTIME.styles,...RUNTIME.scripts,'./update.html'];
+const APP_SHELL=['./','./index.html','./runtime-manifest.js?v=6.0.12',...RUNTIME.baseAssets,...RUNTIME.styles,...RUNTIME.scripts,'./update.html'];
 function fileName(asset){return String(asset).replace(/^\.\//,'')}
 function injectApp(html){
   let page=html
