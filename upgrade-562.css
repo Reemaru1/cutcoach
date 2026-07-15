@@ -1,0 +1,23 @@
+html,body{overflow-x:hidden}
+body.journal-mode main{padding-top:calc(env(safe-area-inset-top) + 2px)!important;padding-bottom:calc(86px + env(safe-area-inset-bottom))!important}
+body.journal-mode [data-screen="today"]{width:100%!important;max-width:none!important;min-height:0!important;margin:0!important;padding:0 max(8px,env(safe-area-inset-right)) 8px max(8px,env(safe-area-inset-left))!important}
+.journal560{width:100%;max-width:none;gap:13px;padding-bottom:0!important}
+.journal-topbar{margin-top:0!important;grid-template-columns:minmax(0,1fr) auto 44px!important;gap:8px!important}
+.journal-date-button{grid-template-columns:46px minmax(0,1fr) 22px!important;padding:0!important;overflow:hidden}
+.journal-date-button strong,.journal-date-button small{max-width:none!important;text-overflow:clip!important}
+.journal-date-button small{white-space:normal!important;line-height:1.2!important;color:#b8c2d2!important}
+.journal-calendar-button{font-size:0!important;position:relative}
+.journal-calendar-button:before{content:"";width:20px;height:18px;border:2px solid #e8eef8;border-radius:4px;box-sizing:border-box;background:linear-gradient(to bottom,#e8eef8 0 4px,transparent 4px)}
+.journal-calendar-button:after{content:"";position:absolute;width:3px;height:3px;border-radius:50%;background:#e8eef8;box-shadow:6px 0 #e8eef8,12px 0 #e8eef8,0 6px #e8eef8,6px 6px #e8eef8,12px 6px #e8eef8;transform:translate(-6px,3px)}
+.journal-heading{padding-top:6px!important}
+.journal-check-card{overflow:hidden!important;padding:15px!important}
+.journal-check-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;width:100%!important}
+.journal-check-grid article{min-width:0!important;overflow:hidden!important;padding:10px!important}
+.journal-check-grid article>strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.journal-check-grid article>button,.journal-check-grid article>div,.journal-check-grid article>div button{min-width:0!important;width:100%!important}
+.journal-check-grid article>div{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.journal-check-grid article>div button{padding:0 3px!important;font-size:12px!important}
+.journal-coach-card{margin-bottom:0!important}
+body.journal-mode nav{bottom:0!important}
+@media(max-width:390px){body.journal-mode [data-screen="today"]{padding-left:7px!important;padding-right:7px!important}.journal-topbar{grid-template-columns:minmax(0,1fr) 92px 42px!important}.journal-date-button{grid-template-columns:44px minmax(0,1fr) 20px!important;gap:7px!important}.journal-date-button strong{font-size:18px!important}.journal-date-button small{font-size:10px!important}.journal-check-card{padding:12px!important}.journal-check-grid{gap:6px!important}.journal-check-grid article{padding:8px 6px!important}.journal-check-grid article>small{font-size:9px!important}.journal-check-grid article>strong{font-size:13px!important}.journal-check-grid article>button,.journal-check-grid article>div button{min-height:36px!important;font-size:11px!important}.journal-heading{padding-left:1px!important;padding-right:1px!important}}
+@media(max-width:350px){.journal-check-grid{grid-template-columns:1fr!important}.journal-check-grid article{grid-template-columns:1fr auto!important;align-items:center!important}.journal-check-grid article>button,.journal-check-grid article>div{width:150px!important;max-width:100%!important}}
