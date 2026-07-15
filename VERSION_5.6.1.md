@@ -1,0 +1,1 @@
+CutCoach 5.6.1 fixes horizontal overflow on narrow iPhone screens.
