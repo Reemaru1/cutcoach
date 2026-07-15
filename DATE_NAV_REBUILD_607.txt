@@ -1,0 +1,1 @@
+CutCoach 6.0.7 rebuilds journal date navigation as a single runtime module.
