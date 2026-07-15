@@ -1,50 +1,94 @@
 'use strict';
 (function(){
-  const VERSION='6.0.2';
+  const VERSION='6.0.3';
   const WATER_KEY='cutcoach_water_v1';
-  const WATER_UNDO_KEY='cutcoach_water_undo_v2';
+  const WATER_UNDO_KEY='cutcoach_water_undo_v3';
   const WATER_MAX=6000;
 
   function root(){return document.querySelector('#today560')}
   function waterMap(){try{const value=JSON.parse(localStorage.getItem(WATER_KEY)||'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{}}catch{return {}}}
-  function waterAmount(){const all=waterMap();return Math.max(0,Math.min(WATER_MAX,Math.round(Number(all[selectedDate])||0)))}
-  function storeUndo(previous,current){try{sessionStorage.setItem(WATER_UNDO_KEY,JSON.stringify({date:selectedDate,previous,current,at:Date.now()}))}catch{}}
-  function undoRecord(){try{return JSON.parse(sessionStorage.getItem(WATER_UNDO_KEY)||'null')}catch{return null}}
-  function clearUndo(){try{sessionStorage.removeItem(WATER_UNDO_KEY)}catch{}}
+  function waterAmount(){return Math.max(0,Math.min(WATER_MAX,Math.round(Number(waterMap()[selectedDate])||0)))}
+  function persist(key,value){try{if(typeof writeStorage==='function')return writeStorage(key,value)!==false;localStorage.setItem(key,value);return true}catch{return false}}
+  function storeUndo(previous,current){persist(WATER_UNDO_KEY,JSON.stringify({date:selectedDate,previous,current,at:Date.now()}))}
+  function undoRecord(){try{return JSON.parse(localStorage.getItem(WATER_UNDO_KEY)||'null')}catch{return null}}
+  function clearUndo(){try{localStorage.removeItem(WATER_UNDO_KEY)}catch{}}
+
   function writeWater(next,remember=true){
     const previous=waterAmount(),amount=Math.max(0,Math.min(WATER_MAX,Math.round(Number(next)||0))),all=waterMap();
-    if(remember&&amount!==previous)storeUndo(previous,amount);
+    if(amount===previous)return true;
     if(amount)all[selectedDate]=amount;else delete all[selectedDate];
-    try{localStorage.setItem(WATER_KEY,JSON.stringify(all));window.render?.()}catch{toast?.('Wasser konnte nicht gespeichert werden.')}
+    if(!persist(WATER_KEY,JSON.stringify(all))){toast?.('Wasser konnte nicht gespeichert werden.');return false}
+    if(remember)storeUndo(previous,amount);
+    window.render?.();
+    return true;
   }
-  function undoWater(){const record=undoRecord();if(!record||record.date!==selectedDate||Number(record.current)!==waterAmount()){toast?.('Keine letzte Wasseränderung vorhanden.');return}clearUndo();writeWater(record.previous,false);toast?.('Letzte Wasseränderung zurückgenommen.')}
+  function undoWater(){
+    const current=waterAmount(),record=undoRecord();
+    if(record&&record.date===selectedDate&&Number(record.current)===current){
+      clearUndo();
+      if(writeWater(record.previous,false))toast?.('Letzte Wasseränderung zurückgenommen.');
+      return;
+    }
+    if(current>0){
+      if(writeWater(Math.max(0,current-250),false))toast?.('250 ml zurückgenommen.');
+      return;
+    }
+    toast?.('Keine Wasseränderung zum Rückgängigmachen vorhanden.');
+  }
 
+  function syncStepSave(){
+    const host=root(),input=host?.querySelector('#journalStepInput'),save=host?.querySelector('#journalStepSave');
+    if(!input||!save)return;
+    const raw=String(input.value??'').trim(),value=Number(raw);
+    save.disabled=!(raw!==''&&Number.isInteger(value)&&value>=0&&value<=100000);
+  }
   function openStepEditor(){
     const host=root(),editor=host?.querySelector('#journalStepEditor'),input=host?.querySelector('#journalStepInput'),toggle=host?.querySelector('#journalStepToggle');
-    if(!editor)return;editor.hidden=!editor.hidden;toggle?.setAttribute('aria-expanded',String(!editor.hidden));
-    if(!editor.hidden){input.value=day(selectedDate,false).steps??'';setTimeout(()=>input.focus(),20)}
+    if(!editor||!input)return;
+    editor.hidden=!editor.hidden;
+    toggle?.setAttribute('aria-expanded',String(!editor.hidden));
+    if(!editor.hidden){input.value=day(selectedDate,false).steps??'';syncStepSave();setTimeout(()=>input.focus(),20)}
   }
   function saveSteps(){
     const host=root(),input=host?.querySelector('#journalStepInput'),editor=host?.querySelector('#journalStepEditor'),value=Number(String(input?.value??'').trim());
     if(!Number.isInteger(value)||value<0||value>100000){toast?.('Bitte ganze Schritte zwischen 0 und 100.000 eingeben.');return}
-    day().steps=value;editor.hidden=true;window.render?.();toast?.('Schritte gespeichert.')
+    const data=day();data.steps=value;
+    try{saveState?.(true)}catch{}
+    if(editor)editor.hidden=true;
+    window.render?.();
+    toast?.('Schritte gespeichert.');
   }
-  function clearStepsDirect(){if(day(selectedDate,false).steps===null)return;day().steps=null;pruneDay?.();window.render?.();toast?.('Schritte entfernt.')}
+  function clearStepsDirect(){
+    if(day(selectedDate,false).steps===null)return;
+    day().steps=null;pruneDay?.();
+    try{saveState?.(true)}catch{}
+    window.render?.();toast?.('Schritte entfernt.');
+  }
   function openWeight(){
     const data=day(selectedDate,false),input=document.querySelector('#weightInput'),clear=document.querySelector('#clearWeight');
-    if(input)input.value=data.weight??'';if(clear)clear.hidden=data.weight===null;openModal?.('weightModal')
+    if(input)input.value=data.weight??'';if(clear)clear.hidden=data.weight===null;openModal?.('weightModal');
   }
-  function setBoolean(field,value){day()[field]=value;window.render?.();toast?.(field==='gym'?(value?'Training eingetragen.':'Ruhetag eingetragen.'):(value?'Alkohol eingetragen.':'Alkoholfrei eingetragen.'))}
+  function setBoolean(field,value){
+    day()[field]=value;
+    try{saveState?.(true)}catch{}
+    window.render?.();
+    toast?.(field==='gym'?(value?'Training eingetragen.':'Ruhetag eingetragen.'):(value?'Alkohol eingetragen.':'Alkoholfrei eingetragen.'));
+  }
 
   function reorderAlcohol(){
-    const host=root(),wrap=host?.querySelector('[data-journal-alcohol]')?.parentElement;if(!wrap)return;
-    const yes=wrap.querySelector('[data-journal-alcohol="true"]'),no=wrap.querySelector('[data-journal-alcohol="false"]');
-    if(yes&&no&&wrap.firstElementChild!==yes){wrap.append(yes,no)}
+    const host=root(),yes=host?.querySelector('[data-journal-alcohol="true"]'),no=host?.querySelector('[data-journal-alcohol="false"]'),wrap=yes?.parentElement;
+    if(!wrap||!no)return;
+    wrap.insertBefore(yes,no);
+    yes.style.order='1';no.style.order='2';
   }
   function enableControls(){
     const host=root();if(!host)return;
     host.querySelectorAll('button,input').forEach(node=>{node.style.pointerEvents='auto'});
     host.querySelectorAll('.journal-steps-card,.journal-water-card,.journal-check-card').forEach(card=>{card.style.pointerEvents='auto';card.style.position='relative';card.style.zIndex='2'});
+    const input=host.querySelector('#journalStepInput');
+    if(input&&!input.dataset.control603){input.dataset.control603='1';input.addEventListener('input',syncStepSave)}
+    syncStepSave();
+    const undo=host.querySelector('#journalWaterUndo');if(undo){undo.disabled=waterAmount()<=0;undo.removeAttribute('aria-disabled')}
     reorderAlcohol();
     const version=document.querySelector('#appVersion');if(version)version.textContent=`Version ${VERSION}`;
   }
