@@ -1,21 +1,42 @@
-/* CutCoach 6.0.8 – isolated journal date navigation */
+/* CutCoach 6.0.9 – stable journal date navigation */
 #today560 .journal-topbar{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:10px!important;align-items:stretch!important;margin-top:2px!important}
-#today560 .journal-date-button{position:relative!important;display:grid!important;grid-template-columns:50px minmax(0,1fr)!important;align-items:center!important;gap:10px!important;width:100%!important;min-height:62px!important;padding:6px 12px 6px 6px!important;border:0!important;border-radius:20px!important;background:linear-gradient(100deg,#68baff,#73e8aa)!important;color:#07111a!important;overflow:hidden!important}
+#today560 .journal-date-button{position:relative!important;display:grid!important;grid-template-columns:50px minmax(0,1fr)!important;align-items:center!important;gap:10px!important;width:100%!important;min-height:62px!important;padding:6px 12px 6px 6px!important;border:0!important;border-radius:20px!important;background:linear-gradient(100deg,#68baff,#73e8aa)!important;color:#07111a!important;overflow:hidden!important;cursor:pointer!important;touch-action:manipulation!important}
 #today560 .journal-date-button strong,#today560 .journal-date-button small{display:block!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;color:#07111a!important}
 #today560 .journal-date-button strong{font-size:20px!important;line-height:1.05!important}
 #today560 .journal-date-button small{margin-top:4px!important;font-size:12px!important;line-height:1.2!important;opacity:.82!important}
 #today560 .journal-topbar-tools{display:grid!important;grid-template-columns:auto minmax(0,1fr) 48px!important;align-items:center!important;gap:10px!important}
 #today560 .journal-day-controls{display:grid!important;grid-template-columns:48px 48px!important;gap:8px!important}
-#today560 .journal-day-controls button{display:grid!important;place-items:center!important;width:48px!important;height:48px!important;padding:0!important;border:1px solid rgba(151,170,205,.22)!important;border-radius:15px!important;background:linear-gradient(145deg,#111a2a,#0a101b)!important;color:#eef3fb!important;font-size:30px!important;line-height:1!important;pointer-events:auto!important;touch-action:manipulation!important}
+#today560 .journal-day-controls button{display:grid!important;place-items:center!important;width:48px!important;height:48px!important;padding:0!important;border:1px solid rgba(151,170,205,.22)!important;border-radius:15px!important;background:linear-gradient(145deg,#111a2a,#0a101b)!important;color:#eef3fb!important;font-size:30px!important;line-height:1!important;pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:6!important}
 #today560 .journal-day-controls button:disabled{opacity:.32!important;pointer-events:none!important}
 #today560 .journal-mini-stats{justify-self:stretch!important;justify-content:center!important;min-width:0!important;height:48px!important}
-#today560 .journal-calendar-button{position:relative!important;display:grid!important;place-items:center!important;width:48px!important;height:48px!important;overflow:hidden!important;cursor:pointer!important;pointer-events:auto!important}
-#today560 .journal-date-overlay,#today560 .journal-calendar-input{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important;border:0!important;opacity:.001!important;appearance:none!important;-webkit-appearance:none!important;cursor:pointer!important;pointer-events:auto!important;z-index:20!important}
-#today560 .journal-calendar-button:before{pointer-events:none!important}
-#today560 .journal-calendar-button:after{pointer-events:none!important}
+#today560 .journal-calendar-button{position:relative!important;display:grid!important;place-items:center!important;width:48px!important;height:48px!important;overflow:hidden!important;cursor:pointer!important;pointer-events:auto!important;touch-action:manipulation!important;z-index:6!important}
+#today560 .journal-calendar-button:before,#today560 .journal-calendar-button:after{pointer-events:none!important}
+#today560 .journal-date-overlay,#today560 .journal-calendar-input{display:none!important}
+body.journal-calendar-open{overflow:hidden!important}
+.journal-calendar-modal[hidden]{display:none!important}
+.journal-calendar-modal{position:fixed;inset:0;z-index:300;display:grid;align-items:end;padding:16px 14px calc(16px + env(safe-area-inset-bottom));font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+.journal-calendar-backdrop{position:absolute;inset:0;background:rgba(2,6,12,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.journal-calendar-sheet{position:relative;width:min(460px,100%);margin:0 auto;padding:18px;border:1px solid rgba(151,170,205,.25);border-radius:26px;background:linear-gradient(145deg,#111a2a,#080d17);box-shadow:0 30px 80px rgba(0,0,0,.55);color:#f5f7fb}
+.journal-calendar-sheet header{display:grid;grid-template-columns:46px 1fr 46px;align-items:center;gap:10px;margin-bottom:14px}
+.journal-calendar-sheet header strong{text-align:center;font-size:19px;text-transform:capitalize}
+.journal-calendar-sheet button{font:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.journal-calendar-sheet header button,.journal-calendar-sheet footer button{min-height:44px;border:1px solid rgba(151,170,205,.22);border-radius:14px;background:#0d1523;color:#eef3fb;font-weight:800}
+.journal-calendar-sheet header button{font-size:27px}
+.journal-calendar-sheet button:disabled{opacity:.25}
+.journal-calendar-weekdays,.journal-calendar-days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.journal-calendar-weekdays{margin-bottom:7px;color:#8f9bb0;text-align:center;font-size:11px;font-weight:800}
+.journal-calendar-days button{aspect-ratio:1;border:1px solid transparent;border-radius:12px;background:rgba(255,255,255,.025);color:#eef3fb;font-weight:750}
+.journal-calendar-days button.outside{color:#647086}
+.journal-calendar-days button.today{border-color:#62b9ff}
+.journal-calendar-days button.selected{background:linear-gradient(135deg,#65b8ff,#73eba8);color:#07111a;box-shadow:0 8px 20px rgba(82,188,178,.25)}
+.journal-calendar-sheet footer{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.journal-calendar-sheet footer button:first-child{border-color:rgba(112,231,171,.42);color:#79e8ad}
 @media(max-width:390px){
  #today560 .journal-topbar-tools{grid-template-columns:auto minmax(0,1fr) 44px!important;gap:7px!important}
  #today560 .journal-day-controls{grid-template-columns:44px 44px!important;gap:6px!important}
  #today560 .journal-day-controls button,#today560 .journal-calendar-button{width:44px!important;height:44px!important}
  #today560 .journal-date-button{grid-template-columns:46px minmax(0,1fr)!important;min-height:58px!important}
+ .journal-calendar-modal{padding-left:8px;padding-right:8px}
+ .journal-calendar-sheet{padding:15px;border-radius:22px}
+ .journal-calendar-weekdays,.journal-calendar-days{gap:4px}
 }
