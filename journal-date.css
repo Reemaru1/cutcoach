@@ -10,6 +10,7 @@
 #today560 .journal-day-controls button:disabled{opacity:.32!important;pointer-events:none!important}
 #today560 .journal-mini-stats{justify-self:stretch!important;justify-content:center!important;min-width:0!important;height:48px!important}
 #today560 .journal-calendar-button{position:relative!important;display:grid!important;place-items:center!important;width:48px!important;height:48px!important;overflow:hidden!important;cursor:pointer!important;pointer-events:auto!important;touch-action:manipulation!important;z-index:6!important}
+#today560 .journal-topbar>#journalCalendarButton{display:none!important}
 #today560 .journal-calendar-button:before,#today560 .journal-calendar-button:after{pointer-events:none!important}
 body.journal-calendar-open{overflow:hidden!important}
 .journal-calendar-modal[hidden]{display:none!important}
