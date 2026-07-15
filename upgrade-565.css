@@ -1,0 +1,14 @@
+/* CutCoach 5.6.5 */
+.journal-topbar-tools{display:flex!important;align-items:center!important;gap:8px!important;width:100%!important;min-width:0!important}
+.journal-day-controls{flex:0 0 auto!important}
+.journal-mini-stats{flex:0 0 auto!important;width:auto!important;min-width:0!important;justify-self:auto!important;justify-content:flex-start!important;padding:0 7px!important}
+.journal-mini-stats span{padding:0 9px!important}
+.journal-calendar-button{position:relative!important;flex:0 0 48px!important;margin-left:auto!important;overflow:hidden!important}
+.journal-calendar-input{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important;border:0!important;border-radius:inherit!important;opacity:.001!important;cursor:pointer!important;color-scheme:dark!important;z-index:3!important}
+.journal-calendar-button:before,.journal-calendar-button:after{z-index:1!important;pointer-events:none!important}
+@media(max-width:390px){
+ .journal-topbar-tools{gap:6px!important}
+ .journal-mini-stats{padding:0 4px!important}
+ .journal-mini-stats span{padding:0 6px!important}
+ .journal-calendar-button{flex-basis:42px!important}
+}
