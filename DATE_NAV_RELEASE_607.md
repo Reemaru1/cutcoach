@@ -1,0 +1,1 @@
+CutCoach 6.0.7: calendar and day navigation rebuilt.
