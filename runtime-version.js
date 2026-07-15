@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='6.0.3';
+  const VERSION='6.0.4';
   function applyVersion(){
     const node=document.querySelector('#appVersion');
     if(node)node.textContent=`Version ${VERSION}`;
