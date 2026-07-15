@@ -1,73 +1,78 @@
 'use strict';
 (function(){
-  const VERSION='6.0.7';
+  const VERSION='6.0.8';
   const root=()=>document.querySelector('#today560');
-  function setDate(next){
-    if(typeof validDateKey!=='function'||!validDateKey(next))return;
-    const today=typeof todayKey==='function'?todayKey():next;
-    selectedDate=next>today?today:next;
-    window.render?.();
+
+  function safeSelect(key){
+    if(typeof validDateKey!=='function'||!validDateKey(key))return;
+    const capped=key>todayKey()?todayKey():key;
+    if(typeof selectDate==='function')selectDate(capped);
+    else{selectedDate=capped;window.render?.()}
   }
-  function shift(delta){
+
+  function shift(days){
     if(typeof shiftKey!=='function')return;
-    const next=shiftKey(selectedDate,delta);
+    const next=shiftKey(selectedDate,days);
     if(next>todayKey())return;
-    setDate(next);
+    safeSelect(next);
   }
-  function openPicker(input){
-    if(!input)return;
-    try{input.showPicker?.()}catch{}
-    input.focus({preventScroll:true});
-    input.click();
-  }
-  function rebuildDateControls(){
-    const host=root();
-    if(!host)return;
-    const top=host.querySelector('.journal-topbar');
-    const dateButton=host.querySelector('#journalDateButton');
-    const stats=host.querySelector('.journal-mini-stats');
-    const oldCalendar=host.querySelector('#journalCalendarButton');
-    if(!top||!dateButton||!stats||!oldCalendar)return;
-    top.querySelector('.journal-day-controls')?.remove();
-    const controls=document.createElement('div');
-    controls.className='journal-day-controls';
-    controls.innerHTML='<button id="journalPrevDay" type="button" aria-label="Vorheriger Tag">‹</button><button id="journalNextDay" type="button" aria-label="Nächster Tag">›</button>';
-    stats.before(controls);
-    const prev=controls.querySelector('#journalPrevDay');
-    const next=controls.querySelector('#journalNextDay');
-    prev.onclick=event=>{event.preventDefault();shift(-1)};
-    next.disabled=selectedDate>=todayKey();
-    next.onclick=event=>{event.preventDefault();if(!next.disabled)shift(1)};
-    const calendar=oldCalendar.cloneNode(false);
-    calendar.id='journalCalendarButton';
-    calendar.type='button';
-    calendar.className='journal-calendar-button';
-    calendar.setAttribute('aria-label','Datum auswählen');
-    calendar.title='Datum auswählen';
-    calendar.innerHTML='<span aria-hidden="true">▣</span>';
-    calendar.style.position='relative';
+
+  function makePicker(className,label){
     const input=document.createElement('input');
     input.type='date';
-    input.className='journal-calendar-input';
+    input.className=className;
     input.min='2020-01-01';
     input.max=todayKey();
     input.value=selectedDate;
-    input.setAttribute('aria-label','Datum auswählen');
-    Object.assign(input.style,{position:'absolute',inset:'0',width:'100%',height:'100%',opacity:'0.01',zIndex:'5',cursor:'pointer'});
-    input.onchange=()=>{if(input.value)setDate(input.value)};
-    calendar.append(input);
-    oldCalendar.replaceWith(calendar);
-    const cleanDate=dateButton.cloneNode(true);
-    cleanDate.id='journalDateButton';
-    cleanDate.type='button';
-    cleanDate.setAttribute('aria-label','Datum auswählen');
-    cleanDate.onclick=event=>{event.preventDefault();openPicker(input)};
-    dateButton.replaceWith(cleanDate);
+    input.setAttribute('aria-label',label);
+    input.addEventListener('change',()=>{if(input.value)safeSelect(input.value)});
+    return input;
+  }
+
+  function rebuild(){
+    const host=root();
+    if(!host)return;
+    const top=host.querySelector('.journal-topbar');
+    const oldDate=host.querySelector('#journalDateButton');
+    const stats=host.querySelector('.journal-mini-stats');
+    const oldCalendar=host.querySelector('#journalCalendarButton');
+    if(!top||!oldDate||!stats||!oldCalendar)return;
+
+    const date=document.createElement('label');
+    date.id='journalDateButton';
+    date.className='journal-date-button';
+    date.setAttribute('aria-label','Datum auswählen');
+    date.innerHTML=oldDate.innerHTML;
+    date.querySelector('i')?.remove();
+    date.append(makePicker('journal-date-overlay','Datum auswählen'));
+
+    const tools=document.createElement('div');
+    tools.className='journal-topbar-tools';
+
+    const controls=document.createElement('div');
+    controls.className='journal-day-controls';
+    controls.innerHTML='<button id="journalPrevDay" type="button" aria-label="Vorheriger Tag">‹</button><button id="journalNextDay" type="button" aria-label="Nächster Tag">›</button>';
+    const prev=controls.querySelector('#journalPrevDay');
+    const next=controls.querySelector('#journalNextDay');
+    prev.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();shift(-1)});
+    next.disabled=selectedDate>=todayKey();
+    next.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();if(!next.disabled)shift(1)});
+
+    const calendar=document.createElement('label');
+    calendar.id='journalCalendarButton';
+    calendar.className='journal-calendar-button';
+    calendar.setAttribute('aria-label','Datum auswählen');
+    calendar.append(makePicker('journal-calendar-input','Datum auswählen'));
+
+    tools.append(controls,stats,calendar);
+    top.replaceChildren(date,tools);
+
     const version=document.querySelector('#appVersion');
     if(version)version.textContent=`Version ${VERSION}`;
   }
-  const base=window.render;
-  if(typeof base==='function')window.render=function(){base();rebuildDateControls()};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(rebuildDateControls,180),{once:true});
-  else setTimeout(rebuildDateControls,180);
+
+  const previousRender=window.render;
+  if(typeof previousRender==='function')window.render=function(){previousRender();rebuild()};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(rebuild,120),{once:true});
+  else setTimeout(rebuild,120);
 })();
