@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='6.0.6';
+  const VERSION='6.0.12';
   const WATER_KEY='cutcoach_water_v1';
   const WATER_UNDO_KEY='cutcoach_water_undo_v6';
   const WATER_MAX=6000;
@@ -15,6 +15,13 @@
   function rerender(){
     if(typeof window.render==='function')window.render();
   }
+  function currentDay(){
+    return typeof day==='function'?day(selectedDate,true):null;
+  }
+  function stepValue(){
+    const data=typeof day==='function'?day(selectedDate,false):null;
+    return data?.steps??null;
+  }
   function saveSteps(){
     const host=root();
     const input=host?.querySelector('#journalStepInput');
@@ -22,19 +29,21 @@
     const raw=String(input?.value??'').trim();
     const value=Number(raw);
     if(raw===''||!Number.isInteger(value)||value<0||value>100000){toast?.('Bitte ganze Schritte zwischen 0 und 100.000 eingeben.');return}
-    day(selectedDate,true).steps=value;
+    const data=currentDay();
+    if(!data){toast?.('Der Tag konnte nicht geladen werden.');return}
+    data.steps=value;
     if(!persistState()){toast?.('Schritte konnten nicht gespeichert werden.');return}
-    const stored=readJson('cutcoach_v2',{});
-    if(Number(stored?.days?.[selectedDate]?.steps)!==value){toast?.('Schritte konnten nicht dauerhaft gespeichert werden.');return}
     if(editor)editor.hidden=true;
     rerender();
     toast?.(`${value.toLocaleString('de-DE')} Schritte gespeichert.`);
   }
   function clearSteps(){
-    const editor=root()?.querySelector('#journalStepEditor');
-    day(selectedDate,true).steps=null;
+    const data=currentDay();
+    if(!data)return;
+    data.steps=null;
     if(typeof pruneDay==='function')pruneDay(selectedDate);
     if(!persistState()){toast?.('Schritte konnten nicht entfernt werden.');return}
+    const editor=root()?.querySelector('#journalStepEditor');
     if(editor)editor.hidden=true;
     rerender();
     toast?.('Schritte entfernt.');
@@ -47,20 +56,57 @@
     if(!editor||!input)return;
     editor.hidden=!editor.hidden;
     toggle?.setAttribute('aria-expanded',String(!editor.hidden));
-    if(!editor.hidden){input.value=day(selectedDate,false).steps??'';setTimeout(()=>input.focus(),20)}
+    if(!editor.hidden){input.value=stepValue()??'';updateStepSaveState();setTimeout(()=>input.focus(),20)}
+  }
+  function updateStepSaveState(){
+    const host=root();
+    const input=host?.querySelector('#journalStepInput');
+    const save=host?.querySelector('#journalStepSave');
+    if(!input||!save)return;
+    const raw=String(input.value??'').trim();
+    const value=Number(raw);
+    const valid=raw!==''&&Number.isInteger(value)&&value>=0&&value<=100000;
+    save.disabled=!valid;
+    save.setAttribute('aria-disabled',String(!valid));
+  }
+  function freshButton(selector,handler){
+    const host=root();
+    const old=host?.querySelector(selector);
+    if(!old)return null;
+    const node=old.cloneNode(true);
+    node.removeAttribute('style');
+    node.onclick=event=>{event.preventDefault();event.stopPropagation();handler(event)};
+    old.replaceWith(node);
+    return node;
+  }
+  function bindSteps(){
+    const host=root();
+    if(!host)return;
+    const value=stepValue();
+    const display=host.querySelector('#journalSteps');
+    if(display)display.textContent=value===null?'–':Number(value).toLocaleString('de-DE');
+    freshButton('#journalStepToggle',toggleSteps);
+    const save=freshButton('#journalStepSave',saveSteps);
+    const clear=freshButton('#journalStepClear',clearSteps);
+    const input=host.querySelector('#journalStepInput');
+    if(input){
+      input.oninput=updateStepSaveState;
+      input.onkeydown=event=>{
+        if(event.key==='Enter'){event.preventDefault();if(!host.querySelector('#journalStepSave')?.disabled)saveSteps()}
+        if(event.key==='Escape'){event.preventDefault();const editor=host.querySelector('#journalStepEditor');if(editor)editor.hidden=true}
+      };
+      if(document.activeElement!==input)input.value=value??'';
+    }
+    if(clear)clear.hidden=value===null;
+    if(save)updateStepSaveState();
   }
   function writeWater(next,remember=true){
     const previous=waterAmount();
     const amount=Math.max(0,Math.min(WATER_MAX,Math.round(Number(next)||0)));
     const all=waterMap();
-    if(remember&&amount!==previous){
-      try{localStorage.setItem(WATER_UNDO_KEY,JSON.stringify({date:selectedDate,previous,current:amount,at:Date.now()}))}catch{}
-    }
+    if(remember&&amount!==previous){try{localStorage.setItem(WATER_UNDO_KEY,JSON.stringify({date:selectedDate,previous,current:amount,at:Date.now()}))}catch{}}
     if(amount>0)all[selectedDate]=amount;else delete all[selectedDate];
-    try{
-      localStorage.setItem(WATER_KEY,JSON.stringify(all));
-      if(Math.round(Number(readJson(WATER_KEY,{})[selectedDate])||0)!==amount)throw new Error('water-verify-failed');
-    }catch(error){console.error(error);toast?.('Wasser konnte nicht gespeichert werden.');return}
+    try{localStorage.setItem(WATER_KEY,JSON.stringify(all))}catch(error){console.error(error);toast?.('Wasser konnte nicht gespeichert werden.');return}
     rerender();
   }
   function undoWater(){
@@ -71,51 +117,27 @@
     if(record&&record.date===selectedDate&&Number(record.current)===current&&Number.isFinite(Number(record.previous)))target=Math.max(0,Number(record.previous));
     writeWater(target,false);
     try{localStorage.removeItem(WATER_UNDO_KEY)}catch{}
-    toast?.('Wasserstand zurückgesetzt.');
   }
   function setBoolean(field,value){
-    day(selectedDate,true)[field]=value;
+    const data=currentDay();if(!data)return;
+    data[field]=value;
     if(!persistState()){toast?.('Angabe konnte nicht gespeichert werden.');return}
     rerender();
   }
-  function changeDay(delta){
-    const next=shiftKey(selectedDate,delta);
-    if(next>todayKey())return;
-    selectedDate=next;
-    rerender();
-  }
-  function openCalendar(){
-    const picker=document.querySelector('#datePicker');
-    if(!picker)return;
-    picker.max=todayKey();
-    picker.value=selectedDate;
-    picker.style.pointerEvents='auto';
-    try{if(typeof picker.showPicker==='function'){picker.showPicker();return}}catch{}
-    picker.focus({preventScroll:true});
-    picker.click();
-  }
-  function bind(){
-    const host=root();
-    if(!host)return;
-    const assign=(selector,handler)=>{const node=host.querySelector(selector);if(node){node.disabled=false;node.removeAttribute('disabled');node.style.pointerEvents='auto';node.onclick=handler}return node};
-    assign('#journalStepToggle',toggleSteps);
-    assign('#journalStepSave',saveSteps);
-    assign('#journalStepClear',clearSteps);
-    const input=host.querySelector('#journalStepInput');
-    if(input){input.oninput=()=>{const save=host.querySelector('#journalStepSave');if(save){save.disabled=false;save.removeAttribute('disabled')}};input.onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();saveSteps()}if(event.key==='Escape'){const editor=host.querySelector('#journalStepEditor');if(editor)editor.hidden=true}}}
-    host.querySelectorAll('[data-journal-water]').forEach(button=>{button.disabled=false;button.style.pointerEvents='auto';button.onclick=()=>writeWater(waterAmount()+Number(button.dataset.journalWater))});
-    const undo=assign('#journalWaterUndo',undoWater);if(undo){const active=waterAmount()>0;undo.disabled=!active;undo.style.opacity=active?'1':'.45';undo.style.pointerEvents=active?'auto':'none'}
+  function bindOtherControls(){
+    const host=root();if(!host)return;
+    host.querySelectorAll('[data-journal-water]').forEach(button=>{button.disabled=false;button.onclick=()=>writeWater(waterAmount()+Number(button.dataset.journalWater))});
+    const undo=host.querySelector('#journalWaterUndo');if(undo){const active=waterAmount()>0;undo.disabled=!active;undo.style.pointerEvents=active?'auto':'none';undo.onclick=undoWater}
     host.querySelectorAll('[data-journal-gym]').forEach(button=>{button.onclick=()=>setBoolean('gym',button.dataset.journalGym==='true')});
     host.querySelectorAll('[data-journal-alcohol]').forEach(button=>{button.onclick=()=>setBoolean('alcohol',button.dataset.journalAlcohol==='true')});
     const yes=host.querySelector('[data-journal-alcohol="true"]');const no=host.querySelector('[data-journal-alcohol="false"]');if(yes&&no&&yes.parentElement===no.parentElement)yes.parentElement.insertBefore(yes,no);
-    assign('#journalPrevDay',()=>changeDay(-1));
-    const next=assign('#journalNextDay',()=>changeDay(1));if(next){next.disabled=selectedDate>=todayKey();next.style.pointerEvents=next.disabled?'none':'auto'}
-    assign('#journalDateButton',openCalendar);
-    assign('#journalCalendarButton',openCalendar);
-    const picker=document.querySelector('#datePicker');if(picker){picker.max=todayKey();picker.value=selectedDate;picker.onchange=()=>{if(picker.value&&validDateKey(picker.value)){selectedDate=picker.value>todayKey()?todayKey():picker.value;rerender()}}}
+  }
+  function bind(){
+    bindSteps();
+    bindOtherControls();
     const version=document.querySelector('#appVersion');if(version)version.textContent=`Version ${VERSION}`;
   }
   const previousRender=window.render;
   if(typeof previousRender==='function')window.render=function(){previousRender();bind()};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,120),{once:true});else setTimeout(bind,120);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(bind,150),{once:true});else setTimeout(bind,150);
 })();
