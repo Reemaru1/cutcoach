@@ -1,11 +1,11 @@
 'use strict';
-importScripts('./runtime-manifest.js?v=5.8.0');
+importScripts('./runtime-manifest.js?v=6.0.0');
 
 const RUNTIME=self.CUTCOACH_RUNTIME;
 const CACHE_PREFIX='cutcoach-';
 const CACHE_NAME=`cutcoach-v${RUNTIME.version}`;
 const APP_SHELL=[
-  './','./index.html','./runtime-manifest.js?v=5.8.0',
+  './','./index.html','./runtime-manifest.js?v=6.0.0',
   ...RUNTIME.baseAssets,...RUNTIME.styles,...RUNTIME.scripts,'./update.html'
 ];
 
