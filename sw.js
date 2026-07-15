@@ -1,11 +1,76 @@
 'use strict';
+importScripts('./runtime-manifest.js?v=5.8.0');
+
+const RUNTIME=self.CUTCOACH_RUNTIME;
 const CACHE_PREFIX='cutcoach-';
-const CACHE_NAME='cutcoach-v5.7.0';
-const SCANNER_CDN='https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
-const APP_SHELL=['./','./index.html','./style.css?v=2.3.0','./core.js?v=2.3.0','./render.js?v=2.3.0','./actions.js?v=2.3.0','./app.js?v=2.3.0','./manifest.webmanifest?v=2.3.0','./icon.svg','./apple-touch-icon.png?v=2.3.0','./icon-192.png?v=2.3.0','./library.js?v=3.0.0','./library-init.js?v=3.0.0','./library.css?v=3.0.0','./scanner-v2.js?v=3.1.0','./off-lookup.js?v=3.5.0','./upgrade-340.js?v=5.6.2','./upgrade-360.css?v=4.2.0','./upgrade-420.css?v=4.2.0','./upgrade-430.css?v=4.3.0','./upgrade-550.css?v=5.5.0','./upgrade-560.css?v=5.6.0','./upgrade-561.css?v=5.6.1','./upgrade-562.css?v=5.6.2','./upgrade-563.css?v=5.6.3','./upgrade-564.css?v=5.6.4','./upgrade-565.css?v=5.6.5','./upgrade-570.css?v=5.7.0','./upgrade-360.js?v=4.2.0','./upgrade-430.js?v=4.3.0','./upgrade-440.js?v=4.4.0','./upgrade-550.js?v=5.5.0','./upgrade-560.js?v=5.6.0','./upgrade-562.js?v=5.6.2','./upgrade-563.js?v=5.6.3','./upgrade-564.js?v=5.6.4','./upgrade-565.js?v=5.6.5','./upgrade-570.js?v=5.7.0','./update.html'];
-function injectApp(html){let page=html.replace('width=device-width,initial-scale=1,viewport-fit=cover','width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover').replace("script-src 'self'","script-src 'self' https://cdn.jsdelivr.net").replace("connect-src 'self'","connect-src 'self' https://world.openfoodfacts.org").replace("img-src 'self' data:","img-src 'self' data: https://images.openfoodfacts.org https://static.openfoodfacts.org");const head=[],scripts=[];if(!page.includes('upgrade-360.css?v=4.2.0'))head.push('<link rel="stylesheet" href="upgrade-360.css?v=4.2.0">');if(!page.includes('upgrade-420.css?v=4.2.0'))head.push('<link rel="stylesheet" href="upgrade-420.css?v=4.2.0">');if(!page.includes('upgrade-430.css?v=4.3.0'))head.push('<link rel="stylesheet" href="upgrade-430.css?v=4.3.0">');if(!page.includes('upgrade-550.css?v=5.5.0'))head.push('<link rel="stylesheet" href="upgrade-550.css?v=5.5.0">');if(!page.includes('upgrade-560.css?v=5.6.0'))head.push('<link rel="stylesheet" href="upgrade-560.css?v=5.6.0">');if(!page.includes('upgrade-561.css?v=5.6.1'))head.push('<link rel="stylesheet" href="upgrade-561.css?v=5.6.1">');if(!page.includes('upgrade-562.css?v=5.6.2'))head.push('<link rel="stylesheet" href="upgrade-562.css?v=5.6.2">');if(!page.includes('upgrade-563.css?v=5.6.3'))head.push('<link rel="stylesheet" href="upgrade-563.css?v=5.6.3">');if(!page.includes('upgrade-564.css?v=5.6.4'))head.push('<link rel="stylesheet" href="upgrade-564.css?v=5.6.4">');if(!page.includes('upgrade-565.css?v=5.6.5'))head.push('<link rel="stylesheet" href="upgrade-565.css?v=5.6.5">');if(!page.includes('upgrade-570.css?v=5.7.0'))head.push('<link rel="stylesheet" href="upgrade-570.css?v=5.7.0">');if(!page.includes('html5-qrcode@2.3.8'))scripts.push(`<script src="${SCANNER_CDN}" defer></script>`);if(!page.includes('library.js?v=3.0.0'))scripts.push('<script src="library.js?v=3.0.0" defer></script>');if(!page.includes('library-init.js?v=3.0.0'))scripts.push('<script src="library-init.js?v=3.0.0" defer></script>');if(!page.includes('scanner-v2.js?v=3.1.0'))scripts.push('<script src="scanner-v2.js?v=3.1.0" defer></script>');if(!page.includes('off-lookup.js?v=3.5.0'))scripts.push('<script src="off-lookup.js?v=3.5.0" defer></script>');if(!page.includes('upgrade-340.js?v=5.6.2'))scripts.push('<script src="upgrade-340.js?v=5.6.2" defer></script>');if(!page.includes('upgrade-360.js?v=4.2.0'))scripts.push('<script src="upgrade-360.js?v=4.2.0" defer></script>');if(!page.includes('upgrade-430.js?v=4.3.0'))scripts.push('<script src="upgrade-430.js?v=4.3.0" defer></script>');if(!page.includes('upgrade-440.js?v=4.4.0'))scripts.push('<script src="upgrade-440.js?v=4.4.0" defer></script>');if(!page.includes('upgrade-550.js?v=5.5.0'))scripts.push('<script src="upgrade-550.js?v=5.5.0" defer></script>');if(!page.includes('upgrade-560.js?v=5.6.0'))scripts.push('<script src="upgrade-560.js?v=5.6.0" defer></script>');if(!page.includes('upgrade-562.js?v=5.6.2'))scripts.push('<script src="upgrade-562.js?v=5.6.2" defer></script>');if(!page.includes('upgrade-563.js?v=5.6.3'))scripts.push('<script src="upgrade-563.js?v=5.6.3" defer></script>');if(!page.includes('upgrade-564.js?v=5.6.4'))scripts.push('<script src="upgrade-564.js?v=5.6.4" defer></script>');if(!page.includes('upgrade-565.js?v=5.6.5'))scripts.push('<script src="upgrade-565.js?v=5.6.5" defer></script>');if(!page.includes('upgrade-570.js?v=5.7.0'))scripts.push('<script src="upgrade-570.js?v=5.7.0" defer></script>');if(head.length)page=page.replace('</head>',head.join('')+'</head>');return scripts.length?page.replace('</body>',scripts.join('')+'</body>'):page}
-async function preparePage(response){const html=injectApp(await response.text()),headers=new Headers(response.headers);headers.set('content-type','text/html; charset=utf-8');headers.set('cache-control','no-cache');return new Response(html,{status:response.status,statusText:response.statusText,headers})}
-self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL))));
-self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith(CACHE_PREFIX)&&key!==CACHE_NAME).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
+const CACHE_NAME=`cutcoach-v${RUNTIME.version}`;
+const APP_SHELL=[
+  './','./index.html','./runtime-manifest.js?v=5.8.0',
+  ...RUNTIME.baseAssets,...RUNTIME.styles,...RUNTIME.scripts,'./update.html'
+];
+
+function fileName(asset){return String(asset).replace(/^\.\//,'')}
+function injectApp(html){
+  let page=html
+    .replace('width=device-width,initial-scale=1,viewport-fit=cover','width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover')
+    .replace("script-src 'self'",`script-src 'self' https://cdn.jsdelivr.net`)
+    .replace("connect-src 'self'","connect-src 'self' https://world.openfoodfacts.org")
+    .replace("img-src 'self' data:","img-src 'self' data: https://images.openfoodfacts.org https://static.openfoodfacts.org");
+
+  const head=[];
+  const scripts=[];
+  for(const asset of RUNTIME.styles){
+    const name=fileName(asset);
+    if(!page.includes(name))head.push(`<link rel="stylesheet" href="${name}">`);
+  }
+  if(!page.includes('html5-qrcode@2.3.8'))scripts.push(`<script src="${RUNTIME.scannerCdn}" defer></script>`);
+  for(const asset of RUNTIME.scripts){
+    const name=fileName(asset);
+    if(!page.includes(name))scripts.push(`<script src="${name}" defer></script>`);
+  }
+  if(head.length)page=page.replace('</head>',`${head.join('')}</head>`);
+  if(scripts.length)page=page.replace('</body>',`${scripts.join('')}</body>`);
+  return page;
+}
+
+async function preparePage(response){
+  const html=injectApp(await response.text());
+  const headers=new Headers(response.headers);
+  headers.set('content-type','text/html; charset=utf-8');
+  headers.set('cache-control','no-cache');
+  return new Response(html,{status:response.status,statusText:response.statusText,headers});
+}
+
+self.addEventListener('install',event=>event.waitUntil(
+  caches.open(CACHE_NAME).then(cache=>cache.addAll([...new Set(APP_SHELL)]))
+));
+self.addEventListener('activate',event=>event.waitUntil(
+  caches.keys()
+    .then(keys=>Promise.all(keys.filter(key=>key.startsWith(CACHE_PREFIX)&&key!==CACHE_NAME).map(key=>caches.delete(key))))
+    .then(()=>self.clients.claim())
+));
 self.addEventListener('message',event=>{if(event.data?.type==='SKIP_WAITING')self.skipWaiting()});
-self.addEventListener('fetch',event=>{const request=event.request;if(request.method!=='GET'||request.headers.has('range'))return;const url=new URL(request.url);if(url.origin!==self.location.origin)return;if(request.mode==='navigate'){event.respondWith((async()=>{try{const network=await fetch(request,{cache:'no-store'}),page=await preparePage(network);if(page.ok)await(await caches.open(CACHE_NAME)).put('./index.html',page.clone());return page}catch{return(await caches.match('./index.html'))||Response.error()}})());return}event.respondWith((async()=>{try{const response=await fetch(request,{cache:'no-store'});if(response.ok)await(await caches.open(CACHE_NAME)).put(request,response.clone());return response}catch{return(await caches.match(request))||Response.error()}})())});
+self.addEventListener('fetch',event=>{
+  const request=event.request;
+  if(request.method!=='GET'||request.headers.has('range'))return;
+  const url=new URL(request.url);
+  if(url.origin!==self.location.origin)return;
+  if(request.mode==='navigate'){
+    event.respondWith((async()=>{
+      try{
+        const network=await fetch(request,{cache:'no-store'});
+        const page=await preparePage(network);
+        if(page.ok)await(await caches.open(CACHE_NAME)).put('./index.html',page.clone());
+        return page;
+      }catch{return(await caches.match('./index.html'))||Response.error()}
+    })());
+    return;
+  }
+  event.respondWith((async()=>{
+    try{
+      const response=await fetch(request,{cache:'no-store'});
+      if(response.ok)await(await caches.open(CACHE_NAME)).put(request,response.clone());
+      return response;
+    }catch{return(await caches.match(request))||Response.error()}
+  })());
+});
