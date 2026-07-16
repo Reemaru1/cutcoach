@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'6.5.0';
+  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'6.5.1';
   const LIBRARY_KEY='cutcoach_library_v1';
   const RESULT_PAGE_SIZE=30;
   const NUTRITION_MEAL_TYPES=['Frühstück','Mittagessen','Abendessen','Snack'];
