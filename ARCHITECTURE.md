@@ -24,8 +24,9 @@ Die produktive Ladefolge steht zusätzlich explizit in `index.html`. So hängt d
 - `journal.js` – einzige zuständige Laufzeit für Aufbau, Interaktion und Logik des Tagebuchs
 - `nutrition.js` und `nutrition.css` – Mahlzeitenauswahl aus dem Tagebuch
 - `journal-date.css` und `journal-ui.css` – finale responsive Tagebuch- und Kalenderregeln
+- `upgrade-340.js` – weiterhin aktive Kompatibilitätsschicht für Komplettbackups, exakte Portionsmengen und fensterübergreifende Bibliotheks-/Wasser-Synchronisierung
 
-Die noch geladenen `upgrade-*.css` enthalten ausschließlich das etablierte visuelle Design. Historische `upgrade-*.js`-Ketten sind nicht mehr produktiv.
+Die noch geladenen `upgrade-*.css` enthalten ausschließlich das etablierte visuelle Design. Weitere historische `upgrade-*.js`-Ketten sind nicht mehr produktiv.
 
 ## Ernährung und Bibliothek
 
@@ -47,3 +48,5 @@ Die noch geladenen `upgrade-*.css` enthalten ausschließlich das etablierte visu
 3. Keine neuen einzelnen Patch-Marker oder Versionsnotizen im Repository-Stamm anlegen.
 4. Entfernte Experimente nicht im aktiven Produktionspfad behalten.
 5. Vor größeren Umbauten einen Rückbaupunkt unter `backups/` dokumentieren.
+6. Tagebuchdaten nur über `commitDayMutation`, globale Einstellungen nur über `commitStateMutation` und komplette Zustände nur über `commitStateReplacement` speichern.
+7. Vor einem Release `node tests/journal-regression.test.js` ausführen.

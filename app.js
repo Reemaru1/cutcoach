@@ -3,6 +3,22 @@
 (function(){
   let knownToday=todayKey();
   let lastUpdateCheck=0;
+  let rolloverTimer=null;
+
+  function refreshCurrentDay(forceRender=false){
+    const currentToday=todayKey(),followToday=selectedDate===knownToday;
+    $('#datePicker').max=currentToday;
+    if(followToday&&currentToday!==knownToday)setSelectedDate(currentToday);
+    const changed=currentToday!==knownToday;
+    knownToday=currentToday;
+    if(changed||forceRender)render();
+    return changed;
+  }
+  function scheduleDayRollover(){
+    clearTimeout(rolloverTimer);
+    const now=new Date(),next=new Date(now);next.setHours(24,0,1,0);
+    rolloverTimer=setTimeout(()=>{refreshCurrentDay(true);scheduleDayRollover()},Math.max(1000,next-now));
+  }
 
   function switchTab(name,updateHash=true){
     const target=$(`[data-screen="${name}"]`),button=$(`[data-tab="${name}"]`);
@@ -71,7 +87,7 @@
       const goal=$('#startGoal').value===''?null:nullable($('#startGoal').value,30,300);
       if(weight===null){toast('Bitte dein Startgewicht eintragen.');return;}
       if($('#startGoal').value!==''&&goal===null){toast('Bitte ein gültiges Wunschgewicht eintragen.');return;}
-      day(todayKey()).weight=weight;state.settings.goalWeight=goal;state.onboarded=true;
+      if(!commitStateMutation(current=>{const data=current.days[todayKey()]||sanitizeDay();data.weight=weight;current.days[todayKey()]=data;current.settings.goalWeight=goal;current.onboarded=true})){toast('CutCoach konnte nicht gestartet werden. Bitte Speicher prüfen.');return;}
       closeModal($('#onboardingModal'));render();await requestPersistentStorage();toast('CutCoach ist gestartet.');
     });
     $('#exportData').addEventListener('click',exportBackup);
@@ -81,8 +97,9 @@
     $('#dismissDataWarning').addEventListener('click',()=>{startupWarning=null;renderMeta();});
     $('#resetData').addEventListener('click',()=>{
       if(!confirm('Wirklich alle CutCoach-Daten auf diesem Gerät löschen? Der aktuelle Stand wird vorher lokal gesichert.'))return;
-      savePreviousState('Vor Zurücksetzen');removeStorage(STORAGE_KEY);removeStorage(RECOVERY_KEY);
-      storageReadOnly=false;startupWarning=null;state=sanitizeState(DEFAULTS);lastSavedSnapshot='';selectedDate=todayKey();saveState(true);render();openModal('onboardingModal');toast('Daten zurückgesetzt.');
+      if(!storageReadOnly&&!savePreviousState('Vor Zurücksetzen')){toast('Sicherung fehlgeschlagen – Zurücksetzen wurde abgebrochen.');return;}
+      if(!commitStateReplacement(DEFAULTS,{clearReadOnly:true})){toast('Daten konnten nicht zurückgesetzt werden.');return;}
+      removeStorage(RECOVERY_KEY);startupWarning=null;setSelectedDate(todayKey());render();openModal('onboardingModal');toast('Daten zurückgesetzt.');
     });
 
     $('#previousDay').addEventListener('click',()=>selectDate(shiftKey(selectedDate,-1)));
@@ -98,19 +115,15 @@
     window.addEventListener('offline',renderMeta);
     window.addEventListener('storage',event=>{
       if(event.key!==STORAGE_KEY)return;
-      if(event.newValue===null){state=sanitizeState(DEFAULTS);lastSavedSnapshot='';selectedDate=todayKey();render();openModal('onboardingModal');toast('Daten wurden in einem anderen Fenster zurückgesetzt.');return;}
+      if(event.newValue===null){state=sanitizeState(DEFAULTS);lastSavedSnapshot='';setSelectedDate(todayKey());render();openModal('onboardingModal');toast('Daten wurden in einem anderen Fenster zurückgesetzt.');return;}
       try{
         const parsed=JSON.parse(event.newValue);
         if(schemaVersionOf(parsed)>SCHEMA_VERSION){toast('Ein anderes Fenster nutzt eine neuere CutCoach-Version.');return;}
         state=sanitizeState(parsed);lastSavedSnapshot=event.newValue;render();toast('Daten aus einem anderen Fenster übernommen.');
       }catch{toast('Änderung aus anderem Fenster konnte nicht übernommen werden.');}
     });
-    document.addEventListener('visibilitychange',()=>{
-      if(document.visibilityState!=='visible')return;
-      const currentToday=todayKey();$('#datePicker').max=currentToday;
-      if(selectedDate===knownToday)selectedDate=currentToday;
-      knownToday=currentToday;render();checkForUpdates();updateStorageStatus();
-    });
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){refreshCurrentDay(true);checkForUpdates();updateStorageStatus()}});
+    window.addEventListener('focus',()=>refreshCurrentDay(false));
   }
 
   async function installApp(){
@@ -172,8 +185,9 @@
     }catch{element.textContent='Lokale Speicherung aktiv';}
   }
 
+  if(!storageReadOnly)saveState();
   $('#datePicker').max=todayKey();
-  setupEvents();switchTab(tabFromHash(),false);updateInstallButton();render();registerServiceWorker();updateStorageStatus();
+  setupEvents();switchTab(tabFromHash(),false);updateInstallButton();render();registerServiceWorker();updateStorageStatus();scheduleDayRollover();
   if(state.onboarded)requestPersistentStorage();
   if(startupWarning)setTimeout(()=>toast(startupWarning),300);
   if(!state.onboarded)setTimeout(()=>openModal('onboardingModal'),120);

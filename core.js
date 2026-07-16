@@ -1,6 +1,6 @@
 'use strict';
 
-const APP_VERSION = '6.3.0';
+const APP_VERSION = '6.4.0';
 const STORAGE_KEY = 'cutcoach_v2';
 const RECOVERY_KEY = 'cutcoach_recovery_raw';
 const PREVIOUS_STATE_KEY = 'cutcoach_previous_state';
@@ -22,7 +22,7 @@ let storageReadOnly = false;
 let saveErrorShown = false;
 let state = loadState();
 let lastSavedSnapshot = readStorage(STORAGE_KEY) || '';
-let selectedDate = todayKey();
+let selectedDate = initialSelectedDate();
 let editingMealId = null;
 let toastTimer = null;
 let deferredInstallPrompt = null;
@@ -74,7 +74,7 @@ function readStorage(key){
 }
 function writeStorage(key,value){
   if(!storageAvailable||storageReadOnly)return false;
-  try{localStorage.setItem(key,value);return true;}catch(error){storageAvailable=false;console.error(error);return false;}
+  try{localStorage.setItem(key,value);return true;}catch(error){console.error(error);return false;}
 }
 function removeStorage(key){
   if(!storageAvailable)return false;
@@ -127,6 +127,28 @@ function dateFromKey(key){
 }
 function validDateKey(key){ return /^\d{4}-\d{2}-\d{2}$/.test(String(key)) && keyFromDate(dateFromKey(key))===key; }
 function shiftKey(key,days){ const date=dateFromKey(key); date.setDate(date.getDate()+days); return keyFromDate(date); }
+function initialSelectedDate(){
+  const today=todayKey();
+  try{
+    const key=new URLSearchParams(location.search).get('date');
+    return key&&validDateKey(key)&&key<=today?key:today;
+  }catch{return today;}
+}
+function syncSelectedDateUrl(hash=null){
+  try{
+    const url=new URL(location.href);
+    url.searchParams.set('date',selectedDate);
+    url.searchParams.delete('journal_steps');
+    if(hash!==null)url.hash=hash;
+    history.replaceState(null,'',`${url.pathname}${url.search}${url.hash}`);
+  }catch{}
+}
+function setSelectedDate(key,{hash=null,updateUrl=true}={}){
+  if(!validDateKey(key))return false;
+  selectedDate=key>todayKey()?todayKey():key;
+  if(updateUrl)syncSelectedDateUrl(hash);
+  return true;
+}
 function sanitizeState(raw={},options={}){
   if(!raw||typeof raw!=='object'||Array.isArray(raw))raw={};
   const sourceSchema=schemaVersionOf(raw);
@@ -178,12 +200,41 @@ function saveState(force=false){
     return false;
   }
 }
+function commitStateMutation(change){
+  if(typeof change!=='function')return false;
+  const previous=deepClone(state),previousSnapshot=lastSavedSnapshot;
+  try{
+    change(state);
+    if(!saveState(true))throw new Error('state-save-failed');
+    return true;
+  }catch(error){
+    state=previous;lastSavedSnapshot=previousSnapshot;
+    console.error(error);
+    return false;
+  }
+}
+function commitStateReplacement(next,{clearReadOnly=false}={}){
+  const previous=deepClone(state),previousSnapshot=lastSavedSnapshot,previousReadOnly=storageReadOnly,previousSaveError=saveErrorShown;
+  try{
+    const clean=sanitizeState(next,{rejectFuture:true});
+    state=clean;
+    if(clearReadOnly)storageReadOnly=false;
+    lastSavedSnapshot='';
+    if(!saveState(true))throw new Error('state-replace-failed');
+    return true;
+  }catch(error){
+    state=previous;lastSavedSnapshot=previousSnapshot;storageReadOnly=previousReadOnly;saveErrorShown=previousSaveError;
+    console.error(error);
+    return false;
+  }
+}
 function commitDayMutation(change,key=selectedDate){
   if(typeof change!=='function'||!validDateKey(key))return false;
   const existed=Object.prototype.hasOwnProperty.call(state.days,key);
   const previous=existed?deepClone(state.days[key]):null;
   try{
     change(day(key,true));
+    if(state.days[key]?.meals.length>MAX_MEALS_PER_DAY)throw new Error('meal-limit-reached');
     pruneDay(key);
     if(!saveState(true))throw new Error('day-save-failed');
     return true;
@@ -200,6 +251,7 @@ function day(key=selectedDate,create=true){
 }
 function isDayEmpty(data){ return !data.meals.length && data.weight===null && data.steps===null && data.gym===null && data.alcohol===null; }
 function pruneDay(key=selectedDate){ if(state.days[key]&&isDayEmpty(state.days[key]))delete state.days[key]; }
+function mealCapacity(key=selectedDate){ return Math.max(0,MAX_MEALS_PER_DAY-day(key,false).meals.length); }
 function totals(key=selectedDate){
   return day(key,false).meals.reduce((sum,meal)=>({
     calories:sum.calories+meal.calories, protein:sum.protein+meal.protein,

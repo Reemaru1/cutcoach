@@ -32,7 +32,7 @@ window.localStorage.setItem('cutcoach_v2',JSON.stringify({
   days:{},onboarded:true,meta:{schemaVersion:5,createdAt:new Date().toISOString(),lastBackupAt:null}
 }));
 
-const scripts=['core.js','render.js','actions.js','app.js','date-bootstrap.js','library.js','library-init.js','scanner-v2.js','off-lookup.js','upgrade-340.js','nutrition.js','journal.js'];
+const scripts=['core.js','render.js','actions.js','app.js','library.js','library-init.js','scanner-v2.js','off-lookup.js','upgrade-340.js','nutrition.js','journal.js'];
 for(const name of scripts){
   const script=window.document.createElement('script');
   script.textContent=`${fs.readFileSync(path.join(project,name),'utf8')}\n//# sourceURL=${name}`;
@@ -48,8 +48,13 @@ testBridge.textContent=`window.__journalTest={
   todayKey:()=>todayKey(),
   shiftKey:(key,days)=>shiftKey(key,days),
   score:()=>dailyScore(),
+  journalScore:()=>window.dailyScore(),
   duplicateMeal:id=>duplicateMeal(id),
   deleteMeal:id=>deleteMeal(id),
+  mealCapacity:()=>mealCapacity(),
+  replaceMeals:meals=>commitDayMutation(data=>{data.meals=deepClone(meals)}),
+  fillMeals:count=>commitDayMutation(data=>{data.meals=Array.from({length:count},(_,index)=>({id:'limit-'+index,name:'Limit '+index,type:'Frühstück',calories:1,protein:0,carbs:0,fat:0}))}),
+  saveSettings:()=>saveSettings(),
   get saveState(){return saveState},
   set saveState(value){saveState=value}
 };`;
@@ -80,10 +85,12 @@ const input=(selector,value)=>{
   assert.equal(window.document.querySelector('#journalQuickAdd'),null,'Doppeltes Schnell-Plus ist zurückgekehrt');
   assert.equal(window.document.querySelectorAll('.journal-meal-add').length,4,'Mahlzeiten-Plus fehlt');
   assert.deepEqual([...window.document.querySelectorAll('[data-journal-alcohol]')].map(node=>node.textContent.trim()),['Ja','Nein'],'Alkohol-Reihenfolge ist falsch');
-  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.3.0');
+  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.4.0');
   assert.equal(test.score(),null,'Leerer Ernährungstag darf keine Tagesnote haben');
 
   const originalDate=test.selectedDate;
+  const originalNavigationSet=window.Storage.prototype.setItem;let navigationStateWrites=0;
+  window.Storage.prototype.setItem=function(key,value){if(key==='cutcoach_v2')navigationStateWrites++;return originalNavigationSet.call(this,key,value)};
   click('#journalPrevDay');
   const previousDate=test.shiftKey(originalDate,-1);
   assert.equal(test.selectedDate,previousDate,'Vorheriger Tag wurde nicht gewählt');
@@ -101,11 +108,21 @@ const input=(selector,value)=>{
   calendar.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
   assert.equal(calendar.hidden,true,'Kalender schließt nicht mit Escape');
   click('#journalDateButton');
+  const calendarSelected=calendar.querySelector(`[data-date="${originalDate}"]`);
+  assert.ok(calendarSelected,'Ausgewählter Tag fehlt im Kalender');
+  assert.equal(calendar.querySelectorAll('.journal-calendar-days button[tabindex="0"]').length,1,'Kalender hat keinen eindeutigen Tab-Stopp');
+  assert.equal(calendar.querySelector(`[data-date="${originalDate}"]`).getAttribute('aria-current'),'date','Heutiger Tag ist nicht ausgezeichnet');
+  calendarSelected.focus();
+  calendarSelected.dispatchEvent(new window.KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true,cancelable:true}));
   const calendarPrevious=calendar.querySelector(`[data-date="${previousDate}"]`);
   assert.ok(calendarPrevious,'Vortag fehlt im Kalender');
+  assert.equal(window.document.activeElement,calendarPrevious,'Pfeiltaste verschiebt den Kalenderfokus nicht');
+  assert.equal(test.selectedDate,originalDate,'Kalenderfokus wählt Datum vorzeitig aus');
   calendarPrevious.click();
   assert.equal(test.selectedDate,previousDate,'Kalenderdatum wurde nicht übernommen');
   assert.equal(window.document.querySelector('#today560'),initialRoot,'Kalenderwahl baut das Tagebuch neu auf');
+  window.Storage.prototype.setItem=originalNavigationSet;
+  assert.equal(navigationStateWrites,0,'Reiner Datumswechsel schreibt unnötig den kompletten Zustand');
 
   click('#journalStepToggle');
   input('#journalStepInput',3000);
@@ -126,6 +143,14 @@ const input=(selector,value)=>{
   assert.ok(errors.some(error=>String(error?.message||error).includes('day-save-failed')),'Speicherausfall wurde nicht protokolliert');
   errors.length=0;
 
+  const originalCalories=test.state.settings.calories;
+  input('#setCalories',originalCalories+100);
+  test.saveState=()=>false;test.saveSettings();
+  assert.equal(test.state.settings.calories,originalCalories,'Fehlgeschlagene Einstellungen wurden nicht zurückgerollt');
+  test.saveState=originalSaveState;
+  assert.ok(errors.some(error=>String(error?.message||error).includes('state-save-failed')),'Einstellungsfehler wurde nicht protokolliert');
+  errors.length=0;test.render();
+
   click('[data-journal-water="500"]');
   assert.equal(JSON.parse(window.localStorage.getItem('cutcoach_water_v1'))[previousDate],500,'Wasser +500 ml wurde nicht gespeichert');
   assert.equal(window.document.querySelector('#journalWaterUndo').disabled,false,'Wasser-Rückgängig bleibt deaktiviert');
@@ -139,6 +164,12 @@ const input=(selector,value)=>{
   window.Storage.prototype.setItem=originalStorageSet;
   assert.ok(errors.some(error=>String(error?.message||error).includes('test-storage-failure')),'Wasserspeicher-Ausfall wurde nicht protokolliert');
   errors.length=0;
+
+  const corruptWater='{"unvollstaendig"';
+  window.localStorage.setItem('cutcoach_water_v1',corruptWater);test.render();
+  assert.equal(window.localStorage.getItem('cutcoach_water_recovery_raw_v1'),corruptWater,'Beschädigte Wasserdaten wurden nicht gesichert');
+  click('[data-journal-water="250"]');
+  assert.equal(JSON.parse(window.localStorage.getItem('cutcoach_water_v1'))[previousDate],250,'Wasser konnte nach Datenrettung nicht neu gespeichert werden');
 
   click('[data-journal-gym="true"]');
   assert.equal(test.day(previousDate,false).gym,true,'Training Ja wurde nicht gespeichert');
@@ -156,10 +187,21 @@ const input=(selector,value)=>{
   assert.equal(test.day(previousDate,false).meals.length,1,'Manuelle Mahlzeit wurde nicht gespeichert');
   assert.equal(JSON.parse(window.localStorage.getItem('cutcoach_v2')).days[previousDate].meals.length,1,'Mahlzeit fehlt im lokalen Speicher');
   const mealId=test.day(previousDate,false).meals[0].id;
-  test.duplicateMeal(mealId);assert.equal(test.day(previousDate,false).meals.length,2,'Mahlzeit wurde nicht dupliziert');
-  test.deleteMeal(mealId);assert.equal(test.day(previousDate,false).meals.length,1,'Mahlzeit wurde nicht gelöscht');
+  assert.ok(window.document.querySelector(`[data-nutrition-edit="${mealId}"]`),'Bearbeiten fehlt im Ernährungsbereich');
+  assert.ok(window.document.querySelector(`[data-nutrition-copy="${mealId}"]`),'Duplizieren fehlt im Ernährungsbereich');
+  assert.ok(window.document.querySelector(`[data-nutrition-delete="${mealId}"]`),'Löschen fehlt im Ernährungsbereich');
+  click(`[data-nutrition-edit="${mealId}"]`);assert.equal(window.document.querySelector('#mealModal').classList.contains('open'),true,'Mahlzeit lässt sich nicht bearbeiten');click('#mealModal [data-close]');
+  click(`[data-nutrition-copy="${mealId}"]`);assert.equal(test.day(previousDate,false).meals.length,2,'Mahlzeit wurde nicht dupliziert');
+  click(`[data-nutrition-delete="${mealId}"]`);assert.equal(test.day(previousDate,false).meals.length,1,'Mahlzeit wurde nicht gelöscht');
+  const keptMeals=JSON.parse(JSON.stringify(test.day(previousDate,false).meals));
   click('#nutritionBack');
   assert.equal(window.document.querySelector('[data-screen="today"]').classList.contains('active'),true,'Zurück aus Ernährung funktioniert nicht');
+
+  assert.equal(test.fillMeals(500),true,'Tageslimit konnte für Grenztest nicht vorbereitet werden');
+  assert.equal(test.mealCapacity(),0,'Tageslimit wird falsch berechnet');
+  test.duplicateMeal('limit-0');assert.equal(test.day(previousDate,false).meals.length,500,'Tageslimit wurde beim Duplizieren überschritten');
+  assert.match(window.document.querySelector('#toast').textContent,/Maximal 500 Mahlzeiten/,'Tageslimit wird nicht erklärt');
+  assert.equal(test.replaceMeals(keptMeals),true,'Grenztest konnte nicht sauber zurückgesetzt werden');test.render();
 
   assert.ok(test.score()>=0&&test.score()<=10,'Tagesnote liegt außerhalb 0–10');
   assert.notEqual(window.document.querySelector('#journalScore').textContent,'Offen','Tagesnote bleibt trotz Mahlzeit offen');
@@ -167,11 +209,17 @@ const input=(selector,value)=>{
   assert.equal(test.day(previousDate,false).weight,97.2,'Gewicht wurde nicht gespeichert');
   assert.equal(window.document.querySelector('#journalCheckStatus').textContent,'Vollständig','Tagescheck erkennt vollständige Angaben nicht');
 
+  input('#setSteps',0);input('#setGymGoal',0);test.saveSettings();
+  assert.equal(window.document.querySelector('#journalStepPct').textContent,'Kein Ziel','Deaktiviertes Schrittziel wird als 0 % dargestellt');
+  const trainingScore=test.journalScore();click('[data-journal-gym="false"]');const restScore=test.journalScore();
+  assert.equal(restScore,trainingScore,'Ruhetag wird trotz Gym-Ziel 0 abgewertet');
+
   for(let index=0;index<10;index++)test.render();
   assert.equal(window.document.querySelectorAll('#today560').length,1,'Wiederholtes Rendern erzeugt Duplikate');
   assert.equal(errors.length,0,`Unerwartete Browserfehler: ${errors.map(error=>error.message).join(' | ')}`);
 
   const manifest=fs.readFileSync(path.join(project,'runtime-manifest.js'),'utf8');
+  assert.match(manifest,/version:'6\.4\.0'/,'Offline-Cache hat falsche Version');
   for(const match of manifest.matchAll(/'\.\/([^'?]+)(?:\?[^']*)?'/g)){
     const asset=match[1];
     if(asset==='')continue;
@@ -183,7 +231,16 @@ const input=(selector,value)=>{
     const asset=reference.replace(/^\.\//,'').split('?')[0];
     assert.ok(fs.existsSync(path.join(project,asset)),`Index verweist auf fehlende Datei: ${asset}`);
   }
-  for(const name of scripts)assert.ok(indexSource.includes(`${name}?`),`Produktiver Erststart lädt ${name} nicht direkt`);
+  for(const name of scripts){assert.ok(indexSource.includes(`${name}?`),`Produktiver Erststart lädt ${name} nicht direkt`);assert.ok(manifest.includes(`./${name}?`),`Offline-Manifest enthält ${name} nicht`)}
+  assert.ok(indexSource.includes('nutrition.css?v=6.4.0')&&manifest.includes('./nutrition.css?v=6.4.0'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
+  assert.equal(indexSource.includes('date-bootstrap.js'),false,'Entfernter Datums-Bootstrap wird noch geladen');
+
+  const startupDom=new JSDOM('<!doctype html><div id="toast"></div>',{url:`https://example.test/cutcoach/index.html?date=${previousDate}#today`,runScripts:'dangerously'});
+  const startupScript=startupDom.window.document.createElement('script');startupScript.textContent=fs.readFileSync(path.join(project,'core.js'),'utf8');startupDom.window.document.head.append(startupScript);
+  const startupBridge=startupDom.window.document.createElement('script');startupBridge.textContent='window.__selectedDate=selectedDate;';startupDom.window.document.head.append(startupBridge);
+  assert.equal(startupDom.window.__selectedDate,previousDate,'Direktaufruf eines vergangenen Tages startet mit falschem Datum');
+  const corruptLibrary='{"items":';startupDom.window.localStorage.setItem('cutcoach_library_v1',corruptLibrary);const libraryScript=startupDom.window.document.createElement('script');libraryScript.textContent=fs.readFileSync(path.join(project,'library.js'),'utf8');startupDom.window.document.head.append(libraryScript);
+  assert.equal(startupDom.window.localStorage.getItem('cutcoach_library_recovery_raw_v1'),corruptLibrary,'Beschädigte Bibliothek wurde nicht gesichert');startupDom.window.close();
   console.log('journal regression: ok');
   dom.window.close();
 })().catch(error=>{
