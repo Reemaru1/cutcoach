@@ -1,0 +1,11 @@
+/* CutCoach 6.2.0 – rebuilt journal controls */
+#today560 .journal-day-controls button{display:grid!important;place-items:center!important;width:48px!important;height:48px!important;padding:0!important;border:1px solid rgba(151,170,205,.22)!important;border-radius:15px!important;background:linear-gradient(145deg,#111a2a,#0a101b)!important;color:#eef3fb!important;font-size:30px!important;line-height:1!important;pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:6!important;-webkit-tap-highlight-color:transparent!important}
+#today560 .journal-day-controls button:disabled{opacity:.32!important;pointer-events:none!important}
+.journal-calendar-days button{aspect-ratio:1;border:1px solid transparent;border-radius:12px;background:rgba(255,255,255,.025);color:#eef3fb;font-weight:750;display:grid;place-items:center;padding:0;font:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.journal-calendar-days button.outside{color:#647086}
+.journal-calendar-days button.today{border-color:#62b9ff}
+.journal-calendar-days button.selected{background:linear-gradient(135deg,#65b8ff,#73eba8);color:#07111a;box-shadow:0 8px 20px rgba(82,188,178,.25)}
+.journal-calendar-days button:disabled{opacity:.25}
+#today560 #journalStepSave,#today560 #journalStepClear,#today560 [data-journal-water],#today560 #journalWaterUndo{touch-action:manipulation!important;pointer-events:auto!important;position:relative!important;z-index:5!important;-webkit-tap-highlight-color:transparent!important}
+#today560 #journalWaterUndo:disabled{pointer-events:none!important}
+@media(max-width:390px){#today560 .journal-day-controls button{width:44px!important;height:44px!important}}
