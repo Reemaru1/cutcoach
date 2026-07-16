@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='6.2.3';
+  const VERSION='6.2.4';
   const WATER_KEY='cutcoach_water_v1';
   const WATER_TARGET=3000;
   const WATER_MAX=6000;
@@ -158,7 +158,7 @@
         <div class="journal-check-grid">
           <article><small>Gewicht</small><strong id="journalWeight">– kg</strong><button id="journalWeightButton" type="button">Eintragen</button></article>
           <article><small>Training</small><div><button data-journal-gym="true" type="button">Ja</button><button data-journal-gym="false" type="button">Nein</button></div></article>
-          <article><small>Alkohol</small><div><button data-journal-alcohol="false" type="button">Nein</button><button data-journal-alcohol="true" type="button">Ja</button></div></article>
+          <article><small>Alkohol</small><div><button data-journal-alcohol="true" type="button">Ja</button><button data-journal-alcohol="false" type="button">Nein</button></div></article>
         </div>
       </section>
 
