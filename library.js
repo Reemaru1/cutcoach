@@ -76,7 +76,7 @@
       <div class="scanner-manual"><input id="manualCode" inputmode="numeric" placeholder="Code manuell eingeben"><button id="lookupManualCode" type="button">Suchen</button></div>
       <small class="hint">Die Kamera-Erkennung hängt vom Browser ab. Manuell eingegebene Codes funktionieren immer und werden lokal gespeichert.</small>
     </div></div>`);
-    const link=document.createElement('link');link.rel='stylesheet';link.href='./library.css?v=3.0.0';document.head.appendChild(link);
+    if(!document.querySelector('link[href*="library.css"]')){const link=document.createElement('link');link.rel='stylesheet';link.href='./library.css?v=3.0.0';document.head.appendChild(link);}
   }
 
   let filter='all';
@@ -126,7 +126,16 @@
   function deleteEditor(){const i=byId(editingId);if(!i||!confirm(`„${i.name}“ aus der Bibliothek löschen?`))return;db.items=db.items.filter(x=>x.id!==editingId);save();closeModal($('#libraryItemModal'));renderLibrary();toast('Eintrag gelöscht.');}
   function openUse(id){activeItemId=id;const i=byId(id);if(!i)return;setText('#libraryUseTitle',i.name);$('#libraryFactor').value='1';renderUsePreview();openModal('libraryUseModal');}
   function renderUsePreview(){const i=byId(activeItemId);if(!i)return;const f=Number($('#libraryFactor').value)||1,n=nutrition(i,f);$('#libraryUseSummary').innerHTML=`<b>${escapeHtml(i.name)}</b><small>Basis: ${fmt(i.amount,i.amount%1?1:0)} ${i.unit}</small>`;setText('#factorPreview',`${fmt(n.calories)} kcal · ${fmt(n.protein)} g Eiweiß · ${fmt(n.carbs)} g KH · ${fmt(n.fat)} g Fett`);}
-  function addToDay(){const i=byId(activeItemId);if(!i)return;const f=Number($('#libraryFactor').value)||1,n=nutrition(i,f);day().meals.push(sanitizeMeal({id:makeId(),name:i.name,type:$('#libraryMealType').value,...n}));i.uses++;i.lastUsedAt=new Date().toISOString();save();closeModal($('#libraryUseModal'));render();renderLibrary();toast('Mahlzeit eingetragen.');}
+  function addToDay(){
+    const i=byId(activeItemId);if(!i)return;
+    const f=Number($('#libraryFactor').value)||1,n=nutrition(i,f),meal=sanitizeMeal({id:makeId(),name:i.name,type:$('#libraryMealType').value,...n});
+    if(!meal){toast('Mahlzeit konnte nicht erstellt werden.');return;}
+    const previousUses=i.uses,previousLastUsed=i.lastUsedAt;
+    i.uses++;i.lastUsedAt=new Date().toISOString();
+    if(!save()){i.uses=previousUses;i.lastUsedAt=previousLastUsed;return;}
+    if(!commitDayMutation(data=>data.meals.push(meal))){i.uses=previousUses;i.lastUsedAt=previousLastUsed;save();toast('Mahlzeit konnte nicht eingetragen werden.');return;}
+    closeModal($('#libraryUseModal'));render();renderLibrary();toast('Mahlzeit eingetragen.');
+  }
   function fillRecipeOptions(){const select=$('#recipeItem');const options=db.items.filter(i=>i.id!==editingId);select.innerHTML=options.map(i=>`<option value="${i.id}">${escapeHtml(i.name)}</option>`).join('');$('#addRecipeItem').disabled=!options.length;}
   function addComponent(){const id=$('#recipeItem').value,f=safeNumber($('#recipeFactor').value,0.01,100)||1;if(!id)return;const list=JSON.parse($('#recipeBuilder').dataset.components||'[]');list.push({itemId:id,factor:f});$('#recipeBuilder').dataset.components=JSON.stringify(list);renderComponents();calculateRecipe();}
   function renderComponents(){const list=JSON.parse($('#recipeBuilder').dataset.components||'[]');$('#recipeComponents').innerHTML=list.map((c,idx)=>{const i=byId(c.itemId);return i?`<div class="recipe-row"><span>${escapeHtml(i.name)} · ${String(c.factor).replace('.',',')}×</span><button data-remove-component="${idx}" type="button">×</button></div>`:'';}).join('');$$('[data-remove-component]').forEach(b=>b.onclick=()=>{const l=JSON.parse($('#recipeBuilder').dataset.components||'[]');l.splice(Number(b.dataset.removeComponent),1);$('#recipeBuilder').dataset.components=JSON.stringify(l);renderComponents();calculateRecipe();});fillRecipeOptions();}

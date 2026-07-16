@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <meta name="theme-color" content="#090d18">
   <meta name="color-scheme" content="dark">
   <meta name="format-detection" content="telephone=no">
@@ -11,16 +11,39 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="CutCoach">
   <meta name="description" content="Persönliches Ernährungs-, Gewichts- und Trainingsjournal">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.openfoodfacts.org https://static.openfoodfacts.org; connect-src 'self' https://world.openfoodfacts.org; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>CutCoach</title>
   <link rel="manifest" href="manifest.webmanifest?v=2.3.0">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=2.3.0">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css?v=2.3.0">
-  <script src="core.js?v=2.3.0" defer></script>
+  <link rel="stylesheet" href="library.css?v=3.0.0">
+  <link rel="stylesheet" href="upgrade-360.css?v=4.2.0">
+  <link rel="stylesheet" href="upgrade-420.css?v=4.2.0">
+  <link rel="stylesheet" href="upgrade-430.css?v=4.3.0">
+  <link rel="stylesheet" href="upgrade-560.css?v=5.6.0">
+  <link rel="stylesheet" href="upgrade-561.css?v=5.6.1">
+  <link rel="stylesheet" href="upgrade-562.css?v=5.6.2">
+  <link rel="stylesheet" href="upgrade-563.css?v=5.6.3">
+  <link rel="stylesheet" href="upgrade-564.css?v=5.6.4">
+  <link rel="stylesheet" href="upgrade-565.css?v=5.6.5">
+  <link rel="stylesheet" href="upgrade-570.css?v=5.7.0">
+  <link rel="stylesheet" href="nutrition.css?v=6.0.1">
+  <link rel="stylesheet" href="journal-date.css?v=6.2.2">
+  <link rel="stylesheet" href="journal-ui.css?v=6.2.3">
+  <script src="core.js?v=6.3.0" defer></script>
   <script src="render.js?v=6.2.1" defer></script>
-  <script src="actions.js?v=2.3.0" defer></script>
-  <script src="app.js?v=2.3.0" defer></script>
+  <script src="actions.js?v=6.3.0" defer></script>
+  <script src="app.js?v=6.3.0" defer></script>
+  <script src="date-bootstrap.js?v=6.3.0" defer></script>
+  <script src="library.js?v=6.3.0" defer></script>
+  <script src="library-init.js?v=3.0.0" defer></script>
+  <script src="scanner-v2.js?v=6.3.0" defer></script>
+  <script src="off-lookup.js?v=6.3.0" defer></script>
+  <script src="upgrade-340.js?v=6.3.0" defer></script>
+  <script src="nutrition.js?v=6.3.0" defer></script>
+  <script src="journal.js?v=6.3.0" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" async></script>
 </head>
 <body>
 <noscript><div class="noscript">CutCoach benötigt JavaScript. Bitte aktiviere JavaScript in Safari.</div></noscript>

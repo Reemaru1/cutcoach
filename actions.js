@@ -22,33 +22,36 @@ function saveMeal(){
   if(invalid){toast(`${invalid[0]} liegt außerhalb des gültigen Bereichs.`);return;}
   const meal=sanitizeMeal(raw);
   if(!meal){toast('Mahlzeit konnte nicht gespeichert werden.');return;}
-  const data=day();
   let message='Mahlzeit gespeichert.';
-  if(editingMealId){
-    const index=data.meals.findIndex(item=>String(item.id)===editingMealId);
-    if(index>=0){data.meals[index]=meal;message='Mahlzeit aktualisiert.';}
-    else{meal.id=makeId();data.meals.push(meal);message='Original nicht mehr gefunden – als neue Mahlzeit gespeichert.';}
-  }else data.meals.push(meal);
+  const saved=commitDayMutation(data=>{
+    if(editingMealId){
+      const index=data.meals.findIndex(item=>String(item.id)===editingMealId);
+      if(index>=0){data.meals[index]=meal;message='Mahlzeit aktualisiert.';}
+      else{meal.id=makeId();data.meals.push(meal);message='Original nicht mehr gefunden – als neue Mahlzeit gespeichert.';}
+    }else data.meals.push(meal);
+  });
+  if(!saved){toast('Mahlzeit konnte nicht gespeichert werden.');return;}
   editingMealId=null;closeModal($('#mealModal'));render();toast(message);
 }
 function duplicateMeal(id){
   const source=day(selectedDate,false).meals.find(item=>String(item.id)===String(id));
   if(!source)return;
-  day().meals.push({...deepClone(source),id:makeId(),name:`${source.name} (Kopie)`.slice(0,80)});
+  if(!commitDayMutation(data=>data.meals.push({...deepClone(source),id:makeId(),name:`${source.name} (Kopie)`.slice(0,80)}))){toast('Mahlzeit konnte nicht dupliziert werden.');return;}
   render();toast('Mahlzeit dupliziert.');
 }
 function copyPreviousMeals(){
   const previousKey=shiftKey(selectedDate,-1),source=day(previousKey,false).meals;
   if(!source.length){toast('Am Vortag sind keine Mahlzeiten eingetragen.');return;}
-  const target=day();
+  const target=day(selectedDate,false);
   if(target.meals.length&&!confirm(`${source.length} Mahlzeiten zusätzlich vom Vortag übernehmen?`))return;
-  for(const meal of source)target.meals.push({...deepClone(meal),id:makeId()});
+  if(!commitDayMutation(data=>{for(const meal of source)data.meals.push({...deepClone(meal),id:makeId()})})){toast('Mahlzeiten konnten nicht übernommen werden.');return;}
   render();toast(`${source.length} Mahlzeiten vom Vortag übernommen.`);
 }
 function deleteMeal(id){
   const data=day(selectedDate,false),meal=data.meals.find(item=>String(item.id)===String(id));
   if(!meal||!confirm(`„${meal.name}“ wirklich löschen?`))return;
-  day().meals=day().meals.filter(item=>String(item.id)!==String(id));pruneDay();render();toast('Mahlzeit gelöscht.');
+  if(!commitDayMutation(entry=>{entry.meals=entry.meals.filter(item=>String(item.id)!==String(id))})){toast('Mahlzeit konnte nicht gelöscht werden.');return;}
+  render();toast('Mahlzeit gelöscht.');
 }
 function saveSettings(){
   const raw={
@@ -137,12 +140,14 @@ async function exportRecovery(){
 function clearWeight(){
   if(day(selectedDate,false).weight===null){closeModal($('#weightModal'));return;}
   if(!confirm('Gewichtseintrag für diesen Tag entfernen?'))return;
-  day().weight=null;pruneDay();closeModal($('#weightModal'));render();toast('Gewichtseintrag entfernt.');
+  if(!commitDayMutation(data=>{data.weight=null})){toast('Gewichtseintrag konnte nicht entfernt werden.');return;}
+  closeModal($('#weightModal'));render();toast('Gewichtseintrag entfernt.');
 }
 function clearSteps(){
   if(day(selectedDate,false).steps===null)return;
   if(!confirm('Schritteintrag für diesen Tag entfernen?'))return;
-  day().steps=null;pruneDay();render();toast('Schritteintrag entfernt.');
+  if(!commitDayMutation(data=>{data.steps=null})){toast('Schritteintrag konnte nicht entfernt werden.');return;}
+  render();toast('Schritteintrag entfernt.');
 }
 function selectDate(key){
   if(!validDateKey(key))return;

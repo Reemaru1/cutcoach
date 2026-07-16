@@ -1,6 +1,6 @@
 'use strict';
 
-const APP_VERSION = '2.3.0';
+const APP_VERSION = '6.3.0';
 const STORAGE_KEY = 'cutcoach_v2';
 const RECOVERY_KEY = 'cutcoach_recovery_raw';
 const PREVIOUS_STATE_KEY = 'cutcoach_previous_state';
@@ -175,6 +175,21 @@ function saveState(force=false){
   }catch(error){
     console.error(error);
     if(!saveErrorShown){toast('Speichern fehlgeschlagen – bitte sofort ein Backup erstellen.');saveErrorShown=true;}
+    return false;
+  }
+}
+function commitDayMutation(change,key=selectedDate){
+  if(typeof change!=='function'||!validDateKey(key))return false;
+  const existed=Object.prototype.hasOwnProperty.call(state.days,key);
+  const previous=existed?deepClone(state.days[key]):null;
+  try{
+    change(day(key,true));
+    pruneDay(key);
+    if(!saveState(true))throw new Error('day-save-failed');
+    return true;
+  }catch(error){
+    if(existed)state.days[key]=previous;else delete state.days[key];
+    console.error(error);
     return false;
   }
 }
