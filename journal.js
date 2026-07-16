@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'6.5.0';
+  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'6.5.1';
   const WATER_KEY='cutcoach_water_v1';
   const WATER_RECOVERY_KEY='cutcoach_water_recovery_raw_v1';
   const WATER_UNDO_KEY='cutcoach_water_undo_v9';

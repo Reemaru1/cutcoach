@@ -86,7 +86,7 @@ const input=(selector,value)=>{
   assert.equal(window.document.querySelector('#journalQuickAdd'),null,'Doppeltes Schnell-Plus ist zurückgekehrt');
   assert.equal(window.document.querySelectorAll('.journal-meal-add').length,4,'Mahlzeiten-Plus fehlt');
   assert.deepEqual([...window.document.querySelectorAll('[data-journal-alcohol]')].map(node=>node.textContent.trim()),['Ja','Nein'],'Alkohol-Reihenfolge ist falsch');
-  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.5.0');
+  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.5.1');
   assert.equal(test.score(),null,'Leerer Ernährungstag darf keine Tagesnote haben');
 
   const originalDate=test.selectedDate;
@@ -292,7 +292,7 @@ const input=(selector,value)=>{
   assert.equal(errors.length,0,`Unerwartete Browserfehler: ${errors.map(error=>error.message).join(' | ')}`);
 
   const manifest=fs.readFileSync(path.join(project,'runtime-manifest.js'),'utf8');
-  assert.match(manifest,/version:'6\.5\.0'/,'Offline-Cache hat falsche Version');
+  assert.match(manifest,/version:'6\.5\.1'/,'Offline-Cache hat falsche Version');
   for(const match of manifest.matchAll(/'\.\/([^'?]+)(?:\?[^']*)?'/g)){
     const asset=match[1];
     if(asset==='')continue;
@@ -305,7 +305,11 @@ const input=(selector,value)=>{
     assert.ok(fs.existsSync(path.join(project,asset)),`Index verweist auf fehlende Datei: ${asset}`);
   }
   for(const name of scripts){assert.ok(indexSource.includes(`${name}?`),`Produktiver Erststart lädt ${name} nicht direkt`);assert.ok(manifest.includes(`./${name}?`),`Offline-Manifest enthält ${name} nicht`)}
-  assert.ok(indexSource.includes('nutrition.css?v=6.5.0')&&manifest.includes('./nutrition.css?v=6.5.0'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
+  assert.ok(indexSource.includes('nutrition.css?v=6.5.1')&&manifest.includes('./nutrition.css?v=6.5.1'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
+  const nutritionCss=fs.readFileSync(path.join(project,'nutrition.css'),'utf8');
+  assert.match(nutritionCss,/body\.nutrition-mode\{[^}]*min-height:100dvh/,'Ernährungsansicht füllt den dynamischen iOS-Viewport nicht');
+  assert.match(nutritionCss,/body\.journal-mode nav,body\.nutrition-mode nav\{[^}]*inset:auto 0 0 0!important/,'Ernährungsnavigation ist nicht wie im Tagebuch unten verankert');
+  assert.match(nutritionCss,/body\.journal-mode nav,body\.nutrition-mode nav\{[^}]*min-height:86px!important;max-height:86px!important/,'Navigationshöhe kann im Ernährungsmodus aufwachsen');
   assert.equal(indexSource.includes('date-bootstrap.js'),false,'Entfernter Datums-Bootstrap wird noch geladen');
 
   const startupDom=new JSDOM('<!doctype html><div id="toast"></div>',{url:`https://example.test/cutcoach/index.html?date=${previousDate}#today`,runScripts:'dangerously'});

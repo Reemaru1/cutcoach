@@ -18,7 +18,7 @@
 <body>
   <main>
     <div class="spinner" id="spinner"></div>
-    <h1>CutCoach 6.5.0 wird installiert</h1>
+    <h1>CutCoach 6.5.1 wird installiert</h1>
     <p id="status">Der neue, schnellere Ernährungsbereich wird geladen. Deine Daten bleiben erhalten.</p>
     <button id="retry">Erneut versuchen</button>
   </main>
@@ -36,9 +36,9 @@
           const keys=await caches.keys();
           await Promise.all(keys.filter(key=>key.startsWith('cutcoach-')).map(key=>caches.delete(key)));
         }
-        status.textContent='CutCoach 6.5.0 wird geladen …';
+        status.textContent='CutCoach 6.5.1 wird geladen …';
         if('serviceWorker'in navigator){
-          const registration=await navigator.serviceWorker.register('./sw.js?v=6.5.0-force',{scope:'./',updateViaCache:'none'});
+          const registration=await navigator.serviceWorker.register('./sw.js?v=6.5.1-force',{scope:'./',updateViaCache:'none'});
           await registration.update();
           await navigator.serviceWorker.ready;
         }
