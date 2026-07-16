@@ -31,8 +31,9 @@ window.localStorage.setItem('cutcoach_v2',JSON.stringify({
   settings:{age:28,height:179,calories:2300,maintenance:3000,protein:190,fat:65,carbs:200,steps:6000,gymGoal:5,goalWeight:90},
   days:{},onboarded:true,meta:{schemaVersion:5,createdAt:new Date().toISOString(),lastBackupAt:null}
 }));
+window.localStorage.setItem('cutcoach_library_v1',JSON.stringify({version:1,items:[{id:'legacy-dish',name:'Legacy Gericht',kind:'dish',barcode:'',amount:100,unit:'g',calories:420,protein:25,carbs:45,fat:14,favorite:false,uses:0,lastUsedAt:null,createdAt:new Date().toISOString(),components:[]}]}));
 
-const scripts=['core.js','render.js','actions.js','app.js','library.js','library-init.js','scanner-v2.js','off-lookup.js','upgrade-340.js','nutrition.js','journal.js'];
+const scripts=['core.js','render.js','actions.js','app.js','food-catalog.js','library.js','library-init.js','scanner-v2.js','off-lookup.js','upgrade-340.js','nutrition.js','journal.js'];
 for(const name of scripts){
   const script=window.document.createElement('script');
   script.textContent=`${fs.readFileSync(path.join(project,name),'utf8')}\n//# sourceURL=${name}`;
@@ -86,7 +87,12 @@ const input=(selector,value)=>{
   assert.equal(window.document.querySelector('#journalQuickAdd'),null,'Doppeltes Schnell-Plus ist zurückgekehrt');
   assert.equal(window.document.querySelectorAll('.journal-meal-add').length,4,'Mahlzeiten-Plus fehlt');
   assert.deepEqual([...window.document.querySelectorAll('[data-journal-alcohol]')].map(node=>node.textContent.trim()),['Ja','Nein'],'Alkohol-Reihenfolge ist falsch');
-  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.6.0');
+  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.7.0');
+  assert.equal(window.CutCoachFoodCatalog.meta.count,7064,'BLS-Katalog ist unvollständig');
+  assert.equal(window.CutCoachFoodCatalog.meta.license,'CC BY 4.0','BLS-Lizenzhinweis fehlt');
+  assert.equal(window.CutCoachLibrary.exportData().version,2,'Bibliothek wurde nicht auf das neue Datenmodell migriert');
+  assert.equal(window.CutCoachLibrary.exportData().items[0].kind,'recipe','Altes Gericht wurde nicht verlustfrei als Rezept migriert');
+  assert.equal(JSON.parse(window.localStorage.getItem('cutcoach_library_v1')).version,2,'Migrierte Bibliothek wurde nicht dauerhaft gespeichert');
   assert.equal(test.score(),null,'Leerer Ernährungstag darf keine Tagesnote haben');
 
   const originalDate=test.selectedDate;
@@ -192,7 +198,7 @@ const input=(selector,value)=>{
   assert.equal(window.document.querySelector('#nutritionCopyPrevious').hidden,true,'Leere Vortagsaktion nimmt unnötig Platz ein');
   click('#nutritionRecipe');
   assert.equal(window.document.querySelector('#libraryItemModal').classList.contains('open'),true,'Rezept-Schnellaktion öffnet den Editor nicht');
-  assert.equal(window.document.querySelector('[data-kind="dish"]').classList.contains('on'),true,'Rezept-Schnellaktion startet im falschen Modus');
+  assert.equal(window.document.querySelector('[data-kind="recipe"]').classList.contains('on'),true,'Rezept-Schnellaktion startet im falschen Modus');
   click('#libraryItemModal [data-library-close]');
   click('#nutritionNewFood');
   assert.equal(window.document.querySelector('[data-kind="food"]').classList.contains('on'),true,'Lebensmittel-Schnellaktion startet im falschen Modus');
@@ -229,6 +235,27 @@ const input=(selector,value)=>{
   assert.equal(window.document.querySelector('[data-filter-count="favorite"]').textContent,'1','Filterzähler ist nicht aktuell');
   assert.equal(window.document.querySelector('.nutrition-result-row [data-nutrition-open]')?.dataset.nutritionOpen,'routine-food','Frühstücksroutine wird nicht priorisiert');
   assert.ok(window.document.querySelector('[data-nutrition-open="routine-food"] .nutrition-routine'),'Routinenhinweis fehlt');
+  const libraryCountBeforeCatalog=window.CutCoachLibrary.count();
+  input('#nutritionSearch','haferflocken');await wait(0);
+  assert.ok(window.document.querySelector('[data-nutrition-open="bls:C133000"]'),'Zusammengeschriebene Suche findet Haferflocken im BLS nicht');
+  assert.ok(window.document.querySelector('[data-nutrition-open="bls:C133000"] .nutrition-source'),'BLS-Treffer ist nicht als offizielle Quelle gekennzeichnet');
+  click('[data-nutrition-open="bls:C133000"]');
+  assert.equal(window.document.querySelector('#libraryUseModal').classList.contains('open'),true,'BLS-Treffer öffnet keine Portionswahl');
+  assert.match(window.document.querySelector('#libraryUseSummary').textContent,/BLS 4\.0/,'Portionswahl verliert die BLS-Quelle');
+  assert.equal(window.CutCoachLibrary.count(),libraryCountBeforeCatalog,'Reines Öffnen schreibt einen Katalogtreffer in die persönliche Bibliothek');
+  click('#libraryUseModal [data-library-close]');
+  click('[data-nutrition-add="bls:C133000"]');
+  const catalogMeal=test.day(previousDate,false).meals.find(meal=>meal.name==='Hafer Flocken');
+  assert.ok(catalogMeal,'BLS-Schnell-Plus hat nichts eingetragen');
+  assert.equal(catalogMeal.calories,348,'BLS-Nährwerte wurden beim Eintragen verändert');
+  const importedCatalogItem=window.CutCoachLibrary.exportData().items.find(item=>item.id==='bls:C133000');
+  assert.equal(importedCatalogItem?.source,'bls','Genutzter BLS-Treffer verliert seine Quelle');
+  assert.equal(importedCatalogItem?.fiber,10.98,'Erweiterte BLS-Nährwerte gehen beim Import verloren');
+  click('#nutritionUndoAdd');
+  assert.equal(test.day(previousDate,false).meals.some(meal=>meal.id===catalogMeal.id),false,'BLS-Eintragung wurde nicht rückgängig gemacht');
+  input('#nutritionSearch','hähnchenbrust');await wait(0);
+  assert.ok(window.document.querySelector('[data-nutrition-open="bls:V4A6182"]'),'Zusammengeschriebene Suche findet Hähnchenbrust im BLS nicht');
+  input('#nutritionSearch','');await wait(0);
   input('#nutritionSearch','fitness strasse');await wait(0);assert.ok(window.document.querySelector('[data-nutrition-open="street-food"]'),'Suche findet Umlaute und ß nicht fehlertolerant');
   click('[data-nutrition-filter="favorite"]');input('#nutritionSearch','fitness strasse bowl');await wait(0);assert.equal(window.document.querySelector('[data-nutrition-filter="all"]').classList.contains('active'),true,'Neue Suche bleibt unbemerkt in einem einschränkenden Filter');assert.ok(window.document.querySelector('[data-nutrition-open="street-food"]'),'Globale Suche blendet Nicht-Favoriten aus');
   input('#nutritionSearch','Mein neues Müsli');await wait(0);click('[data-nutrition-empty-add]');assert.equal(window.document.querySelector('#libName').value,'Mein neues Müsli','Nicht gefundener Suchbegriff wird beim Anlegen nicht übernommen');click('#libraryItemModal [data-library-close]');input('#nutritionSearch','');await wait(0);
@@ -313,7 +340,7 @@ const input=(selector,value)=>{
   assert.equal(errors.length,0,`Unerwartete Browserfehler: ${errors.map(error=>error.message).join(' | ')}`);
 
   const manifest=fs.readFileSync(path.join(project,'runtime-manifest.js'),'utf8');
-  assert.match(manifest,/version:'6\.6\.0'/,'Offline-Cache hat falsche Version');
+  assert.match(manifest,/version:'6\.7\.0'/,'Offline-Cache hat falsche Version');
   for(const match of manifest.matchAll(/'\.\/([^'?]+)(?:\?[^']*)?'/g)){
     const asset=match[1];
     if(asset==='')continue;
@@ -326,9 +353,10 @@ const input=(selector,value)=>{
     assert.ok(fs.existsSync(path.join(project,asset)),`Index verweist auf fehlende Datei: ${asset}`);
   }
   for(const name of scripts){assert.ok(indexSource.includes(`${name}?`),`Produktiver Erststart lädt ${name} nicht direkt`);assert.ok(manifest.includes(`./${name}?`),`Offline-Manifest enthält ${name} nicht`)}
-  assert.ok(indexSource.includes('nutrition.css?v=6.6.0')&&manifest.includes('./nutrition.css?v=6.6.0'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
+  assert.ok(indexSource.includes('nutrition.css?v=6.7.0')&&manifest.includes('./nutrition.css?v=6.7.0'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
   const updateSource=fs.readFileSync(path.join(project,'update.html'),'utf8');
-  assert.ok(updateSource.includes("location.replace('./?updated=660#today')"),'Update-Seite leitet auf einen veralteten Cache-Marker weiter');
+  assert.ok(updateSource.includes("location.replace('./?updated=670#today')"),'Update-Seite leitet auf einen veralteten Cache-Marker weiter');
+  assert.ok(indexSource.indexOf('food-catalog.js?v=6.7.0')<indexSource.indexOf('library.js?v=6.7.0'),'Katalog wird nach der Bibliothek geladen');
   const nutritionCss=fs.readFileSync(path.join(project,'nutrition.css'),'utf8');
   assert.match(nutritionCss,/body\.nutrition-mode\{[^}]*min-height:100dvh/,'Ernährungsansicht füllt den dynamischen iOS-Viewport nicht');
   assert.match(nutritionCss,/body\.journal-mode nav,body\.nutrition-mode nav\{[^}]*inset:auto 0 0 0!important/,'Ernährungsnavigation ist nicht wie im Tagebuch unten verankert');

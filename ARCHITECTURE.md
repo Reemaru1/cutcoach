@@ -30,13 +30,14 @@ Die noch geladenen `upgrade-*.css` enthalten ausschließlich das etablierte visu
 
 ## Ernährung und Bibliothek
 
+- `food-catalog.js` – schreibgeschützter, kompakter BLS-4.0-Lebensmittelkatalog
 - `library.js`
 - `library-init.js`
 - `library.css`
 - `scanner-v2.js`
 - `off-lookup.js`
 
-`library.js` ist die einzige Schreibinstanz für Bibliothekseinträge und stellt der Ernährungsoberfläche sichere Methoden zum Öffnen, direkten Eintragen und Rückgängigmachen bereit. Die Ernährungsoberfläche greift nicht eigenständig schreibend auf den Bibliotheksspeicher zu.
+`food-catalog.js` liefert offizielle Referenzwerte, wird aber nie durch Benutzeraktionen verändert. `library.js` ist die einzige Schreibinstanz für persönliche Lebensmittel und Rezepte und stellt der Ernährungsoberfläche sichere Methoden zum Öffnen, direkten Eintragen und Rückgängigmachen bereit. Die Ernährungsoberfläche greift nicht eigenständig schreibend auf den Bibliotheksspeicher zu.
 
 ## Nicht produktiv
 
