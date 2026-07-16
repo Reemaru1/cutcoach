@@ -50,6 +50,7 @@ testBridge.textContent=`window.__journalTest={
   shiftKey:(key,days)=>shiftKey(key,days),
   score:()=>dailyScore(),
   journalScore:()=>window.dailyScore(),
+  totals:key=>totals(key),
   duplicateMeal:id=>duplicateMeal(id),
   deleteMeal:id=>deleteMeal(id),
   mealCapacity:()=>mealCapacity(),
@@ -87,12 +88,13 @@ const input=(selector,value)=>{
   assert.equal(window.document.querySelector('#journalQuickAdd'),null,'Doppeltes Schnell-Plus ist zurückgekehrt');
   assert.equal(window.document.querySelectorAll('.journal-meal-add').length,4,'Mahlzeiten-Plus fehlt');
   assert.deepEqual([...window.document.querySelectorAll('[data-journal-alcohol]')].map(node=>node.textContent.trim()),['Ja','Nein'],'Alkohol-Reihenfolge ist falsch');
-  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.7.1');
+  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.8.0');
   assert.equal(window.CutCoachFoodCatalog.meta.count,7064,'BLS-Katalog ist unvollständig');
   assert.equal(window.CutCoachFoodCatalog.meta.license,'CC BY 4.0','BLS-Lizenzhinweis fehlt');
-  assert.equal(window.CutCoachLibrary.exportData().version,2,'Bibliothek wurde nicht auf das neue Datenmodell migriert');
+  assert.equal(window.CutCoachLibrary.exportData().version,3,'Bibliothek wurde nicht auf das neue Datenmodell migriert');
   assert.equal(window.CutCoachLibrary.exportData().items[0].kind,'recipe','Altes Gericht wurde nicht verlustfrei als Rezept migriert');
-  assert.equal(JSON.parse(window.localStorage.getItem('cutcoach_library_v1')).version,2,'Migrierte Bibliothek wurde nicht dauerhaft gespeichert');
+  assert.equal(JSON.parse(window.localStorage.getItem('cutcoach_library_v1')).version,3,'Migrierte Bibliothek wurde nicht dauerhaft gespeichert');
+  assert.equal(test.state.meta.schemaVersion,6,'Tagebuchdaten wurden nicht auf das erweiterte Nährwertschema migriert');
   assert.equal(test.score(),null,'Leerer Ernährungstag darf keine Tagesnote haben');
 
   const originalDate=test.selectedDate;
@@ -203,6 +205,8 @@ const input=(selector,value)=>{
   mealSelect.value='Frühstück';mealSelect.dispatchEvent(new window.Event('change',{bubbles:true}));
   assert.equal(window.document.querySelector('[data-tab="today"]').classList.contains('active'),true,'Ernährung verliert die Tagebuch-Orientierung');
   assert.equal(window.document.querySelector('#nutritionCopyPrevious').hidden,true,'Leere Vortagsaktion nimmt unnötig Platz ein');
+  assert.match(window.document.querySelector('#nutritionCoachText').textContent,/2\.300 kcal.*190 g Eiweiß/,'Intelligenter Tageskontext fehlt');
+  assert.equal(window.document.querySelector('#nutritionProteinGap').textContent,'190 g offen','Makro-Kompass startet mit falschem Eiweiß-Restwert');
   click('#nutritionRecipe');
   assert.equal(window.document.querySelector('#libraryItemModal').classList.contains('open'),true,'Rezept-Schnellaktion öffnet den Editor nicht');
   assert.equal(window.document.querySelector('[data-kind="recipe"]').classList.contains('on'),true,'Rezept-Schnellaktion startet im falschen Modus');
@@ -214,11 +218,15 @@ const input=(selector,value)=>{
   assert.equal(window.document.querySelector('#scannerModal').classList.contains('open'),true,'Barcode-Schnellaktion öffnet den Scanner nicht');
   click('#scannerModal [data-library-close]');
   click('#nutritionManual');
-  input('#mealName','Stabilitätstest');input('#mealCalories',1200);input('#mealProtein',100);input('#mealCarbs',100);input('#mealFat',35);
+  input('#mealName','Stabilitätstest');input('#mealQuantity',350);window.document.querySelector('#mealUnit').value='g';input('#mealCalories',1200);input('#mealProtein',100);input('#mealCarbs',100);input('#mealFat',35);input('#mealFiber',12.34);input('#mealSugar',8.75);input('#mealSaturatedFat',4.25);input('#mealSalt',1.15);
   click('#saveMeal');
   assert.equal(test.day(previousDate,false).meals.length,1,'Manuelle Mahlzeit wurde nicht gespeichert');
   assert.equal(JSON.parse(window.localStorage.getItem('cutcoach_v2')).days[previousDate].meals.length,1,'Mahlzeit fehlt im lokalen Speicher');
   const mealId=test.day(previousDate,false).meals[0].id;
+  assert.equal(test.day(previousDate,false).meals[0].quantity,350,'Manuelle Portionsmenge wurde nicht gespeichert');
+  assert.equal(test.day(previousDate,false).meals[0].fiber,12.34,'Ballaststoffe wurden nicht präzise gespeichert');
+  assert.equal(test.totals(previousDate).fiber,12.34,'Erweiterte Nährwerte fehlen in der Tagesrechnung');
+  assert.equal(test.totals(previousDate).nutrientCoverage.fiber,1,'Nährwertabdeckung wird falsch berechnet');
   assert.equal(window.document.querySelector('#nutritionCurrentToggle').hidden,false,'Eingetragene Mahlzeit kann nicht aufgeklappt werden');
   click('#nutritionCurrentToggle');
   assert.ok(window.document.querySelector(`[data-nutrition-edit="${mealId}"]`),'Bearbeiten fehlt im Ernährungsbereich');
@@ -243,25 +251,39 @@ const input=(selector,value)=>{
   assert.equal(window.document.querySelector('.nutrition-result-row [data-nutrition-open]')?.dataset.nutritionOpen,'routine-food','Frühstücksroutine wird nicht priorisiert');
   assert.ok(window.document.querySelector('[data-nutrition-open="routine-food"] .nutrition-routine'),'Routinenhinweis fehlt');
   const libraryCountBeforeCatalog=window.CutCoachLibrary.count();
-  input('#nutritionSearch','haferflocken');await wait(0);
+  input('#nutritionSearch','200 g haferflocken');await wait(0);
   assert.ok(window.document.querySelector('[data-nutrition-open="bls:C133000"]'),'Zusammengeschriebene Suche findet Haferflocken im BLS nicht');
   assert.ok(window.document.querySelector('[data-nutrition-open="bls:C133000"] .nutrition-source'),'BLS-Treffer ist nicht als offizielle Quelle gekennzeichnet');
+  assert.match(window.document.querySelector('#nutritionSearchIntent').textContent,/200 g/,'Natürlich eingegebene Portionsmenge wird nicht erkannt');
+  assert.match(window.document.querySelector('[data-nutrition-open="bls:C133000"] .nutrition-result-copy small').textContent,/200 g/,'Suchtreffer übernimmt die erkannte Portionsmenge nicht');
+  assert.equal(window.document.querySelector('[data-nutrition-open="bls:C133000"]').closest('.nutrition-result-row').querySelector('.nutrition-result-energy b').textContent,'696 kcal','Treffer berechnet die erkannte Portion falsch');
   click('[data-nutrition-open="bls:C133000"]');
   assert.equal(window.document.querySelector('#libraryUseModal').classList.contains('open'),true,'BLS-Treffer öffnet keine Portionswahl');
   assert.match(window.document.querySelector('#libraryUseSummary').textContent,/BLS 4\.0/,'Portionswahl verliert die BLS-Quelle');
+  assert.equal(window.document.querySelector('#libraryExactAmount').value,'200','Portionsdialog übernimmt die Textmenge nicht');
+  assert.match(window.document.querySelector('#factorPreview').textContent,/696 kcal/,'Portionsvorschau berechnet die Textmenge falsch');
+  assert.ok(window.document.querySelectorAll('#libraryPortionPresets button').length>=4,'Schnelle Portionsgrößen fehlen');
   assert.equal(window.CutCoachLibrary.count(),libraryCountBeforeCatalog,'Reines Öffnen schreibt einen Katalogtreffer in die persönliche Bibliothek');
   click('#libraryUseModal [data-library-close]');
   click('[data-nutrition-add="bls:C133000"]');
   const catalogMeal=test.day(previousDate,false).meals.find(meal=>meal.name==='Hafer Flocken');
   assert.ok(catalogMeal,'BLS-Schnell-Plus hat nichts eingetragen');
-  assert.equal(catalogMeal.calories,348,'BLS-Nährwerte wurden beim Eintragen verändert');
+  assert.equal(catalogMeal.calories,696,'BLS-Portionskalorien wurden falsch berechnet');
+  assert.equal(catalogMeal.protein,26.44,'BLS-Makros verlieren unnötig Genauigkeit');
+  assert.equal(catalogMeal.fiber,21.96,'BLS-Zusatznährwerte fehlen in der Mahlzeit');
+  assert.equal(catalogMeal.quantity,200,'BLS-Portionsmenge fehlt in der Mahlzeit');
+  assert.equal(catalogMeal.source,'bls','BLS-Quelle fehlt im Mahlzeiteneintrag');
   const importedCatalogItem=window.CutCoachLibrary.exportData().items.find(item=>item.id==='bls:C133000');
   assert.equal(importedCatalogItem?.source,'bls','Genutzter BLS-Treffer verliert seine Quelle');
   assert.equal(importedCatalogItem?.fiber,10.98,'Erweiterte BLS-Nährwerte gehen beim Import verloren');
   click('#nutritionUndoAdd');
   assert.equal(test.day(previousDate,false).meals.some(meal=>meal.id===catalogMeal.id),false,'BLS-Eintragung wurde nicht rückgängig gemacht');
+  input('#nutritionSearch','haferfloken');await wait(0);
+  assert.ok(window.document.querySelector('[data-nutrition-open="bls:C133000"]'),'Tippfehler-tolerante Suche findet Haferflocken nicht');
   input('#nutritionSearch','hähnchenbrust');await wait(0);
   assert.ok(window.document.querySelector('[data-nutrition-open="bls:V4A6182"]'),'Zusammengeschriebene Suche findet Hähnchenbrust im BLS nicht');
+  input('#nutritionSearch','');await wait(0);
+  input('#nutritionSearch','kaffee');await wait(0);assert.equal(window.document.querySelector('.nutrition-result-icon').textContent,'☕','Kaffee erhält kein passendes Treffer-Icon');
   input('#nutritionSearch','');await wait(0);
   input('#nutritionSearch','fitness strasse');await wait(0);assert.ok(window.document.querySelector('[data-nutrition-open="street-food"]'),'Suche findet Umlaute und ß nicht fehlertolerant');
   click('[data-nutrition-filter="favorite"]');input('#nutritionSearch','fitness strasse bowl');await wait(0);assert.equal(window.document.querySelector('[data-nutrition-filter="all"]').classList.contains('active'),true,'Neue Suche bleibt unbemerkt in einem einschränkenden Filter');assert.ok(window.document.querySelector('[data-nutrition-open="street-food"]'),'Globale Suche blendet Nicht-Favoriten aus');
@@ -296,6 +318,9 @@ const input=(selector,value)=>{
   click('[data-nutrition-open="quick-food"]');
   assert.equal(window.document.querySelector('#libraryUseModal').classList.contains('open'),true,'Trefferzeile öffnet die Portionswahl nicht');
   assert.equal(window.document.querySelector('#libraryMealType').value,'Frühstück','Portionswahl übernimmt die Mahlzeitenkategorie nicht');
+  assert.equal(window.document.querySelector('#libraryExactAmount').value,'250','Portionswahl startet nicht mit der gespeicherten Basisportion');
+  input('#libraryExactAmount','');assert.equal(window.document.querySelector('#addLibraryMeal').disabled,true,'Ungültige leere Portion bleibt eintragbar');
+  input('#libraryExactAmount',125);assert.equal(window.document.querySelector('#addLibraryMeal').disabled,false,'Gültige exakte Portion bleibt gesperrt');assert.match(window.document.querySelector('#factorPreview').textContent,/80 kcal/,'Exakte Portion wird falsch berechnet');
   click('#libraryUseModal [data-library-close]');
 
   const earlierDate=test.shiftKey(previousDate,-1);
@@ -347,7 +372,7 @@ const input=(selector,value)=>{
   assert.equal(errors.length,0,`Unerwartete Browserfehler: ${errors.map(error=>error.message).join(' | ')}`);
 
   const manifest=fs.readFileSync(path.join(project,'runtime-manifest.js'),'utf8');
-  assert.match(manifest,/version:'6\.7\.1'/,'Offline-Cache hat falsche Version');
+  assert.match(manifest,/version:'6\.8\.0'/,'Offline-Cache hat falsche Version');
   for(const match of manifest.matchAll(/'\.\/([^'?]+)(?:\?[^']*)?'/g)){
     const asset=match[1];
     if(asset==='')continue;
@@ -360,10 +385,11 @@ const input=(selector,value)=>{
     assert.ok(fs.existsSync(path.join(project,asset)),`Index verweist auf fehlende Datei: ${asset}`);
   }
   for(const name of scripts){assert.ok(indexSource.includes(`${name}?`),`Produktiver Erststart lädt ${name} nicht direkt`);assert.ok(manifest.includes(`./${name}?`),`Offline-Manifest enthält ${name} nicht`)}
-  assert.ok(indexSource.includes('nutrition.css?v=6.7.1')&&manifest.includes('./nutrition.css?v=6.7.1'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
+  assert.ok(indexSource.includes('nutrition.css?v=6.8.0')&&manifest.includes('./nutrition.css?v=6.8.0'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
+  assert.ok(indexSource.includes('library.css?v=6.8.0')&&manifest.includes('./library.css?v=6.8.0'),'Neuer Portionsdialog ist nicht cache-sicher versioniert');
   const updateSource=fs.readFileSync(path.join(project,'update.html'),'utf8');
-  assert.ok(updateSource.includes("location.replace('./?updated=671#today')"),'Update-Seite leitet auf einen veralteten Cache-Marker weiter');
-  assert.ok(indexSource.indexOf('food-catalog.js?v=6.7.1')<indexSource.indexOf('library.js?v=6.7.1'),'Katalog wird nach der Bibliothek geladen');
+  assert.ok(updateSource.includes("location.replace('./?updated=680#today')"),'Update-Seite leitet auf einen veralteten Cache-Marker weiter');
+  assert.ok(indexSource.indexOf('food-catalog.js?v=6.8.0')<indexSource.indexOf('library.js?v=6.8.0'),'Katalog wird nach der Bibliothek geladen');
   const nutritionCss=fs.readFileSync(path.join(project,'nutrition.css'),'utf8');
   assert.match(nutritionCss,/body\.nutrition-mode\{[^}]*min-height:100dvh/,'Ernährungsansicht füllt den dynamischen iOS-Viewport nicht');
   assert.match(nutritionCss,/body\.journal-mode nav,body\.nutrition-mode nav\{[^}]*inset:auto 0 0 0!important/,'Ernährungsnavigation ist nicht wie im Tagebuch unten verankert');

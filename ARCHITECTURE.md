@@ -22,9 +22,9 @@ Die produktive Ladefolge steht zusätzlich explizit in `index.html`. So hängt d
 ## Produktive Erweiterungen
 
 - `journal.js` – einzige zuständige Laufzeit für Aufbau, Interaktion und Logik des Tagebuchs
-- `nutrition.js` und `nutrition.css` – kontextbezogene Mahlzeitensuche, Routine-Priorisierung, Tagesbudget, Schnell-Eintragung mit Rückgängig und kategoriegerechte Vortagsübernahme
+- `nutrition.js` und `nutrition.css` – fehlertolerante Mahlzeitensuche, Sprach-/Textmengen wie „200 g Haferflocken“, Routine- und Tages-Fit-Priorisierung, Makro-Kompass, Schnell-Eintragung mit Rückgängig und kategoriegerechte Vortagsübernahme
 - `journal-date.css` und `journal-ui.css` – finale responsive Tagebuch- und Kalenderregeln
-- `upgrade-340.js` – weiterhin aktive Kompatibilitätsschicht für Komplettbackups, exakte Portionsmengen und fensterübergreifende Bibliotheks-/Wasser-Synchronisierung
+- `upgrade-340.js` – weiterhin aktive Kompatibilitätsschicht für Komplettbackups und fensterübergreifende Bibliotheks-/Wasser-Synchronisierung
 
 Die noch geladenen `upgrade-*.css` enthalten ausschließlich das etablierte visuelle Design. Weitere historische `upgrade-*.js`-Ketten sind nicht mehr produktiv.
 
@@ -37,7 +37,7 @@ Die noch geladenen `upgrade-*.css` enthalten ausschließlich das etablierte visu
 - `scanner-v2.js`
 - `off-lookup.js`
 
-`food-catalog.js` liefert offizielle Referenzwerte, wird aber nie durch Benutzeraktionen verändert. `library.js` ist die einzige Schreibinstanz für persönliche Lebensmittel und Rezepte und stellt der Ernährungsoberfläche sichere Methoden zum Öffnen, direkten Eintragen und Rückgängigmachen bereit. Die Ernährungsoberfläche greift nicht eigenständig schreibend auf den Bibliotheksspeicher zu.
+`food-catalog.js` liefert offizielle Referenzwerte, wird aber nie durch Benutzeraktionen verändert. `library.js` ist die einzige Schreibinstanz für persönliche Lebensmittel und Rezepte und stellt der Ernährungsoberfläche sichere Methoden für exakte Portionen, Eintragen und Rückgängigmachen bereit. Mahlzeiten bewahren Menge, Einheit, Quelle sowie verfügbare Zusatznährwerte verlustfrei. Die Ernährungsoberfläche greift nicht eigenständig schreibend auf den Bibliotheksspeicher zu.
 
 ## Nicht produktiv
 

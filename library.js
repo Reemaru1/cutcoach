@@ -3,9 +3,8 @@
 (function(){
   const KEY='cutcoach_library_v1';
   const RECOVERY_KEY='cutcoach_library_recovery_raw_v1';
-  const DB_VERSION=2;
+  const DB_VERSION=3;
   const MAX_ITEMS=1000;
-  const FACTORS=[0.5,0.75,1,1.25,1.5,2];
   let db=load();
   let editingId=null;
   let activeItemId=null;
@@ -36,7 +35,7 @@
       return true;
     }catch{toast('Bibliothek konnte nicht gespeichert werden.');return false;}
   }
-  function safeNumber(v,min=0,max=100000){const n=parseNumber(v);return n===null||n<min||n>max?0:Math.round(n*10)/10;}
+  function safeNumber(v,min=0,max=100000){const n=parseNumber(v);return n===null||n<min||n>max?0:Math.round(n*100)/100;}
   function optionalNumber(v,min=0,max=100000){const n=parseNumber(v);return n===null||n<min||n>max?null:Math.round(n*100)/100;}
   function sanitizeBarcode(v){return String(v??'').replace(/[^0-9A-Za-z._-]/g,'').slice(0,64);}
   function itemKind(value){return value==='recipe'||value==='dish'?'recipe':'food';}
@@ -61,7 +60,11 @@
     return {version:DB_VERSION,items};
   }
   function byId(id){return db.items.find(item=>item.id===id);}
-  function nutrition(item,factor=1){return {calories:item.calories*factor,protein:item.protein*factor,carbs:item.carbs*factor,fat:item.fat*factor};}
+  function nutrition(item,factor=1){
+    const scaled={calories:item.calories*factor,protein:item.protein*factor,carbs:item.carbs*factor,fat:item.fat*factor};
+    for(const nutrient of ['fiber','sugar','saturatedFat','salt'])scaled[nutrient]=item[nutrient]===null||item[nutrient]===undefined?null:item[nutrient]*factor;
+    return scaled;
+  }
   function normalized(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
 
   function mount(){injectUi();bind();renderLibrary();if(location.hash==='#library')switchLibraryTab();}
@@ -82,6 +85,7 @@
       <div class="two"><label>Bezugsmenge<input id="libAmount" type="number" inputmode="decimal" min="0.1" value="100"></label><label>Einheit<select id="libUnit"><option>g</option><option>ml</option><option>Stück</option><option>Portion</option></select></label></div>
       <div class="two"><label>Kalorien<input id="libCalories" type="number" inputmode="decimal" min="1"></label><label>Eiweiß (g)<input id="libProtein" type="number" inputmode="decimal" min="0" step="0.1"></label></div>
       <div class="two"><label>Kohlenhydrate (g)<input id="libCarbs" type="number" inputmode="decimal" min="0" step="0.1"></label><label>Fett (g)<input id="libFat" type="number" inputmode="decimal" min="0" step="0.1"></label></div>
+      <details class="library-nutrients-more"><summary>Weitere Nährwerte (optional)</summary><div class="two"><label>Ballaststoffe (g)<input id="libFiber" type="number" inputmode="decimal" min="0" max="1000" step="0.1"></label><label>Zucker (g)<input id="libSugar" type="number" inputmode="decimal" min="0" max="2000" step="0.1"></label></div><div class="two"><label>Gesättigte Fettsäuren (g)<input id="libSaturatedFat" type="number" inputmode="decimal" min="0" max="1000" step="0.1"></label><label>Salz (g)<input id="libSalt" type="number" inputmode="decimal" min="0" max="1000" step="0.01"></label></div></details>
       <label>Barcode / QR-Code (optional)<input id="libBarcode" maxlength="64" inputmode="numeric" placeholder="Code scannen oder eingeben"></label>
       <div id="recipeBuilder" hidden><div class="notice">Rezept aus deinen Lebensmitteln zusammensetzen. Die Nährwerte werden automatisch addiert.</div><div class="recipe-add"><select id="recipeItem"></select><input id="recipeFactor" type="number" value="1" min="0.01" step="0.25" aria-label="Portionsfaktor"><button id="addRecipeItem" type="button">＋</button></div><div id="recipeComponents"></div></div>
       <label class="favorite-check"><input id="libFavorite" type="checkbox"> Als Favorit markieren</label>
@@ -89,7 +93,7 @@
     </div></div>
     <div class="modal" id="libraryUseModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="libraryUseTitle"><div class="sheet">
       <div class="sheet-head"><h2 id="libraryUseTitle">Mahlzeit eintragen</h2><button data-library-close type="button" aria-label="Schließen">×</button></div><div id="libraryUseSummary" class="library-use-summary"></div>
-      <label>Portion<select id="libraryFactor">${FACTORS.map(f=>`<option value="${f}" ${f===1?'selected':''}>${String(f).replace('.',',')}×</option>`).join('')}</select></label>
+      <section class="library-portion-editor" aria-labelledby="libraryPortionTitle"><strong id="libraryPortionTitle">Deine Menge</strong><label class="library-exact-label"><span>Exakte Menge</span><div class="inline exact-amount"><input id="libraryExactAmount" type="number" inputmode="decimal" min="0.1" max="100000" step="0.1"><span id="libraryExactUnit">g</span></div></label><div id="libraryPortionPresets" class="library-portion-presets" role="group" aria-label="Schnelle Portionsgrößen"></div><input id="libraryFactor" type="hidden" value="1"></section>
       <label>Kategorie<select id="libraryMealType">${MEAL_TYPES.map(x=>`<option>${x}</option>`).join('')}</select></label><div id="factorPreview" class="notice"></div>
       <button id="addLibraryMeal" type="button">Für diesen Tag eintragen</button>
     </div></div>
@@ -110,7 +114,7 @@
     $$('[data-library-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.libraryFilter;$$('[data-library-filter]').forEach(x=>x.classList.toggle('on',x===b));renderLibrary();});
     $$('[data-library-close]').forEach(b=>b.onclick=()=>{stopScanner();closeModal(b.closest('.modal'));});
     $$('[data-kind]').forEach(b=>b.onclick=()=>setKind(b.dataset.kind));
-    $('#saveLibraryItem').onclick=saveEditor;$('#deleteLibraryItem').onclick=deleteEditor;$('#addLibraryMeal').onclick=addToDay;$('#libraryFactor').onchange=renderUsePreview;
+    $('#saveLibraryItem').onclick=saveEditor;$('#deleteLibraryItem').onclick=deleteEditor;$('#addLibraryMeal').onclick=addToDay;$('#libraryExactAmount').oninput=syncExactAmount;$('#libraryPortionPresets').onclick=event=>{const button=event.target.closest('[data-portion-amount]');if(button)setPortionAmount(button.dataset.portionAmount)};
     $('#addRecipeItem').onclick=addComponent;$('#lookupManualCode').onclick=()=>lookupCode($('#manualCode').value);
     $('#scannerModal').addEventListener('click',e=>{if(e.target.id==='scannerModal'){stopScanner();closeModal(e.target);}});
   }
@@ -137,11 +141,12 @@
   function openEditor(id=null,barcode=''){
     editingId=id;const i=id?byId(id):null;setText('#libraryItemTitle',i?'Eintrag bearbeiten':'Eintrag speichern');
     $('#libName').value=i?.name||'';$('#libAmount').value=i?.amount||100;$('#libUnit').value=i?.unit||'g';$('#libCalories').value=i?.calories??'';$('#libProtein').value=i?.protein??'';$('#libCarbs').value=i?.carbs??'';$('#libFat').value=i?.fat??'';$('#libBarcode').value=i?.barcode||barcode;$('#libFavorite').checked=Boolean(i?.favorite);$('#deleteLibraryItem').hidden=!i;
+    $('#libFiber').value=i?.fiber??'';$('#libSugar').value=i?.sugar??'';$('#libSaturatedFat').value=i?.saturatedFat??'';$('#libSalt').value=i?.salt??'';
     setKind(i?.kind||'food');$('#recipeBuilder').dataset.components=JSON.stringify(i?.components||[]);renderComponents();openModal('libraryItemModal');
   }
   function createItem(kind='food',initial={}){openEditor(null,'');setKind(itemKind(kind));const name=cleanText(typeof initial==='string'?initial:initial?.name,80);if(name){$('#libName').value=name;setTimeout(()=>$('#libName')?.focus(),40)}}
   function saveEditor(){
-    const existing=byId(editingId),components=JSON.parse($('#recipeBuilder').dataset.components||'[]');const raw={id:editingId||makeId(),kind:currentKind(),name:$('#libName').value,amount:$('#libAmount').value,unit:$('#libUnit').value,calories:$('#libCalories').value,protein:$('#libProtein').value,carbs:$('#libCarbs').value,fat:$('#libFat').value,barcode:$('#libBarcode').value,favorite:$('#libFavorite').checked,components,fiber:existing?.fiber,sugar:existing?.sugar,saturatedFat:existing?.saturatedFat,salt:existing?.salt,source:existing?.source,sourceId:existing?.sourceId,sourceVersion:existing?.sourceVersion,modified:Boolean(existing?.modified||existing?.source==='bls')};
+    const existing=byId(editingId),components=JSON.parse($('#recipeBuilder').dataset.components||'[]');const raw={id:editingId||makeId(),kind:currentKind(),name:$('#libName').value,amount:$('#libAmount').value,unit:$('#libUnit').value,calories:$('#libCalories').value,protein:$('#libProtein').value,carbs:$('#libCarbs').value,fat:$('#libFat').value,fiber:$('#libFiber').value,sugar:$('#libSugar').value,saturatedFat:$('#libSaturatedFat').value,salt:$('#libSalt').value,barcode:$('#libBarcode').value,favorite:$('#libFavorite').checked,components,source:existing?.source,sourceId:existing?.sourceId,sourceVersion:existing?.sourceVersion,modified:Boolean(existing?.modified||existing?.source==='bls')};
     const item=sanitizeItem(raw);if(!item){toast('Name und gültige Kalorien eintragen.');return;}
     if(item.barcode){const duplicate=db.items.find(x=>x.barcode===item.barcode&&x.id!==item.id);if(duplicate&&!confirm(`Dieser Code gehört bereits zu „${duplicate.name}“. Trotzdem speichern?`))return;}
     const idx=db.items.findIndex(x=>x.id===item.id);if(idx<0&&db.items.length>=MAX_ITEMS){toast(`Maximal ${MAX_ITEMS.toLocaleString('de-DE')} Bibliothekseinträge möglich.`);return;}
@@ -154,24 +159,45 @@
     return MEAL_TYPES.includes(requested)?requested:'Frühstück';
   }
   function activeUseItem(){return byId(activeItemId)||(activeTransientItem?.id===activeItemId?activeTransientItem:null);}
-  function prepareUse(item,type){
+  function roundPortion(value,unit){const amount=Math.max(.1,Number(value)||.1),step=unit==='Stück'||unit==='Portion'?.25:amount>=100?25:amount>=20?5:amount>=5?1:.1;return Math.round(amount/step)*step;}
+  function portionAmounts(item){
+    const multipliers=item.unit==='Stück'||item.unit==='Portion'?[.5,1,1.5,2]:item.amount===100?[.5,1,1.5,2,2.5]:[.5,1,1.5,2];
+    return [...new Set(multipliers.map(factor=>roundPortion(item.amount*factor,item.unit)).filter(amount=>amount>0&&amount<=100000))];
+  }
+  function compatiblePortion(item,portion){return portion&&Number(portion.amount)>0&&String(portion.unit||item.unit)===item.unit?Math.min(100000,Number(portion.amount)):null;}
+  function setPortionAmount(value){
+    const item=activeUseItem(),amount=Math.min(100000,Math.max(.1,Number(String(value).replace(',','.'))||0));if(!item||!amount)return;
+    $('#libraryExactAmount').value=String(Math.round(amount*10)/10);$('#libraryFactor').value=String(amount/item.amount);$('#addLibraryMeal').disabled=false;renderUsePreview();
+  }
+  function syncExactAmount(){const item=activeUseItem(),amount=parseNumber($('#libraryExactAmount').value),valid=Boolean(item&&amount!==null&&amount>0&&amount<=100000);$('#addLibraryMeal').disabled=!valid;if(!valid)return;$('#libraryFactor').value=String(amount/item.amount);renderUsePreview();}
+  function renderPortionPresets(item){
+    const current=Number($('#libraryExactAmount').value),host=$('#libraryPortionPresets');
+    host.innerHTML=portionAmounts(item).map(amount=>`<button type="button" data-portion-amount="${amount}" class="${Math.abs(amount-current)<.01?'active':''}" aria-pressed="${Math.abs(amount-current)<.01}">${fmt(amount,amount%1?1:0)} ${escapeHtml(item.unit)}</button>`).join('');
+  }
+  function prepareUse(item,type,portion=null){
     if(!item)return false;activeItemId=item.id;
-    setText('#libraryUseTitle',item.name);$('#libraryFactor').value='1';$('#libraryMealType').value=preferredMealType(type);renderUsePreview();openModal('libraryUseModal');return true;
+    const amount=compatiblePortion(item,portion)||item.amount;setText('#libraryUseTitle',item.name);$('#libraryExactUnit').textContent=item.unit;$('#libraryExactAmount').value=String(amount);$('#libraryFactor').value=String(amount/item.amount);$('#libraryMealType').value=preferredMealType(type);$('#addLibraryMeal').disabled=false;renderUsePreview();openModal('libraryUseModal');return true;
   }
-  function openUse(id,type=null){
-    activeTransientItem=null;return prepareUse(byId(id),type);
+  function openUse(id,type=null,portion=null){
+    activeTransientItem=null;return prepareUse(byId(id),type,portion);
   }
-  function openCatalogUse(raw,type=null){
-    const item=sanitizeItem({...raw,kind:'food',favorite:false,uses:0,lastUsedAt:null,components:[]});if(!item)return false;activeTransientItem=item;return prepareUse(item,type);
+  function openCatalogUse(raw,type=null,portion=null){
+    const item=sanitizeItem({...raw,kind:'food',favorite:false,uses:0,lastUsedAt:null,components:[]});if(!item)return false;activeTransientItem=item;return prepareUse(item,type,portion);
   }
-  function renderUsePreview(){const i=activeUseItem();if(!i)return;const f=Number($('#libraryFactor').value)||1,n=nutrition(i,f),source=i.source==='bls'?' · Quelle: BLS 4.0':'';$('#libraryUseSummary').innerHTML=`<b>${escapeHtml(i.name)}</b><small>Basis: ${fmt(i.amount,i.amount%1?1:0)} ${i.unit}${source}</small>`;setText('#factorPreview',`${fmt(n.calories)} kcal · ${fmt(n.protein)} g Eiweiß · ${fmt(n.carbs)} g KH · ${fmt(n.fat)} g Fett`);}
+  function renderUsePreview(){
+    const i=activeUseItem();if(!i)return;const f=Math.min(100,Math.max(.001,Number($('#libraryFactor').value)||1)),n=nutrition(i,f),amount=i.amount*f,source=i.source==='bls'?' · BLS 4.0':i.source==='off'?' · Produktdaten':'';
+    $('#libraryUseSummary').innerHTML=`<b>${escapeHtml(i.name)}</b><small>Basis: ${fmt(i.amount,i.amount%1?1:0)} ${escapeHtml(i.unit)}${source}</small>`;
+    const extras=[n.fiber===null?'':`${fmt(n.fiber,1)} g Ballaststoffe`,n.sugar===null?'':`${fmt(n.sugar,1)} g Zucker`,n.salt===null?'':`${fmt(n.salt,2)} g Salz`].filter(Boolean);
+    $('#factorPreview').innerHTML=`<strong>${fmt(n.calories)} kcal</strong><span>E ${fmt(n.protein,1)} g</span><span>KH ${fmt(n.carbs,1)} g</span><span>F ${fmt(n.fat,1)} g</span>${extras.length?`<small>${extras.join(' · ')}</small>`:''}`;
+    $('#libraryExactAmount').value=String(Math.round(amount*10)/10);$('#libraryExactUnit').textContent=i.unit;renderPortionPresets(i);
+  }
   function addItemToDay(id,{factor=1,type=null,dateKey=selectedDate}={}){
     const i=byId(id);if(!i||!validDateKey(dateKey))return null;
-    const cleanFactor=Math.min(100,Math.max(.01,Number(factor)||1));
+    const cleanFactor=Math.min(100000/i.amount,Math.max(.00001,Number(factor)||1));
     if(typeof mealCapacity==='function'&&mealCapacity(dateKey)<1){toast(`Maximal ${fmt(MAX_MEALS_PER_DAY)} Mahlzeiten pro Tag möglich.`);return null;}
-    const n=nutrition(i,cleanFactor),meal=sanitizeMeal({id:makeId(),name:i.name,type:preferredMealType(type),...n});
+    const n=nutrition(i,cleanFactor),meal=sanitizeMeal({id:makeId(),name:i.name,type:preferredMealType(type),...n,quantity:i.amount*cleanFactor,unit:i.unit,source:i.kind==='recipe'?'recipe':i.source,sourceItemId:i.id});
     if(!meal){toast('Mahlzeit konnte nicht erstellt werden.');return null;}
-    const token={itemId:i.id,mealId:meal.id,name:i.name,mealType:meal.type,dateKey,previousUses:i.uses,previousLastUsed:i.lastUsedAt,addedLastUsedAt:new Date().toISOString()};
+    const token={itemId:i.id,mealId:meal.id,name:i.name,mealType:meal.type,dateKey,quantity:meal.quantity,unit:meal.unit,previousUses:i.uses,previousLastUsed:i.lastUsedAt,addedLastUsedAt:new Date().toISOString()};
     i.uses++;i.lastUsedAt=token.addedLastUsedAt;
     if(!save({notify:false})){i.uses=token.previousUses;i.lastUsedAt=token.previousLastUsed;return null;}
     if(!commitDayMutation(data=>data.meals.push(meal),dateKey)){
@@ -200,14 +226,20 @@
     renderLibrary();notifyChange();return true;
   }
   function addToDay(){
+    const amount=parseNumber($('#libraryExactAmount').value);if(amount===null||amount<=0||amount>100000){toast('Bitte eine gültige Portionsmenge eintragen.');return;}
     const result=activeTransientItem?.id===activeItemId?addCatalogItemToDay(activeTransientItem,{factor:$('#libraryFactor').value,type:$('#libraryMealType').value}):addItemToDay(activeItemId,{factor:$('#libraryFactor').value,type:$('#libraryMealType').value});
     if(!result)return;
     activeTransientItem=null;closeModal($('#libraryUseModal'));render();toast('Mahlzeit eingetragen.');
   }
   function fillRecipeOptions(){const select=$('#recipeItem');const options=db.items.filter(i=>i.id!==editingId&&i.kind==='food');select.innerHTML=options.map(i=>`<option value="${i.id}">${escapeHtml(i.name)}</option>`).join('');$('#addRecipeItem').disabled=!options.length;}
   function addComponent(){const id=$('#recipeItem').value,f=safeNumber($('#recipeFactor').value,0.01,100)||1;if(!id)return;const list=JSON.parse($('#recipeBuilder').dataset.components||'[]');list.push({itemId:id,factor:f});$('#recipeBuilder').dataset.components=JSON.stringify(list);renderComponents();calculateRecipe();}
-  function renderComponents(){const list=JSON.parse($('#recipeBuilder').dataset.components||'[]');$('#recipeComponents').innerHTML=list.map((c,idx)=>{const i=byId(c.itemId);return i?`<div class="recipe-row"><span>${escapeHtml(i.name)} · ${String(c.factor).replace('.',',')}×</span><button data-remove-component="${idx}" type="button">×</button></div>`:'';}).join('');$$('[data-remove-component]').forEach(b=>b.onclick=()=>{const l=JSON.parse($('#recipeBuilder').dataset.components||'[]');l.splice(Number(b.dataset.removeComponent),1);$('#recipeBuilder').dataset.components=JSON.stringify(l);renderComponents();calculateRecipe();});fillRecipeOptions();}
-  function calculateRecipe(){const list=JSON.parse($('#recipeBuilder').dataset.components||'[]');const total=list.reduce((s,c)=>{const i=byId(c.itemId);if(!i)return s;const n=nutrition(i,c.factor);for(const k of ['calories','protein','carbs','fat'])s[k]+=n[k];return s;},{calories:0,protein:0,carbs:0,fat:0});for(const [id,k] of [['libCalories','calories'],['libProtein','protein'],['libCarbs','carbs'],['libFat','fat']])$(`#${id}`).value=Math.round(total[k]*10)/10;}
+  function renderComponents(){const list=JSON.parse($('#recipeBuilder').dataset.components||'[]');$('#recipeComponents').innerHTML=list.map((c,idx)=>{const i=byId(c.itemId),amount=i?i.amount*c.factor:0;return i?`<div class="recipe-row"><span>${escapeHtml(i.name)}<small>${fmt(amount,amount%1?1:0)} ${escapeHtml(i.unit)}</small></span><button data-remove-component="${idx}" type="button" aria-label="${escapeHtml(i.name)} entfernen">×</button></div>`:'';}).join('');$$('[data-remove-component]').forEach(b=>b.onclick=()=>{const l=JSON.parse($('#recipeBuilder').dataset.components||'[]');l.splice(Number(b.dataset.removeComponent),1);$('#recipeBuilder').dataset.components=JSON.stringify(l);renderComponents();calculateRecipe();});fillRecipeOptions();}
+  function calculateRecipe(){
+    const list=JSON.parse($('#recipeBuilder').dataset.components||'[]'),items=list.map(component=>({component,item:byId(component.itemId)})).filter(entry=>entry.item),total={calories:0,protein:0,carbs:0,fat:0,fiber:null,sugar:null,saturatedFat:null,salt:null};
+    for(const nutrient of ['calories','protein','carbs','fat'])total[nutrient]=items.reduce((sum,{component,item})=>sum+nutrition(item,component.factor)[nutrient],0);
+    for(const nutrient of ['fiber','sugar','saturatedFat','salt']){const values=items.map(({component,item})=>nutrition(item,component.factor)[nutrient]);total[nutrient]=values.length&&values.every(value=>value!==null)?values.reduce((sum,value)=>sum+value,0):null;}
+    for(const [id,key] of [['libCalories','calories'],['libProtein','protein'],['libCarbs','carbs'],['libFat','fat'],['libFiber','fiber'],['libSugar','sugar'],['libSaturatedFat','saturatedFat'],['libSalt','salt']])$(`#${id}`).value=total[key]===null?'':Math.round(total[key]*100)/100;
+  }
 
   async function startScanner(){openModal('scannerModal');setText('#scannerStatus','Kamera wird vorbereitet …');$('#manualCode').value='';
     if(!navigator.mediaDevices?.getUserMedia||typeof BarcodeDetector!=='function'){setText('#scannerStatus','Automatische Kamera-Erkennung wird von diesem Browser nicht unterstützt. Gib den Code unten manuell ein.');return;}
