@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='6.2.0';
+  const VERSION='6.2.1';
   const WATER_KEY='cutcoach_water_v1';
   const WATER_UNDO_KEY='cutcoach_water_undo_v7';
   const WATER_MAX=6000;
@@ -38,7 +38,7 @@
   function replaceButton(oldNode,id,text,handler,disabled=false){
     if(!oldNode)return null;
     const button=document.createElement('button');
-    button.id=id;
+    if(id)button.id=id;
     button.type='button';
     button.className=oldNode.className;
     button.innerHTML=text;
@@ -61,6 +61,7 @@
 
     const freshDate=date.cloneNode(true);
     freshDate.type='button';
+    freshDate.onclick=null;
     freshDate.querySelectorAll('input').forEach(node=>node.remove());
     freshDate.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();openCalendar()});
     date.replaceWith(freshDate);
@@ -78,9 +79,11 @@
     controls.append(previous,next);
 
     const calendar=oldCalendar.cloneNode(true);
-    calendar.type='button';calendar.removeAttribute('href');calendar.removeAttribute('onclick');
+    calendar.type='button';calendar.onclick=null;calendar.removeAttribute('href');calendar.removeAttribute('onclick');calendar.dataset.journalController='1';
     calendar.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();openCalendar()});
+    oldCalendar.remove();
     tools.replaceChildren(controls,stats,calendar);
+    calendar.onclick=null;
     if(top.firstElementChild!==freshDate)top.prepend(freshDate);
   }
 
@@ -220,6 +223,9 @@
   }
 
   function mount(){
+    const host=root();
+    if(!host)return;
+    host.dataset.journalController=VERSION;
     mountHeader();mountSteps();mountWater();
     const version=document.querySelector('#appVersion');if(version)version.textContent=`Version ${VERSION}`;
   }
