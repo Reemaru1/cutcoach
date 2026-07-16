@@ -1,6 +1,18 @@
-/* CutCoach 6.2.2 – rebuilt journal controls and fitted calendar */
+/* CutCoach 6.2.3 – rebuilt journal controls, status cards and fitted calendar */
 #today560 .journal-day-controls button{display:grid!important;place-items:center!important;width:48px!important;height:48px!important;padding:0!important;border:1px solid rgba(151,170,205,.22)!important;border-radius:15px!important;background:linear-gradient(145deg,#111a2a,#0a101b)!important;color:#eef3fb!important;font-size:30px!important;line-height:1!important;pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:6!important;-webkit-tap-highlight-color:transparent!important}
 #today560 .journal-day-controls button:disabled{opacity:.32!important;pointer-events:none!important}
+#today560 .journal-mini-stats{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:stretch!important;justify-content:stretch!important;width:100%!important;min-width:0!important;height:52px!important;padding:4px!important;gap:4px!important;overflow:hidden!important;border:1px solid rgba(151,170,205,.22)!important;border-radius:16px!important;background:linear-gradient(145deg,rgba(15,23,38,.96),rgba(7,12,21,.98))!important;box-shadow:inset 0 1px rgba(255,255,255,.04),0 8px 22px rgba(0,0,0,.14)!important}
+#today560 .journal-mini-stats .journal-status-item{display:grid!important;grid-template-columns:25px minmax(0,1fr)!important;grid-template-rows:1fr 1fr!important;align-items:center!important;gap:0 6px!important;min-width:0!important;height:100%!important;padding:3px 6px!important;border:0!important;border-radius:11px!important;background:rgba(255,255,255,.035)!important;color:#eef3fb!important}
+#today560 .journal-mini-stats .journal-status-item+.journal-status-item{border-left:0!important}
+#today560 .journal-mini-stats .journal-score-status{background:linear-gradient(135deg,rgba(98,185,255,.12),rgba(168,123,255,.07))!important}
+#today560 .journal-mini-stats .journal-streak-status{background:linear-gradient(135deg,rgba(255,155,119,.12),rgba(255,212,94,.06))!important}
+#today560 .journal-status-icon{grid-column:1;grid-row:1/3;display:grid;place-items:center;width:25px;height:25px;border-radius:9px;background:rgba(255,255,255,.055);font-size:15px;font-style:normal;line-height:1}
+#today560 .journal-status-item small{grid-column:2;grid-row:1;align-self:end;display:block;min-width:0;margin:0;color:#8f9bb0;font-size:8.5px;font-weight:800;line-height:1.1;letter-spacing:.025em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#today560 .journal-status-item b{grid-column:2;grid-row:2;align-self:start;display:block;min-width:0;margin-top:2px;color:#f5f7fb;font-size:13px;font-weight:850;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#today560 .journal-status-item.pending{box-shadow:inset 0 0 0 1px rgba(255,212,94,.18)}
+#today560 .journal-status-item.pending b{color:#ffd45e}
+#today560 .journal-heading{display:block!important;padding-right:2px!important}
+#today560 .journal-heading>div{width:100%;min-width:0}
 .journal-calendar-days button{display:grid;place-items:center;width:100%;min-width:0;min-height:0;aspect-ratio:1;padding:0!important;border:1px solid transparent!important;border-radius:12px!important;background:rgba(255,255,255,.025)!important;color:#eef3fb!important;font:inherit;font-size:clamp(12px,3.8vw,16px)!important;font-weight:750!important;line-height:1!important;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .journal-calendar-days button.outside{color:#647086!important}
 .journal-calendar-days button.today{border-color:#62b9ff!important}
@@ -10,5 +22,5 @@
 #journalCalendarClose{background:#0d1523!important;color:#eef3fb!important}
 #today560 #journalStepSave,#today560 #journalStepClear,#today560 [data-journal-water],#today560 #journalWaterUndo{touch-action:manipulation!important;pointer-events:auto!important;position:relative!important;z-index:5!important;-webkit-tap-highlight-color:transparent!important}
 #today560 #journalWaterUndo:disabled{pointer-events:none!important}
-@media(max-width:430px){#today560 .journal-day-controls button{width:44px!important;height:44px!important}.journal-calendar-days button{border-radius:11px!important;font-size:14px!important}}
+@media(max-width:430px){#today560 .journal-day-controls button{width:44px!important;height:44px!important}#today560 .journal-mini-stats{height:50px!important;padding:3px!important;gap:3px!important}#today560 .journal-mini-stats .journal-status-item{grid-template-columns:23px minmax(0,1fr)!important;gap:0 5px!important;padding:3px 5px!important}#today560 .journal-status-icon{width:23px;height:23px;font-size:14px}#today560 .journal-status-item small{font-size:8px}#today560 .journal-status-item b{font-size:12px}.journal-calendar-days button{border-radius:11px!important;font-size:14px!important}}
 @media(max-width:350px){.journal-calendar-days button{border-radius:9px!important;font-size:13px!important}}
