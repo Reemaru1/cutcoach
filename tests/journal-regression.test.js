@@ -86,7 +86,7 @@ const input=(selector,value)=>{
   assert.equal(window.document.querySelector('#journalQuickAdd'),null,'Doppeltes Schnell-Plus ist zurückgekehrt');
   assert.equal(window.document.querySelectorAll('.journal-meal-add').length,4,'Mahlzeiten-Plus fehlt');
   assert.deepEqual([...window.document.querySelectorAll('[data-journal-alcohol]')].map(node=>node.textContent.trim()),['Ja','Nein'],'Alkohol-Reihenfolge ist falsch');
-  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.5.1');
+  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.6.0');
   assert.equal(test.score(),null,'Leerer Ernährungstag darf keine Tagesnote haben');
 
   const originalDate=test.selectedDate;
@@ -182,6 +182,12 @@ const input=(selector,value)=>{
   breakfastAdd.click();
   assert.equal(window.document.querySelector('[data-screen="food"]').classList.contains('active'),true,'Mahlzeiten-Plus öffnet Ernährung nicht');
   assert.equal(window.document.querySelector('#nutritionTitle').textContent,'Frühstück','Mahlzeitenkategorie wurde nicht übernommen');
+  assert.equal(window.document.querySelector('#nutritionMealSelect').value,'Frühstück','Mahlzeitenwechsler startet in der falschen Kategorie');
+  assert.match(window.document.querySelector('#nutritionDayBudgetLabel').textContent,/Noch 2\.300 kcal/,'Tagesbudget fehlt im Ernährungsbereich');
+  const mealSelect=window.document.querySelector('#nutritionMealSelect');mealSelect.value='Mittagessen';mealSelect.dispatchEvent(new window.Event('change',{bubbles:true}));
+  assert.equal(window.document.querySelector('#nutritionTitle').textContent,'Mittagessen','Mahlzeit kann im Ernährungsbereich nicht gewechselt werden');
+  assert.equal(window.document.body.dataset.nutritionMealType,'Mittagessen','Mahlzeitenwechsel aktualisiert den Eintragskontext nicht');
+  mealSelect.value='Frühstück';mealSelect.dispatchEvent(new window.Event('change',{bubbles:true}));
   assert.equal(window.document.querySelector('[data-tab="today"]').classList.contains('active'),true,'Ernährung verliert die Tagebuch-Orientierung');
   assert.equal(window.document.querySelector('#nutritionCopyPrevious').hidden,true,'Leere Vortagsaktion nimmt unnötig Platz ein');
   click('#nutritionRecipe');
@@ -206,24 +212,39 @@ const input=(selector,value)=>{
   assert.ok(window.document.querySelector(`[data-nutrition-copy="${mealId}"]`),'Duplizieren fehlt im Ernährungsbereich');
   assert.ok(window.document.querySelector(`[data-nutrition-delete="${mealId}"]`),'Löschen fehlt im Ernährungsbereich');
   click(`[data-nutrition-edit="${mealId}"]`);assert.equal(window.document.querySelector('#mealModal').classList.contains('open'),true,'Mahlzeit lässt sich nicht bearbeiten');click('#mealModal [data-close]');
+  click('#nutritionManual');assert.equal(window.document.querySelector('#mealModalTitle').textContent,'Mahlzeit hinzufügen','Manuelle Eingabe behält fälschlich den Bearbeitungsmodus');assert.equal(window.document.querySelector('#mealName').value,'','Manuelle Eingabe übernimmt Daten der zuvor bearbeiteten Mahlzeit');click('#mealModal [data-close]');
+  assert.match(window.document.querySelector('#nutritionDayBudgetLabel').textContent,/Noch 1\.100 kcal/,'Tagesbudget reagiert nicht auf eingetragene Kalorien');
   click(`[data-nutrition-copy="${mealId}"]`);assert.equal(test.day(previousDate,false).meals.length,2,'Mahlzeit wurde nicht dupliziert');
   click(`[data-nutrition-delete="${mealId}"]`);assert.equal(test.day(previousDate,false).meals.length,1,'Mahlzeit wurde nicht gelöscht');
 
   const quickFood={id:'quick-food',name:'Schneller Skyr',kind:'food',barcode:'',amount:250,unit:'g',calories:160,protein:27,carbs:10,fat:1,favorite:true,uses:0,lastUsedAt:null,createdAt:new Date().toISOString(),components:[]};
-  assert.equal(window.CutCoachLibrary.importData({version:1,items:[quickFood]}),true,'Test-Lebensmittel konnte nicht vorbereitet werden');
+  const streetFood={id:'street-food',name:'Fitness-Straße Bowl',kind:'food',barcode:'',amount:300,unit:'g',calories:420,protein:32,carbs:48,fat:9,favorite:false,uses:0,lastUsedAt:null,createdAt:new Date().toISOString(),components:[]};
+  const routineFood={id:'routine-food',name:'Hafer Routine',kind:'food',barcode:'',amount:100,unit:'g',calories:370,protein:13,carbs:59,fat:7,favorite:false,uses:0,lastUsedAt:null,createdAt:new Date().toISOString(),components:[]};
+  const routineDateOne=test.shiftKey(previousDate,-2),routineDateTwo=test.shiftKey(previousDate,-3);
+  assert.equal(test.replaceMealsForDate(routineDateOne,[{id:'routine-1',name:'Hafer Routine',type:'Frühstück',calories:370,protein:13,carbs:59,fat:7}]),true,'Erster Routinetag konnte nicht vorbereitet werden');
+  assert.equal(test.replaceMealsForDate(routineDateTwo,[{id:'routine-2',name:'Hafer Routine',type:'Frühstück',calories:370,protein:13,carbs:59,fat:7}]),true,'Zweiter Routinetag konnte nicht vorbereitet werden');
+  assert.equal(window.CutCoachLibrary.importData({version:1,items:[quickFood,streetFood,routineFood]}),true,'Test-Lebensmittel konnten nicht vorbereitet werden');
   await wait(0);
   assert.ok(window.document.querySelector('[data-nutrition-add="quick-food"]'),'Direktes Hinzufügen fehlt');
   assert.equal(window.document.querySelector('[data-filter-count="favorite"]').textContent,'1','Filterzähler ist nicht aktuell');
+  assert.equal(window.document.querySelector('.nutrition-result-row [data-nutrition-open]')?.dataset.nutritionOpen,'routine-food','Frühstücksroutine wird nicht priorisiert');
+  assert.ok(window.document.querySelector('[data-nutrition-open="routine-food"] .nutrition-routine'),'Routinenhinweis fehlt');
+  input('#nutritionSearch','fitness strasse');await wait(0);assert.ok(window.document.querySelector('[data-nutrition-open="street-food"]'),'Suche findet Umlaute und ß nicht fehlertolerant');
+  click('[data-nutrition-filter="favorite"]');input('#nutritionSearch','fitness strasse bowl');await wait(0);assert.equal(window.document.querySelector('[data-nutrition-filter="all"]').classList.contains('active'),true,'Neue Suche bleibt unbemerkt in einem einschränkenden Filter');assert.ok(window.document.querySelector('[data-nutrition-open="street-food"]'),'Globale Suche blendet Nicht-Favoriten aus');
+  input('#nutritionSearch','Mein neues Müsli');await wait(0);click('[data-nutrition-empty-add]');assert.equal(window.document.querySelector('#libName').value,'Mein neues Müsli','Nicht gefundener Suchbegriff wird beim Anlegen nicht übernommen');click('#libraryItemModal [data-library-close]');input('#nutritionSearch','');await wait(0);
+  mealSelect.value='Mittagessen';mealSelect.dispatchEvent(new window.Event('change',{bubbles:true}));
   click('[data-nutrition-add="quick-food"]');
   const quickMeal=test.day(previousDate,false).meals.find(meal=>meal.name==='Schneller Skyr');
   assert.ok(quickMeal,'Schnell-Plus hat nichts eingetragen');
-  assert.equal(quickMeal.type,'Frühstück','Schnell-Plus verwendet die falsche Mahlzeitenkategorie');
+  assert.equal(quickMeal.type,'Mittagessen','Schnell-Plus verwendet nach dem Mahlzeitenwechsel die falsche Kategorie');
   assert.equal(window.document.querySelector('#libraryUseModal').classList.contains('open'),false,'Schnell-Plus öffnet unnötig den Portionsdialog');
   assert.equal(window.document.querySelector('#nutritionFeedback').hidden,false,'Rückgängig-Hinweis fehlt nach Schnell-Eintragung');
+  assert.match(window.document.querySelector('#nutritionFeedbackText').textContent,/Mittagessen/,'Eintragsbestätigung nennt die falsche Mahlzeit');
   assert.equal(window.CutCoachLibrary.exportData().items[0].uses,1,'Nutzungszähler wurde nicht aktualisiert');
   click('#nutritionUndoAdd');
   assert.equal(test.day(previousDate,false).meals.some(meal=>meal.id===quickMeal.id),false,'Schnell-Eintragung wurde nicht rückgängig gemacht');
   assert.equal(window.CutCoachLibrary.exportData().items[0].uses,0,'Rückgängig stellt den Nutzungszähler nicht wieder her');
+  mealSelect.value='Frühstück';mealSelect.dispatchEvent(new window.Event('change',{bubbles:true}));
 
   const mealsBeforeFailedQuickAdd=test.day(previousDate,false).meals.length;
   test.saveState=()=>false;click('[data-nutrition-add="quick-food"]');test.saveState=originalSaveState;
@@ -292,7 +313,7 @@ const input=(selector,value)=>{
   assert.equal(errors.length,0,`Unerwartete Browserfehler: ${errors.map(error=>error.message).join(' | ')}`);
 
   const manifest=fs.readFileSync(path.join(project,'runtime-manifest.js'),'utf8');
-  assert.match(manifest,/version:'6\.5\.1'/,'Offline-Cache hat falsche Version');
+  assert.match(manifest,/version:'6\.6\.0'/,'Offline-Cache hat falsche Version');
   for(const match of manifest.matchAll(/'\.\/([^'?]+)(?:\?[^']*)?'/g)){
     const asset=match[1];
     if(asset==='')continue;
@@ -305,9 +326,9 @@ const input=(selector,value)=>{
     assert.ok(fs.existsSync(path.join(project,asset)),`Index verweist auf fehlende Datei: ${asset}`);
   }
   for(const name of scripts){assert.ok(indexSource.includes(`${name}?`),`Produktiver Erststart lädt ${name} nicht direkt`);assert.ok(manifest.includes(`./${name}?`),`Offline-Manifest enthält ${name} nicht`)}
-  assert.ok(indexSource.includes('nutrition.css?v=6.5.1')&&manifest.includes('./nutrition.css?v=6.5.1'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
+  assert.ok(indexSource.includes('nutrition.css?v=6.6.0')&&manifest.includes('./nutrition.css?v=6.6.0'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
   const updateSource=fs.readFileSync(path.join(project,'update.html'),'utf8');
-  assert.ok(updateSource.includes("location.replace('./?updated=651#today')"),'Update-Seite leitet auf einen veralteten Cache-Marker weiter');
+  assert.ok(updateSource.includes("location.replace('./?updated=660#today')"),'Update-Seite leitet auf einen veralteten Cache-Marker weiter');
   const nutritionCss=fs.readFileSync(path.join(project,'nutrition.css'),'utf8');
   assert.match(nutritionCss,/body\.nutrition-mode\{[^}]*min-height:100dvh/,'Ernährungsansicht füllt den dynamischen iOS-Viewport nicht');
   assert.match(nutritionCss,/body\.journal-mode nav,body\.nutrition-mode nav\{[^}]*inset:auto 0 0 0!important/,'Ernährungsnavigation ist nicht wie im Tagebuch unten verankert');

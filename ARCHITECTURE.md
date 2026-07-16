@@ -22,7 +22,7 @@ Die produktive Ladefolge steht zusätzlich explizit in `index.html`. So hängt d
 ## Produktive Erweiterungen
 
 - `journal.js` – einzige zuständige Laufzeit für Aufbau, Interaktion und Logik des Tagebuchs
-- `nutrition.js` und `nutrition.css` – kompakte Mahlzeitensuche, Filter, Schnell-Eintragung mit Rückgängig und kategoriegerechte Vortagsübernahme
+- `nutrition.js` und `nutrition.css` – kontextbezogene Mahlzeitensuche, Routine-Priorisierung, Tagesbudget, Schnell-Eintragung mit Rückgängig und kategoriegerechte Vortagsübernahme
 - `journal-date.css` und `journal-ui.css` – finale responsive Tagebuch- und Kalenderregeln
 - `upgrade-340.js` – weiterhin aktive Kompatibilitätsschicht für Komplettbackups, exakte Portionsmengen und fensterübergreifende Bibliotheks-/Wasser-Synchronisierung
 
