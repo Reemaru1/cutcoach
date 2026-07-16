@@ -1,4 +1,4 @@
-/* CutCoach 6.7.0 – official food catalog and recipe model */
+/* CutCoach 6.7.1 – nutrition interface */
 body.nutrition-mode{min-height:100vh;min-height:100dvh}
 body.nutrition-mode .app{padding:0!important;min-height:100vh!important;min-height:100dvh!important}
 body.nutrition-mode .app-header,body.nutrition-mode .date-nav{display:none!important}

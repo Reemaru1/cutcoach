@@ -1,9 +1,9 @@
 'use strict';
 (function(){
-  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'6.7.0';
+  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'6.7.1';
   const WATER_KEY='cutcoach_water_v1';
   const WATER_RECOVERY_KEY='cutcoach_water_recovery_raw_v1';
-  const WATER_UNDO_KEY='cutcoach_water_undo_v9';
+  const WATER_UNDO_KEY='cutcoach_water_undo_v10';
   const WATER_TARGET=3000;
   const WATER_MAX=6000;
   const mealIcons={'Frühstück':'☕','Mittagessen':'🥗','Abendessen':'🌙','Snack':'🍎'};
@@ -15,6 +15,7 @@
   const root=()=>document.querySelector('#today560');
   let calendarMonth=null;
   let calendarReturnFocus=null;
+  let volatileWaterUndo=null;
 
   function readObject(storage,key,fallback={}){
     try{
@@ -51,9 +52,9 @@
     const now=new Date(),hour=now.getHours()+now.getMinutes()/60;
     return Math.round(clampValue((hour-7)/15,.08,1)*WATER_TARGET/250)*250;
   }
-  function undoRecord(){return readObject(sessionStorage,WATER_UNDO_KEY,null)}
-  function storeUndo(record){try{sessionStorage.setItem(WATER_UNDO_KEY,JSON.stringify(record))}catch{}}
-  function clearUndo(){try{sessionStorage.removeItem(WATER_UNDO_KEY)}catch{}}
+  function undoRecord(){return readObject(localStorage,WATER_UNDO_KEY,null)||volatileWaterUndo}
+  function storeUndo(record){volatileWaterUndo=record;try{localStorage.setItem(WATER_UNDO_KEY,JSON.stringify(record))}catch{}}
+  function clearUndo(){volatileWaterUndo=null;try{localStorage.removeItem(WATER_UNDO_KEY)}catch{}}
   function isJournalActive(){return document.querySelector('[data-screen="today"]')?.classList.contains('active')}
   function renderNow(){if(typeof window.render==='function')window.render()}
 
@@ -192,8 +193,10 @@
   }
   function undoWater(){
     const record=undoRecord(),current=waterFor();
-    if(!record||record.date!==selectedDate||Number(record.current)!==current)return;
-    if(writeWater(record.previous,false))toast?.('Letzte Wasseränderung zurückgenommen.');
+    if(current<=0)return;
+    const exact=Boolean(record&&record.date===selectedDate&&Number(record.current)===current&&Number(record.previous)>=0&&Number(record.previous)<current);
+    const previous=exact?Math.round(clampValue(record.previous,0,WATER_MAX)):Math.max(0,current-Math.min(250,current));
+    if(writeWater(previous,false))toast?.(exact?'Letzte Wasseränderung zurückgenommen.':`${fmt0(current-previous)} ml entfernt.`);
   }
 
   function selectJournalDate(key){
@@ -403,11 +406,11 @@
     host.querySelector('#journalSteps').textContent=steps===null?'– Schritte':`${fmt0(steps)} Schritte`;host.querySelector('#journalStepGoal').textContent=stepGoal>0?fmt0(stepGoal):'–';host.querySelector('#journalStepBar').style.width=`${stepPercent}%`;host.querySelector('#journalStepPct').textContent=stepGoal>0?`${stepPercent}%`:'Kein Ziel';host.querySelector('.journal-steps-card').classList.toggle('goal-reached',steps!==null&&stepGoal>0&&steps>=stepGoal);
     host.querySelector('#journalStepMeta').textContent=stepGoal===0?(steps===null?'Kein Schrittziel gesetzt':`${fmt1(steps*.00075)} km · ${fmt0(Math.round(steps*.04))} kcal`):steps===null?'Noch nicht eingetragen':steps<stepGoal?`Noch ${fmt0(stepGoal-steps)} bis Ziel · ${fmt1(steps*.00075)} km`:`Ziel erreicht · ${fmt1(steps*.00075)} km · ${fmt0(Math.round(steps*.04))} kcal`;
     const stepInput=host.querySelector('#journalStepInput');if(document.activeElement!==stepInput)stepInput.value=data.steps??'';host.querySelector('#journalStepClear').hidden=data.steps===null;
-    const water=waterFor(),pace=waterPace(),waterPercent=percent(water,WATER_TARGET),waterCard=host.querySelector('.journal-water-card'),record=undoRecord(),canUndo=Boolean(record&&record.date===selectedDate&&Number(record.current)===water);
+    const water=waterFor(),pace=waterPace(),waterPercent=percent(water,WATER_TARGET),waterCard=host.querySelector('.journal-water-card'),record=undoRecord(),hasExactUndo=Boolean(record&&record.date===selectedDate&&Number(record.current)===water&&Number(record.previous)>=0&&Number(record.previous)<water),undoAmount=water>0?(hasExactUndo?water-Number(record.previous):Math.min(250,water)):0;
     host.querySelector('#journalWaterAmount').textContent=`${new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(water/1000)} l`;host.querySelector('#journalWaterRing').style.setProperty('--journal-water',`${waterPercent*3.6}deg`);
     waterCard.classList.toggle('goal-reached',water>=WATER_TARGET);waterCard.classList.toggle('on-pace',water<WATER_TARGET&&water>=pace);waterCard.classList.toggle('behind',isToday&&water<pace-250);
     const waterHint=host.querySelector('#journalWaterHint');waterHint.textContent=water>=WATER_TARGET?(water>WATER_TARGET?`${fmt0(water-WATER_TARGET)} ml über dem Tagesziel.`:'Tagesziel erreicht – stark!'):isToday&&water>=pace?`Im Trinkplan · noch ${fmt0(WATER_TARGET-water)} ml bis zum Tagesziel.`:isToday&&water>0?`Noch ${fmt0(Math.max(0,pace-water))} ml bis zum aktuellen Soll.`:water>0?`Noch ${fmt0(WATER_TARGET-water)} ml bis zum Tagesziel.`:'Starte mit dem ersten Glas.';
-    const undo=host.querySelector('#journalWaterUndo');undo.disabled=!canUndo;undo.textContent=canUndo?'↶ Letzte Änderung':'↶ Rückgängig';
+    const undo=host.querySelector('#journalWaterUndo');undo.disabled=water<=0;undo.textContent=water>0?`↶ −${fmt0(undoAmount)} ml`:'↶ Rückgängig';undo.setAttribute('aria-label',water>0?`${fmt0(undoAmount)} Milliliter Wasser entfernen`:'Keine Wasseränderung zum Rückgängigmachen');
     const allWeights=weightEntries(selectedDate),previous=allWeights.filter(([key])=>key<selectedDate).at(-1);host.querySelector('#journalWeight').textContent=data.weight===null?'– kg':`${fmt1(data.weight)} kg`;host.querySelector('#journalWeightMeta').textContent=data.weight!==null?'Für diesen Tag':previous?`Zuletzt ${dateFromKey(previous[0]).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})}: ${fmt1(previous[1].weight)} kg`:'Noch kein Messwert';host.querySelector('#journalWeightButton').textContent=data.weight===null?'Eintragen':'Ändern';
     const completed=[data.weight!==null,data.gym!==null,data.alcohol!==null].filter(Boolean).length,check=host.querySelector('#journalCheckStatus'),checkCard=host.querySelector('.journal-check-card');check.textContent=completed===3?'Vollständig':`${completed}/3 Angaben`;check.classList.toggle('complete',completed===3);check.classList.toggle('partial',completed>0&&completed<3);checkCard.classList.toggle('complete',completed===3);
     host.querySelectorAll('[data-journal-gym]').forEach(button=>{const active=String(data.gym)===button.dataset.journalGym;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});host.querySelectorAll('[data-journal-alcohol]').forEach(button=>{const active=String(data.alcohol)===button.dataset.journalAlcohol;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});

@@ -18,8 +18,8 @@
 <body>
   <main>
     <div class="spinner" id="spinner"></div>
-    <h1>CutCoach 6.7.0 wird installiert</h1>
-    <p id="status">Der intelligentere Ernährungsbereich wird geladen. Deine Daten bleiben erhalten.</p>
+    <h1>CutCoach 6.7.1 wird installiert</h1>
+    <p id="status">Die zuverlässige Wasserkorrektur wird geladen. Deine Daten bleiben erhalten.</p>
     <button id="retry">Erneut versuchen</button>
   </main>
   <script>
@@ -36,14 +36,14 @@
           const keys=await caches.keys();
           await Promise.all(keys.filter(key=>key.startsWith('cutcoach-')).map(key=>caches.delete(key)));
         }
-        status.textContent='CutCoach 6.7.0 wird geladen …';
+        status.textContent='CutCoach 6.7.1 wird geladen …';
         if('serviceWorker'in navigator){
-          const registration=await navigator.serviceWorker.register('./sw.js?v=6.7.0-force',{scope:'./',updateViaCache:'none'});
+          const registration=await navigator.serviceWorker.register('./sw.js?v=6.7.1-force',{scope:'./',updateViaCache:'none'});
           await registration.update();
           await navigator.serviceWorker.ready;
         }
         status.textContent='Update erfolgreich. CutCoach wird geöffnet …';
-        setTimeout(()=>location.replace('./?updated=670#today'),900);
+        setTimeout(()=>location.replace('./?updated=671#today'),900);
       }catch(error){
         console.error(error);
         document.querySelector('#spinner').style.display='none';
