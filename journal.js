@@ -1,8 +1,9 @@
 'use strict';
 (function(){
-  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'6.3.0';
+  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'6.4.0';
   const WATER_KEY='cutcoach_water_v1';
-  const WATER_UNDO_KEY='cutcoach_water_undo_v8';
+  const WATER_RECOVERY_KEY='cutcoach_water_recovery_raw_v1';
+  const WATER_UNDO_KEY='cutcoach_water_undo_v9';
   const WATER_TARGET=3000;
   const WATER_MAX=6000;
   const mealIcons={'Frühstück':'☕','Mittagessen':'🥗','Abendessen':'🌙','Snack':'🍎'};
@@ -21,7 +22,29 @@
       return value&&typeof value==='object'&&!Array.isArray(value)?value:fallback;
     }catch{return fallback}
   }
-  function waterMap(){return readObject(localStorage,WATER_KEY,{})}
+  function preserveWaterRecovery(raw){
+    if(!raw)return;
+    try{if(!localStorage.getItem(WATER_RECOVERY_KEY))localStorage.setItem(WATER_RECOVERY_KEY,raw)}catch{}
+  }
+  function waterMap(){
+    let raw='';
+    try{raw=localStorage.getItem(WATER_KEY)||''}catch{return {}}
+    if(!raw)return {};
+    try{
+      const parsed=JSON.parse(raw);
+      if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))throw new Error('invalid-water-data');
+      const clean={};
+      for(const [key,value] of Object.entries(parsed)){
+        if(typeof validDateKey==='function'&&!validDateKey(key))continue;
+        const amount=Number(value);
+        if(Number.isFinite(amount)&&amount>0)clean[key]=Math.round(clampValue(amount,0,WATER_MAX));
+      }
+      return clean;
+    }catch{
+      preserveWaterRecovery(raw);
+      return {};
+    }
+  }
   function waterFor(key=selectedDate){return Math.round(clampValue(waterMap()[key]||0,0,WATER_MAX))}
   function waterPace(key=selectedDate){
     if(key!==todayKey())return key<todayKey()?WATER_TARGET:0;
@@ -98,8 +121,9 @@
     addScorePart(parts,absolute<=Math.max(120,calorieTarget*.12)?1:absolute<=Math.max(250,calorieTarget*.22)?.78:calorieDelta<0?.5:.25,3);
     addScorePart(parts,total.protein/Math.max(20,proteinTarget),2.2);
     addScorePart(parts,total.fat>=fatMin&&total.fat<=fatMax?1:total.fat<=fatMax*1.25?.68:.3,1);
-    if(data.steps!==null)addScorePart(parts,data.steps/Math.max(500,isFinalDay()?settings.steps:paceTarget(settings.steps,500)),1.35);
-    if(data.gym!==null)addScorePart(parts,data.gym?1:range(selectedDate,7).filter(item=>item.data.gym===true).length>=settings.gymGoal?.9:.72,1.05);
+    if(settings.steps===0)addScorePart(parts,1,1.35);
+    else if(data.steps!==null)addScorePart(parts,data.steps/Math.max(500,isFinalDay()?settings.steps:paceTarget(settings.steps,500)),1.35);
+    if(data.gym!==null)addScorePart(parts,data.gym||settings.gymGoal===0?1:range(selectedDate,7).filter(item=>item.data.gym===true).length>=settings.gymGoal?.9:.72,1.05);
     if(data.alcohol!==null)addScorePart(parts,data.alcohol?0:1,.75);
     addScorePart(parts,waterFor()/Math.max(250,isFinalDay()?WATER_TARGET:paceTarget(WATER_TARGET,250)),.65);
     const weight=parts.reduce((sum,item)=>sum+item.weight,0);
@@ -172,18 +196,9 @@
     if(writeWater(record.previous,false))toast?.('Letzte Wasseränderung zurückgenommen.');
   }
 
-  function updateUrl(){
-    try{
-      const url=new URL(location.href);
-      url.searchParams.set('date',selectedDate);
-      url.searchParams.delete('journal_steps');
-      history.replaceState(null,'',`${url.pathname}?${url.searchParams.toString()}#today`);
-    }catch{}
-  }
   function selectJournalDate(key){
-    if(typeof validDateKey!=='function'||!validDateKey(key))return;
-    selectedDate=key>todayKey()?todayKey():key;
-    updateUrl();closeCalendar();renderNow();
+    if(typeof setSelectedDate!=='function'||!setSelectedDate(key,{hash:'#today'}))return;
+    closeCalendar();renderNow();
   }
 
   function ensureCalendar(){
@@ -197,6 +212,20 @@
     modal.querySelector('#journalCalendarToday').addEventListener('click',()=>selectJournalDate(todayKey()));
     modal.querySelector('#journalCalendarPrevMonth').addEventListener('click',()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar()});
     modal.querySelector('#journalCalendarNextMonth').addEventListener('click',()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar()});
+    modal.querySelector('#journalCalendarDays').addEventListener('keydown',event=>{
+      const button=event.target.closest('button[data-date]'),offset={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7}[event.key];
+      if(!button||offset===undefined)return;
+      const targetKey=shiftKey(button.dataset.date,offset);
+      event.preventDefault();
+      if(targetKey>todayKey())return;
+      const targetDate=dateFromKey(targetKey);
+      if(targetDate.getFullYear()!==calendarMonth.getFullYear()||targetDate.getMonth()!==calendarMonth.getMonth()){
+        calendarMonth=new Date(targetDate.getFullYear(),targetDate.getMonth(),1,12);
+        renderCalendar();
+      }
+      const target=modal.querySelector(`[data-date="${targetKey}"]:not(:disabled)`);
+      if(target){modal.querySelectorAll('#journalCalendarDays button').forEach(dayButton=>{dayButton.tabIndex=-1});target.tabIndex=0;target.focus()}
+    });
     modal.addEventListener('keydown',event=>{
       if(event.key==='Escape'){event.preventDefault();closeCalendar();return}
       if(event.key!=='Tab')return;
@@ -233,12 +262,16 @@
       const date=new Date(start);date.setDate(start.getDate()+index);
       const key=keyFromDate(date),button=document.createElement('button');
       button.type='button';button.textContent=String(date.getDate());button.dataset.date=key;button.disabled=key>today;
+      button.tabIndex=-1;
       button.setAttribute('role','gridcell');button.setAttribute('aria-label',date.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'}));
       button.classList.toggle('outside',date.getMonth()!==calendarMonth.getMonth());
       button.classList.toggle('selected',key===selectedDate);button.classList.toggle('today',key===today);
       if(key===selectedDate)button.setAttribute('aria-selected','true');
+      if(key===today)button.setAttribute('aria-current','date');
       button.addEventListener('click',()=>selectJournalDate(key));days.append(button);
     }
+    const tabStop=days.querySelector(`[data-date="${selectedDate}"]:not(:disabled)`)||days.querySelector('button:not(.outside):not(:disabled)')||days.querySelector('button:not(:disabled)');
+    if(tabStop)tabStop.tabIndex=0;
     const now=new Date();
     modal.querySelector('#journalCalendarNextMonth').disabled=calendarMonth.getFullYear()===now.getFullYear()&&calendarMonth.getMonth()>=now.getMonth();
   }
@@ -338,9 +371,10 @@
 
   function renderMeals(data,settings){
     const host=document.querySelector('#journalMeals');if(!host)return;
+    const full=typeof mealCapacity==='function'&&mealCapacity()===0;
     host.innerHTML=MEAL_TYPES.map(type=>{
       const items=data.meals.filter(item=>item.type===type),current=items.reduce((sum,item)=>sum+(Number(item.calories)||0),0),target=Math.round(settings.calories*(mealRatios[type]||.25)),progress=percent(current,target);
-      return `<article class="journal-meal-row"><button class="journal-meal-main" type="button" data-add-journal-meal="${type}"><span class="journal-meal-accent ${type==='Frühstück'?'green':type==='Snack'?'red':'yellow'}"></span><span class="journal-meal-icon">${mealIcons[type]||'🍽️'}</span><span class="journal-meal-copy"><b>${type==='Snack'?'Snacks':type}</b><small>${fmt0(current)} / ${fmt0(target)} kcal</small></span><span class="journal-meal-progress"><i style="width:${progress}%"></i></span></button><button class="journal-meal-add" type="button" data-add-journal-meal="${type}" aria-label="${type} hinzufügen">+</button></article>`;
+      return `<article class="journal-meal-row"><button class="journal-meal-main" type="button" data-add-journal-meal="${type}"><span class="journal-meal-accent ${type==='Frühstück'?'green':type==='Snack'?'red':'yellow'}"></span><span class="journal-meal-icon">${mealIcons[type]||'🍽️'}</span><span class="journal-meal-copy"><b>${type==='Snack'?'Snacks':type}</b><small>${fmt0(current)} / ${fmt0(target)} kcal</small></span><span class="journal-meal-progress"><i style="width:${progress}%"></i></span></button><button class="journal-meal-add" type="button" data-add-journal-meal="${type}" aria-label="${full?'Tageslimit erreicht':`${type} hinzufügen`}" ${full?'disabled title="Tageslimit erreicht"':''}>+</button></article>`;
     }).join('');
   }
 
@@ -365,9 +399,9 @@
     renderMeals(data,settings);
     const mealCount=data.meals.length;host.querySelector('#journalMealSummary').textContent=mealCount?`${mealCount} ${mealCount===1?'Eintrag':'Einträge'} · ${fmt0(total.calories)} kcal`:'Noch leer';
     host.querySelectorAll('.journal-meal-row').forEach((row,index)=>{const type=MEAL_TYPES[index],current=data.meals.filter(item=>item.type===type).reduce((sum,item)=>sum+(Number(item.calories)||0),0),goal=Math.round(settings.calories*(mealRatios[type]||.25));row.classList.toggle('filled',current>0);row.classList.toggle('complete',goal>0&&current>=goal*.85&&current<=goal*1.15);row.classList.toggle('over',goal>0&&current>goal*1.15)});
-    const steps=data.steps===null?null:Number(data.steps)||0,stepGoal=Number(settings.steps)||0,stepPercent=Math.round(percent(steps||0,stepGoal));
-    host.querySelector('#journalSteps').textContent=steps===null?'– Schritte':`${fmt0(steps)} Schritte`;host.querySelector('#journalStepGoal').textContent=fmt0(stepGoal);host.querySelector('#journalStepBar').style.width=`${stepPercent}%`;host.querySelector('#journalStepPct').textContent=`${stepPercent}%`;host.querySelector('.journal-steps-card').classList.toggle('goal-reached',steps!==null&&(stepGoal===0||steps>=stepGoal));
-    host.querySelector('#journalStepMeta').textContent=steps===null?'Noch nicht eingetragen':stepGoal>0&&steps<stepGoal?`Noch ${fmt0(stepGoal-steps)} bis Ziel · ${fmt1(steps*.00075)} km`:`Ziel erreicht · ${fmt1(steps*.00075)} km · ${fmt0(Math.round(steps*.04))} kcal`;
+    const steps=data.steps===null?null:Number(data.steps)||0,stepGoal=Number(settings.steps)||0,stepPercent=stepGoal>0?Math.round(percent(steps||0,stepGoal)):0;
+    host.querySelector('#journalSteps').textContent=steps===null?'– Schritte':`${fmt0(steps)} Schritte`;host.querySelector('#journalStepGoal').textContent=stepGoal>0?fmt0(stepGoal):'–';host.querySelector('#journalStepBar').style.width=`${stepPercent}%`;host.querySelector('#journalStepPct').textContent=stepGoal>0?`${stepPercent}%`:'Kein Ziel';host.querySelector('.journal-steps-card').classList.toggle('goal-reached',steps!==null&&stepGoal>0&&steps>=stepGoal);
+    host.querySelector('#journalStepMeta').textContent=stepGoal===0?(steps===null?'Kein Schrittziel gesetzt':`${fmt1(steps*.00075)} km · ${fmt0(Math.round(steps*.04))} kcal`):steps===null?'Noch nicht eingetragen':steps<stepGoal?`Noch ${fmt0(stepGoal-steps)} bis Ziel · ${fmt1(steps*.00075)} km`:`Ziel erreicht · ${fmt1(steps*.00075)} km · ${fmt0(Math.round(steps*.04))} kcal`;
     const stepInput=host.querySelector('#journalStepInput');if(document.activeElement!==stepInput)stepInput.value=data.steps??'';host.querySelector('#journalStepClear').hidden=data.steps===null;
     const water=waterFor(),pace=waterPace(),waterPercent=percent(water,WATER_TARGET),waterCard=host.querySelector('.journal-water-card'),record=undoRecord(),canUndo=Boolean(record&&record.date===selectedDate&&Number(record.current)===water);
     host.querySelector('#journalWaterAmount').textContent=`${new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(water/1000)} l`;host.querySelector('#journalWaterRing').style.setProperty('--journal-water',`${waterPercent*3.6}deg`);

@@ -2,6 +2,7 @@
 
 (function(){
   const KEY='cutcoach_library_v1';
+  const RECOVERY_KEY='cutcoach_library_recovery_raw_v1';
   const MAX_ITEMS=1000;
   const FACTORS=[0.5,0.75,1,1.25,1.5,2];
   let db=load();
@@ -12,7 +13,13 @@
 
   function blank(){return {version:1,items:[]};}
   function load(){
-    try{const raw=localStorage.getItem(KEY);return raw?sanitizeDb(JSON.parse(raw)):blank();}catch{return blank();}
+    let raw='';
+    try{
+      raw=localStorage.getItem(KEY)||'';if(!raw)return blank();
+      const parsed=JSON.parse(raw);
+      if(!parsed||typeof parsed!=='object'||Array.isArray(parsed)||!Array.isArray(parsed.items))throw new Error('invalid-library-data');
+      return sanitizeDb(parsed);
+    }catch{try{if(raw&&!localStorage.getItem(RECOVERY_KEY))localStorage.setItem(RECOVERY_KEY,raw)}catch{}return blank();}
   }
   function save(){
     try{localStorage.setItem(KEY,JSON.stringify(db));return true;}catch{toast('Bibliothek konnte nicht gespeichert werden.');return false;}
@@ -96,7 +103,7 @@
     $$('.screen').forEach(s=>s.classList.toggle('active',s.dataset.screen==='library'));history.replaceState(null,'','#library');window.scrollTo({top:0,behavior:'smooth'});renderLibrary();
   }
   async function exportLibraryFile(){try{await shareOrDownload(JSON.stringify({format:'cutcoach-library',version:1,exportedAt:new Date().toISOString(),data:db},null,2),`CutCoach-Bibliothek-${todayKey()}.json`,'CutCoach Bibliothek');toast('Bibliothek gesichert.');}catch(e){if(e?.name!=='AbortError')toast('Bibliothek konnte nicht exportiert werden.');}}
-  function importLibraryFile(file){if(!file)return;if(file.size>3*1024*1024){toast('Datei ist zu groß.');return;}const r=new FileReader();r.onload=()=>{try{const parsed=JSON.parse(r.result),raw=parsed?.format==='cutcoach-library'?parsed.data:parsed;const clean=sanitizeDb(raw);if(!confirm(`${clean.items.length} Einträge importieren? Die aktuelle Bibliothek wird ersetzt.`))return;db=clean;save();renderLibrary();toast('Bibliothek importiert.');}catch{toast('Ungültige Bibliotheksdatei.');}};r.readAsText(file);}
+  function importLibraryFile(file){if(!file)return;if(file.size>3*1024*1024){toast('Datei ist zu groß.');return;}const r=new FileReader();r.onload=()=>{try{const parsed=JSON.parse(r.result),raw=parsed?.format==='cutcoach-library'?parsed.data:parsed;if(!raw||typeof raw!=='object'||Array.isArray(raw)||!Array.isArray(raw.items))throw new Error('invalid');const clean=sanitizeDb(raw);if(!confirm(`${clean.items.length} Einträge importieren? Die aktuelle Bibliothek wird ersetzt.`))return;const previous=db;db=clean;if(!save()){db=previous;return}renderLibrary();toast('Bibliothek importiert.');}catch{toast('Ungültige Bibliotheksdatei.');}};r.readAsText(file);}
   function renderLibrary(){
     const q=normalized($('#librarySearch')?.value);let items=[...db.items];
     if(q)items=items.filter(i=>normalized(`${i.name} ${i.barcode}`).includes(q));
@@ -107,7 +114,7 @@
     setText('#libraryStats',`${db.items.length} gespeichert · ${db.items.filter(i=>i.favorite).length} Favoriten`);
     const wrap=$('#libraryList');if(!items.length){wrap.innerHTML='<article class="card empty">Noch nichts gespeichert. Lege dein erstes Lebensmittel oder Gericht an.</article>';return;}
     wrap.innerHTML=items.map(i=>`<article class="card library-item"><button class="library-main" data-use-lib="${i.id}" type="button"><span class="library-icon">${i.kind==='dish'?'🍽️':'🥫'}</span><span><b>${escapeHtml(i.name)}</b><small>${fmt(i.calories)} kcal · E ${fmt(i.protein)} · KH ${fmt(i.carbs)} · F ${fmt(i.fat)} · ${fmt(i.amount, i.amount%1?1:0)} ${i.unit}</small></span></button><div class="library-side"><button data-fav-lib="${i.id}" class="star ${i.favorite?'on':''}" type="button" aria-label="Favorit">★</button><button data-edit-lib="${i.id}" class="secondary mini" type="button">Bearbeiten</button></div></article>`).join('');
-    $$('[data-use-lib]').forEach(b=>b.onclick=()=>openUse(b.dataset.useLib));$$('[data-edit-lib]').forEach(b=>b.onclick=()=>openEditor(b.dataset.editLib));$$('[data-fav-lib]').forEach(b=>b.onclick=()=>{const i=byId(b.dataset.favLib);i.favorite=!i.favorite;save();renderLibrary();});
+    $$('[data-use-lib]').forEach(b=>b.onclick=()=>openUse(b.dataset.useLib));$$('[data-edit-lib]').forEach(b=>b.onclick=()=>openEditor(b.dataset.editLib));$$('[data-fav-lib]').forEach(b=>b.onclick=()=>{const i=byId(b.dataset.favLib),previous=i.favorite;i.favorite=!i.favorite;if(!save()){i.favorite=previous;return}renderLibrary();});
   }
   function setKind(kind){$$('[data-kind]').forEach(b=>b.classList.toggle('on',b.dataset.kind===kind));$('#recipeBuilder').hidden=kind!=='dish';if(kind==='dish')fillRecipeOptions();}
   function currentKind(){return $('[data-kind].on')?.dataset.kind||'food';}
@@ -120,14 +127,16 @@
     const components=JSON.parse($('#recipeBuilder').dataset.components||'[]');const raw={id:editingId||makeId(),kind:currentKind(),name:$('#libName').value,amount:$('#libAmount').value,unit:$('#libUnit').value,calories:$('#libCalories').value,protein:$('#libProtein').value,carbs:$('#libCarbs').value,fat:$('#libFat').value,barcode:$('#libBarcode').value,favorite:$('#libFavorite').checked,components};
     const item=sanitizeItem(raw);if(!item){toast('Name und gültige Kalorien eintragen.');return;}
     if(item.barcode){const duplicate=db.items.find(x=>x.barcode===item.barcode&&x.id!==item.id);if(duplicate&&!confirm(`Dieser Code gehört bereits zu „${duplicate.name}“. Trotzdem speichern?`))return;}
-    const idx=db.items.findIndex(x=>x.id===item.id);if(idx>=0){item.uses=db.items[idx].uses;item.lastUsedAt=db.items[idx].lastUsedAt;item.createdAt=db.items[idx].createdAt;db.items[idx]=item;}else db.items.push(item);
-    save();closeModal($('#libraryItemModal'));renderLibrary();toast('In Bibliothek gespeichert.');
+    const idx=db.items.findIndex(x=>x.id===item.id);if(idx<0&&db.items.length>=MAX_ITEMS){toast(`Maximal ${MAX_ITEMS.toLocaleString('de-DE')} Bibliothekseinträge möglich.`);return;}
+    const previous=deepClone(db);if(idx>=0){item.uses=db.items[idx].uses;item.lastUsedAt=db.items[idx].lastUsedAt;item.createdAt=db.items[idx].createdAt;db.items[idx]=item;}else db.items.push(item);
+    if(!save()){db=previous;return}closeModal($('#libraryItemModal'));renderLibrary();toast('In Bibliothek gespeichert.');
   }
-  function deleteEditor(){const i=byId(editingId);if(!i||!confirm(`„${i.name}“ aus der Bibliothek löschen?`))return;db.items=db.items.filter(x=>x.id!==editingId);save();closeModal($('#libraryItemModal'));renderLibrary();toast('Eintrag gelöscht.');}
+  function deleteEditor(){const i=byId(editingId);if(!i||!confirm(`„${i.name}“ aus der Bibliothek löschen?`))return;const previous=db.items;db.items=db.items.filter(x=>x.id!==editingId);if(!save()){db.items=previous;return}closeModal($('#libraryItemModal'));renderLibrary();toast('Eintrag gelöscht.');}
   function openUse(id){activeItemId=id;const i=byId(id);if(!i)return;setText('#libraryUseTitle',i.name);$('#libraryFactor').value='1';renderUsePreview();openModal('libraryUseModal');}
   function renderUsePreview(){const i=byId(activeItemId);if(!i)return;const f=Number($('#libraryFactor').value)||1,n=nutrition(i,f);$('#libraryUseSummary').innerHTML=`<b>${escapeHtml(i.name)}</b><small>Basis: ${fmt(i.amount,i.amount%1?1:0)} ${i.unit}</small>`;setText('#factorPreview',`${fmt(n.calories)} kcal · ${fmt(n.protein)} g Eiweiß · ${fmt(n.carbs)} g KH · ${fmt(n.fat)} g Fett`);}
   function addToDay(){
     const i=byId(activeItemId);if(!i)return;
+    if(typeof mealCapacity==='function'&&mealCapacity()<1){toast(`Maximal ${fmt(MAX_MEALS_PER_DAY)} Mahlzeiten pro Tag möglich.`);return;}
     const f=Number($('#libraryFactor').value)||1,n=nutrition(i,f),meal=sanitizeMeal({id:makeId(),name:i.name,type:$('#libraryMealType').value,...n});
     if(!meal){toast('Mahlzeit konnte nicht erstellt werden.');return;}
     const previousUses=i.uses,previousLastUsed=i.lastUsedAt;
@@ -151,6 +160,6 @@
   function lookupCode(raw){const code=sanitizeBarcode(raw);if(!code){toast('Bitte einen gültigen Code eingeben.');return;}const item=db.items.find(i=>i.barcode===code);stopScanner();closeModal($('#scannerModal'));if(item){openUse(item.id);toast('Gespeichertes Produkt erkannt.');}else{openEditor(null,code);toast('Code ist neu – Werte einmalig speichern.');}}
 
   function exportData(){return deepClone(db);}
-  function importData(raw){db=sanitizeDb(raw);save();renderLibrary();}
+  function importData(raw){const previous=db;db=sanitizeDb(raw);if(!save()){db=previous;return false}renderLibrary();return true;}
   window.CutCoachLibrary={mount,render:renderLibrary,exportData,importData,count:()=>db.items.length};
 })();

@@ -22,6 +22,8 @@ function saveMeal(){
   if(invalid){toast(`${invalid[0]} liegt außerhalb des gültigen Bereichs.`);return;}
   const meal=sanitizeMeal(raw);
   if(!meal){toast('Mahlzeit konnte nicht gespeichert werden.');return;}
+  const editingExists=Boolean(editingMealId&&day(selectedDate,false).meals.some(item=>String(item.id)===editingMealId));
+  if(!editingExists&&mealCapacity()<1){toast(`Maximal ${fmt(MAX_MEALS_PER_DAY)} Mahlzeiten pro Tag möglich.`);return;}
   let message='Mahlzeit gespeichert.';
   const saved=commitDayMutation(data=>{
     if(editingMealId){
@@ -36,12 +38,14 @@ function saveMeal(){
 function duplicateMeal(id){
   const source=day(selectedDate,false).meals.find(item=>String(item.id)===String(id));
   if(!source)return;
+  if(mealCapacity()<1){toast(`Maximal ${fmt(MAX_MEALS_PER_DAY)} Mahlzeiten pro Tag möglich.`);return;}
   if(!commitDayMutation(data=>data.meals.push({...deepClone(source),id:makeId(),name:`${source.name} (Kopie)`.slice(0,80)}))){toast('Mahlzeit konnte nicht dupliziert werden.');return;}
   render();toast('Mahlzeit dupliziert.');
 }
 function copyPreviousMeals(){
   const previousKey=shiftKey(selectedDate,-1),source=day(previousKey,false).meals;
   if(!source.length){toast('Am Vortag sind keine Mahlzeiten eingetragen.');return;}
+  if(source.length>mealCapacity()){toast(`Nicht genügend Platz: Noch ${fmt(mealCapacity())} von maximal ${fmt(MAX_MEALS_PER_DAY)} Mahlzeiten frei.`);return;}
   const target=day(selectedDate,false);
   if(target.meals.length&&!confirm(`${source.length} Mahlzeiten zusätzlich vom Vortag übernehmen?`))return;
   if(!commitDayMutation(data=>{for(const meal of source)data.meals.push({...deepClone(meal),id:makeId()})})){toast('Mahlzeiten konnten nicht übernommen werden.');return;}
@@ -63,7 +67,9 @@ function saveSettings(){
   const invalid=checks.find(([,value,min,max])=>parseNumber(value)===null||parseNumber(value)<min||parseNumber(value)>max);
   if(invalid){toast(`${invalid[0]} liegt außerhalb des gültigen Bereichs.`);return;}
   if(raw.goalWeight!==''&&nullable(raw.goalWeight,30,300)===null){toast('Bitte gültiges Wunschgewicht eintragen.');return;}
-  state.settings=sanitizeSettings(raw);render();
+  const nextSettings=sanitizeSettings(raw);
+  if(!commitStateMutation(current=>{current.settings=nextSettings})){toast('Einstellungen konnten nicht gespeichert werden.');return;}
+  render();
   const macroCalories=state.settings.protein*4+state.settings.carbs*4+state.settings.fat*9;
   if(state.settings.maintenance<state.settings.calories)toast('Gespeichert. Hinweis: Erhaltung liegt unter dem Kalorienziel.');
   else if(Math.abs(macroCalories-state.settings.calories)>350)toast(`Gespeichert. Deine Makroziele ergeben ungefähr ${fmt(macroCalories)} kcal.`);
@@ -86,7 +92,7 @@ async function exportBackup(){
   const envelope=backupEnvelope();
   try{
     await shareOrDownload(JSON.stringify(envelope,null,2),`CutCoach-Backup-${todayKey()}.json`);
-    state.meta.lastBackupAt=envelope.exportedAt;saveState(true);render();toast('Backup erstellt.');
+    const recorded=commitStateMutation(current=>{current.meta.lastBackupAt=envelope.exportedAt});render();toast(recorded?'Backup erstellt.':'Backup erstellt. Der Zeitpunkt konnte lokal nicht gespeichert werden.');
   }catch(error){if(error?.name!=='AbortError')toast('Backup konnte nicht exportiert werden.');}
 }
 function extractBackupData(parsed){
@@ -113,8 +119,9 @@ function importBackup(file){
       const dayCount=Object.keys(sanitized.days).length;
       const mealCount=Object.values(sanitized.days).reduce((sum,item)=>sum+item.meals.length,0);
       if(!confirm(`Backup mit ${dayCount} Tagen und ${mealCount} Mahlzeiten importieren? Der aktuelle Stand wird vorher lokal gesichert.`))return;
-      savePreviousState('Vor Backup-Import');
-      state=sanitized;startupWarning=null;storageReadOnly=false;lastSavedSnapshot='';selectedDate=todayKey();saveState(true);render();toast('Backup importiert.');
+      if(!storageReadOnly&&!savePreviousState('Vor Backup-Import')){toast('Der aktuelle Stand konnte nicht gesichert werden. Import abgebrochen.');return;}
+      if(!commitStateReplacement(sanitized,{clearReadOnly:true})){toast('Backup konnte nicht gespeichert werden. Der bisherige Stand bleibt aktiv.');return;}
+      startupWarning=null;setSelectedDate(todayKey());render();toast('Backup importiert.');
     }catch(error){toast(error?.message==='future-schema'?'Dieses Backup stammt aus einer neueren CutCoach-Version.':'Ungültiges oder beschädigtes Backup.');}
   };
   reader.onerror=()=>toast('Backup konnte nicht gelesen werden.');
@@ -126,9 +133,10 @@ function restorePreviousState(){
   try{
     const payload=JSON.parse(raw),restored=sanitizeState(payload.data,{rejectFuture:true});
     if(!confirm(`Stand „${payload.reason||'Vorheriger Stand'}“ vom ${new Date(payload.savedAt).toLocaleString('de-DE')} wiederherstellen?`))return;
-    const current=deepClone(state);state=restored;lastSavedSnapshot='';saveState(true);
-    writeStorage(PREVIOUS_STATE_KEY,JSON.stringify({reason:'Vor Wiederherstellung',savedAt:new Date().toISOString(),appVersion:APP_VERSION,data:current}));
-    selectedDate=todayKey();render();toast('Vorheriger Stand wiederhergestellt.');
+    const current=deepClone(state),currentPayload=JSON.stringify({reason:'Vor Wiederherstellung',savedAt:new Date().toISOString(),appVersion:APP_VERSION,data:current});
+    if(!writeStorage(PREVIOUS_STATE_KEY,currentPayload)){toast('Aktueller Stand konnte nicht gesichert werden. Wiederherstellung abgebrochen.');return;}
+    if(!commitStateReplacement(restored)){writeStorage(PREVIOUS_STATE_KEY,raw);toast('Wiederherstellung konnte nicht gespeichert werden. Der aktuelle Stand bleibt aktiv.');return;}
+    setSelectedDate(todayKey());render();toast('Vorheriger Stand wiederhergestellt.');
   }catch{toast('Der vorherige Stand ist beschädigt.');}
 }
 async function exportRecovery(){
@@ -150,7 +158,6 @@ function clearSteps(){
   render();toast('Schritteintrag entfernt.');
 }
 function selectDate(key){
-  if(!validDateKey(key))return;
-  selectedDate=key>todayKey()?todayKey():key;
+  if(!setSelectedDate(key))return;
   render();
 }

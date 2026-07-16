@@ -77,7 +77,7 @@ function render(){
   $$('[data-gym],[data-alcohol]').forEach(button=>{button.classList.remove('on');button.setAttribute('aria-pressed','false');});
   if(data.gym!==null){const button=$(`[data-gym="${data.gym}"]`);button?.classList.add('on');button?.setAttribute('aria-pressed','true');}
   if(data.alcohol!==null){const button=$(`[data-alcohol="${data.alcohol}"]`);button?.classList.add('on');button?.setAttribute('aria-pressed','true');}
-  renderMeals();renderProgress();fillSettings();renderMeta();saveState();
+  renderMeals();renderProgress();fillSettings();renderMeta();
 }
 function renderMeals(){
   const wrap=$('#mealList');
