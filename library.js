@@ -131,7 +131,7 @@
     $('#libName').value=i?.name||'';$('#libAmount').value=i?.amount||100;$('#libUnit').value=i?.unit||'g';$('#libCalories').value=i?.calories??'';$('#libProtein').value=i?.protein??'';$('#libCarbs').value=i?.carbs??'';$('#libFat').value=i?.fat??'';$('#libBarcode').value=i?.barcode||barcode;$('#libFavorite').checked=Boolean(i?.favorite);$('#deleteLibraryItem').hidden=!i;
     setKind(i?.kind||'food');$('#recipeBuilder').dataset.components=JSON.stringify(i?.components||[]);renderComponents();openModal('libraryItemModal');
   }
-  function createItem(kind='food'){openEditor(null,'');setKind(kind==='dish'?'dish':'food');}
+  function createItem(kind='food',initial={}){openEditor(null,'');setKind(kind==='dish'?'dish':'food');const name=cleanText(typeof initial==='string'?initial:initial?.name,80);if(name){$('#libName').value=name;setTimeout(()=>$('#libName')?.focus(),40)}}
   function saveEditor(){
     const components=JSON.parse($('#recipeBuilder').dataset.components||'[]');const raw={id:editingId||makeId(),kind:currentKind(),name:$('#libName').value,amount:$('#libAmount').value,unit:$('#libUnit').value,calories:$('#libCalories').value,protein:$('#libProtein').value,carbs:$('#libCarbs').value,fat:$('#libFat').value,barcode:$('#libBarcode').value,favorite:$('#libFavorite').checked,components};
     const item=sanitizeItem(raw);if(!item){toast('Name und gültige Kalorien eintragen.');return;}
@@ -156,7 +156,7 @@
     if(typeof mealCapacity==='function'&&mealCapacity(dateKey)<1){toast(`Maximal ${fmt(MAX_MEALS_PER_DAY)} Mahlzeiten pro Tag möglich.`);return null;}
     const n=nutrition(i,cleanFactor),meal=sanitizeMeal({id:makeId(),name:i.name,type:preferredMealType(type),...n});
     if(!meal){toast('Mahlzeit konnte nicht erstellt werden.');return null;}
-    const token={itemId:i.id,mealId:meal.id,name:i.name,dateKey,previousUses:i.uses,previousLastUsed:i.lastUsedAt,addedLastUsedAt:new Date().toISOString()};
+    const token={itemId:i.id,mealId:meal.id,name:i.name,mealType:meal.type,dateKey,previousUses:i.uses,previousLastUsed:i.lastUsedAt,addedLastUsedAt:new Date().toISOString()};
     i.uses++;i.lastUsedAt=token.addedLastUsedAt;
     if(!save({notify:false})){i.uses=token.previousUses;i.lastUsedAt=token.previousLastUsed;return null;}
     if(!commitDayMutation(data=>data.meals.push(meal),dateKey)){
