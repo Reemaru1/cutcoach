@@ -53,6 +53,7 @@ testBridge.textContent=`window.__journalTest={
   deleteMeal:id=>deleteMeal(id),
   mealCapacity:()=>mealCapacity(),
   replaceMeals:meals=>commitDayMutation(data=>{data.meals=deepClone(meals)}),
+  replaceMealsForDate:(key,meals)=>commitDayMutation(data=>{data.meals=deepClone(meals)},key),
   fillMeals:count=>commitDayMutation(data=>{data.meals=Array.from({length:count},(_,index)=>({id:'limit-'+index,name:'Limit '+index,type:'Frühstück',calories:1,protein:0,carbs:0,fat:0}))}),
   saveSettings:()=>saveSettings(),
   get saveState(){return saveState},
@@ -85,7 +86,7 @@ const input=(selector,value)=>{
   assert.equal(window.document.querySelector('#journalQuickAdd'),null,'Doppeltes Schnell-Plus ist zurückgekehrt');
   assert.equal(window.document.querySelectorAll('.journal-meal-add').length,4,'Mahlzeiten-Plus fehlt');
   assert.deepEqual([...window.document.querySelectorAll('[data-journal-alcohol]')].map(node=>node.textContent.trim()),['Ja','Nein'],'Alkohol-Reihenfolge ist falsch');
-  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.4.0');
+  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.5.0');
   assert.equal(test.score(),null,'Leerer Ernährungstag darf keine Tagesnote haben');
 
   const originalDate=test.selectedDate;
@@ -181,23 +182,95 @@ const input=(selector,value)=>{
   breakfastAdd.click();
   assert.equal(window.document.querySelector('[data-screen="food"]').classList.contains('active'),true,'Mahlzeiten-Plus öffnet Ernährung nicht');
   assert.equal(window.document.querySelector('#nutritionTitle').textContent,'Frühstück','Mahlzeitenkategorie wurde nicht übernommen');
+  assert.equal(window.document.querySelector('[data-tab="today"]').classList.contains('active'),true,'Ernährung verliert die Tagebuch-Orientierung');
+  assert.equal(window.document.querySelector('#nutritionCopyPrevious').hidden,true,'Leere Vortagsaktion nimmt unnötig Platz ein');
+  click('#nutritionRecipe');
+  assert.equal(window.document.querySelector('#libraryItemModal').classList.contains('open'),true,'Rezept-Schnellaktion öffnet den Editor nicht');
+  assert.equal(window.document.querySelector('[data-kind="dish"]').classList.contains('on'),true,'Rezept-Schnellaktion startet im falschen Modus');
+  click('#libraryItemModal [data-library-close]');
+  click('#nutritionNewFood');
+  assert.equal(window.document.querySelector('[data-kind="food"]').classList.contains('on'),true,'Lebensmittel-Schnellaktion startet im falschen Modus');
+  click('#libraryItemModal [data-library-close]');
+  click('#nutritionBarcode');
+  assert.equal(window.document.querySelector('#scannerModal').classList.contains('open'),true,'Barcode-Schnellaktion öffnet den Scanner nicht');
+  click('#scannerModal [data-library-close]');
   click('#nutritionManual');
   input('#mealName','Stabilitätstest');input('#mealCalories',1200);input('#mealProtein',100);input('#mealCarbs',100);input('#mealFat',35);
   click('#saveMeal');
   assert.equal(test.day(previousDate,false).meals.length,1,'Manuelle Mahlzeit wurde nicht gespeichert');
   assert.equal(JSON.parse(window.localStorage.getItem('cutcoach_v2')).days[previousDate].meals.length,1,'Mahlzeit fehlt im lokalen Speicher');
   const mealId=test.day(previousDate,false).meals[0].id;
+  assert.equal(window.document.querySelector('#nutritionCurrentToggle').hidden,false,'Eingetragene Mahlzeit kann nicht aufgeklappt werden');
+  click('#nutritionCurrentToggle');
   assert.ok(window.document.querySelector(`[data-nutrition-edit="${mealId}"]`),'Bearbeiten fehlt im Ernährungsbereich');
   assert.ok(window.document.querySelector(`[data-nutrition-copy="${mealId}"]`),'Duplizieren fehlt im Ernährungsbereich');
   assert.ok(window.document.querySelector(`[data-nutrition-delete="${mealId}"]`),'Löschen fehlt im Ernährungsbereich');
   click(`[data-nutrition-edit="${mealId}"]`);assert.equal(window.document.querySelector('#mealModal').classList.contains('open'),true,'Mahlzeit lässt sich nicht bearbeiten');click('#mealModal [data-close]');
   click(`[data-nutrition-copy="${mealId}"]`);assert.equal(test.day(previousDate,false).meals.length,2,'Mahlzeit wurde nicht dupliziert');
   click(`[data-nutrition-delete="${mealId}"]`);assert.equal(test.day(previousDate,false).meals.length,1,'Mahlzeit wurde nicht gelöscht');
+
+  const quickFood={id:'quick-food',name:'Schneller Skyr',kind:'food',barcode:'',amount:250,unit:'g',calories:160,protein:27,carbs:10,fat:1,favorite:true,uses:0,lastUsedAt:null,createdAt:new Date().toISOString(),components:[]};
+  assert.equal(window.CutCoachLibrary.importData({version:1,items:[quickFood]}),true,'Test-Lebensmittel konnte nicht vorbereitet werden');
+  await wait(0);
+  assert.ok(window.document.querySelector('[data-nutrition-add="quick-food"]'),'Direktes Hinzufügen fehlt');
+  assert.equal(window.document.querySelector('[data-filter-count="favorite"]').textContent,'1','Filterzähler ist nicht aktuell');
+  click('[data-nutrition-add="quick-food"]');
+  const quickMeal=test.day(previousDate,false).meals.find(meal=>meal.name==='Schneller Skyr');
+  assert.ok(quickMeal,'Schnell-Plus hat nichts eingetragen');
+  assert.equal(quickMeal.type,'Frühstück','Schnell-Plus verwendet die falsche Mahlzeitenkategorie');
+  assert.equal(window.document.querySelector('#libraryUseModal').classList.contains('open'),false,'Schnell-Plus öffnet unnötig den Portionsdialog');
+  assert.equal(window.document.querySelector('#nutritionFeedback').hidden,false,'Rückgängig-Hinweis fehlt nach Schnell-Eintragung');
+  assert.equal(window.CutCoachLibrary.exportData().items[0].uses,1,'Nutzungszähler wurde nicht aktualisiert');
+  click('#nutritionUndoAdd');
+  assert.equal(test.day(previousDate,false).meals.some(meal=>meal.id===quickMeal.id),false,'Schnell-Eintragung wurde nicht rückgängig gemacht');
+  assert.equal(window.CutCoachLibrary.exportData().items[0].uses,0,'Rückgängig stellt den Nutzungszähler nicht wieder her');
+
+  const mealsBeforeFailedQuickAdd=test.day(previousDate,false).meals.length;
+  test.saveState=()=>false;click('[data-nutrition-add="quick-food"]');test.saveState=originalSaveState;
+  assert.equal(test.day(previousDate,false).meals.length,mealsBeforeFailedQuickAdd,'Fehlgeschlagene Schnell-Eintragung blieb im Tagebuch');
+  assert.equal(window.CutCoachLibrary.exportData().items[0].uses,0,'Fehlgeschlagene Schnell-Eintragung änderte den Nutzungszähler');
+  assert.ok(errors.some(error=>String(error?.message||error).includes('day-save-failed')),'Speicherfehler der Schnell-Eintragung wurde nicht protokolliert');
+  errors.length=0;
+
+  const setItemBeforeLibraryFailure=window.Storage.prototype.setItem;
+  window.Storage.prototype.setItem=function(key,value){if(key==='cutcoach_library_v1')throw new Error('library-write-failed');return setItemBeforeLibraryFailure.call(this,key,value)};
+  click('[data-nutrition-add="quick-food"]');window.Storage.prototype.setItem=setItemBeforeLibraryFailure;
+  assert.equal(test.day(previousDate,false).meals.length,mealsBeforeFailedQuickAdd,'Bibliotheksfehler erzeugte trotzdem eine Mahlzeit');
+  assert.equal(window.CutCoachLibrary.exportData().items[0].uses,0,'Bibliotheksfehler änderte den Nutzungszähler');
+
+  click('[data-nutrition-open="quick-food"]');
+  assert.equal(window.document.querySelector('#libraryUseModal').classList.contains('open'),true,'Trefferzeile öffnet die Portionswahl nicht');
+  assert.equal(window.document.querySelector('#libraryMealType').value,'Frühstück','Portionswahl übernimmt die Mahlzeitenkategorie nicht');
+  click('#libraryUseModal [data-library-close]');
+
+  const earlierDate=test.shiftKey(previousDate,-1);
+  assert.equal(test.replaceMealsForDate(earlierDate,[
+    {id:'earlier-breakfast',name:'Vortagsfrühstück',type:'Frühstück',calories:420,protein:30,carbs:45,fat:12},
+    {id:'earlier-dinner',name:'Vortagsabendessen',type:'Abendessen',calories:800,protein:50,carbs:70,fat:25}
+  ]),true,'Vortag konnte für den Kategorietest nicht vorbereitet werden');
+  test.render();
+  assert.equal(window.document.querySelector('#nutritionCopyPrevious').disabled,false,'Kategoriepassender Vortag wird nicht angeboten');
+  const beforePreviousCopy=test.day(previousDate,false).meals.length;
+  click('#nutritionCopyPrevious');
+  const copiedMeals=test.day(previousDate,false).meals.slice(beforePreviousCopy);
+  assert.equal(copiedMeals.length,1,'Vortagsübernahme kopiert die falsche Anzahl');
+  assert.equal(copiedMeals[0].name,'Vortagsfrühstück','Vortagsübernahme kopiert eine andere Mahlzeitenkategorie');
+  assert.equal(test.day(previousDate,false).meals.some(meal=>meal.name==='Vortagsabendessen'),false,'Vortagsübernahme mischt Mahlzeitenkategorien');
+
   const keptMeals=JSON.parse(JSON.stringify(test.day(previousDate,false).meals));
   click('#nutritionBack');
   assert.equal(window.document.querySelector('[data-screen="today"]').classList.contains('active'),true,'Zurück aus Ernährung funktioniert nicht');
+  assert.match(window.location.search,new RegExp(`date=${previousDate}`),'Zurück aus Ernährung verliert das ausgewählte Datum');
 
-  assert.equal(test.fillMeals(500),true,'Tageslimit konnte für Grenztest nicht vorbereitet werden');
+  assert.equal(test.fillMeals(499),true,'Tageslimit konnte für Grenztest nicht vorbereitet werden');
+  window.document.querySelector('.journal-meal-add[data-add-journal-meal="Frühstück"]').click();
+  assert.equal(window.document.querySelector('[data-nutrition-add="quick-food"]').disabled,false,'Letzter freier Platz wird zu früh gesperrt');
+  click('[data-nutrition-add="quick-food"]');
+  assert.equal(test.day(previousDate,false).meals.length,500,'Schnell-Plus nutzt den letzten freien Platz nicht korrekt');
+  assert.equal(window.document.querySelector('[data-nutrition-add="quick-food"]').disabled,true,'Schnell-Plus bleibt am Tageslimit aktiv');
+  click('[data-nutrition-add="quick-food"]');
+  assert.equal(test.day(previousDate,false).meals.length,500,'Deaktiviertes Schnell-Plus überschreitet das Tageslimit');
+  click('#nutritionBack');
   assert.equal(test.mealCapacity(),0,'Tageslimit wird falsch berechnet');
   test.duplicateMeal('limit-0');assert.equal(test.day(previousDate,false).meals.length,500,'Tageslimit wurde beim Duplizieren überschritten');
   assert.match(window.document.querySelector('#toast').textContent,/Maximal 500 Mahlzeiten/,'Tageslimit wird nicht erklärt');
@@ -219,7 +292,7 @@ const input=(selector,value)=>{
   assert.equal(errors.length,0,`Unerwartete Browserfehler: ${errors.map(error=>error.message).join(' | ')}`);
 
   const manifest=fs.readFileSync(path.join(project,'runtime-manifest.js'),'utf8');
-  assert.match(manifest,/version:'6\.4\.0'/,'Offline-Cache hat falsche Version');
+  assert.match(manifest,/version:'6\.5\.0'/,'Offline-Cache hat falsche Version');
   for(const match of manifest.matchAll(/'\.\/([^'?]+)(?:\?[^']*)?'/g)){
     const asset=match[1];
     if(asset==='')continue;
@@ -232,7 +305,7 @@ const input=(selector,value)=>{
     assert.ok(fs.existsSync(path.join(project,asset)),`Index verweist auf fehlende Datei: ${asset}`);
   }
   for(const name of scripts){assert.ok(indexSource.includes(`${name}?`),`Produktiver Erststart lädt ${name} nicht direkt`);assert.ok(manifest.includes(`./${name}?`),`Offline-Manifest enthält ${name} nicht`)}
-  assert.ok(indexSource.includes('nutrition.css?v=6.4.0')&&manifest.includes('./nutrition.css?v=6.4.0'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
+  assert.ok(indexSource.includes('nutrition.css?v=6.5.0')&&manifest.includes('./nutrition.css?v=6.5.0'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
   assert.equal(indexSource.includes('date-bootstrap.js'),false,'Entfernter Datums-Bootstrap wird noch geladen');
 
   const startupDom=new JSDOM('<!doctype html><div id="toast"></div>',{url:`https://example.test/cutcoach/index.html?date=${previousDate}#today`,runScripts:'dangerously'});
