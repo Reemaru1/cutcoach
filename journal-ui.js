@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='6.2.3';
+  const VERSION='6.2.4';
   const WATER_KEY='cutcoach_water_v1';
   const WATER_UNDO_KEY='cutcoach_water_undo_v7';
   const WATER_MAX=6000;
