@@ -22,7 +22,7 @@ Die produktive Ladefolge steht zusätzlich explizit in `index.html`. So hängt d
 ## Produktive Erweiterungen
 
 - `journal.js` – einzige zuständige Laufzeit für Aufbau, Interaktion und Logik des Tagebuchs
-- `nutrition.js` und `nutrition.css` – Mahlzeitenauswahl aus dem Tagebuch
+- `nutrition.js` und `nutrition.css` – kompakte Mahlzeitensuche, Filter, Schnell-Eintragung mit Rückgängig und kategoriegerechte Vortagsübernahme
 - `journal-date.css` und `journal-ui.css` – finale responsive Tagebuch- und Kalenderregeln
 - `upgrade-340.js` – weiterhin aktive Kompatibilitätsschicht für Komplettbackups, exakte Portionsmengen und fensterübergreifende Bibliotheks-/Wasser-Synchronisierung
 
@@ -35,6 +35,8 @@ Die noch geladenen `upgrade-*.css` enthalten ausschließlich das etablierte visu
 - `library.css`
 - `scanner-v2.js`
 - `off-lookup.js`
+
+`library.js` ist die einzige Schreibinstanz für Bibliothekseinträge und stellt der Ernährungsoberfläche sichere Methoden zum Öffnen, direkten Eintragen und Rückgängigmachen bereit. Die Ernährungsoberfläche greift nicht eigenständig schreibend auf den Bibliotheksspeicher zu.
 
 ## Nicht produktiv
 
