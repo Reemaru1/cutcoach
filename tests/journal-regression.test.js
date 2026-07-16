@@ -306,6 +306,8 @@ const input=(selector,value)=>{
   }
   for(const name of scripts){assert.ok(indexSource.includes(`${name}?`),`Produktiver Erststart lädt ${name} nicht direkt`);assert.ok(manifest.includes(`./${name}?`),`Offline-Manifest enthält ${name} nicht`)}
   assert.ok(indexSource.includes('nutrition.css?v=6.5.1')&&manifest.includes('./nutrition.css?v=6.5.1'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
+  const updateSource=fs.readFileSync(path.join(project,'update.html'),'utf8');
+  assert.ok(updateSource.includes("location.replace('./?updated=651#today')"),'Update-Seite leitet auf einen veralteten Cache-Marker weiter');
   const nutritionCss=fs.readFileSync(path.join(project,'nutrition.css'),'utf8');
   assert.match(nutritionCss,/body\.nutrition-mode\{[^}]*min-height:100dvh/,'Ernährungsansicht füllt den dynamischen iOS-Viewport nicht');
   assert.match(nutritionCss,/body\.journal-mode nav,body\.nutrition-mode nav\{[^}]*inset:auto 0 0 0!important/,'Ernährungsnavigation ist nicht wie im Tagebuch unten verankert');
