@@ -80,7 +80,9 @@ function render(){
   renderMeals();renderProgress();fillSettings();renderMeta();saveState();
 }
 function renderMeals(){
-  const wrap=$('#mealList'),data=day(selectedDate,false);
+  const wrap=$('#mealList');
+  if(!wrap)return;
+  const data=day(selectedDate,false);
   const icons={'Frühstück':'☀️','Mittagessen':'🥗','Abendessen':'🌙','Snack':'🍎'};
   const groups=MEAL_TYPES.map(type=>({type,items:data.meals.filter(meal=>meal.type===type)})).filter(group=>group.items.length);
   const previousMeals=day(shiftKey(selectedDate,-1),false).meals;

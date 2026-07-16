@@ -79,6 +79,7 @@
     if(activityCard)activityCard.title='Geschätzter Aktivitätsverbrauch aus Schritten und Training. Das feste Kalorienziel wird dadurch nicht automatisch erhöht.';
   }
   function configureSteps(root){
+    if(root.dataset.journalController)return;
     const toggle=root.querySelector('#journalStepToggle'),editor=root.querySelector('#journalStepEditor'),input=root.querySelector('#journalStepInput'),save=root.querySelector('#journalStepSave'),clear=root.querySelector('#journalStepClear');
     if(!toggle||toggle.dataset.audit570)return;
     toggle.dataset.audit570='1';
@@ -103,6 +104,7 @@
     clear.onclick=()=>{document.querySelector('#clearSteps')?.click();editor.hidden=true;toggle.setAttribute('aria-expanded','false')};
   }
   function configureWater(root){
+    if(root.dataset.journalController)return;
     root.querySelectorAll('[data-journal-water]').forEach(button=>{button.onclick=()=>writeWater(waterFor()+Number(button.dataset.journalWater))});
     const undo=root.querySelector('#journalWaterUndo');if(undo)undo.onclick=undoWater;
   }
@@ -158,9 +160,10 @@
         stepMeta.textContent=stepGoal>0&&steps<stepGoal?`Noch ${fmt0(stepGoal-steps)} bis Ziel · ${distance} km`:`Ziel erreicht · ${distance} km · ${calories} kcal`;
       }
     }
+    const controllerOwnsInputs=Boolean(root.dataset.journalController);
     const stepInput=root.querySelector('#journalStepInput'),stepSave=root.querySelector('#journalStepSave');
-    if(stepInput&&document.activeElement!==stepInput)stepInput.value=data.steps??'';
-    if(stepSave&&document.activeElement!==stepInput)stepSave.disabled=true;
+    if(!controllerOwnsInputs&&stepInput&&document.activeElement!==stepInput)stepInput.value=data.steps??'';
+    if(!controllerOwnsInputs&&stepSave&&document.activeElement!==stepInput)stepSave.disabled=true;
 
     const water=waterFor(),pace=waterPace(),waterCard=root.querySelector('.journal-water-card'),waterHint=root.querySelector('#journalWaterHint'),undo=root.querySelector('#journalWaterUndo'),record=undoRecord();
     waterCard?.classList.toggle('goal-reached',water>=WATER_TARGET);waterCard?.classList.toggle('on-pace',water<WATER_TARGET&&water>=pace);waterCard?.classList.toggle('behind',selectedDate===todayKey()&&water<pace-250);
@@ -170,7 +173,7 @@
       else if(selectedDate===todayKey()&&water>0)waterHint.textContent=`Noch ${fmt0(Math.max(0,pace-water))} ml bis zum aktuellen Soll.`;
       else waterHint.textContent=water>0?`Noch ${fmt0(WATER_TARGET-water)} ml bis zum Tagesziel.`:'Starte mit dem ersten Glas.';
     }
-    if(undo){const canUndo=Boolean(record&&record.date===selectedDate&&Number(record.current)===water);undo.disabled=!canUndo;undo.textContent=canUndo?'↶ Letzte Änderung':'↶ Rückgängig'}
+    if(undo&&!controllerOwnsInputs){const canUndo=Boolean(record&&record.date===selectedDate&&Number(record.current)===water);undo.disabled=!canUndo;undo.textContent=canUndo?'↶ Letzte Änderung':'↶ Rückgängig'}
 
     const todayWeight=data.weight,allWeights=weightEntries(selectedDate),previous=allWeights.filter(([key])=>key<selectedDate).at(-1),weight=root.querySelector('#journalWeight'),weightMeta=root.querySelector('#journalWeightMeta');
     if(weight)weight.textContent=todayWeight===null?'– kg':`${fmt1(todayWeight)} kg`;
