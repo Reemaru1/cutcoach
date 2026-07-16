@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='5.6.0';
+  const VERSION='6.2.3';
   const WATER_KEY='cutcoach_water_v1';
   const WATER_TARGET=3000;
   const WATER_MAX=6000;
@@ -45,11 +45,6 @@
     }
   }
 
-  function preferredMealType(){
-    const hour=new Date().getHours();
-    return hour<11?'Frühstück':hour<16?'Mittagessen':hour<21?'Abendessen':'Snack';
-  }
-
   function openMeal(type){
     document.querySelector('[data-tab="food"]')?.click();
     setTimeout(()=>{
@@ -79,16 +74,19 @@
           <span><strong id="journalWeekday">Heute</strong><small id="journalDate">–</small></span>
           <i aria-hidden="true">⌄</i>
         </button>
-        <div class="journal-mini-stats" aria-label="Tagesstatus">
-          <span title="Tagesnote">💎 <b id="journalScore">0</b></span>
-          <span title="Training diese Woche">🔥 <b id="journalGym">0</b></span>
+        <div class="journal-mini-stats" role="group" aria-label="Tagesnote und Tagesserie">
+          <span class="journal-status-item journal-score-status" title="Tagesnote">
+            <i class="journal-status-icon" aria-hidden="true">💎</i><small>Tagesnote</small><b id="journalScore">Offen</b>
+          </span>
+          <span class="journal-status-item journal-streak-status" title="Tagesserie">
+            <i class="journal-status-icon" aria-hidden="true">🔥</i><small>Tagesserie</small><b id="journalGym">0</b>
+          </span>
         </div>
         <button class="journal-calendar-button" id="journalCalendarButton" type="button" aria-label="Kalender öffnen">▣</button>
       </section>
 
       <section class="journal-heading">
         <div><small id="journalGreeting">Guten Tag! 👋</small><h1 id="journalHeadline">Dein Tagesüberblick</h1></div>
-        <button id="journalQuickAdd" type="button" aria-label="Mahlzeit hinzufügen">+</button>
       </section>
 
       <section class="journal-energy-card">
@@ -173,7 +171,6 @@
     screen.prepend(root);
     root.querySelector('#journalDateButton').onclick=openDatePicker;
     root.querySelector('#journalCalendarButton').onclick=openDatePicker;
-    root.querySelector('#journalQuickAdd').onclick=()=>openMeal(preferredMealType());
     root.querySelector('#journalOpenFood').onclick=()=>document.querySelector('[data-tab="food"]')?.click();
     root.querySelector('#journalStepToggle').onclick=()=>{
       const editor=root.querySelector('#journalStepEditor');

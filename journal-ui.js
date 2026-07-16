@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='6.2.2';
+  const VERSION='6.2.3';
   const WATER_KEY='cutcoach_water_v1';
   const WATER_UNDO_KEY='cutcoach_water_undo_v7';
   const WATER_MAX=6000;
@@ -85,6 +85,28 @@
     tools.replaceChildren(controls,stats,calendar);
     calendar.onclick=null;
     if(top.firstElementChild!==freshDate)top.prepend(freshDate);
+  }
+
+  function mountStatus(){
+    const host=root();
+    if(!host)return;
+    host.querySelector('#journalQuickAdd')?.remove();
+    const stats=host.querySelector('.journal-mini-stats');
+    if(!stats)return;
+    stats.setAttribute('role','group');
+    stats.setAttribute('aria-label','Tagesnote und Tagesserie');
+    [
+      {node:stats.querySelector('#journalScore'),className:'journal-score-status',icon:'💎',label:'Tagesnote'},
+      {node:stats.querySelector('#journalGym'),className:'journal-streak-status',icon:'🔥',label:'Tagesserie'}
+    ].forEach(item=>{
+      const wrapper=item.node?.closest('span');
+      if(!wrapper)return;
+      wrapper.classList.add('journal-status-item',item.className);
+      if(wrapper.querySelector('.journal-status-icon')&&wrapper.querySelector('small'))return;
+      const icon=document.createElement('i');icon.className='journal-status-icon';icon.setAttribute('aria-hidden','true');icon.textContent=item.icon;
+      const label=document.createElement('small');label.textContent=item.label;
+      wrapper.replaceChildren(icon,label,item.node);
+    });
   }
 
   function saveSteps(input,editor){
@@ -226,7 +248,7 @@
     const host=root();
     if(!host)return;
     host.dataset.journalController=VERSION;
-    mountHeader();mountSteps();mountWater();
+    mountStatus();mountHeader();mountSteps();mountWater();
     const version=document.querySelector('#appVersion');if(version)version.textContent=`Version ${VERSION}`;
   }
   const previousRender=window.render;

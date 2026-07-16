@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='5.7.0';
+  const VERSION='6.2.3';
   const WATER_KEY='cutcoach_water_v1';
   const WATER_UNDO_KEY='cutcoach_water_undo_v2';
   const WATER_TARGET=3000;
@@ -131,9 +131,18 @@
       ring.classList.toggle('over',remaining<0);ring.classList.toggle('near',remaining>=0&&remaining<=200);ring.classList.toggle('empty',total.calories===0);
       ring.setAttribute('aria-label',`${fmt0(total.calories)} von ${fmt0(settings.calories)} Kilokalorien gegessen`);
     }
-    const scoreNode=root.querySelector('#journalScore');if(scoreNode)scoreNode.textContent=score===null?'–':fmt1(score);
+    const scoreNode=root.querySelector('#journalScore');
+    if(scoreNode){
+      scoreNode.textContent=score===null?'Offen':fmt1(score);
+      const scoreItem=scoreNode.closest('.journal-status-item,span'),scoreLabel=score===null?'Tagesnote noch offen':`Tagesnote ${fmt1(score)} von 10`;
+      scoreItem?.setAttribute('title',scoreLabel);scoreItem?.setAttribute('aria-label',scoreLabel);
+    }
     const streak=streakState(),fire=root.querySelector('#journalGym');
-    if(fire){fire.textContent=String(streak.count);fire.closest('span')?.classList.toggle('pending',streak.pending);fire.closest('span')?.setAttribute('title',streak.pending?`${streak.count} Tage in Folge – heute fehlt noch ein Tagebucheintrag`:`${streak.count} Tage in Folge mit mindestens einem Tagebucheintrag`)}
+    if(fire){
+      fire.textContent=String(streak.count);
+      const streakItem=fire.closest('.journal-status-item,span'),streakLabel=streak.pending?`${streak.count} Tage in Folge – heute fehlt noch ein Tagebucheintrag`:`${streak.count} Tage in Folge mit mindestens einem Tagebucheintrag`;
+      streakItem?.classList.toggle('pending',streak.pending);streakItem?.setAttribute('title',streakLabel);streakItem?.setAttribute('aria-label',streakLabel);
+    }
     const activity=root.querySelector('#journalBurned');if(activity)activity.textContent=`${fmt0(activityEstimate(data))} kcal`;
 
     [['protein',total.protein,settings.protein],['carbs',total.carbs,settings.carbs],['fat',total.fat,settings.fat]].forEach(([key,value,goal])=>{
