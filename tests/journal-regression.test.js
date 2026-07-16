@@ -87,7 +87,7 @@ const input=(selector,value)=>{
   assert.equal(window.document.querySelector('#journalQuickAdd'),null,'Doppeltes Schnell-Plus ist zurückgekehrt');
   assert.equal(window.document.querySelectorAll('.journal-meal-add').length,4,'Mahlzeiten-Plus fehlt');
   assert.deepEqual([...window.document.querySelectorAll('[data-journal-alcohol]')].map(node=>node.textContent.trim()),['Ja','Nein'],'Alkohol-Reihenfolge ist falsch');
-  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.7.0');
+  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.7.1');
   assert.equal(window.CutCoachFoodCatalog.meta.count,7064,'BLS-Katalog ist unvollständig');
   assert.equal(window.CutCoachFoodCatalog.meta.license,'CC BY 4.0','BLS-Lizenzhinweis fehlt');
   assert.equal(window.CutCoachLibrary.exportData().version,2,'Bibliothek wurde nicht auf das neue Datenmodell migriert');
@@ -160,9 +160,16 @@ const input=(selector,value)=>{
 
   click('[data-journal-water="500"]');
   assert.equal(JSON.parse(window.localStorage.getItem('cutcoach_water_v1'))[previousDate],500,'Wasser +500 ml wurde nicht gespeichert');
+  assert.equal(JSON.parse(window.localStorage.getItem('cutcoach_water_undo_v10')).current,500,'Wasser-Rückgängig wurde nicht dauerhaft gespeichert');
+  window.sessionStorage.clear();test.render();
   assert.equal(window.document.querySelector('#journalWaterUndo').disabled,false,'Wasser-Rückgängig bleibt deaktiviert');
+  assert.match(window.document.querySelector('#journalWaterUndo').textContent,/500/,'Rückgängig zeigt nicht die zuletzt hinzugefügte Wassermenge');
   click('#journalWaterUndo');
   assert.equal(JSON.parse(window.localStorage.getItem('cutcoach_water_v1')||'{}')[previousDate],undefined,'Wasseränderung wurde nicht rückgängig gemacht');
+  click('[data-journal-water="250"]');window.localStorage.setItem('cutcoach_water_undo_v10',JSON.stringify({date:'2000-01-01',previous:0,current:999}));test.render();
+  assert.equal(window.document.querySelector('#journalWaterUndo').disabled,false,'Wasserkorrektur ist ohne Verlauf nicht verfügbar');
+  click('#journalWaterUndo');
+  assert.equal(JSON.parse(window.localStorage.getItem('cutcoach_water_v1')||'{}')[previousDate],undefined,'Sichere −250-ml-Korrektur funktioniert ohne Verlauf nicht');
 
   const originalStorageSet=window.Storage.prototype.setItem;
   window.Storage.prototype.setItem=function(key,value){if(key==='cutcoach_water_v1')throw new Error('test-storage-failure');return originalStorageSet.call(this,key,value)};
@@ -340,7 +347,7 @@ const input=(selector,value)=>{
   assert.equal(errors.length,0,`Unerwartete Browserfehler: ${errors.map(error=>error.message).join(' | ')}`);
 
   const manifest=fs.readFileSync(path.join(project,'runtime-manifest.js'),'utf8');
-  assert.match(manifest,/version:'6\.7\.0'/,'Offline-Cache hat falsche Version');
+  assert.match(manifest,/version:'6\.7\.1'/,'Offline-Cache hat falsche Version');
   for(const match of manifest.matchAll(/'\.\/([^'?]+)(?:\?[^']*)?'/g)){
     const asset=match[1];
     if(asset==='')continue;
@@ -353,10 +360,10 @@ const input=(selector,value)=>{
     assert.ok(fs.existsSync(path.join(project,asset)),`Index verweist auf fehlende Datei: ${asset}`);
   }
   for(const name of scripts){assert.ok(indexSource.includes(`${name}?`),`Produktiver Erststart lädt ${name} nicht direkt`);assert.ok(manifest.includes(`./${name}?`),`Offline-Manifest enthält ${name} nicht`)}
-  assert.ok(indexSource.includes('nutrition.css?v=6.7.0')&&manifest.includes('./nutrition.css?v=6.7.0'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
+  assert.ok(indexSource.includes('nutrition.css?v=6.7.1')&&manifest.includes('./nutrition.css?v=6.7.1'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
   const updateSource=fs.readFileSync(path.join(project,'update.html'),'utf8');
-  assert.ok(updateSource.includes("location.replace('./?updated=670#today')"),'Update-Seite leitet auf einen veralteten Cache-Marker weiter');
-  assert.ok(indexSource.indexOf('food-catalog.js?v=6.7.0')<indexSource.indexOf('library.js?v=6.7.0'),'Katalog wird nach der Bibliothek geladen');
+  assert.ok(updateSource.includes("location.replace('./?updated=671#today')"),'Update-Seite leitet auf einen veralteten Cache-Marker weiter');
+  assert.ok(indexSource.indexOf('food-catalog.js?v=6.7.1')<indexSource.indexOf('library.js?v=6.7.1'),'Katalog wird nach der Bibliothek geladen');
   const nutritionCss=fs.readFileSync(path.join(project,'nutrition.css'),'utf8');
   assert.match(nutritionCss,/body\.nutrition-mode\{[^}]*min-height:100dvh/,'Ernährungsansicht füllt den dynamischen iOS-Viewport nicht');
   assert.match(nutritionCss,/body\.journal-mode nav,body\.nutrition-mode nav\{[^}]*inset:auto 0 0 0!important/,'Ernährungsnavigation ist nicht wie im Tagebuch unten verankert');

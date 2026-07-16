@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'6.7.0';
+  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'6.7.1';
   const API_V2='https://world.openfoodfacts.org/api/v2/product/';
   const API_V0='https://world.openfoodfacts.org/api/v0/product/';
   const FIELDS='code,product_name,product_name_de,brands,quantity,serving_size,nutriments,image_front_small_url,image_url';
