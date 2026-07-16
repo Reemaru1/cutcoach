@@ -51,17 +51,19 @@
     $('#saveWeight').addEventListener('click',()=>{
       const weight=nullable($('#weightInput').value,30,300);
       if(weight===null){toast('Bitte ein gültiges Gewicht eintragen.');return;}
-      day().weight=weight;closeModal($('#weightModal'));render();toast('Gewicht gespeichert.');
+      if(!commitDayMutation(data=>{data.weight=weight})){toast('Gewicht konnte nicht gespeichert werden.');return;}
+      closeModal($('#weightModal'));render();toast('Gewicht gespeichert.');
     });
     $('#clearWeight').addEventListener('click',clearWeight);
     $('#saveSteps').addEventListener('click',()=>{
       const steps=nullable($('#stepsInput').value,0,100000,true);
       if(steps===null){toast('Bitte gültige Schritte eintragen.');return;}
-      day().steps=steps;render();toast('Schritte gespeichert.');
+      if(!commitDayMutation(data=>{data.steps=steps})){toast('Schritte konnten nicht gespeichert werden.');return;}
+      render();toast('Schritte gespeichert.');
     });
     $('#clearSteps').addEventListener('click',clearSteps);
-    $$('[data-gym]').forEach(button=>button.addEventListener('click',()=>{const value=button.dataset.gym==='true',data=day();data.gym=data.gym===value?null:value;pruneDay();render();}));
-    $$('[data-alcohol]').forEach(button=>button.addEventListener('click',()=>{const value=button.dataset.alcohol==='true',data=day();data.alcohol=data.alcohol===value?null:value;pruneDay();render();}));
+    $$('[data-gym]').forEach(button=>button.addEventListener('click',()=>{const value=button.dataset.gym==='true',current=day(selectedDate,false).gym;if(!commitDayMutation(data=>{data.gym=current===value?null:value})){toast('Training konnte nicht gespeichert werden.');return;}render();}));
+    $$('[data-alcohol]').forEach(button=>button.addEventListener('click',()=>{const value=button.dataset.alcohol==='true',current=day(selectedDate,false).alcohol;if(!commitDayMutation(data=>{data.alcohol=current===value?null:value})){toast('Alkohol-Angabe konnte nicht gespeichert werden.');return;}render();}));
 
     $('#saveSettings').addEventListener('click',saveSettings);
     $('#startApp').addEventListener('click',async()=>{

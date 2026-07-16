@@ -2,15 +2,14 @@
 
 ## Produktiver Einstieg
 
-Die Web-App wird über `index.html` gestartet. Der Service Worker `sw.js` liest die zentrale Produktionskonfiguration aus `runtime-manifest.js`.
+Die Web-App wird vollständig und deterministisch über `index.html` gestartet. Der Service Worker `sw.js` liest die Cache-Liste aus `runtime-manifest.js` und stellt dieselben Dateien offline bereit.
 
-`runtime-manifest.js` ist ab Version 5.8.0 die einzige Stelle für:
+`runtime-manifest.js` ist die zentrale Stelle für:
 
-- sichtbare Release-Version
-- produktiv geladene Basisdateien
-- produktiv geladene Styles
-- produktiv geladene Skripte
 - Cache-Version
+- offline verfügbare Basisdateien, Styles und Skripte
+
+Die produktive Ladefolge steht zusätzlich explizit in `index.html`. So hängt der erste App-Start nicht von einem bereits installierten Service Worker ab.
 
 ## Kern der App
 
@@ -22,9 +21,11 @@ Die Web-App wird über `index.html` gestartet. Der Service Worker `sw.js` liest 
 
 ## Produktive Erweiterungen
 
-Die Dateien `upgrade-*` sind derzeit noch Teil der aktiven Laufzeit. Sie dürfen nicht einzeln gelöscht werden, da spätere Tagebuch-Verbesserungen auf zuvor erzeugten Elementen und Funktionen aufbauen.
+- `journal.js` – einzige zuständige Laufzeit für Aufbau, Interaktion und Logik des Tagebuchs
+- `nutrition.js` und `nutrition.css` – Mahlzeitenauswahl aus dem Tagebuch
+- `journal-date.css` und `journal-ui.css` – finale responsive Tagebuch- und Kalenderregeln
 
-Die Reihenfolge wird ausschließlich in `runtime-manifest.js` verwaltet. Neue Bereiche sollen künftig nicht mehr durch Änderungen im Service Worker registriert werden.
+Die noch geladenen `upgrade-*.css` enthalten ausschließlich das etablierte visuelle Design. Historische `upgrade-*.js`-Ketten sind nicht mehr produktiv.
 
 ## Ernährung und Bibliothek
 
@@ -41,8 +42,8 @@ Die Reihenfolge wird ausschließlich in `runtime-manifest.js` verwaltet. Neue Be
 
 ## Regeln für weitere Entwicklung
 
-1. Release-Version nur in `runtime-manifest.js`, `runtime-version.js` und `update.html` ändern.
-2. Neue produktive Dateien nur in `runtime-manifest.js` registrieren.
+1. Release-Version in `core.js`, `runtime-manifest.js`, `sw.js`, `index.html` und `update.html` gemeinsam ändern.
+2. Neue produktive Dateien in `index.html` laden und in `runtime-manifest.js` für Offline-Nutzung registrieren.
 3. Keine neuen einzelnen Patch-Marker oder Versionsnotizen im Repository-Stamm anlegen.
 4. Entfernte Experimente nicht im aktiven Produktionspfad behalten.
 5. Vor größeren Umbauten einen Rückbaupunkt unter `backups/` dokumentieren.

@@ -1,7 +1,7 @@
 'use strict';
 
 (function(){
-  const VERSION='3.1.0';
+  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'6.3.0';
   let scanner=null;
   let scanning=false;
   let activeTrack=null;
