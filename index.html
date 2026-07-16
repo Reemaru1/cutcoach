@@ -17,7 +17,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=2.3.0">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css?v=2.3.0">
-  <link rel="stylesheet" href="library.css?v=3.0.0">
+  <link rel="stylesheet" href="library.css?v=6.8.0">
   <link rel="stylesheet" href="upgrade-360.css?v=4.2.0">
   <link rel="stylesheet" href="upgrade-420.css?v=4.2.0">
   <link rel="stylesheet" href="upgrade-430.css?v=4.3.0">
@@ -28,21 +28,21 @@
   <link rel="stylesheet" href="upgrade-564.css?v=5.6.4">
   <link rel="stylesheet" href="upgrade-565.css?v=5.6.5">
   <link rel="stylesheet" href="upgrade-570.css?v=5.7.0">
-  <link rel="stylesheet" href="nutrition.css?v=6.7.1">
+  <link rel="stylesheet" href="nutrition.css?v=6.8.0">
   <link rel="stylesheet" href="journal-date.css?v=6.2.2">
   <link rel="stylesheet" href="journal-ui.css?v=6.2.3">
-  <script src="core.js?v=6.7.1" defer></script>
-  <script src="render.js?v=6.7.1" defer></script>
-  <script src="actions.js?v=6.7.1" defer></script>
-  <script src="app.js?v=6.7.1" defer></script>
-  <script src="food-catalog.js?v=6.7.1" defer></script>
-  <script src="library.js?v=6.7.1" defer></script>
+  <script src="core.js?v=6.8.0" defer></script>
+  <script src="render.js?v=6.8.0" defer></script>
+  <script src="actions.js?v=6.8.0" defer></script>
+  <script src="app.js?v=6.8.0" defer></script>
+  <script src="food-catalog.js?v=6.8.0" defer></script>
+  <script src="library.js?v=6.8.0" defer></script>
   <script src="library-init.js?v=3.0.0" defer></script>
-  <script src="scanner-v2.js?v=6.7.1" defer></script>
-  <script src="off-lookup.js?v=6.7.1" defer></script>
-  <script src="upgrade-340.js?v=6.7.1" defer></script>
-  <script src="nutrition.js?v=6.7.1" defer></script>
-  <script src="journal.js?v=6.7.1" defer></script>
+  <script src="scanner-v2.js?v=6.8.0" defer></script>
+  <script src="off-lookup.js?v=6.8.0" defer></script>
+  <script src="upgrade-340.js?v=6.8.0" defer></script>
+  <script src="nutrition.js?v=6.8.0" defer></script>
+  <script src="journal.js?v=6.8.0" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" async></script>
 </head>
 <body>
@@ -185,8 +185,10 @@
     <div class="sheet-head"><h2 id="mealModalTitle">Mahlzeit hinzufügen</h2><button data-close type="button" aria-label="Schließen">×</button></div>
     <label>Name<input id="mealName" maxlength="80" autocomplete="off" placeholder="z. B. Skyr mit Proteinpulver"></label>
     <label>Kategorie<select id="mealType"><option>Frühstück</option><option>Mittagessen</option><option>Abendessen</option><option>Snack</option></select></label>
-    <div class="two"><label>Kalorien<input id="mealCalories" type="number" inputmode="numeric" min="1" max="10000"></label><label>Eiweiß (g)<input id="mealProtein" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label></div>
+    <div class="two"><label>Menge (optional)<input id="mealQuantity" type="number" inputmode="decimal" min="0.1" max="100000" step="0.1" placeholder="z. B. 250"></label><label>Einheit<select id="mealUnit"><option value="">Keine</option><option>g</option><option>ml</option><option>Stück</option><option>Portion</option></select></label></div>
+    <div class="two"><label>Kalorien<input id="mealCalories" type="number" inputmode="decimal" min="1" max="10000" step="0.1"></label><label>Eiweiß (g)<input id="mealProtein" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label></div>
     <div class="two"><label>Kohlenhydrate (g)<input id="mealCarbs" type="number" inputmode="decimal" min="0" max="1000" step="0.1"></label><label>Fett (g)<input id="mealFat" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label></div>
+    <details class="meal-nutrients-more"><summary>Weitere Nährwerte (optional)</summary><div class="two"><label>Ballaststoffe (g)<input id="mealFiber" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label><label>Zucker (g)<input id="mealSugar" type="number" inputmode="decimal" min="0" max="1000" step="0.1"></label></div><div class="two"><label>Gesättigte Fettsäuren (g)<input id="mealSaturatedFat" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label><label>Salz (g)<input id="mealSalt" type="number" inputmode="decimal" min="0" max="100" step="0.01"></label></div></details>
     <button id="saveMeal" type="button">Mahlzeit speichern</button>
   </div>
 </div>

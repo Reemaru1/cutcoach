@@ -8,18 +8,30 @@ function openMeal(id=null){
   $('#mealName').value=meal?.name||'';$('#mealType').value=meal?.type||'Frühstück';
   $('#mealCalories').value=meal?.calories??'';$('#mealProtein').value=meal?.protein??'';
   $('#mealCarbs').value=meal?.carbs??'';$('#mealFat').value=meal?.fat??'';
+  $('#mealQuantity').value=meal?.quantity??'';$('#mealUnit').value=meal?.unit||'';
+  $('#mealFiber').value=meal?.fiber??'';$('#mealSugar').value=meal?.sugar??'';
+  $('#mealSaturatedFat').value=meal?.saturatedFat??'';$('#mealSalt').value=meal?.salt??'';
   openModal('mealModal');
 }
 function saveMeal(){
+  const existing=editingMealId?day(selectedDate,false).meals.find(item=>String(item.id)===editingMealId):null;
   const raw={
     id:editingMealId||makeId(),name:$('#mealName').value,type:$('#mealType').value,
     calories:$('#mealCalories').value,protein:$('#mealProtein').value,
-    carbs:$('#mealCarbs').value,fat:$('#mealFat').value
+    carbs:$('#mealCarbs').value,fat:$('#mealFat').value,
+    quantity:$('#mealQuantity').value,unit:$('#mealUnit').value,
+    fiber:$('#mealFiber').value,sugar:$('#mealSugar').value,
+    saturatedFat:$('#mealSaturatedFat').value,salt:$('#mealSalt').value,
+    source:existing?.source||'manual',sourceItemId:existing?.sourceItemId||''
   };
   const checks=[['Kalorien',raw.calories,1,10000],['Eiweiß',raw.protein||0,0,500],['Kohlenhydrate',raw.carbs||0,0,1000],['Fett',raw.fat||0,0,500]];
   const invalid=checks.find(([,value,min,max])=>parseNumber(value)===null||parseNumber(value)<min||parseNumber(value)>max);
+  const optionalChecks=[['Menge',raw.quantity,0.1,100000],['Ballaststoffe',raw.fiber,0,500],['Zucker',raw.sugar,0,1000],['Gesättigte Fettsäuren',raw.saturatedFat,0,500],['Salz',raw.salt,0,100]];
+  const invalidOptional=optionalChecks.find(([,value,min,max])=>value!==''&&(parseNumber(value)===null||parseNumber(value)<min||parseNumber(value)>max));
   if(!cleanText(raw.name,80)){toast('Bitte einen Namen eintragen.');return;}
   if(invalid){toast(`${invalid[0]} liegt außerhalb des gültigen Bereichs.`);return;}
+  if(invalidOptional){toast(`${invalidOptional[0]} liegt außerhalb des gültigen Bereichs.`);return;}
+  if(Boolean(raw.quantity)!==Boolean(raw.unit)){toast('Bitte Menge und Einheit gemeinsam eintragen.');return;}
   const meal=sanitizeMeal(raw);
   if(!meal){toast('Mahlzeit konnte nicht gespeichert werden.');return;}
   const editingExists=Boolean(editingMealId&&day(selectedDate,false).meals.some(item=>String(item.id)===editingMealId));

@@ -1,10 +1,10 @@
 'use strict';
 
-const APP_VERSION = '6.7.1';
+const APP_VERSION = '6.8.0';
 const STORAGE_KEY = 'cutcoach_v2';
 const RECOVERY_KEY = 'cutcoach_recovery_raw';
 const PREVIOUS_STATE_KEY = 'cutcoach_previous_state';
-const SCHEMA_VERSION = 5;
+const SCHEMA_VERSION = 6;
 const MAX_DAYS = 5000;
 const MAX_MEALS_PER_DAY = 500;
 const MEAL_TYPES = ['Frühstück', 'Mittagessen', 'Abendessen', 'Snack'];
@@ -47,6 +47,11 @@ function nullable(value,min,max,integer=false){
   const parsed=parseNumber(value);
   if(parsed===null || parsed<min || parsed>max) return null;
   return integer ? Math.round(parsed) : Math.round(parsed*10)/10;
+}
+function mealNumber(value,fallback,min,max){
+  const parsed=parseNumber(value);
+  if(parsed===null||parsed<min||parsed>max)return fallback;
+  return Math.round(parsed*100)/100;
 }
 function makeId(){
   if(globalThis.crypto?.randomUUID) return crypto.randomUUID();
@@ -91,12 +96,21 @@ function sanitizeSettings(settings={}){
 }
 function sanitizeMeal(meal={},fallbackId=makeId()){
   const name=cleanText(meal.name,80);
-  const calories=bounded(meal.calories,0,0,10000);
+  const calories=mealNumber(meal.calories,0,0,10000);
   if(!name || calories<=0) return null;
+  const sourceId=String(meal.sourceItemId??meal.libraryItemId??'').trim(),unit=['g','ml','Stück','Portion'].includes(meal.unit)?meal.unit:null;
   return {
     id:safeId(meal.id??fallbackId), name,
     type:MEAL_TYPES.includes(meal.type)?meal.type:'Snack', calories,
-    protein:bounded(meal.protein,0,0,500), carbs:bounded(meal.carbs,0,0,1000), fat:bounded(meal.fat,0,0,500)
+    protein:mealNumber(meal.protein,0,0,500), carbs:mealNumber(meal.carbs,0,0,1000), fat:mealNumber(meal.fat,0,0,500),
+    fiber:meal.fiber===null||meal.fiber===undefined||meal.fiber===''?null:mealNumber(meal.fiber,null,0,500),
+    sugar:meal.sugar===null||meal.sugar===undefined||meal.sugar===''?null:mealNumber(meal.sugar,null,0,1000),
+    saturatedFat:meal.saturatedFat===null||meal.saturatedFat===undefined||meal.saturatedFat===''?null:mealNumber(meal.saturatedFat,null,0,500),
+    salt:meal.salt===null||meal.salt===undefined||meal.salt===''?null:mealNumber(meal.salt,null,0,100),
+    quantity:unit?nullable(meal.quantity??meal.amount,0.1,100000):null,
+    unit,
+    source:['bls','off','user','recipe','manual'].includes(meal.source)?meal.source:'manual',
+    sourceItemId:/^[A-Za-z0-9._:-]{1,128}$/.test(sourceId)?sourceId:''
   };
 }
 function sanitizeDay(raw={},legacyZeroSteps=false){
@@ -253,10 +267,15 @@ function isDayEmpty(data){ return !data.meals.length && data.weight===null && da
 function pruneDay(key=selectedDate){ if(state.days[key]&&isDayEmpty(state.days[key]))delete state.days[key]; }
 function mealCapacity(key=selectedDate){ return Math.max(0,MAX_MEALS_PER_DAY-day(key,false).meals.length); }
 function totals(key=selectedDate){
-  return day(key,false).meals.reduce((sum,meal)=>({
-    calories:sum.calories+meal.calories, protein:sum.protein+meal.protein,
-    carbs:sum.carbs+meal.carbs, fat:sum.fat+meal.fat
-  }),{calories:0,protein:0,carbs:0,fat:0});
+  const result={calories:0,protein:0,carbs:0,fat:0,fiber:0,sugar:0,saturatedFat:0,salt:0,nutrientCoverage:{fiber:0,sugar:0,saturatedFat:0,salt:0}};
+  for(const meal of day(key,false).meals){
+    for(const nutrient of ['calories','protein','carbs','fat'])result[nutrient]+=Number(meal[nutrient])||0;
+    for(const nutrient of ['fiber','sugar','saturatedFat','salt']){
+      if(meal[nutrient]===null||meal[nutrient]===undefined)continue;
+      result[nutrient]+=Number(meal[nutrient])||0;result.nutrientCoverage[nutrient]++;
+    }
+  }
+  return result;
 }
 function fmt(value,digits=0){ return Number(value||0).toLocaleString('de-DE',{minimumFractionDigits:digits,maximumFractionDigits:digits}); }
 function avg(values){ return values.length?values.reduce((sum,value)=>sum+value,0)/values.length:null; }
