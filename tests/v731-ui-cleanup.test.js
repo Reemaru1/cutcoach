@@ -20,8 +20,8 @@ assert.ok(cleanupCss.includes('white-space:nowrap'),'Kohlenhydrate wird nicht ei
 assert.ok(cleanupCss.includes('letter-spacing:-.035em'),'Kohlenhydrate wurde nicht kompakt angepasst');
 assert.ok(version.includes("const RELEASE='1.2.1 Alpha'"),'Releaseversion ist nicht 1.2.1 Alpha');
 assert.ok(version.includes('ui-cleanup-v732.css?v=7.3.3'),'Cleanup-CSS wird nicht geladen');
-assert.ok(manifest.includes("version:'1.2.3-alpha'"),'Cacheversion ist nicht 1.2.3 Alpha');
+assert.ok(manifest.includes("version:'1.2.4-alpha'"),'Cacheversion ist nicht 1.2.4 Alpha');
 assert.ok(manifest.includes('ui-cleanup-v732.css?v=7.3.3'),'Cleanup-CSS fehlt im Cache');
-assert.ok(sw.includes('runtime-manifest.js?v=1.2.3-alpha'),'Service Worker lädt falsches Manifest');
-assert.ok(update.includes('sw.js?v=1.2.3-alpha-force'),'Update-Seite installiert nicht 1.2.3 Alpha');
-console.log('CutCoach 1.2.1 Alpha UI cleanup with 1.2.3 runtime: ok');
+assert.ok(sw.includes('runtime-manifest.js?v=1.2.4-alpha'),'Service Worker lädt falsches Manifest');
+assert.ok(update.includes('sw.js?v=1.2.4-alpha-force'),'Update-Seite installiert nicht 1.2.4 Alpha');
+console.log('CutCoach 1.2.1 Alpha UI cleanup with 1.2.4 runtime: ok');
