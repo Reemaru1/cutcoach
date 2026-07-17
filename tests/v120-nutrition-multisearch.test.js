@@ -18,10 +18,10 @@ assert.match(js,/addItemToDay/,'Persönliche Treffer können nicht hinzugefügt 
 assert.match(js,/numberWords/,'Gesprochene Mengen werden nicht erkannt');
 assert.match(css,/nutrition-multi-list/,'Mehrfachtreffer sind nicht gestaltet');
 assert.match(version,/const RELEASE='1\.2\.0 Alpha'/,'Sichtbare Version ist nicht 1.2.0 Alpha');
-assert.match(version,/nutrition-multisearch-120\.js\?v=1\.2\.0-alpha/,'Mehrfachsuche wird nicht geladen');
+assert.match(version,/nutrition-multisearch-120\.js\?v=1\.2\.1-alpha/,'Genauigkeits-Hotfix wird nicht geladen');
 assert.match(manifest,/version:'1\.2\.0-alpha'/,'Cacheversion ist nicht 1.2.0 Alpha');
 assert.match(manifest,/nutrition-multisearch-120\.css\?v=1\.2\.0-alpha/,'Mehrfachsuche-CSS fehlt im Cache');
-assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.2\.0-alpha/,'Mehrfachsuche-JavaScript fehlt im Cache');
+assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.2\.1-alpha/,'Genauigkeits-Hotfix fehlt im Cache');
 assert.match(sw,/runtime-manifest\.js\?v=1\.2\.0-alpha/,'Service Worker lädt falsches Manifest');
 assert.match(update,/sw\.js\?v=1\.2\.0-alpha-force/,'Update-Seite installiert nicht 1.2.0 Alpha');
 console.log('CutCoach 1.2.0 Alpha intelligent nutrition multi-search test: ok');
