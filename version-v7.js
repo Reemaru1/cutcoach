@@ -2,7 +2,7 @@
 (function(){
   const RELEASE='7.0.0';
   window.CUTCOACH_RELEASE=RELEASE;
-  function setVersion(){const node=document.querySelector('#appVersion');if(node)node.textContent=`Version ${RELEASE}`}
+  function setVersion(){const node=document.querySelector('#appVersion'),text=`Version ${RELEASE}`;if(node&&node.textContent!==text)node.textContent=text}
   async function exportBackupV7(event){
     const button=event.target.closest?.('#exportData');if(!button)return;
     event.preventDefault();event.stopImmediatePropagation();
