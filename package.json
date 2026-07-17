@@ -1,0 +1,12 @@
+{
+  "name": "cutcoach",
+  "version": "7.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node tests/v7-smoke.test.js",
+    "check:syntax": "for file in *.js tests/*.js; do node --check \"$file\"; done"
+  },
+  "devDependencies": {
+    "jsdom": "24.1.3"
+  }
+}
