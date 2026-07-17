@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const RELEASE='1.2.1 Alpha';
+  const RELEASE='1.2.2 Alpha';
   window.CUTCOACH_RELEASE=RELEASE;
   const escapeHtml=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
   const normalized=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
@@ -15,7 +15,7 @@
   function loadJournal72(){addStyle('journal-v72','./journal-v72.css?v=7.2.0');addStyle('ui-cleanup-v732','./ui-cleanup-v732.css?v=7.3.3');addStyle('journal-smart-v740','./journal-smart-v740.css?v=1.0.0-alpha');const loadSmart=()=>{if(!window.CutCoachJournalV740)addScript('journal-smart-v740','./journal-smart-v740.js?v=1.0.0-alpha')};if(window.CutCoachJournalV72){loadSmart();return}if(document.querySelector('script[data-journal-v72]')){setTimeout(loadSmart,120);return}addScript('journal-v72','./journal-v72.js?v=7.2.0',loadSmart)}
   function loadNutrition110(){addStyle('nutrition-v110','./nutrition-v110.css?v=1.1.0-alpha');if(!window.CutCoachNutritionV110)addScript('nutrition-v110','./nutrition-v110.js?v=1.1.0-alpha')}
   function loadNutritionVoice111(){addStyle('nutrition-voice-111','./nutrition-voice-111.css?v=1.1.1-alpha');if(!window.CutCoachNutritionVoice111)addScript('nutrition-voice-111','./nutrition-voice-111.js?v=1.1.1-alpha')}
-  function loadNutritionMulti120(){addStyle('nutrition-multisearch-120','./nutrition-multisearch-120.css?v=1.2.0-alpha');const loadCanonical=()=>{if(!window.CutCoachCanonicalMultiSearch125)addScript('nutrition-multisearch-canonical-125','./nutrition-multisearch-canonical-125.js?v=1.2.5-alpha')};if(!window.CutCoachNutritionMultiSearch120)addScript('nutrition-multisearch-120','./nutrition-multisearch-120.js?v=1.2.3-alpha',loadCanonical);else loadCanonical()}
+  function loadNutritionMulti120(){addStyle('nutrition-multisearch-120','./nutrition-multisearch-120.css?v=1.2.2-alpha');const loadLegacy=()=>{if(!window.CutCoachNutritionMultiSearch120)addScript('nutrition-multisearch-120','./nutrition-multisearch-120.js?v=1.2.3-alpha')};if(!window.CutCoachCanonicalMultiSearch126)addScript('nutrition-multisearch-canonical-126','./nutrition-multisearch-canonical-126.js?v=1.2.6-alpha',loadLegacy);else loadLegacy()}
   function loadNutrition73(){addStyle('nutrition-v73','./nutrition-v73.css?v=7.3.1');if(window.CutCoachNutritionV73||document.querySelector('script[data-nutrition-v73]')){loadNutrition110();loadNutritionVoice111();loadNutritionMulti120();return}addScript('nutrition-v73','./nutrition-v73.js?v=7.3.1',()=>{loadNutrition110();loadNutritionVoice111();loadNutritionMulti120()})}
   function loadNutritionCleanup(){addStyle('nutrition-cleanup-101','./nutrition-cleanup-101.css?v=1.0.3-alpha');if(!window.CutCoachNutritionCleanup101)addScript('nutrition-cleanup-101','./nutrition-cleanup-101.js?v=1.0.3-alpha')}
   function loadCatalog73(){if(window.CutCoachEverydayCatalog){loadNutrition73();return}if(document.querySelector('script[data-everyday-v73]'))return;addScript('everyday-v73','./everyday-catalog-v73.js?v=7.3.0',loadNutrition73)}
