@@ -1,0 +1,38 @@
+name: CutCoach 7 Checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [agent/nutrition-perfection-v7]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install test dependency
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Check JavaScript syntax
+        run: npm run check:syntax
+      - name: Run CutCoach 7 smoke test
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee test-output.txt
+      - name: Upload test output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cutcoach-v7-test-output
+          path: test-output.txt
+          if-no-files-found: warn
+          retention-days: 3
