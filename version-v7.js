@@ -19,5 +19,6 @@
   document.addEventListener('input',event=>{if(event.target?.id==='recipeV7Search')queueMicrotask(()=>enhanceRecipeSearch(event.target))});document.addEventListener('click',exportBackupV7,true);
   const baseRender=window.render;if(typeof baseRender==='function')window.render=function(){baseRender();setVersion()};
   function watchVersionNode(){if(setVersion())return;const observer=new MutationObserver(()=>{if(setVersion())observer.disconnect()});observer.observe(document.body||document.documentElement,{childList:true,subtree:true})}
+  setVersion();
   const start=()=>{loadJournal72();loadCatalog73();watchVersionNode()};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
