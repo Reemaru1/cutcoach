@@ -1,4 +1,5 @@
 'use strict';
+// Nutrition multisearch accuracy hotfix 1.2.1
 importScripts('./runtime-manifest.js?v=1.2.0-alpha');
 
 const RUNTIME=self.CUTCOACH_RUNTIME;
