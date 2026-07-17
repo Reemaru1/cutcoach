@@ -1,0 +1,25 @@
+#journalCheckInsight,
+.journal-macros article > em,
+.journal-macros .macro-v7-gap{
+  display:none!important;
+}
+
+.journal-macros article{
+  min-width:0;
+}
+
+.journal-macro-title,
+.journal-macro-title > div{
+  min-width:0;
+}
+
+.journal-macro-title b{
+  display:block;
+  max-width:none;
+  overflow:visible;
+  text-overflow:clip;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  line-height:1.05;
+  font-size:clamp(.72rem,2.65vw,.9rem);
+}
