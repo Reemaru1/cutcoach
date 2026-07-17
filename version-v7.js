@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const RELEASE='7.0.0';
+  const RELEASE='7.1.0';
   window.CUTCOACH_RELEASE=RELEASE;
   const escapeHtml=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
   const normalized=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
