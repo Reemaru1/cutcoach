@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="nutrition.css?v=6.8.0">
   <link rel="stylesheet" href="journal-date.css?v=6.2.2">
   <link rel="stylesheet" href="journal-ui.css?v=6.2.3">
+  <link rel="stylesheet" href="water-animation.css?v=6.8.1">
   <script src="core.js?v=6.8.0" defer></script>
   <script src="render.js?v=6.8.0" defer></script>
   <script src="actions.js?v=6.8.0" defer></script>
@@ -43,6 +44,7 @@
   <script src="upgrade-340.js?v=6.8.0" defer></script>
   <script src="nutrition.js?v=6.8.0" defer></script>
   <script src="journal.js?v=6.8.0" defer></script>
+  <script src="water-animation.js?v=6.8.1" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" async></script>
 </head>
 <body>
@@ -71,146 +73,29 @@
 
   <main>
     <section class="screen active" data-screen="today">
-      <div class="hero">
-        <div>
-          <span class="badge">🔥 Fettverlust</span>
-          <div class="kcal"><strong id="kcalTotal">0</strong><small> kcal</small></div>
-          <p id="kcalStatus">2300 kcal übrig</p>
-        </div>
-        <div class="score" id="scoreRing" aria-label="Tagesnote"><strong id="score">–</strong><small id="scoreCaption">vorläufig</small></div>
-        <div class="bar full" aria-label="Kalorienfortschritt"><i id="kcalBar"></i></div>
-      </div>
-
+      <div class="hero"><div><span class="badge">🔥 Fettverlust</span><div class="kcal"><strong id="kcalTotal">0</strong><small> kcal</small></div><p id="kcalStatus">2300 kcal übrig</p></div><div class="score" id="scoreRing" aria-label="Tagesnote"><strong id="score">–</strong><small id="scoreCaption">vorläufig</small></div><div class="bar full" aria-label="Kalorienfortschritt"><i id="kcalBar"></i></div></div>
       <div class="grid macros">
         <article class="card"><label>💪 Eiweiß <span id="proteinRemaining">190 g fehlen</span></label><strong><span id="proteinTotal">0</span><small> / <span id="proteinGoal">190</span> g</small></strong><div class="bar"><i id="proteinBar"></i></div></article>
         <article class="card"><label>🍚 Kohlenhydrate <span id="carbsRemaining">200 g fehlen</span></label><strong><span id="carbsTotal">0</span><small> / <span id="carbsGoal">200</span> g</small></strong><div class="bar"><i id="carbsBar"></i></div></article>
         <article class="card"><label>🥑 Fett <span id="fatRemaining">65 g fehlen</span></label><strong><span id="fatTotal">0</span><small> / <span id="fatGoal">65</span> g</small></strong><div class="bar"><i id="fatBar"></i></div></article>
         <article class="card"><label>⚖️ Gewicht <span>Morgens</span></label><strong><span id="todayWeight">–</span><small> kg</small></strong><button class="secondary" data-open="weightModal" type="button">Eintragen</button></article>
       </div>
-
-      <article class="card steps-card">
-        <label>👣 Schritte <span>Ziel <b id="stepGoal">6000</b></span></label>
-        <div class="inline with-clear">
-          <input id="stepsInput" type="number" aria-label="Schritte eingeben" inputmode="numeric" min="0" max="100000" step="1" enterkeyhint="done" placeholder="Schritte">
-          <button id="saveSteps" type="button">Speichern</button>
-          <button id="clearSteps" class="secondary compact" type="button" aria-label="Schritteintrag entfernen">×</button>
-        </div>
-        <div class="bar"><i id="stepsBar"></i></div>
-      </article>
-
-      <div class="grid checks">
-        <article class="card"><label>🏋️ Gym heute?</label><div class="choice"><button data-gym="true" type="button" aria-pressed="false">Ja</button><button data-gym="false" type="button" aria-pressed="false">Nein</button></div></article>
-        <article class="card"><label>🍺 Alkohol?</label><div class="choice"><button data-alcohol="true" class="danger" type="button" aria-pressed="false">Ja</button><button data-alcohol="false" type="button" aria-pressed="false">Nein</button></div></article>
-      </div>
-
-      <h2>Tagesauswertung</h2>
-      <article class="card summary">
-        <div><label id="energyBalanceLabel">Defizit*</label><strong><span id="deficit">–</span><small> kcal</small></strong></div>
-        <div><label>Gym · 7 Tage</label><strong><span id="gymWeek">0</span><small> / <span id="gymWeekGoal">5</span></small></strong></div>
-        <div><label>Schritte</label><strong id="stepsView">–</strong></div>
-        <p id="feedback">Trage deine Daten ein. Danach bekommst du eine ehrliche Bewertung.</p>
-        <div class="completion" id="completionText">Noch keine Tagesdaten eingetragen.</div>
-        <small class="hint">* Nur eine Schätzung anhand deiner eingestellten Erhaltungskalorien.</small>
-      </article>
+      <article class="card steps-card"><label>👣 Schritte <span>Ziel <b id="stepGoal">6000</b></span></label><div class="inline with-clear"><input id="stepsInput" type="number" aria-label="Schritte eingeben" inputmode="numeric" min="0" max="100000" step="1" enterkeyhint="done" placeholder="Schritte"><button id="saveSteps" type="button">Speichern</button><button id="clearSteps" class="secondary compact" type="button" aria-label="Schritteintrag entfernen">×</button></div><div class="bar"><i id="stepsBar"></i></div></article>
+      <div class="grid checks"><article class="card"><label>🏋️ Gym heute?</label><div class="choice"><button data-gym="true" type="button" aria-pressed="false">Ja</button><button data-gym="false" type="button" aria-pressed="false">Nein</button></div></article><article class="card"><label>🍺 Alkohol?</label><div class="choice"><button data-alcohol="true" class="danger" type="button" aria-pressed="false">Ja</button><button data-alcohol="false" type="button" aria-pressed="false">Nein</button></div></article></div>
+      <h2>Tagesauswertung</h2><article class="card summary"><div><label id="energyBalanceLabel">Defizit*</label><strong><span id="deficit">–</span><small> kcal</small></strong></div><div><label>Gym · 7 Tage</label><strong><span id="gymWeek">0</span><small> / <span id="gymWeekGoal">5</span></small></strong></div><div><label>Schritte</label><strong id="stepsView">–</strong></div><p id="feedback">Trage deine Daten ein. Danach bekommst du eine ehrliche Bewertung.</p><div class="completion" id="completionText">Noch keine Tagesdaten eingetragen.</div><small class="hint">* Nur eine Schätzung anhand deiner eingestellten Erhaltungskalorien.</small></article>
     </section>
 
-    <section class="screen" data-screen="food">
-      <div class="section-title">
-        <h2>Ernährung</h2>
-        <div class="section-actions"><button id="copyPreviousMeals" class="secondary" type="button">Vortag</button><button data-open="mealModal" type="button">+ Mahlzeit</button></div>
-      </div>
-      <div class="stats card">
-        <div><label>Kalorien</label><strong id="foodKcal">0</strong></div>
-        <div><label>Eiweiß</label><strong><span id="foodProtein">0</span><small> g</small></strong></div>
-        <div><label id="foodBalanceLabel">Noch offen</label><strong><span id="foodOpen">2300</span><small> kcal</small></strong></div>
-      </div>
-      <div id="mealList"></div>
-    </section>
+    <section class="screen" data-screen="food"><div class="section-title"><h2>Ernährung</h2><div class="section-actions"><button id="copyPreviousMeals" class="secondary" type="button">Vortag</button><button data-open="mealModal" type="button">+ Mahlzeit</button></div></div><div class="stats card"><div><label>Kalorien</label><strong id="foodKcal">0</strong></div><div><label>Eiweiß</label><strong><span id="foodProtein">0</span><small> g</small></strong></div><div><label id="foodBalanceLabel">Noch offen</label><strong><span id="foodOpen">2300</span><small> kcal</small></strong></div></div><div id="mealList"></div></section>
 
-    <section class="screen" data-screen="progress">
-      <div class="section-title"><div><h2>Fortschritt</h2><small class="range-label" id="rangeLabel"></small></div><button data-open="weightModal" type="button">+ Gewicht</button></div>
-      <article class="card"><label>Kalorien · letzte 7 Tage <span id="avgCalories">Ø –</span></label><div id="weekBars" class="week-bars"></div></article>
-      <div class="grid progress-grid">
-        <article class="card"><label>Gewichtstrend <span id="weightTrendBasis" class="trend-basis"></span></label><strong><span id="weightTrend">–</span><small> kg</small></strong></article>
-        <article class="card"><label>Ø Eiweiß</label><strong><span id="avgProtein">–</span><small> g</small></strong></article>
-        <article class="card"><label>Gym</label><strong><span id="weekGym">0</span><small> Einheiten</small></strong></article>
-        <article class="card"><label>Ø Schritte</label><strong id="avgSteps">–</strong></article>
-      </div>
-      <div class="notice goal-notice" id="goalStatus">Trage dein Wunschgewicht in den Einstellungen ein.</div>
-      <h2>Gewichtsverlauf</h2>
-      <article class="card" id="weightHistory"></article>
-      <h2>Empfehlung</h2>
-      <article class="notice" id="weekAdvice">Nach mindestens sieben Tagen wird die Bewertung aussagekräftiger.</article>
-    </section>
+    <section class="screen" data-screen="progress"><div class="section-title"><div><h2>Fortschritt</h2><small class="range-label" id="rangeLabel"></small></div><button data-open="weightModal" type="button">+ Gewicht</button></div><article class="card"><label>Kalorien · letzte 7 Tage <span id="avgCalories">Ø –</span></label><div id="weekBars" class="week-bars"></div></article><div class="grid progress-grid"><article class="card"><label>Gewichtstrend <span id="weightTrendBasis" class="trend-basis"></span></label><strong><span id="weightTrend">–</span><small> kg</small></strong></article><article class="card"><label>Ø Eiweiß</label><strong><span id="avgProtein">–</span><small> g</small></strong></article><article class="card"><label>Gym</label><strong><span id="weekGym">0</span><small> Einheiten</small></strong></article><article class="card"><label>Ø Schritte</label><strong id="avgSteps">–</strong></article></div><div class="notice goal-notice" id="goalStatus">Trage dein Wunschgewicht in den Einstellungen ein.</div><h2>Gewichtsverlauf</h2><article class="card" id="weightHistory"></article><h2>Empfehlung</h2><article class="notice" id="weekAdvice">Nach mindestens sieben Tagen wird die Bewertung aussagekräftiger.</article></section>
 
-    <section class="screen" data-screen="settings">
-      <h2>Ziele & Einstellungen</h2>
-      <article class="card settings">
-        <div class="two"><label>Alter<input id="setAge" type="number" min="14" max="100" inputmode="numeric"></label><label>Größe (cm)<input id="setHeight" type="number" min="120" max="230" inputmode="numeric"></label></div>
-        <div class="two"><label>Kalorienziel<input id="setCalories" type="number" min="1200" max="6000" inputmode="numeric"></label><label>Erhaltungskalorien<input id="setMaintenance" type="number" min="1500" max="7000" inputmode="numeric"></label></div>
-        <div class="two"><label>Eiweiß (g)<input id="setProtein" type="number" min="50" max="350" inputmode="numeric"></label><label>Fett (g)<input id="setFat" type="number" min="30" max="200" inputmode="numeric"></label></div>
-        <div class="two"><label>Kohlenhydrate (g)<input id="setCarbs" type="number" min="0" max="800" inputmode="numeric"></label><label>Schritte<input id="setSteps" type="number" min="0" max="50000" inputmode="numeric"></label></div>
-        <div class="two"><label>Gym/Woche<input id="setGymGoal" type="number" min="0" max="7" inputmode="numeric"></label><label>Wunschgewicht (kg)<input id="setGoalWeight" type="number" min="30" max="300" step="0.1" inputmode="decimal"></label></div>
-        <button id="saveSettings" type="button">Einstellungen speichern</button>
-      </article>
-
-      <h2>Daten & Sicherheit</h2>
-      <div class="notice data-warning" id="dataWarning" hidden><span id="dataWarningMessage"></span><button id="dismissDataWarning" type="button" aria-label="Hinweis schließen">×</button></div>
-      <article class="card data-actions">
-        <div class="backup-status" id="backupStatus">Noch kein Backup erstellt.</div>
-        <div class="data-summary" id="dataSummary">0 Tage · 0 Mahlzeiten</div>
-        <div class="storage-status" id="storageStatus">Lokale Speicherung wird geprüft …</div>
-        <button id="exportData" class="secondary" type="button">Backup exportieren</button>
-        <label class="secondary file">Backup importieren<input id="importData" type="file" accept=".json,application/json"></label>
-        <button id="restorePrevious" class="secondary" type="button" hidden>Vorherigen Stand wiederherstellen</button>
-        <button id="exportRecovery" class="secondary" type="button" hidden>Gesicherte Rohdaten exportieren</button>
-        <button id="resetData" class="delete-btn" type="button">Alle Daten löschen</button>
-      </article>
-      <div class="notice">Deine persönlichen Einträge bleiben lokal auf diesem Gerät. Sie werden nicht in dein öffentliches GitHub-Repository hochgeladen.</div>
-      <div class="notice health-note">CutCoach ersetzt keine medizinische Beratung. Ein dauerhaftes Defizit von etwa 1 kg pro Woche kann je nach Ausgangsgewicht sehr aggressiv sein.</div>
-      <div class="app-meta"><span id="onlineStatus">Online</span><span id="appVersion">Version</span></div>
-    </section>
+    <section class="screen" data-screen="settings"><h2>Ziele & Einstellungen</h2><article class="card settings"><div class="two"><label>Alter<input id="setAge" type="number" min="14" max="100" inputmode="numeric"></label><label>Größe (cm)<input id="setHeight" type="number" min="120" max="230" inputmode="numeric"></label></div><div class="two"><label>Kalorienziel<input id="setCalories" type="number" min="1200" max="6000" inputmode="numeric"></label><label>Erhaltungskalorien<input id="setMaintenance" type="number" min="1500" max="7000" inputmode="numeric"></label></div><div class="two"><label>Eiweiß (g)<input id="setProtein" type="number" min="50" max="350" inputmode="numeric"></label><label>Fett (g)<input id="setFat" type="number" min="30" max="200" inputmode="numeric"></label></div><div class="two"><label>Kohlenhydrate (g)<input id="setCarbs" type="number" min="0" max="800" inputmode="numeric"></label><label>Schritte<input id="setSteps" type="number" min="0" max="50000" inputmode="numeric"></label></div><div class="two"><label>Gym/Woche<input id="setGymGoal" type="number" min="0" max="7" inputmode="numeric"></label><label>Wunschgewicht (kg)<input id="setGoalWeight" type="number" min="30" max="300" step="0.1" inputmode="decimal"></label></div><button id="saveSettings" type="button">Einstellungen speichern</button></article><h2>Daten & Sicherheit</h2><div class="notice data-warning" id="dataWarning" hidden><span id="dataWarningMessage"></span><button id="dismissDataWarning" type="button" aria-label="Hinweis schließen">×</button></div><article class="card data-actions"><div class="backup-status" id="backupStatus">Noch kein Backup erstellt.</div><div class="data-summary" id="dataSummary">0 Tage · 0 Mahlzeiten</div><div class="storage-status" id="storageStatus">Lokale Speicherung wird geprüft …</div><button id="exportData" class="secondary" type="button">Backup exportieren</button><label class="secondary file">Backup importieren<input id="importData" type="file" accept=".json,application/json"></label><button id="restorePrevious" class="secondary" type="button" hidden>Vorherigen Stand wiederherstellen</button><button id="exportRecovery" class="secondary" type="button" hidden>Gesicherte Rohdaten exportieren</button><button id="resetData" class="delete-btn" type="button">Alle Daten löschen</button></article><div class="notice">Deine persönlichen Einträge bleiben lokal auf diesem Gerät. Sie werden nicht in dein öffentliches GitHub-Repository hochgeladen.</div><div class="notice health-note">CutCoach ersetzt keine medizinische Beratung. Ein dauerhaftes Defizit von etwa 1 kg pro Woche kann je nach Ausgangsgewicht sehr aggressiv sein.</div><div class="app-meta"><span id="onlineStatus">Online</span><span id="appVersion">Version</span></div></section>
   </main>
 </div>
-
-<nav aria-label="Hauptnavigation">
-  <button class="active" data-tab="today" type="button" aria-current="page"><span>◉</span>Heute</button>
-  <button data-tab="food" type="button" aria-current="false"><span>🍽️</span>Ernährung</button>
-  <button data-tab="progress" type="button" aria-current="false"><span>📈</span>Fortschritt</button>
-  <button data-tab="settings" type="button" aria-current="false"><span>⚙️</span>Einstellungen</button>
-</nav>
-
-<div class="modal" id="mealModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="mealModalTitle">
-  <div class="sheet">
-    <div class="sheet-head"><h2 id="mealModalTitle">Mahlzeit hinzufügen</h2><button data-close type="button" aria-label="Schließen">×</button></div>
-    <label>Name<input id="mealName" maxlength="80" autocomplete="off" placeholder="z. B. Skyr mit Proteinpulver"></label>
-    <label>Kategorie<select id="mealType"><option>Frühstück</option><option>Mittagessen</option><option>Abendessen</option><option>Snack</option></select></label>
-    <div class="two"><label>Menge (optional)<input id="mealQuantity" type="number" inputmode="decimal" min="0.1" max="100000" step="0.1" placeholder="z. B. 250"></label><label>Einheit<select id="mealUnit"><option value="">Keine</option><option>g</option><option>ml</option><option>Stück</option><option>Portion</option></select></label></div>
-    <div class="two"><label>Kalorien<input id="mealCalories" type="number" inputmode="decimal" min="1" max="10000" step="0.1"></label><label>Eiweiß (g)<input id="mealProtein" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label></div>
-    <div class="two"><label>Kohlenhydrate (g)<input id="mealCarbs" type="number" inputmode="decimal" min="0" max="1000" step="0.1"></label><label>Fett (g)<input id="mealFat" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label></div>
-    <details class="meal-nutrients-more"><summary>Weitere Nährwerte (optional)</summary><div class="two"><label>Ballaststoffe (g)<input id="mealFiber" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label><label>Zucker (g)<input id="mealSugar" type="number" inputmode="decimal" min="0" max="1000" step="0.1"></label></div><div class="two"><label>Gesättigte Fettsäuren (g)<input id="mealSaturatedFat" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label><label>Salz (g)<input id="mealSalt" type="number" inputmode="decimal" min="0" max="100" step="0.01"></label></div></details>
-    <button id="saveMeal" type="button">Mahlzeit speichern</button>
-  </div>
-</div>
-
-<div class="modal" id="weightModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="weightModalTitle">
-  <div class="sheet">
-    <div class="sheet-head"><h2 id="weightModalTitle">Gewicht eintragen</h2><button data-close type="button" aria-label="Schließen">×</button></div>
-    <label>Gewicht in kg<input id="weightInput" type="number" inputmode="decimal" min="30" max="300" step="0.1" enterkeyhint="done" placeholder="z. B. 95,0"></label>
-    <div class="button-row"><button id="saveWeight" type="button">Gewicht speichern</button><button id="clearWeight" class="secondary danger-secondary" type="button">Eintrag entfernen</button></div>
-  </div>
-</div>
-
-<div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="onboardingTitle">
-  <div class="sheet">
-    <h2 id="onboardingTitle">Willkommen bei CutCoach</h2>
-    <div class="notice">Voreingestellt: 2300 kcal, 190 g Eiweiß, 6000 Schritte und fünf Gym-Einheiten pro Woche.</div>
-    <label>Startgewicht (kg)<input id="startWeight" type="number" inputmode="decimal" min="30" max="300" step="0.1"></label>
-    <label>Wunschgewicht (optional)<input id="startGoal" type="number" inputmode="decimal" min="30" max="300" step="0.1"></label>
-    <button id="startApp" type="button">Offiziell starten 💪</button>
-  </div>
-</div>
-
+<nav aria-label="Hauptnavigation"><button class="active" data-tab="today" type="button" aria-current="page"><span>◉</span>Heute</button><button data-tab="food" type="button" aria-current="false"><span>🍽️</span>Ernährung</button><button data-tab="progress" type="button" aria-current="false"><span>📈</span>Fortschritt</button><button data-tab="settings" type="button" aria-current="false"><span>⚙️</span>Einstellungen</button></nav>
+<div class="modal" id="mealModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="mealModalTitle"><div class="sheet"><div class="sheet-head"><h2 id="mealModalTitle">Mahlzeit hinzufügen</h2><button data-close type="button" aria-label="Schließen">×</button></div><label>Name<input id="mealName" maxlength="80" autocomplete="off" placeholder="z. B. Skyr mit Proteinpulver"></label><label>Kategorie<select id="mealType"><option>Frühstück</option><option>Mittagessen</option><option>Abendessen</option><option>Snack</option></select></label><div class="two"><label>Menge (optional)<input id="mealQuantity" type="number" inputmode="decimal" min="0.1" max="100000" step="0.1" placeholder="z. B. 250"></label><label>Einheit<select id="mealUnit"><option value="">Keine</option><option>g</option><option>ml</option><option>Stück</option><option>Portion</option></select></label></div><div class="two"><label>Kalorien<input id="mealCalories" type="number" inputmode="decimal" min="1" max="10000" step="0.1"></label><label>Eiweiß (g)<input id="mealProtein" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label></div><div class="two"><label>Kohlenhydrate (g)<input id="mealCarbs" type="number" inputmode="decimal" min="0" max="1000" step="0.1"></label><label>Fett (g)<input id="mealFat" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label></div><details class="meal-nutrients-more"><summary>Weitere Nährwerte (optional)</summary><div class="two"><label>Ballaststoffe (g)<input id="mealFiber" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label><label>Zucker (g)<input id="mealSugar" type="number" inputmode="decimal" min="0" max="1000" step="0.1"></label></div><div class="two"><label>Gesättigte Fettsäuren (g)<input id="mealSaturatedFat" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label><label>Salz (g)<input id="mealSalt" type="number" inputmode="decimal" min="0" max="100" step="0.01"></label></div></details><button id="saveMeal" type="button">Mahlzeit speichern</button></div></div>
+<div class="modal" id="weightModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="weightModalTitle"><div class="sheet"><div class="sheet-head"><h2 id="weightModalTitle">Gewicht eintragen</h2><button data-close type="button" aria-label="Schließen">×</button></div><label>Gewicht in kg<input id="weightInput" type="number" inputmode="decimal" min="30" max="300" step="0.1" enterkeyhint="done" placeholder="z. B. 95,0"></label><div class="button-row"><button id="saveWeight" type="button">Gewicht speichern</button><button id="clearWeight" class="secondary danger-secondary" type="button">Eintrag entfernen</button></div></div></div>
+<div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="onboardingTitle"><div class="sheet"><h2 id="onboardingTitle">Willkommen bei CutCoach</h2><div class="notice">Voreingestellt: 2300 kcal, 190 g Eiweiß, 6000 Schritte und fünf Gym-Einheiten pro Woche.</div><label>Startgewicht (kg)<input id="startWeight" type="number" inputmode="decimal" min="30" max="300" step="0.1"></label><label>Wunschgewicht (optional)<input id="startGoal" type="number" inputmode="decimal" min="30" max="300" step="0.1"></label><button id="startApp" type="button">Offiziell starten 💪</button></div></div>
 <div id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
