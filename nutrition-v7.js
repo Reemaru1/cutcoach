@@ -165,7 +165,7 @@
   }
 
   async function exportEnhanced(event){
-    event.preventDefault();event.stopImmediatePropagation();const payload={format:'cutcoach-library-v2',version:2,appVersion:VERSION,exportedAt:new Date().toISOString(),data:libraryData(),recipeMeta,portionProfiles};try{await shareOrDownload(JSON.stringify(payload,null,2),`CutCoach-Bibliothek-${typeof todayKey==='function'?todayKey():new Date().toISOString().slice(0,10)}.json`,'CutCoach Bibliothek');toast?.('Bibliothek inklusive Rezeptdetails gesichert.')}catch(error){if(error?.name!=='AbortError')toast?.('Bibliothek konnte nicht exportiert werden.')}
+    event.preventDefault();event.stopImmediatePropagation();const payload={format:'cutcoach-library-v2',version:2,appVersion:window.CUTCOACH_RELEASE||'7.0.0',exportedAt:new Date().toISOString(),data:libraryData(),recipeMeta,portionProfiles};try{await shareOrDownload(JSON.stringify(payload,null,2),`CutCoach-Bibliothek-${typeof todayKey==='function'?todayKey():new Date().toISOString().slice(0,10)}.json`,'CutCoach Bibliothek');toast?.('Bibliothek inklusive Rezeptdetails gesichert.')}catch(error){if(error?.name!=='AbortError')toast?.('Bibliothek konnte nicht exportiert werden.')}
   }
   function importEnhanced(event){
     const input=event.target;if(input.id!=='importLibrary')return;event.stopImmediatePropagation();const file=input.files?.[0];input.value='';if(!file)return;if(file.size>5*1024*1024){toast?.('Datei ist zu groß.');return}const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(reader.result),data=parsed?.format==='cutcoach-library-v2'?parsed.data:parsed?.format==='cutcoach-library'?parsed.data:parsed;if(!data?.items)throw new Error('invalid');if(!confirm(`${data.items.length} Bibliothekseinträge importieren? Die aktuelle Bibliothek wird ersetzt.`))return;if(!library().importData(data))return;if(parsed?.format==='cutcoach-library-v2'){recipeMeta=parsed.recipeMeta&&typeof parsed.recipeMeta==='object'?parsed.recipeMeta:{};portionProfiles=parsed.portionProfiles&&typeof parsed.portionProfiles==='object'?parsed.portionProfiles:{};safeWrite(RECIPE_META_KEY,recipeMeta);safeWrite(PORTION_PROFILE_KEY,portionProfiles)}migrateRecipeMeta();toast?.('Bibliothek importiert.');window.render?.()}catch{toast?.('Ungültige Bibliotheksdatei.')}};reader.readAsText(file);
@@ -193,11 +193,11 @@
     document.addEventListener('click',captureClick,true);document.addEventListener('change',importEnhanced,true);
   }
 
-  function enhanceVersion(){const version=$('#appVersion');if(version)version.textContent=`Version ${VERSION}`}
+  function enhanceVersion(){const version=$('#appVersion'),release=window.CUTCOACH_RELEASE||'7.0.0',text=`Version ${release}`;if(version&&version.textContent!==text)version.textContent=text}
   function enhance(){normalizeDecimalInputs();renderAnalysis();enhanceVersion()}
   function start(){
     if(initialized)return;if(!library()||!$('#libraryScreen')){setTimeout(start,80);return}initialized=true;injectUi();bindUi();migrateRecipeMeta();originalCreateItem=library().createItem?.bind(library());if(originalCreateItem)library().createItem=(kind,initial={})=>kind==='recipe'?openRecipeEditor(null,{name:typeof initial==='string'?initial:initial?.name||''}):originalCreateItem(kind,initial);
-    const baseRender=window.render;if(typeof baseRender==='function')window.render=function(){baseRender();enhance()};const observer=new MutationObserver(enhance);observer.observe(document.body,{childList:true,subtree:true});enhance();
+    const baseRender=window.render;if(typeof baseRender==='function')window.render=function(){baseRender();enhance()};window.addEventListener('cutcoach:librarychange',enhance);document.addEventListener('pageshow',enhance);enhance();
     window.CutCoachNutritionV7={openRecipeEditor,openDetail,migrateRecipeMeta,recipeMeta:()=>clone(recipeMeta),portionProfiles:()=>clone(portionProfiles)};
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
