@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const RELEASE='7.1.0';
+  const RELEASE='7.2.0';
   window.CUTCOACH_RELEASE=RELEASE;
   const escapeHtml=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
   const normalized=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
@@ -32,6 +32,11 @@
     host.innerHTML=items.map(item=>`<button type="button" data-recipe-ingredient="${escapeHtml(item.id)}"><span>${item.source==='bls'?'BLS':item.source==='off'?'Produkt':'Eigene'}</span><b>${escapeHtml(item.name)}</b><small>${fmt(item.calories)} kcal · ${fmt(item.protein,1)} g E · Basis ${fmt(item.amount,item.amount%1?1:0)} ${escapeHtml(item.unit||'g')}</small></button>`).join('');
   }
   function setVersion(){const node=document.querySelector('#appVersion'),text=`Version ${RELEASE}`;if(node&&node.textContent!==text)node.textContent=text}
+  function loadJournal72(){
+    if(!document.querySelector('link[data-journal-v72]')){const link=document.createElement('link');link.rel='stylesheet';link.href='./journal-v72.css?v=7.2.0';link.dataset.journalV72='1';document.head.append(link)}
+    if(window.CutCoachJournalV72||document.querySelector('script[data-journal-v72]'))return;
+    const script=document.createElement('script');script.src='./journal-v72.js?v=7.2.0';script.async=false;script.dataset.journalV72='1';script.onerror=()=>{try{toast?.('Tagebuch-Upgrade konnte nicht geladen werden. Bitte App neu öffnen.')}catch{}};document.head.append(script);
+  }
   async function exportBackupV7(event){
     const button=event.target.closest?.('#exportData');if(!button)return;
     event.preventDefault();event.stopImmediatePropagation();
@@ -47,5 +52,6 @@
   document.addEventListener('click',exportBackupV7,true);
   const baseRender=window.render;if(typeof baseRender==='function')window.render=function(){baseRender();setVersion()};
   const observer=new MutationObserver(setVersion);observer.observe(document.documentElement,{childList:true,subtree:true});
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setVersion,{once:true});else setVersion();
+  const start=()=>{loadJournal72();setVersion()};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
