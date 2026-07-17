@@ -18,9 +18,9 @@ assert.doesNotMatch(js,/observe\(document\.documentElement/,'Teure globale Dauer
 assert.match(css,/journal-energy-card/,'Kompakter Tagesüberblick fehlt');
 assert.match(css,/meal-v74-current/,'Aktuelle Mahlzeit wird nicht hervorgehoben');
 assert.match(css,/focus-visible/,'Tastaturfokus für Coach-Schalter fehlt');
-assert.match(manifest,/version:'1\.2\.0-alpha'/,'Manifestversion ist falsch');
+assert.match(manifest,/version:'1\.2\.1-alpha'/,'Manifestversion ist falsch');
 assert.match(manifest,/journal-smart-v740\.js\?v=1\.0\.0-alpha/,'Stabilisiertes Journal fehlt im Cache');
-assert.match(sw,/runtime-manifest\.js\?v=1\.2\.0-alpha/,'Service Worker lädt falsches Manifest');
-assert.match(version,/const RELEASE='1\.2\.0 Alpha'/,'Releaseversion ist falsch');
-assert.match(update,/sw\.js\?v=1\.2\.0-alpha-force/,'Update-Seite installiert nicht 1.2.0 Alpha');
-console.log('CutCoach 1.2.0 Alpha journal stabilization test: ok');
+assert.match(sw,/runtime-manifest\.js\?v=1\.2\.1-alpha/,'Service Worker lädt falsches Manifest');
+assert.match(version,/const RELEASE='1\.2\.1 Alpha'/,'Releaseversion ist falsch');
+assert.match(update,/sw\.js\?v=1\.2\.1-alpha-force/,'Update-Seite installiert nicht 1.2.1 Alpha');
+console.log('CutCoach 1.2.1 Alpha journal stabilization test: ok');
