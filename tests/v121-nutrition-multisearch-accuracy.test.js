@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const project=path.resolve(__dirname,'..');
+const js=fs.readFileSync(path.join(project,'nutrition-multisearch-120.js'),'utf8');
+assert.match(js,/QUERY_PROFILES/,'Spezifische Suchprofile fehlen');
+assert.match(js,/minimumConfidence/,'Mindestkonfidenz fehlt');
+assert.match(js,/candidateType/,'Kategorieprüfung fehlt');
+assert.match(js,/alternatives/,'Alternativtreffer fehlen');
+assert.match(js,/spezi/,'Spezi-Profil fehlt');
+assert.match(js,/ambiguous/,'Mehrdeutige Treffer werden nicht erkannt');
+assert.match(js,/Kein sicherer Treffer/,'Unsichere Treffer werden nicht abgefangen');
+console.log('CutCoach multisearch accuracy hotfix test: ok');
