@@ -1,10 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='7.3.0';
-  const TERMS=[
-    ['🥨','Butterbreze'],['🧀','Käsesemmel'],['🥙','Dürüm'],['🥙','Döner'],
-    ['🥪','Leberkässemmel'],['🌭','Currywurst'],['🍕','Pizza'],['🍝','Käsespätzle']
-  ];
+  const VERSION='7.3.1';
   const $=selector=>document.querySelector(selector);
   const normalize=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
   const fmt=(value,digits=0)=>new Intl.NumberFormat('de-DE',{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(Math.max(0,Number(value)||0));
@@ -15,31 +11,11 @@
   function everydayByName(name){const key=normalize(name);return everydayItems().find(item=>normalize(item.name)===key)||null}
   function icon(item){return item.category==='Bäckerei'?'🥨':item.category==='Imbiss'?'🥙':item.category==='Fast Food'?'🍔':item.category==='Kantine'?'🍽️':item.category==='Frühstück'?'🥣':'🍎'}
 
-  function ensure(){
-    const card=$('.nutrition-search-card'),input=$('#nutritionSearch');
-    if(!card||!input)return;
-    let quick=$('#nutritionEverydayQuick');
-    if(!quick){
-      quick=document.createElement('section');
-      quick.id='nutritionEverydayQuick';
-      quick.className='nutrition-everyday-quick';
-      quick.setAttribute('aria-label','Beliebte Alltagsgerichte');
-      quick.innerHTML=`<div><strong>Alltagsgerichte</strong><small>Regionale Begriffe wie Semmel, Breze, Yufka oder Weckle werden mitgesucht.</small></div><div class="nutrition-everyday-chips">${TERMS.map(([termIcon,term])=>`<button type="button" data-everyday-search="${escapeHtml(term)}"><span aria-hidden="true">${termIcon}</span>${escapeHtml(term)}</button>`).join('')}</div>`;
-      card.append(quick);
-      quick.addEventListener('click',event=>{
-        const button=event.target.closest('[data-everyday-search]');if(!button)return;
-        input.value=button.dataset.everydaySearch||'';
-        input.dispatchEvent(new Event('input',{bubbles:true}));
-        input.focus();
-      });
-      input.addEventListener('input',()=>queueSync());
-    }
-    quick.hidden=Boolean(input.value.trim());
+  function removeRedundantUi(){
+    $('#nutritionEverydayQuick')?.remove();
+    $('#journalCoachText')?.remove();
     const note=$('.nutrition-catalog-note');
-    if(note&&!note.dataset.v73){
-      note.dataset.v73='1';
-      note.insertAdjacentHTML('beforeend',' · <span>CutCoach-Standardgerichte aus BLS-Zutaten</span>');
-    }
+    if(note&&!note.dataset.v73){note.dataset.v73='1';note.insertAdjacentHTML('beforeend',' · <span>CutCoach-Standardgerichte aus BLS-Zutaten</span>')}
   }
 
   function matchingItems(query){
@@ -64,43 +40,20 @@
     const existing=new Set([...host.querySelectorAll('[data-nutrition-open]')].map(node=>node.dataset.nutritionOpen));
     const missing=matchingItems(query).filter(item=>!existing.has(item.id));
     if(!missing.length)return;
-    const empty=host.querySelector('.nutrition-empty');if(empty)empty.remove();
-    host.classList.remove('is-empty');
-    host.insertAdjacentHTML('afterbegin',missing.map(resultHtml).join(''));
-    const count=$('#nutritionResultCount'),current=Number((count?.textContent||'0').replace(/\D/g,''))||0;
-    if(count)count.textContent=`${fmt(current+missing.length)} Treffer`;
+    host.querySelector('.nutrition-empty')?.remove();host.classList.remove('is-empty');host.insertAdjacentHTML('afterbegin',missing.map(resultHtml).join(''));
+    const count=$('#nutritionResultCount'),current=Number((count?.textContent||'0').replace(/\D/g,''))||0;if(count)count.textContent=`${fmt(current+missing.length)} Treffer`;
   }
 
   function decorate(){
-    const scope=$('#nutritionResultScope'),input=$('#nutritionSearch');
-    if(scope&&input?.value.trim())scope.textContent='Bibliothek, BLS & Alltagsgerichte';
-    document.querySelectorAll('.nutrition-result-row [data-nutrition-open^="ccde:"]').forEach(button=>{
-      const title=button.querySelector('.nutrition-result-copy b');if(title&&!title.querySelector('.nutrition-source.standard'))title.insertAdjacentHTML('beforeend','<i class="nutrition-source standard" aria-label="CutCoach Standardgericht aus BLS-Zutaten">Standard</i>');
-    });
+    const scope=$('#nutritionResultScope'),input=$('#nutritionSearch');if(scope&&input?.value.trim())scope.textContent='Bibliothek, BLS & Alltagsgerichte';
+    document.querySelectorAll('.nutrition-result-row [data-nutrition-open^="ccde:"]').forEach(button=>{const title=button.querySelector('.nutrition-result-copy b');if(title&&!title.querySelector('.nutrition-source.standard'))title.insertAdjacentHTML('beforeend','<i class="nutrition-source standard" aria-label="CutCoach Standardgericht aus BLS-Zutaten">Standard</i>')});
     document.querySelectorAll('#recipeV7SearchResults [data-recipe-ingredient^="ccde:"]').forEach(button=>{const label=button.querySelector('span');if(label)label.textContent='Standard'});
-    const detailTitle=$('#nutritionDetailTitle'),source=$('#nutritionDetailSource');
-    if(detailTitle&&source&&$('#nutritionDetailModal')?.classList.contains('open')){
-      const item=everydayByName(detailTitle.textContent);
-      if(item){
-        const coverage=['fiber','sugar','saturatedFat','salt'].filter(key=>item[key]!==null&&item[key]!==undefined).length;
-        source.dataset.source='cutcoach';
-        source.innerHTML=`<span>CutCoach Standardgericht · aus BLS 4.0 berechnet</span><small>Standardportion ${fmt(item.amount,item.amount%1?1:0)} ${escapeHtml(item.unit||'g')} · ${coverage}/4 Zusatzwerte vorhanden</small>`;
-      }
-    }
+    const detailTitle=$('#nutritionDetailTitle'),source=$('#nutritionDetailSource');if(detailTitle&&source&&$('#nutritionDetailModal')?.classList.contains('open')){const item=everydayByName(detailTitle.textContent);if(item){const coverage=['fiber','sugar','saturatedFat','salt'].filter(key=>item[key]!==null&&item[key]!==undefined).length;source.dataset.source='cutcoach';source.innerHTML=`<span>CutCoach Standardgericht · aus BLS 4.0 berechnet</span><small>Standardportion ${fmt(item.amount,item.amount%1?1:0)} ${escapeHtml(item.unit||'g')} · ${coverage}/4 Zusatzwerte vorhanden</small>`}}
   }
 
-  function sync(){
-    if(enhancing)return;enhancing=true;
-    try{ensure();enhanceResults();decorate()}finally{enhancing=false}
-  }
-  function queueSync(){
-    if(scheduled)return;scheduled=true;
-    setTimeout(()=>{scheduled=false;sync()},0);
-  }
-
-  const observer=new MutationObserver(queueSync);
-  observer.observe(document.documentElement,{childList:true,subtree:true});
-  document.addEventListener('click',queueSync,true);
+  function sync(){if(enhancing)return;enhancing=true;try{removeRedundantUi();enhanceResults();decorate()}finally{enhancing=false}}
+  function queueSync(){if(scheduled)return;scheduled=true;setTimeout(()=>{scheduled=false;sync()},0)}
+  const observer=new MutationObserver(queueSync);observer.observe(document.documentElement,{childList:true,subtree:true});document.addEventListener('click',queueSync,true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',queueSync,{once:true});else queueSync();
   window.CutCoachNutritionV73=Object.freeze({version:VERSION,refresh:queueSync,matching:matchingItems});
 })();
