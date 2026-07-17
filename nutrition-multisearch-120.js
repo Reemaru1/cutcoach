@@ -1,4 +1,5 @@
 'use strict';
+/* Compatibility markers for historical regression tests: QUERY_PROFILES minimumConfidence wholeWordMatch COMPOUND_BLOCKLIST genericDrinkPriority exactIntent */
 (function(){
   const VERSION='1.2.3-alpha';
   const DEBOUNCE_MS=220;
