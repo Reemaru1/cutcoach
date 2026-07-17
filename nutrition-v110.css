@@ -1,0 +1,37 @@
+/* CutCoach 1.1.0 Alpha – nutrition performance & UX pass */
+body.nutrition-mode [data-screen="food"]{scroll-behavior:smooth}
+body.nutrition-mode .nutrition-shell{gap:9px}
+body.nutrition-mode .nutrition-search-card{padding:9px 10px;border-radius:20px;box-shadow:0 14px 34px rgba(0,0,0,.18)}
+body.nutrition-mode .nutrition-search-row{min-height:52px;border-radius:16px}
+body.nutrition-mode .nutrition-search-row input{font-size:15px!important}
+body.nutrition-mode .nutrition-shortcuts{gap:8px}
+body.nutrition-mode .nutrition-shortcuts button{min-height:70px;transition:transform .16s ease,border-color .16s ease,background .16s ease}
+body.nutrition-mode .nutrition-shortcuts button:active{transform:scale(.965)}
+body.nutrition-mode .nutrition-meal-card{border-radius:20px}
+body.nutrition-mode .nutrition-meal-summary{min-height:64px}
+body.nutrition-mode .nutrition-macro-compass{gap:7px}
+body.nutrition-mode .nutrition-macro-compass article{min-width:0}
+body.nutrition-mode .nutrition-macro-compass article>small:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}
+body.nutrition-mode .nutrition-macro-compass article:nth-child(2)>small:first-child{font-size:8.4px;letter-spacing:-.02em}
+body.nutrition-mode .nutrition-tabs{scroll-snap-type:x proximity;overscroll-behavior-x:contain;padding-bottom:4px}
+body.nutrition-mode .nutrition-tabs button{scroll-snap-align:start;min-height:38px;padding-inline:11px!important}
+body.nutrition-mode .nutrition-browse-head{padding-top:5px}
+body.nutrition-mode .nutrition-browse-head h2{font-size:18px}
+body.nutrition-mode .nutrition-results{border-radius:20px;contain:layout paint style}
+body.nutrition-mode .nutrition-result-row{content-visibility:auto;contain-intrinsic-size:72px;opacity:.985;transition:background .16s ease,opacity .16s ease}
+body.nutrition-mode .nutrition-result-row.is-ready{opacity:1}
+body.nutrition-mode .nutrition-result-row:active{background:rgba(112,231,171,.035)}
+body.nutrition-mode .nutrition-result-main{min-height:72px;padding-block:9px!important}
+body.nutrition-mode .nutrition-result-copy b{align-items:flex-start;white-space:normal;line-height:1.18}
+body.nutrition-mode .nutrition-result-copy b>span{display:-webkit-box;overflow:hidden;white-space:normal;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+body.nutrition-mode .nutrition-result-copy small{margin-top:5px;font-size:8.5px}
+body.nutrition-mode .nutrition-result-add{transition:transform .14s ease,opacity .14s ease,background .14s ease}
+body.nutrition-mode .nutrition-result-add:active{transform:scale(.92)}
+body.nutrition-mode .nutrition-result-add.is-committing{pointer-events:none;opacity:.52;transform:scale(.92)}
+body.nutrition-mode .nutrition-v7-analysis-head{border-radius:12px;transition:background .16s ease}
+body.nutrition-mode .nutrition-v7-analysis-head:active{background:rgba(112,231,171,.045)}
+body.nutrition-mode .nutrition-v7-analysis-toggle{transition:transform .18s ease,background .18s ease,border-color .18s ease}
+body.nutrition-mode .nutrition-v7-analysis:not(.is-collapsed) .nutrition-v7-analysis-toggle{transform:rotate(180deg)}
+body.nutrition-mode [data-nutrition-v110="1"] button:focus-visible,body.nutrition-mode [data-nutrition-v110="1"] input:focus-visible{outline:2px solid rgba(116,190,255,.82);outline-offset:2px}
+@media(max-width:390px){body.nutrition-mode .nutrition-shortcuts{gap:6px}body.nutrition-mode .nutrition-shortcuts b{font-size:9px}body.nutrition-mode .nutrition-result-energy{font-size:10px}body.nutrition-mode .nutrition-macro-compass article:nth-child(2)>small:first-child{font-size:7.8px}}
+@media(prefers-reduced-motion:reduce){body.nutrition-mode [data-screen="food"]{scroll-behavior:auto}body.nutrition-mode .nutrition-result-row,body.nutrition-mode .nutrition-result-add,body.nutrition-mode .nutrition-v7-analysis-toggle,body.nutrition-mode .nutrition-shortcuts button{transition:none!important}}
