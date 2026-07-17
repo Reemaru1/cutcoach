@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [agent/nutrition-perfection-v7]
+    branches: [agent/coach-impulse-v71]
 
 permissions:
   contents: read

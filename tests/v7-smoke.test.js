@@ -22,6 +22,7 @@ const dom=new JSDOM(html,{
 const {window}=dom;
 
 window.scrollTo=()=>{};
+window.HTMLElement.prototype.scrollIntoView=()=>{};
 window.alert=()=>{};
 window.confirm=()=>true;
 window.matchMedia=()=>({matches:false,addEventListener(){},removeEventListener(){}});
@@ -70,19 +71,32 @@ const input=(selector,value)=>{
 };
 
 (async()=>{
-  await wait(500);
+  await wait(550);
 
-  assert.equal(node('#appVersion').textContent,'Version 7.0.0','Sichtbare Releaseversion ist nicht zentral auf 7.0.0');
-  assert.equal(window.CUTCOACH_RELEASE,'7.0.0','Zentrale Releasekonstante fehlt');
+  assert.equal(node('#appVersion').textContent,'Version 7.1.0','Sichtbare Releaseversion ist nicht zentral auf 7.1.0');
+  assert.equal(window.CUTCOACH_RELEASE,'7.1.0','Zentrale Releasekonstante fehlt');
   assert.ok(node('#today560'),'Tagebuch wurde nicht aufgebaut');
   assert.ok(node('#journalFinishDay'),'Tagesabschluss fehlt');
-  assert.equal(window.document.querySelectorAll('.water-v7-marks i').length,3,'Wassermarkierungen fehlen');
+  assert.equal(window.document.querySelectorAll('.water-v7-marks').length,0,'Unnötige Liter-Markierungen sind noch sichtbar');
   assert.equal(window.document.querySelectorAll('.water-v7-bubbles i').length,4,'Wasserbläschen fehlen');
   assert.equal(window.document.querySelectorAll('.macro-v7-gap').length,3,'Makro-Restwerte fehlen');
 
-  click('.journal-meal-add[data-add-journal-meal="Frühstück"]');
+  const coach=node('.journal-coach-card.coach-v71');
+  assert.equal(coach.dataset.coachVersion,'7.1','CutCoach Impuls wurde nicht auf 7.1 aktualisiert');
+  assert.equal(window.document.querySelectorAll('.coach-v71-pillars article').length,3,'Die drei Coaching-Bereiche fehlen');
+  assert.match(node('#journalCoachText').textContent,/Kernbereichen/,'Die Datenabdeckung des Coaches fehlt');
+  assert.match(node('#coachV71FocusTitle').textContent,/Mahlzeit/,'Der leere Tag priorisiert nicht die erste Mahlzeit');
+  assert.equal(node('#coachV71Action').dataset.action,'meal','Die primäre Coach-Aktion ist nicht ausführbar');
+  assert.match(node('#coachV71Coverage').textContent,/0 von 6/,'Leerer Tag hat eine falsche Datenabdeckung');
+
+  const effectsCss=fs.readFileSync(path.join(project,'ui-effects-v7.css'),'utf8');
+  assert.doesNotMatch(effectsCss,/25%\s*·\s*50%\s*·\s*75%/,'Unnötige Schritt-Prozentmarken sind noch im CSS');
+  assert.match(effectsCss,/\.journal-step-progress:after\{content:none!important;display:none!important\}/,'Schritt-Zusatzskala wird nicht zuverlässig ausgeblendet');
+  assert.match(effectsCss,/\.water-v7-marks\{display:none!important\}/,'Liter-Markierungen werden nicht defensiv ausgeblendet');
+
+  click('#coachV71Action');
   await wait(60);
-  assert.equal(node('[data-screen="food"]').classList.contains('active'),true,'Ernährungsbereich öffnet nicht');
+  assert.equal(node('[data-screen="food"]').classList.contains('active'),true,'Coach-Aktion öffnet den Ernährungsbereich nicht');
   assert.equal(window.document.body.classList.contains('nutrition-mode'),true,'Ernährungsmodus wurde nicht aktiviert');
   assert.ok(node('#nutritionV7Analysis'),'Erweiterte Nährwertanalyse fehlt');
 
@@ -145,29 +159,36 @@ const input=(selector,value)=>{
   assert.equal(day.meals.find(meal=>meal.name==='Hafer-Testrezept').calories,348,'Eingetragene Rezeptportion hat falsche Kalorien');
 
   window.render();
-  await wait(20);
-  assert.equal(node('#appVersion').textContent,'Version 7.0.0','Rendern überschreibt die Releaseversion');
+  await wait(30);
+  assert.equal(node('#appVersion').textContent,'Version 7.1.0','Rendern überschreibt die Releaseversion');
   assert.ok(node('#journalSummaryModal'),'Tagesabschluss-Dialog fehlt nach Rendern');
   assert.equal(window.document.querySelectorAll('#today560').length,1,'Rendern dupliziert das Tagebuch');
   assert.equal(window.document.querySelectorAll('#recipeV7Modal').length,1,'Rendern dupliziert das Rezeptstudio');
+  assert.equal(window.document.querySelectorAll('.journal-coach-card.coach-v71').length,1,'Rendern dupliziert oder verliert den CutCoach Impuls');
+  assert.equal(window.document.querySelectorAll('.coach-v71-pillars article').length,3,'Coaching-Bereiche werden beim Rendern beschädigt');
+  assert.equal(window.document.querySelectorAll('.water-v7-marks').length,0,'Liter-Markierungen kehren beim Rendern zurück');
   assert.equal(errors.length,0,`Unerwartete Browserfehler: ${errors.map(error=>error.message||String(error)).join(' | ')}`);
 
   const manifest=fs.readFileSync(path.join(project,'runtime-manifest.js'),'utf8');
   const sw=fs.readFileSync(path.join(project,'sw.js'),'utf8');
   const update=fs.readFileSync(path.join(project,'update.html'),'utf8');
-  assert.match(manifest,/version:'7\.0\.0'/,'Runtime-Manifest hat eine falsche Version');
-  assert.match(sw,/runtime-manifest\.js\?v=7\.0\.0/,'Service Worker lädt ein veraltetes Manifest');
-  assert.match(update,/sw\.js\?v=7\.0\.0-force/,'Erzwungener Installer lädt einen veralteten Service Worker');
-  assert.match(update,/updated=700/,'Update-Weiterleitung hat einen veralteten Marker');
+  assert.match(manifest,/version:'7\.1\.0'/,'Runtime-Manifest hat eine falsche Version');
+  assert.match(sw,/runtime-manifest\.js\?v=7\.1\.0/,'Service Worker lädt ein veraltetes Manifest');
+  assert.match(update,/sw\.js\?v=7\.1\.0-force/,'Erzwungener Installer lädt einen veralteten Service Worker');
+  assert.match(update,/updated=710/,'Update-Weiterleitung hat einen veralteten Marker');
   assert.equal(indexSource.includes('nutrition-hardening.js'),false,'Alte Nutrition-Hardening-Schicht wird noch geladen');
 
-  for(const asset of ['nutrition-v7.js','nutrition-v7.css','ui-effects-v7.js','ui-effects-v7.css','version-v7.js']){
-    assert.ok(indexSource.includes(`${asset}?v=7.0.0`),`Index lädt ${asset} nicht cache-sicher`);
-    assert.ok(manifest.includes(`./${asset}?v=7.0.0`),`Offline-Manifest enthält ${asset} nicht`);
+  for(const asset of ['ui-effects-v7.js','ui-effects-v7.css','version-v7.js']){
+    assert.ok(indexSource.includes(`${asset}?v=7.1.0`),`Index lädt ${asset} nicht cache-sicher`);
+    assert.ok(manifest.includes(`./${asset}?v=7.1.0`),`Offline-Manifest enthält ${asset} nicht in Version 7.1.0`);
     assert.ok(fs.existsSync(path.join(project,asset)),`Datei fehlt: ${asset}`);
   }
+  for(const asset of ['nutrition-v7.js','nutrition-v7.css']){
+    assert.ok(indexSource.includes(`${asset}?v=7.0.0`),`Index lädt ${asset} nicht`);
+    assert.ok(manifest.includes(`./${asset}?v=7.0.0`),`Offline-Manifest enthält ${asset} nicht`);
+  }
 
-  console.log('CutCoach 7.0 smoke test: ok');
+  console.log('CutCoach 7.1 smoke test: ok');
   dom.window.close();
 })().catch(error=>{
   console.error(error);
