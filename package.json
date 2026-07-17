@@ -1,6 +1,6 @@
 {
   "name": "cutcoach",
-  "version": "7.3.1",
+  "version": "7.3.2",
   "private": true,
   "scripts": {
     "test": "node tests/v7-compat-v73.test.js && node tests/v73-smoke.test.js && node tests/v73-catalog.test.js && node tests/v731-ui-cleanup.test.js",
