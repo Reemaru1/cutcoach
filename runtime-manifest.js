@@ -8,6 +8,6 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './upgrade-360.css?v=4.2.0','./upgrade-420.css?v=4.2.0','./upgrade-430.css?v=4.3.0','./upgrade-560.css?v=5.6.0','./upgrade-561.css?v=5.6.1','./upgrade-562.css?v=5.6.2','./upgrade-563.css?v=5.6.3','./upgrade-564.css?v=5.6.4','./upgrade-565.css?v=5.6.5','./upgrade-570.css?v=5.7.0','./nutrition.css?v=7.0.0','./journal-date.css?v=6.2.2','./journal-ui.css?v=6.2.3','./water-animation.css?v=6.8.5','./nutrition-v7.css?v=7.0.0','./ui-effects-v7.css?v=7.0.0'
   ]),
   scripts:Object.freeze([
-    './food-catalog.js?v=7.0.0','./library.js?v=7.0.0','./library-init.js?v=7.0.0','./scanner-v2.js?v=7.0.0','./off-lookup.js?v=7.0.0','./upgrade-340.js?v=7.0.0','./nutrition.js?v=7.0.0','./journal.js?v=7.0.0','./water-animation.js?v=6.8.5','./nutrition-v7.js?v=7.0.0','./ui-effects-v7.js?v=7.0.0','./version-v7.js?v=7.0.0','./nutrition-recipe-search-v7.js?v=7.0.0'
+    './food-catalog.js?v=7.0.0','./library.js?v=7.0.0','./library-init.js?v=7.0.0','./scanner-v2.js?v=7.0.0','./off-lookup.js?v=7.0.0','./upgrade-340.js?v=7.0.0','./nutrition.js?v=7.0.0','./journal.js?v=7.0.0','./water-animation.js?v=6.8.5','./nutrition-v7.js?v=7.0.0','./ui-effects-v7.js?v=7.0.0','./version-v7.js?v=7.0.0'
   ])
 });
