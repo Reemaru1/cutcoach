@@ -1,0 +1,29 @@
+name: CutCoach 7 Checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [agent/nutrition-perfection-v7]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - name: Install test dependency
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Check JavaScript syntax
+        run: npm run check:syntax
+      - name: Run CutCoach 7 smoke test
+        run: npm test
