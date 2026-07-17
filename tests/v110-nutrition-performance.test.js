@@ -17,11 +17,11 @@ assert.doesNotMatch(js,/observe\(document\.documentElement/,'Globale Dauerbeobac
 assert.match(css,/content-visibility:auto/,'Ergebnislisten sind nicht für Rendering-Performance optimiert');
 assert.match(css,/contain-intrinsic-size/,'Platzhaltergröße für virtuelle Darstellung fehlt');
 assert.match(css,/prefers-reduced-motion/,'Bewegungsreduktion fehlt');
-assert.match(version,/const RELEASE='1\.1\.0 Alpha'/,'Releaseversion ist nicht 1.1.0 Alpha');
+assert.match(version,/const RELEASE='1\.1\.1 Alpha'/,'Releaseversion ist nicht 1.1.1 Alpha');
 assert.match(version,/nutrition-v110\.js\?v=1\.1\.0-alpha/,'Nutrition-Performance-Modul wird nicht geladen');
-assert.match(manifest,/version:'1\.1\.0-alpha'/,'Cacheversion ist nicht 1.1.0 Alpha');
+assert.match(manifest,/version:'1\.1\.1-alpha'/,'Cacheversion ist nicht 1.1.1 Alpha');
 assert.match(manifest,/nutrition-v110\.css\?v=1\.1\.0-alpha/,'Nutrition-CSS fehlt im Cache');
 assert.match(manifest,/nutrition-v110\.js\?v=1\.1\.0-alpha/,'Nutrition-JavaScript fehlt im Cache');
-assert.match(sw,/runtime-manifest\.js\?v=1\.1\.0-alpha/,'Service Worker lädt falsches Manifest');
-assert.match(update,/sw\.js\?v=1\.1\.0-alpha-force/,'Installer lädt falschen Service Worker');
-console.log('CutCoach 1.1.0 Alpha nutrition performance test: ok');
+assert.match(sw,/runtime-manifest\.js\?v=1\.1\.1-alpha/,'Service Worker lädt falsches Manifest');
+assert.match(update,/sw\.js\?v=1\.1\.1-alpha-force/,'Installer lädt falschen Service Worker');
+console.log('CutCoach 1.1.1 Alpha nutrition performance test: ok');
