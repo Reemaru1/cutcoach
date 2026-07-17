@@ -21,8 +21,8 @@ assert.doesNotMatch(js,/observer\.observe\(document\.body/,'Globale DOM-Beobacht
 assert.match(css,/nutrition-multi-list/,'Mehrfachtreffer sind nicht gestaltet');
 assert.match(version,/const RELEASE='1\.2\.1 Alpha'/,'Sichtbare Version ist nicht 1.2.1 Alpha');
 assert.match(version,/nutrition-multisearch-120\.js\?v=1\.2\.3-alpha/,'Stabilisierte Suchlogik wird nicht geladen');
-assert.match(manifest,/version:'1\.2\.1-alpha'/,'Cacheversion ist nicht 1.2.1 Alpha');
+assert.match(manifest,/version:'1\.2\.2-alpha'/,'Cacheversion ist nicht 1.2.2 Alpha');
 assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.2\.3-alpha/,'Stabilisierte Suchlogik fehlt im Cache');
-assert.match(sw,/runtime-manifest\.js\?v=1\.2\.1-alpha/,'Service Worker lädt falsches Manifest');
-assert.match(update,/sw\.js\?v=1\.2\.1-alpha-force/,'Update-Seite installiert nicht 1.2.1 Alpha');
-console.log('CutCoach 1.2.1 Alpha intelligent nutrition multi-search test: ok');
+assert.match(sw,/runtime-manifest\.js\?v=1\.2\.2-alpha/,'Service Worker lädt falsches Manifest');
+assert.match(update,/sw\.js\?v=1\.2\.2-alpha-force/,'Update-Seite installiert nicht 1.2.2 Alpha');
+console.log('CutCoach 1.2.1 Alpha multi-search with 1.2.2 runtime: ok');
