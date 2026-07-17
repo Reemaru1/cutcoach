@@ -10,7 +10,7 @@ source=source.replace("'core.js','render.js','actions.js','app.js','food-catalog
 source=source.replace("'nutrition-v7.js','ui-effects-v7.js','journal-v72.js','version-v7.js'","'nutrition-v7.js','nutrition-v73.js','ui-effects-v7.js','journal-v72.js','version-v7.js'");
 source=source.replaceAll("'Version 7.2.0'","'Version 7.3.1'");
 source=source.replaceAll("'7.2.0','Zentrale Releasekonstante ist nicht 7.2.0'","'7.3.1','Zentrale Releasekonstante ist nicht 7.3.1'");
-source=source.replace("  console.log('CutCoach 7.2 smoke test: ok');","  assert.ok(window.CutCoachEverydayCatalog,'Alltagskatalog fehlt');\n  assert.equal(window.document.querySelector('#nutritionEverydayQuick'),null,'Alltags-Schnellbereich wurde nicht entfernt');\n  assert.equal(window.document.querySelector('#journalCoachText'),null,'Impuls-Infotext wurde nicht entfernt');\n  console.log('CutCoach 7.3.1 journal smoke test: ok');");
+source=source.replace("  console.log('CutCoach 7.2 smoke test: ok');","  assert.ok(window.CutCoachEverydayCatalog,'Alltagskatalog fehlt');\n  assert.equal(window.document.querySelector('#nutritionEverydayQuick'),null,'Alltags-Schnellbereich wurde nicht entfernt');\n  const hiddenCoach=window.document.querySelector('#journalCoachText');\n  assert.ok(hiddenCoach&&hiddenCoach.hidden,'Impuls-Infotext ist noch sichtbar');\n  console.log('CutCoach 7.3.1 journal smoke test: ok');");
 const compiled=new Module(filename,module);
 compiled.filename=filename;
 compiled.paths=Module._nodeModulePaths(path.dirname(filename));
