@@ -10,9 +10,9 @@ source=source.replace("'core.js','render.js','actions.js','app.js','food-catalog
 source=source.replace("'nutrition-v7.js','ui-effects-v7.js','version-v7.js'","'nutrition-v7.js','nutrition-v73.js','ui-effects-v7.js','journal-v72.js','version-v7.js'");
 source=source.replaceAll("'Version 7.1.0'","'Version 1.0.3 Alpha'");
 source=source.replaceAll("'7.1.0','Zentrale Releasekonstante fehlt'","'1.0.3 Alpha','Zentrale Releasekonstante fehlt'");
-source=source.replace(/version:'7\.1\.0'/g,"version:'1.0.3-alpha'");
-source=source.replace(/runtime-manifest\.js\?v=7\.1\.0/g,'runtime-manifest.js?v=1.0.3-alpha');
-source=source.replace(/sw\.js\?v=7\.1\.0-force/g,'sw.js?v=1.0.3-alpha-force');
+source=source.replaceAll("version:'7.1.0'","version:'1.0.3-alpha'");
+source=source.replaceAll('runtime-manifest.js?v=7.1.0','runtime-manifest.js?v=1.0.3-alpha');
+source=source.replaceAll('sw.js?v=7.1.0-force','sw.js?v=1.0.3-alpha-force');
 source=source.replaceAll('updated=710','updated=103a');
 source=source.replace("'ui-effects-v7.js','ui-effects-v7.css','version-v7.js'","'ui-effects-v7.js','ui-effects-v7.css'");
 source=source.replace("  assert.match(node('#journalCoachText').textContent,/Kernbereichen/,'Die Datenabdeckung des Coaches fehlt');","  assert.ok(node('#journalCoachText').hidden,'Der Impuls-Infotext ist noch sichtbar');");
