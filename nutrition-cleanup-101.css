@@ -1,0 +1,12 @@
+/* CutCoach 1.0.1 Alpha – nutrition screen cleanup */
+body.nutrition-mode .nutrition-coach-row{display:none!important}
+body.nutrition-mode #nutritionV7AnalysisText{display:none!important}
+body.nutrition-mode .nutrition-v7-analysis{padding:8px 10px 9px}
+body.nutrition-mode .nutrition-v7-analysis-head{cursor:pointer;min-height:36px}
+body.nutrition-mode .nutrition-v7-analysis-head strong{font-size:12px}
+body.nutrition-mode .nutrition-v7-analysis-grid{margin-top:7px}
+body.nutrition-mode .nutrition-v7-analysis.is-collapsed .nutrition-v7-analysis-grid{display:none}
+body.nutrition-mode .nutrition-v7-analysis-toggle{display:grid;place-items:center;min-width:34px;height:34px;margin-left:6px;padding:0;border:1px solid rgba(126,151,194,.22);border-radius:11px;background:rgba(8,14,24,.58);color:#a8b6ca;font:inherit;font-size:15px;font-weight:800}
+body.nutrition-mode .nutrition-v7-analysis-head>span{margin-left:auto}
+body.nutrition-mode .nutrition-macro-compass article>small:first-child{white-space:nowrap}
+@media(max-width:430px){body.nutrition-mode .nutrition-v7-analysis-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
