@@ -2,6 +2,10 @@
 (function(){
   const RELEASE='7.0.0';
   window.CUTCOACH_RELEASE=RELEASE;
+  function loadRecipeSearch(){
+    if(document.querySelector('script[data-recipe-search-v7]'))return;
+    const script=document.createElement('script');script.src=`./nutrition-recipe-search-v7.js?v=${RELEASE}`;script.async=false;script.dataset.recipeSearchV7='1';script.onerror=()=>toast?.('Rezeptsuche konnte nicht vollständig geladen werden.');document.head.appendChild(script);
+  }
   function setVersion(){const node=document.querySelector('#appVersion'),text=`Version ${RELEASE}`;if(node&&node.textContent!==text)node.textContent=text}
   async function exportBackupV7(event){
     const button=event.target.closest?.('#exportData');if(!button)return;
@@ -17,5 +21,6 @@
   document.addEventListener('click',exportBackupV7,true);
   const baseRender=window.render;if(typeof baseRender==='function')window.render=function(){baseRender();setVersion()};
   const observer=new MutationObserver(setVersion);observer.observe(document.documentElement,{childList:true,subtree:true});
+  loadRecipeSearch();
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setVersion,{once:true});else setVersion();
 })();
