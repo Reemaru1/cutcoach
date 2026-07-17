@@ -1,16 +1,23 @@
 'use strict';
 (function(){
-  const VERSION='7.4.0';
+  const VERSION='1.0.0 Alpha';
   const COLLAPSE_KEY='cutcoach_coach_compact_v1';
   const $=selector=>document.querySelector(selector);
-  const $$=selector=>[...document.querySelectorAll(selector)];
-  const hour=()=>new Date().getHours()+new Date().getMinutes()/60;
-  const preferredMeal=()=>hour()<10.5?'Frühstück':hour()<15?'Mittagessen':hour()<20.5?'Abendessen':'Snack';
-  let scheduled=false;
+  const mealOrder=['Frühstück','Mittagessen','Abendessen','Snack'];
+  let frame=0,rootObserver=null,bootstrapObserver=null,lastMeal='';
 
-  function coachCard(){return $('.journal-coach-card.coach-v71')||$('.journal-coach-card')}
+  function nowHour(){const now=new Date();return now.getHours()+now.getMinutes()/60}
+  function preferredMeal(){const value=nowHour();return value<10.5?'Frühstück':value<15?'Mittagessen':value<20.5?'Abendessen':'Snack'}
   function readCollapsed(){try{return localStorage.getItem(COLLAPSE_KEY)==='1'}catch{return false}}
   function writeCollapsed(value){try{localStorage.setItem(COLLAPSE_KEY,value?'1':'0')}catch{}}
+  function coachCard(){return $('.journal-coach-card.coach-v71')||$('.journal-coach-card')}
+
+  function syncCoachToggle(card,toggle){
+    const collapsed=card.classList.contains('coach-v74-collapsed');
+    toggle.textContent=collapsed?'Mehr':'Weniger';
+    toggle.setAttribute('aria-expanded',String(!collapsed));
+    toggle.setAttribute('aria-label',collapsed?'CutCoach Impuls erweitern':'CutCoach Impuls einklappen');
+  }
 
   function enhanceCoach(){
     const card=coachCard(),header=card?.querySelector('.coach-v71-header');
@@ -19,45 +26,91 @@
     if(!toggle){
       toggle=document.createElement('button');
       toggle.id='coachV74Toggle';toggle.type='button';toggle.className='coach-v74-toggle';
-      toggle.setAttribute('aria-label','CutCoach Impuls ein- oder ausklappen');
+      toggle.setAttribute('aria-controls','coachV74Details');
       header.append(toggle);
-      toggle.addEventListener('click',()=>{
+      const details=card.querySelector('.coach-v71-focus');
+      if(details)details.id='coachV74Details';
+      toggle.addEventListener('click',event=>{
+        event.preventDefault();event.stopPropagation();
         const collapsed=!card.classList.contains('coach-v74-collapsed');
         card.classList.toggle('coach-v74-collapsed',collapsed);writeCollapsed(collapsed);syncCoachToggle(card,toggle);
       });
     }
     card.classList.toggle('coach-v74-collapsed',readCollapsed());syncCoachToggle(card,toggle);
   }
-  function syncCoachToggle(card,toggle){const collapsed=card.classList.contains('coach-v74-collapsed');toggle.textContent=collapsed?'Mehr':'Weniger';toggle.setAttribute('aria-expanded',String(!collapsed))}
+
+  function mealType(card){
+    const button=card.querySelector('[data-add-journal-meal]');
+    const explicit=button?.dataset.addJournalMeal;
+    if(mealOrder.includes(explicit))return explicit;
+    const text=card.querySelector('h3,strong,b')?.textContent||card.textContent||'';
+    return mealOrder.find(type=>text.includes(type))||'';
+  }
 
   function prioritizeMeals(){
-    const wanted=preferredMeal(),host=$('#journalMeals');if(!host)return;
-    const cards=$$('#journalMeals .journal-meal-row, #journalMeals article, #journalMeals section').filter(node=>node.querySelector?.('.journal-meal-add,[data-add-journal-meal]'));
-    cards.forEach(card=>{const text=card.textContent||'';card.classList.remove('meal-v74-current','meal-v74-past','meal-v74-upcoming');if(text.includes(wanted))card.classList.add('meal-v74-current');else if((wanted==='Mittagessen'&&text.includes('Frühstück'))||(wanted==='Abendessen'&&(text.includes('Frühstück')||text.includes('Mittagessen')))||(wanted==='Snack'&&!text.includes('Snack')))card.classList.add('meal-v74-past');else card.classList.add('meal-v74-upcoming')});
-    const current=cards.find(card=>card.classList.contains('meal-v74-current'));
-    if(current&&!current.querySelector('.meal-v74-badge'))current.insertAdjacentHTML('afterbegin','<span class="meal-v74-badge">Jetzt passend</span>');
-    cards.filter(card=>card!==current).forEach(card=>card.querySelector('.meal-v74-badge')?.remove());
+    const host=$('#journalMeals');if(!host)return;
+    const wanted=preferredMeal(),wantedIndex=mealOrder.indexOf(wanted);
+    const cards=[...host.querySelectorAll('.journal-meal-row,article,section')].filter(node=>node.querySelector('.journal-meal-add,[data-add-journal-meal]'));
+    cards.forEach(card=>{
+      const type=mealType(card),index=mealOrder.indexOf(type);
+      card.classList.remove('meal-v74-current','meal-v74-past','meal-v74-upcoming');
+      card.classList.add(type===wanted?'meal-v74-current':index>=0&&index<wantedIndex?'meal-v74-past':'meal-v74-upcoming');
+      const badge=card.querySelector('.meal-v74-badge');
+      if(type===wanted){
+        if(!badge)card.insertAdjacentHTML('afterbegin','<span class="meal-v74-badge" aria-label="Aktuell passende Mahlzeit">Jetzt passend</span>');
+      }else badge?.remove();
+    });
+    lastMeal=wanted;
+  }
+
+  function suggestedQuery(){
+    const title=$('#coachV71FocusTitle')?.textContent||'';
+    if(/eiweiß/i.test(title))return 'Skyr';
+    if(/kalorien|sättig/i.test(title))return 'Haferflocken';
+    if(/abend/i.test(title))return 'Hähnchen';
+    return preferredMeal()==='Frühstück'?'Skyr':'Hähnchen';
   }
 
   function directCoachAction(){
-    const button=$('#coachV71Action');if(!button||button.dataset.v74Bound)return;
-    button.dataset.v74Bound='1';
-    button.addEventListener('click',event=>{
+    const button=$('#coachV71Action');if(!button||button.dataset.alphaBound)return;
+    button.dataset.alphaBound='1';
+    button.addEventListener('click',()=>{
       if(button.dataset.action!=='meal')return;
-      const title=$('#coachV71FocusTitle')?.textContent||'';
-      const query=/eiweiß/i.test(title)?'eiweißreich':/kalorien/i.test(title)?'sättigend':'optimal';
-      setTimeout(()=>{
+      const query=suggestedQuery();
+      window.setTimeout(()=>{
         const search=$('#nutritionSearch');if(!search)return;
-        search.value=query;search.dispatchEvent(new Event('input',{bubbles:true}));search.focus();
-      },180);
+        search.value=query;search.dispatchEvent(new Event('input',{bubbles:true}));search.focus({preventScroll:true});
+      },220);
     });
   }
 
-  function compactOverview(){document.body.classList.add('journal-v740')}
-  function sync(){compactOverview();enhanceCoach();prioritizeMeals();directCoachAction();const version=$('#appVersion');if(version)version.textContent=`Version ${VERSION}`}
-  function queue(){if(scheduled)return;scheduled=true;setTimeout(()=>{scheduled=false;sync()},0)}
-  new MutationObserver(queue).observe(document.documentElement,{childList:true,subtree:true});
-  document.addEventListener('click',queue,true);
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',queue,{once:true});else queue();
+  function compactOverview(){document.body.classList.add('journal-v740','cutcoach-alpha')}
+  function sync(){
+    frame=0;compactOverview();enhanceCoach();prioritizeMeals();directCoachAction();
+    const version=$('#appVersion');if(version)version.textContent='Version 1.0.0 Alpha';
+  }
+  function queue(){if(frame)return;frame=requestAnimationFrame(sync)}
+
+  function observeJournal(){
+    const root=$('#today560');if(!root)return false;
+    bootstrapObserver?.disconnect();bootstrapObserver=null;
+    rootObserver?.disconnect();
+    rootObserver=new MutationObserver(records=>{
+      if(records.some(record=>record.addedNodes.length||record.removedNodes.length))queue();
+    });
+    rootObserver.observe(root,{childList:true,subtree:true});queue();return true;
+  }
+  function bootstrap(){
+    if(observeJournal())return;
+    bootstrapObserver=new MutationObserver(()=>observeJournal());
+    bootstrapObserver.observe(document.body||document.documentElement,{childList:true,subtree:true});
+  }
+
+  document.addEventListener('click',event=>{
+    if(event.target.closest?.('#today560 button,#today560 [role="button"]'))queue();
+  },true);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)queue()});
+  window.setInterval(()=>{if(preferredMeal()!==lastMeal)queue()},60000);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootstrap,{once:true});else bootstrap();
   window.CutCoachJournalV740=Object.freeze({version:VERSION,refresh:queue,preferredMeal});
 })();
