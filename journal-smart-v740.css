@@ -7,7 +7,8 @@ body.journal-v740 .journal-energy-stats{gap:10px}
 body.journal-v740 .journal-energy-stats article{padding:12px 14px}
 body.journal-v740 .journal-macros{margin-top:14px}
 
-.coach-v74-toggle{margin-left:auto;border:1px solid rgba(126,232,172,.35);background:rgba(126,232,172,.08);color:#a7f0c2;border-radius:999px;padding:7px 11px;font:inherit;font-size:.72rem;font-weight:800}
+.coach-v74-toggle{margin-left:auto;min-width:62px;min-height:36px;border:1px solid rgba(126,232,172,.35);background:rgba(126,232,172,.08);color:#a7f0c2;border-radius:999px;padding:7px 11px;font:inherit;font-size:.72rem;font-weight:800;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.coach-v74-toggle:focus-visible{outline:2px solid #86e9b4;outline-offset:3px}
 .coach-v71-header .coach-v74-toggle{align-self:center}
 .coach-v74-collapsed .coach-v71-focus,.coach-v74-collapsed .coach-v71-pillars,.coach-v74-collapsed .coach-v71-footer{display:none!important}
 .coach-v74-collapsed{padding-bottom:18px!important}
@@ -16,7 +17,8 @@ body.journal-v740 .journal-macros{margin-top:14px}
 #journalMeals .meal-v74-current{position:relative;border-color:rgba(111,234,171,.75)!important;box-shadow:0 0 0 1px rgba(111,234,171,.14),0 14px 30px rgba(36,187,126,.08)}
 #journalMeals .meal-v74-past{opacity:.72}
 #journalMeals .meal-v74-upcoming{opacity:.9}
-.meal-v74-badge{position:absolute;top:10px;right:68px;z-index:2;border-radius:999px;padding:4px 8px;background:rgba(111,234,171,.14);color:#8ceeb8;font-size:.64rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+#journalMeals .journal-meal-add,#journalMeals [data-add-journal-meal]{touch-action:manipulation}
+.meal-v74-badge{position:absolute;top:10px;right:68px;z-index:2;border-radius:999px;padding:4px 8px;background:rgba(111,234,171,.14);color:#8ceeb8;font-size:.64rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;pointer-events:none}
 
 @media(max-width:430px){
   body.journal-v740 .journal-energy-card{padding:15px}
@@ -25,4 +27,5 @@ body.journal-v740 .journal-macros{margin-top:14px}
   body.journal-v740 .journal-energy-stats article{padding:10px 12px}
   .coach-v74-toggle{padding:6px 9px;font-size:.68rem}
 }
+@media(prefers-reduced-motion:no-preference){#journalMeals .meal-v74-current,#journalMeals .meal-v74-past,#journalMeals .meal-v74-upcoming{transition:opacity .18s ease,border-color .18s ease,box-shadow .18s ease}}
 @media(prefers-reduced-motion:reduce){#journalMeals .meal-v74-current{box-shadow:none}}
