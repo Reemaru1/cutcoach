@@ -1,6 +1,6 @@
 'use strict';
 
-const APP_VERSION = '6.8.0';
+const APP_VERSION = '7.1.0';
 const STORAGE_KEY = 'cutcoach_v2';
 const RECOVERY_KEY = 'cutcoach_recovery_raw';
 const PREVIOUS_STATE_KEY = 'cutcoach_previous_state';
@@ -277,38 +277,33 @@ function totals(key=selectedDate){
   }
   return result;
 }
-function fmt(value,digits=0){ return Number(value||0).toLocaleString('de-DE',{minimumFractionDigits:digits,maximumFractionDigits:digits}); }
-function avg(values){ return values.length?values.reduce((sum,value)=>sum+value,0)/values.length:null; }
-function setText(selector,text){ const element=$(selector); if(element)element.textContent=text; }
-function setBar(selector,value,max){
-  const element=$(selector); if(!element)return;
-  element.style.width=`${max>0?clamp(value/max*100,0,100):0}%`;
-  element.classList.toggle('over',max>0&&value>max);
-}
-function escapeHtml(value){ return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char])); }
-function toast(message){
-  const element=$('#toast'); if(!element)return;
-  clearTimeout(toastTimer); element.textContent=message; element.classList.add('show');
-  toastTimer=setTimeout(()=>element.classList.remove('show'),2600);
-}
+function range(endKey,days){ const items=[];const end=dateFromKey(endKey);for(let offset=days-1;offset>=0;offset--){const date=new Date(end);date.setDate(date.getDate()-offset);const key=keyFromDate(date);items.push({key,data:day(key,false)});}return items; }
+function weightEntries(endKey=todayKey()){ return Object.entries(state.days).filter(([key,value])=>key<=endKey&&value.weight!==null).sort(([a],[b])=>a.localeCompare(b)); }
+function fmt(value,digits=0){ return new Intl.NumberFormat('de-DE',{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(Number(value)||0); }
+function escapeHtml(value){ return String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':'&quot;',"'":'&#039;'}[char])); }
+function setText(selector,text){ const element=$(selector);if(element)element.textContent=text; }
 function openModal(id){
-  const modal=$(`#${id}`); if(!modal)return;
-  lastFocusedElement=document.activeElement; modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); document.body.classList.add('modal-open');
-  setTimeout(()=>{const target=modal.querySelector('input:not([type="hidden"]),select,textarea,button');target?.focus();},80);
+  const modal=typeof id==='string'?document.getElementById(id):id;if(!modal)return;
+  lastFocusedElement=document.activeElement;
+  modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.classList.add('modal-open');
+  requestAnimationFrame(()=>modal.querySelector('input,select,button:not([data-close])')?.focus({preventScroll:true}));
 }
 function closeModal(modal){
-  modal?.classList.remove('open'); modal?.setAttribute('aria-hidden','true');
+  if(!modal)return;
+  modal.classList.remove('open');modal.setAttribute('aria-hidden','true');
   if(!$('.modal.open'))document.body.classList.remove('modal-open');
-  if(lastFocusedElement instanceof HTMLElement)lastFocusedElement.focus({preventScroll:true});
-  lastFocusedElement=null;
+  if(lastFocusedElement instanceof HTMLElement){lastFocusedElement.focus({preventScroll:true});lastFocusedElement=null;}
 }
-function range(end,count=7){
-  const result=[];
-  for(let index=count-1;index>=0;index--){
-    const key=shiftKey(end,-index);
-    result.push({key,data:day(key,false),totals:totals(key)});
-  }
-  return result;
+function toast(message){
+  const element=$('#toast');if(!element)return;
+  clearTimeout(toastTimer);element.textContent=message;element.classList.add('show');toastTimer=setTimeout(()=>element.classList.remove('show'),2600);
 }
-function hasRecoveryData(){return Boolean(readStorage(RECOVERY_KEY));}
-function hasPreviousState(){return Boolean(readStorage(PREVIOUS_STATE_KEY));}
+function shareOrDownload(content,filename,title='CutCoach Backup'){
+  const blob=new Blob([content],{type:'application/json'}),file=new File([blob],filename,{type:'application/json'});
+  if(navigator.share&&navigator.canShare?.({files:[file]}))return navigator.share({title,files:[file]});
+  const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=filename;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(link.href),1000);return Promise.resolve();
+}
+function selectDate(key){
+  if(!validDateKey(key)||key>todayKey())return;
+  setSelectedDate(key);render();
+}
