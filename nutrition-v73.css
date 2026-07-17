@@ -1,0 +1,11 @@
+/* CutCoach 7.3 – deutsche Alltagsgerichte */
+.nutrition-everyday-quick{display:grid;gap:9px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(126,151,194,.14)}
+.nutrition-everyday-quick>div:first-child{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.nutrition-everyday-quick strong{font-size:10px;color:#dce8f7}.nutrition-everyday-quick small{max-width:245px;color:#75859b;font-size:7.5px;line-height:1.35;text-align:right}
+.nutrition-everyday-chips{display:flex;gap:7px;overflow-x:auto;padding:1px 1px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.nutrition-everyday-chips::-webkit-scrollbar{display:none}
+.nutrition-everyday-chips button{flex:0 0 auto;min-height:36px!important;padding:0 11px!important;border:1px solid rgba(105,183,255,.2)!important;border-radius:999px!important;background:rgba(105,183,255,.055)!important;color:#b9d9f4!important;font-size:8.5px!important;font-weight:800!important;box-shadow:none!important;touch-action:manipulation}
+.nutrition-everyday-chips button span{margin-right:5px}
+.nutrition-source.standard{border-color:rgba(112,231,171,.28)!important;background:rgba(112,231,171,.09)!important;color:#8ee7b5!important}
+.nutrition-detail-source[data-source="cutcoach"]{border-color:rgba(112,231,171,.23);background:rgba(112,231,171,.055);color:#9ae8bd}
+@media(max-width:430px){.nutrition-everyday-quick>div:first-child{display:block}.nutrition-everyday-quick small{display:block;max-width:none;margin-top:3px;text-align:left}.nutrition-everyday-chips button{min-height:38px!important}}
+@media(prefers-reduced-motion:reduce){.nutrition-everyday-chips{scroll-behavior:auto}}
