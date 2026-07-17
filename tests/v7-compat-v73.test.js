@@ -14,6 +14,7 @@ source=source.replace(/version:'7\\\.1\\\.0'/g,"version:'7\\.3\\.1'");
 source=source.replace(/runtime-manifest\\\.js\\\?v=7\\\.1\\\.0/g,'runtime-manifest\\.js\\?v=7\\.3\\.1');
 source=source.replace(/sw\\\.js\\\?v=7\\\.1\\\.0-force/g,'sw\\.js\\?v=7\\.3\\.1-force');
 source=source.replaceAll('updated=710','updated=731');
+source=source.replace("  assert.match(node('#journalCoachText').textContent,/Kernbereichen/,'Die Datenabdeckung des Coaches fehlt');","  assert.equal(window.document.querySelector('#journalCoachText'),null,'Der entfernte Impuls-Infotext ist noch vorhanden');");
 source=source.replace("  console.log('CutCoach 7.1 smoke test: ok');","  assert.ok(window.CutCoachEverydayCatalog,'Alltagskatalog fehlt im vollständigen App-Start');\n  assert.ok(window.CutCoachEverydayCatalog.meta.count>=55,'Zu wenige Alltagsgerichte im App-Start');\n  for(const asset of ['journal-v72.js','journal-v72.css','everyday-catalog-v73.js']){\n    assert.ok(manifest.includes(asset),`Offline-Manifest enthält ${asset} nicht`);\n    assert.ok(fs.existsSync(path.join(project,asset)),`Datei fehlt: ${asset}`);\n  }\n  assert.ok(manifest.includes('./nutrition-v73.js?v=7.3.1'),'Bereinigtes Ernährungsmodul fehlt im Offline-Manifest');\n  console.log('CutCoach 7.3.1 compatibility smoke test: ok');");
 const compiled=new Module(filename,module);
 compiled.filename=filename;
