@@ -1,15 +1,20 @@
-/* CutCoach 1.0.2 Alpha – nutrition screen cleanup */
+/* CutCoach 1.0.3 Alpha – nutrition screen cleanup */
 body.nutrition-mode .nutrition-coach-row{display:none!important}
-body.nutrition-mode #nutritionV7AnalysisText{display:none!important}
+body.nutrition-mode #nutritionV7AnalysisText,body.nutrition-mode #nutritionV7Coverage{display:none!important}
 body.nutrition-mode .nutrition-v7-analysis{display:block!important;padding:8px 10px 9px;border-top:1px solid var(--nutrition-line-soft)}
-body.nutrition-mode .nutrition-v7-analysis-head{display:flex!important;align-items:center;gap:10px;min-height:42px;cursor:pointer}
+body.nutrition-mode .nutrition-v7-analysis-head{display:flex!important;align-items:center;gap:10px;min-height:42px;padding:2px 0;cursor:pointer;border-radius:12px;transition:background .18s ease}
+body.nutrition-mode .nutrition-v7-analysis-head:active{background:rgba(126,151,194,.07)}
+body.nutrition-mode .nutrition-v7-analysis-head:focus-visible{outline:2px solid rgba(112,231,171,.7);outline-offset:2px}
 body.nutrition-mode .nutrition-v7-analysis-head>div{min-width:0}
 body.nutrition-mode .nutrition-v7-analysis-head small,body.nutrition-mode .nutrition-v7-analysis-head strong{display:block}
 body.nutrition-mode .nutrition-v7-analysis-head small{color:#79e6ad;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
 body.nutrition-mode .nutrition-v7-analysis-head strong{margin-top:2px;font-size:12px}
 body.nutrition-mode .nutrition-v7-analysis-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:7px}
 body.nutrition-mode .nutrition-v7-analysis.is-collapsed .nutrition-v7-analysis-grid{display:none!important}
-body.nutrition-mode .nutrition-v7-analysis-toggle{display:grid!important;place-items:center;flex:0 0 38px;width:38px;height:38px;margin-left:6px;padding:0;border:1px solid rgba(126,151,194,.3);border-radius:12px;background:rgba(8,14,24,.8);color:#d6e2ef;font:inherit;font-size:20px;font-weight:800;line-height:1}
-body.nutrition-mode .nutrition-v7-analysis-head>span{margin-left:auto;padding:5px 8px;border-radius:999px;background:rgba(112,231,171,.1);color:#88eab7;font-size:10px;font-weight:850}
+body.nutrition-mode .nutrition-v7-analysis-toggle{position:relative;display:block!important;flex:0 0 28px;width:28px;height:28px;margin-left:auto;border-radius:999px;background:rgba(126,151,194,.08);transition:transform .22s ease,background .18s ease}
+body.nutrition-mode .nutrition-v7-analysis-toggle::before{content:"";position:absolute;left:9px;top:8px;width:8px;height:8px;border-right:2px solid #b9c7d9;border-bottom:2px solid #b9c7d9;transform:rotate(45deg);transition:transform .22s ease,top .22s ease}
+body.nutrition-mode .nutrition-v7-analysis:not(.is-collapsed) .nutrition-v7-analysis-toggle::before{top:11px;transform:rotate(225deg)}
+body.nutrition-mode .nutrition-v7-analysis-head:hover .nutrition-v7-analysis-toggle{background:rgba(126,151,194,.14)}
 body.nutrition-mode .nutrition-macro-compass article>small:first-child{white-space:nowrap}
 @media(min-width:520px){body.nutrition-mode .nutrition-v7-analysis-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){body.nutrition-mode .nutrition-v7-analysis-head,body.nutrition-mode .nutrition-v7-analysis-toggle,body.nutrition-mode .nutrition-v7-analysis-toggle::before{transition:none!important}}
