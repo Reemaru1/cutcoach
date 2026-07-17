@@ -1,0 +1,16 @@
+'use strict';
+(function(){
+  const normalize=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+  const CANONICAL={
+    cola:{id:'cutcoach-standard-cola',name:'Cola',aliases:['Coca-Cola'],category:'Getränke',source:'cutcoach',catalog:true,amount:330,unit:'ml',calories:139,protein:0,carbs:35,fat:0,fiber:0,sugar:35,saturatedFat:0,salt:.03},
+    spezi:{id:'cutcoach-standard-spezi',name:'Spezi',aliases:['Cola-Orange-Mix'],category:'Getränke',source:'cutcoach',catalog:true,amount:330,unit:'ml',calories:142,protein:0,carbs:35,fat:0,fiber:0,sugar:34,saturatedFat:0,salt:.03}
+  };
+  const keyFor=value=>{const q=normalize(value).replace(/^(?:ein(?:e|en|er|es)?|der|die|das)\s+/,'');if(q==='cola'||q==='coca cola')return'cola';if(q==='spezi'||q==='cola orange'||q==='cola mix')return'spezi';return null};
+  const parse=value=>String(value||'').split(/\s+(?:und|plus|sowie)\s+|\s*[,;+&]\s*/i).map(raw=>({raw:raw.trim(),key:keyFor(raw)})).filter(row=>row.raw);
+  function add(item){try{return Boolean(window.CutCoachLibrary?.addCatalogItemToDay?.(item,{type:document.body.dataset.nutritionMealType||'Frühstück',dateKey:typeof selectedDate==='string'?selectedDate:undefined}))}catch{return false}}
+  function render(input){const parts=parse(input.value);if(parts.length<2||parts.some(row=>!row.key))return false;let host=document.querySelector('#nutritionMultiSearch');if(!host){const card=document.querySelector('.nutrition-search-card');if(!card)return true;host=document.createElement('section');host.id='nutritionMultiSearch';host.className='nutrition-multi-search';card.after(host)}const rows=parts.map(row=>({...row,item:CANONICAL[row.key]}));host.hidden=false;host.innerHTML=`<div class="nutrition-multi-head"><div><small>Mehrfachsuche erkannt</small><b>${rows.length} Lebensmittel</b></div><button type="button" data-canonical-all>Alle hinzufügen</button></div><div class="nutrition-multi-list">${rows.map((row,index)=>`<article class="matched"><span>✓</span><div><small>${row.raw}</small><b>${row.item.name}</b></div><button type="button" data-canonical-add="${index}">＋</button></article>`).join('')}</div>`;host._canonicalRows=rows;return true}
+  let timer=0;
+  document.addEventListener('input',event=>{if(event.target?.id!=='nutritionSearch')return;if(!parse(event.target.value).some(row=>row.key))return;event.stopImmediatePropagation();clearTimeout(timer);timer=setTimeout(()=>render(event.target),180)},true);
+  document.addEventListener('click',event=>{const host=event.target.closest?.('#nutritionMultiSearch');if(!host?._canonicalRows)return;const one=event.target.closest('[data-canonical-add]'),all=event.target.closest('[data-canonical-all]');if(!one&&!all)return;event.preventDefault();event.stopImmediatePropagation();let count=0;if(one){const row=host._canonicalRows[Number(one.dataset.canonicalAdd)];if(row&&add(row.item)){count=1;one.disabled=true;one.textContent='✓'}}else{for(const row of host._canonicalRows)if(add(row.item))count++;all.disabled=true;all.textContent='Hinzugefügt'}if(count){window.render?.();toast?.(count===1?'Lebensmittel hinzugefügt.':`${count} Lebensmittel hinzugefügt.`)}},true);
+  window.CutCoachCanonicalMultiSearch125={version:'1.2.5-alpha',render};
+})();
