@@ -18,10 +18,10 @@ assert.ok(cleanupCss.includes('.journal-macros article > em'),'Makro-Prozentwert
 assert.ok(cleanupCss.includes('.macro-v7-gap'),'Makro-Restwerte werden nicht verborgen');
 assert.ok(cleanupCss.includes('white-space:nowrap'),'Kohlenhydrate wird nicht einzeilig gehalten');
 assert.ok(cleanupCss.includes('letter-spacing:-.035em'),'Kohlenhydrate wurde nicht kompakt angepasst');
-assert.ok(version.includes("const RELEASE='1.2.0 Alpha'"),'Releaseversion ist nicht 1.2.0 Alpha');
+assert.ok(version.includes("const RELEASE='1.2.1 Alpha'"),'Releaseversion ist nicht 1.2.1 Alpha');
 assert.ok(version.includes('ui-cleanup-v732.css?v=7.3.3'),'Cleanup-CSS wird nicht geladen');
-assert.ok(manifest.includes("version:'1.2.0-alpha'"),'Cacheversion ist nicht 1.2.0 Alpha');
+assert.ok(manifest.includes("version:'1.2.1-alpha'"),'Cacheversion ist nicht 1.2.1 Alpha');
 assert.ok(manifest.includes('ui-cleanup-v732.css?v=7.3.3'),'Cleanup-CSS fehlt im Cache');
-assert.ok(sw.includes('runtime-manifest.js?v=1.2.0-alpha'),'Service Worker lädt falsches Manifest');
-assert.ok(update.includes('sw.js?v=1.2.0-alpha-force'),'Update-Seite installiert nicht 1.2.0 Alpha');
-console.log('CutCoach 1.2.0 Alpha UI cleanup test: ok');
+assert.ok(sw.includes('runtime-manifest.js?v=1.2.1-alpha'),'Service Worker lädt falsches Manifest');
+assert.ok(update.includes('sw.js?v=1.2.1-alpha-force'),'Update-Seite installiert nicht 1.2.1 Alpha');
+console.log('CutCoach 1.2.1 Alpha UI cleanup test: ok');
