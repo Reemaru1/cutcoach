@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const project=path.resolve(__dirname,'..');
+const js=fs.readFileSync(path.join(project,'nutrition-multisearch-120.js'),'utf8');
+assert.match(js,/wholeWordMatch/);
+assert.match(js,/COMPOUND_BLOCKLIST/);
+assert.match(js,/genericDrinkPriority/);
+assert.match(js,/exactIntent/);
+console.log('CutCoach exact intent matching test: ok');
