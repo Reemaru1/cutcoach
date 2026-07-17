@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const RELEASE='1.0.0 Alpha';
+  const RELEASE='1.0.1 Alpha';
   window.CUTCOACH_RELEASE=RELEASE;
   const escapeHtml=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
   const normalized=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
@@ -14,16 +14,12 @@
   function addScript(key,src,onload){if(document.querySelector(`script[data-${key}]`))return;const script=document.createElement('script');script.src=src;script.async=false;script.dataset[key.replace(/-([a-z])/g,(_,char)=>char.toUpperCase())]='1';if(onload)script.onload=onload;document.head.append(script)}
   function loadJournal72(){addStyle('journal-v72','./journal-v72.css?v=7.2.0');addStyle('ui-cleanup-v732','./ui-cleanup-v732.css?v=7.3.3');addStyle('journal-smart-v740','./journal-smart-v740.css?v=1.0.0-alpha');const loadSmart=()=>{if(!window.CutCoachJournalV740)addScript('journal-smart-v740','./journal-smart-v740.js?v=1.0.0-alpha')};if(window.CutCoachJournalV72){loadSmart();return}if(document.querySelector('script[data-journal-v72]')){setTimeout(loadSmart,120);return}addScript('journal-v72','./journal-v72.js?v=7.2.0',loadSmart)}
   function loadNutrition73(){addStyle('nutrition-v73','./nutrition-v73.css?v=7.3.1');if(window.CutCoachNutritionV73||document.querySelector('script[data-nutrition-v73]'))return;addScript('nutrition-v73','./nutrition-v73.js?v=7.3.1')}
+  function loadNutritionCleanup(){addStyle('nutrition-cleanup-101','./nutrition-cleanup-101.css?v=1.0.1-alpha');if(!window.CutCoachNutritionCleanup101)addScript('nutrition-cleanup-101','./nutrition-cleanup-101.js?v=1.0.1-alpha')}
   function loadCatalog73(){if(window.CutCoachEverydayCatalog){loadNutrition73();return}if(document.querySelector('script[data-everyday-v73]'))return;addScript('everyday-v73','./everyday-catalog-v73.js?v=7.3.0',loadNutrition73)}
   async function exportBackupV7(event){const button=event.target.closest?.('#exportData');if(!button)return;event.preventDefault();event.stopImmediatePropagation();try{const envelope=typeof backupEnvelope==='function'?backupEnvelope():{format:'cutcoach-backup',formatVersion:1,schemaVersion:typeof SCHEMA_VERSION==='number'?SCHEMA_VERSION:null,exportedAt:new Date().toISOString(),data:typeof state==='object'?JSON.parse(JSON.stringify(state)):null};envelope.appVersion=RELEASE;if(envelope.data?.meta)envelope.data.meta.appVersion=RELEASE;await shareOrDownload(JSON.stringify(envelope,null,2),`CutCoach-Backup-${typeof todayKey==='function'?todayKey():new Date().toISOString().slice(0,10)}.json`);if(typeof commitStateMutation==='function')commitStateMutation(current=>{current.meta.lastBackupAt=envelope.exportedAt;current.meta.appVersion=RELEASE});window.render?.();toast?.('Backup erstellt.')}catch(error){if(error?.name!=='AbortError')toast?.('Backup konnte nicht exportiert werden.')}}
   document.addEventListener('input',event=>{if(event.target?.id==='recipeV7Search')queueMicrotask(()=>enhanceRecipeSearch(event.target))});document.addEventListener('click',exportBackupV7,true);
   const baseRender=window.render;if(typeof baseRender==='function')window.render=function(){baseRender();setVersion()};
-  function watchVersionNode(){
-    const existing=setVersion();
-    if(existing){const observer=new MutationObserver(setVersion);observer.observe(existing,{childList:true,characterData:true,subtree:true});return}
-    const bootstrap=new MutationObserver(()=>{const node=setVersion();if(!node)return;bootstrap.disconnect();const observer=new MutationObserver(setVersion);observer.observe(node,{childList:true,characterData:true,subtree:true})});
-    bootstrap.observe(document.body||document.documentElement,{childList:true,subtree:true});
-  }
+  function watchVersionNode(){const existing=setVersion();if(existing){const observer=new MutationObserver(setVersion);observer.observe(existing,{childList:true,characterData:true,subtree:true});return}const bootstrap=new MutationObserver(()=>{const node=setVersion();if(!node)return;bootstrap.disconnect();const observer=new MutationObserver(setVersion);observer.observe(node,{childList:true,characterData:true,subtree:true})});bootstrap.observe(document.body||document.documentElement,{childList:true,subtree:true})}
   setVersion();
-  const start=()=>{loadJournal72();loadCatalog73();watchVersionNode()};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+  const start=()=>{loadJournal72();loadCatalog73();loadNutritionCleanup();watchVersionNode()};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
