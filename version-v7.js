@@ -23,7 +23,7 @@
     let score=0;if(nameCompact===queryCompact)score+=1200;else if(nameCompact.startsWith(queryCompact))score+=700;else if(compactHit)score+=400;if(tokenHit)score+=220;if(fuzzy)score+=60;return score+Number(Boolean(item.favorite))*80+Math.min(100,Number(item.uses)||0);
   }
   function enhanceRecipeSearch(input){
-    const host=document.querySelector('#recipeV7SearchResults'),query=String(input.value||'').trim();if(!host||!query||host.querySelector('[data-recipe-ingredient]'))return;
+    const host=document.querySelector('#recipeV7SearchResults'),query=String(input.value||'').trim();if(!host||!query)return;
     let personal=[];try{personal=window.CutCoachLibrary?.exportData?.().items?.filter(item=>item.kind==='food')||[]}catch{}
     let catalog=[];try{catalog=window.CutCoachFoodCatalog?.items?.()||[]}catch{}
     const seen=new Set(),ranked=[];
