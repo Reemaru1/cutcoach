@@ -1,0 +1,18 @@
+/* CutCoach 1.1.1 Alpha – stabilized voice input */
+#nutritionVoice{position:relative;isolation:isolate;transition:transform .16s ease,border-color .16s ease,background .16s ease,box-shadow .16s ease!important}
+#nutritionVoice::after{content:"";position:absolute;inset:4px;border:1px solid transparent;border-radius:10px;pointer-events:none}
+#nutritionVoice.listening{border-color:rgba(255,116,138,.62)!important;background:rgba(255,92,120,.15)!important;box-shadow:0 0 0 4px rgba(255,92,120,.08)!important;animation:voice111Pulse 1.25s ease-in-out infinite!important}
+#nutritionVoice.listening::after{border-color:rgba(255,154,170,.42)}
+#nutritionVoice.processing{pointer-events:none;opacity:.72}
+#nutritionVoice.processing::before{content:"";position:absolute;width:15px;height:15px;border:2px solid rgba(255,255,255,.25);border-top-color:#8ce9b6;border-radius:50%;animation:voice111Spin .7s linear infinite}
+#nutritionVoice.processing{font-size:0!important}
+#nutritionVoice:focus-visible{outline:3px solid rgba(120,194,255,.42)!important;outline-offset:3px}
+#nutritionVoiceStatus{min-height:20px!important;margin:7px 4px 0!important;padding:6px 9px!important;border-radius:10px!important;background:rgba(111,145,190,.08)!important;color:#aebbd0!important;font-size:10px!important;line-height:1.35!important}
+#nutritionVoiceStatus[data-voice-state="listening"]{background:rgba(255,92,120,.09)!important;color:#ffbdc8!important}
+#nutritionVoiceStatus[data-voice-state="result"]{background:rgba(111,184,255,.09)!important;color:#bcdcff!important}
+#nutritionVoiceStatus[data-voice-state="success"]{background:rgba(112,231,171,.1)!important;color:#95efbd!important}
+#nutritionVoiceStatus[data-voice-state="error"]{background:rgba(255,126,144,.09)!important;color:#ffbdc7!important}
+#nutritionVoiceStatus[data-voice-state="fallback"]{background:rgba(255,203,100,.08)!important;color:#f4d59a!important}
+@keyframes voice111Pulse{0%,100%{transform:scale(1)}50%{transform:scale(.96)}}
+@keyframes voice111Spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#nutritionVoice{animation:none!important;transition:none!important}#nutritionVoice.processing::before{animation-duration:1.4s}}
