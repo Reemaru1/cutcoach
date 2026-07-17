@@ -15,11 +15,22 @@
 
 .journal-macro-title b{
   display:block;
-  max-width:none;
+  max-width:100%;
   overflow:visible;
   text-overflow:clip;
-  white-space:normal;
-  overflow-wrap:anywhere;
+  white-space:nowrap;
   line-height:1.05;
-  font-size:clamp(.72rem,2.65vw,.9rem);
+  font-size:clamp(.66rem,2.25vw,.86rem);
+  letter-spacing:-.035em;
+}
+
+.journal-macros article:nth-child(2) .journal-macro-title{
+  gap:.38rem;
+}
+
+.journal-macros article:nth-child(2) .journal-macro-title > span{
+  flex:0 0 2rem;
+  width:2rem;
+  height:2rem;
+  font-size:1.05rem;
 }
