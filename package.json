@@ -1,9 +1,9 @@
 {
   "name": "cutcoach",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
-    "test": "node tests/v7-compat-v73.test.js && node tests/v73-smoke.test.js && node tests/v73-catalog.test.js && node tests/v731-ui-cleanup.test.js && node tests/v740-journal-smart.test.js",
+    "test": "node tests/v7-compat-v73.test.js && node tests/v73-smoke.test.js && node tests/v73-catalog.test.js && node tests/v731-ui-cleanup.test.js && node tests/v740-journal-smart.test.js && node tests/v101-nutrition-cleanup.test.js",
     "check:syntax": "for file in *.js tests/*.js; do node --check \"$file\"; done"
   },
   "devDependencies": {
