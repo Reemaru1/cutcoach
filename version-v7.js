@@ -1,68 +1,21 @@
 'use strict';
 (function(){
-  const RELEASE='7.3.0';
+  const RELEASE='7.3.1';
   window.CUTCOACH_RELEASE=RELEASE;
   const escapeHtml=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
   const normalized=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
   const compact=value=>normalized(value).replace(/\s+/g,'');
   const fmt=(value,digits=0)=>new Intl.NumberFormat('de-DE',{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(Math.max(0,Number(value)||0));
-  function editDistanceWithin(left,right,limit){
-    if(left===right)return 0;if(Math.abs(left.length-right.length)>limit)return limit+1;
-    let previous=Array.from({length:right.length+1},(_,index)=>index);
-    for(let row=1;row<=left.length;row++){
-      const current=[row];let best=current[0];
-      for(let column=1;column<=right.length;column++){const value=Math.min(current[column-1]+1,previous[column]+1,previous[column-1]+Number(left[row-1]!==right[column-1]));current[column]=value;best=Math.min(best,value)}
-      if(best>limit)return limit+1;previous=current;
-    }
-    return previous[right.length];
-  }
-  function recipeSearchScore(item,query){
-    const name=normalized(item.name),aliases=(Array.isArray(item.aliases)?item.aliases:[item.aliases]).filter(Boolean).map(normalized),search=[name,...aliases].join(' '),nameCompact=compact(item.name),searchCompact=compact(search),queryNormalized=normalized(query),queryCompact=compact(query),tokens=queryNormalized.split(/\s+/).filter(Boolean),limit=queryCompact.length>=9?2:1;
-    const compactHit=searchCompact.includes(queryCompact)||queryCompact.includes(nameCompact),tokenHit=tokens.every(token=>search.includes(token)||searchCompact.includes(compact(token))),fuzzy=queryCompact.length>=4&&editDistanceWithin(queryCompact,nameCompact,limit)<=limit;
-    if(!compactHit&&!tokenHit&&!fuzzy)return null;
-    let score=0;if(nameCompact===queryCompact)score+=1200;else if(aliases.some(alias=>compact(alias)===queryCompact))score+=1050;else if(nameCompact.startsWith(queryCompact))score+=700;else if(compactHit)score+=400;if(tokenHit)score+=220;if(fuzzy)score+=60;return score+Number(Boolean(item.favorite))*80+Math.min(100,Number(item.uses)||0);
-  }
-  function enhanceRecipeSearch(input){
-    const host=document.querySelector('#recipeV7SearchResults'),query=String(input.value||'').trim();if(!host||!query)return;
-    let personal=[];try{personal=window.CutCoachLibrary?.exportData?.().items?.filter(item=>item.kind==='food')||[]}catch{}
-    let catalog=[];try{catalog=window.CutCoachFoodCatalog?.items?.()||[]}catch{}
-    const seen=new Set(),ranked=[];
-    for(const item of [...personal,...catalog]){const key=String(item.id);if(seen.has(key))continue;seen.add(key);const score=recipeSearchScore(item,query);if(score!==null)ranked.push({item,score})}
-    const items=ranked.sort((a,b)=>b.score-a.score||String(a.item.name).localeCompare(String(b.item.name),'de')).slice(0,24).map(entry=>entry.item);if(!items.length)return;
-    host.innerHTML=items.map(item=>`<button type="button" data-recipe-ingredient="${escapeHtml(item.id)}"><span>${item.source==='bls'?'BLS':item.source==='off'?'Produkt':item.source==='cutcoach'?'Standard':'Eigene'}</span><b>${escapeHtml(item.name)}</b><small>${fmt(item.calories)} kcal · ${fmt(item.protein,1)} g E · Basis ${fmt(item.amount,item.amount%1?1:0)} ${escapeHtml(item.unit||'g')}</small></button>`).join('');
-  }
+  function editDistanceWithin(left,right,limit){if(left===right)return 0;if(Math.abs(left.length-right.length)>limit)return limit+1;let previous=Array.from({length:right.length+1},(_,index)=>index);for(let row=1;row<=left.length;row++){const current=[row];let best=current[0];for(let column=1;column<=right.length;column++){const value=Math.min(current[column-1]+1,previous[column]+1,previous[column-1]+Number(left[row-1]!==right[column-1]));current[column]=value;best=Math.min(best,value)}if(best>limit)return limit+1;previous=current}return previous[right.length]}
+  function recipeSearchScore(item,query){const name=normalized(item.name),aliases=(Array.isArray(item.aliases)?item.aliases:[item.aliases]).filter(Boolean).map(normalized),search=[name,...aliases].join(' '),nameCompact=compact(item.name),searchCompact=compact(search),queryNormalized=normalized(query),queryCompact=compact(query),tokens=queryNormalized.split(/\s+/).filter(Boolean),limit=queryCompact.length>=9?2:1;const compactHit=searchCompact.includes(queryCompact)||queryCompact.includes(nameCompact),tokenHit=tokens.every(token=>search.includes(token)||searchCompact.includes(compact(token))),fuzzy=queryCompact.length>=4&&editDistanceWithin(queryCompact,nameCompact,limit)<=limit;if(!compactHit&&!tokenHit&&!fuzzy)return null;let score=0;if(nameCompact===queryCompact)score+=1200;else if(aliases.some(alias=>compact(alias)===queryCompact))score+=1050;else if(nameCompact.startsWith(queryCompact))score+=700;else if(compactHit)score+=400;if(tokenHit)score+=220;if(fuzzy)score+=60;return score+Number(Boolean(item.favorite))*80+Math.min(100,Number(item.uses)||0)}
+  function enhanceRecipeSearch(input){const host=document.querySelector('#recipeV7SearchResults'),query=String(input.value||'').trim();if(!host||!query)return;let personal=[];try{personal=window.CutCoachLibrary?.exportData?.().items?.filter(item=>item.kind==='food')||[]}catch{}let catalog=[];try{catalog=window.CutCoachFoodCatalog?.items?.()||[]}catch{}const seen=new Set(),ranked=[];for(const item of [...personal,...catalog]){const key=String(item.id);if(seen.has(key))continue;seen.add(key);const score=recipeSearchScore(item,query);if(score!==null)ranked.push({item,score})}const items=ranked.sort((a,b)=>b.score-a.score||String(a.item.name).localeCompare(String(b.item.name),'de')).slice(0,24).map(entry=>entry.item);if(!items.length)return;host.innerHTML=items.map(item=>`<button type="button" data-recipe-ingredient="${escapeHtml(item.id)}"><span>${item.source==='bls'?'BLS':item.source==='off'?'Produkt':item.source==='cutcoach'?'Standard':'Eigene'}</span><b>${escapeHtml(item.name)}</b><small>${fmt(item.calories)} kcal · ${fmt(item.protein,1)} g E · Basis ${fmt(item.amount,item.amount%1?1:0)} ${escapeHtml(item.unit||'g')}</small></button>`).join('')}
   function setVersion(){const node=document.querySelector('#appVersion'),text=`Version ${RELEASE}`;if(node&&node.textContent!==text)node.textContent=text}
   function addStyle(key,href){if(document.querySelector(`link[data-${key}]`))return;const link=document.createElement('link');link.rel='stylesheet';link.href=href;link.dataset[key.replace(/-([a-z])/g,(_,char)=>char.toUpperCase())]='1';document.head.append(link)}
-  function loadJournal72(){
-    addStyle('journal-v72','./journal-v72.css?v=7.2.0');
-    if(window.CutCoachJournalV72||document.querySelector('script[data-journal-v72]'))return;
-    const script=document.createElement('script');script.src='./journal-v72.js?v=7.2.0';script.async=false;script.dataset.journalV72='1';script.onerror=()=>{try{toast?.('Tagebuch-Upgrade konnte nicht geladen werden. Bitte App neu öffnen.')}catch{}};document.head.append(script);
-  }
-  function loadNutrition73(){
-    addStyle('nutrition-v73','./nutrition-v73.css?v=7.3.0');
-    if(window.CutCoachNutritionV73||document.querySelector('script[data-nutrition-v73]'))return;
-    const script=document.createElement('script');script.src='./nutrition-v73.js?v=7.3.0';script.async=false;script.dataset.nutritionV73='1';script.onerror=()=>{try{toast?.('Alltagsgerichte konnten nicht vollständig geladen werden. Bitte App neu öffnen.')}catch{}};document.head.append(script);
-  }
-  function loadCatalog73(){
-    if(window.CutCoachEverydayCatalog){loadNutrition73();return}
-    if(document.querySelector('script[data-everyday-v73]'))return;
-    const script=document.createElement('script');script.src='./everyday-catalog-v73.js?v=7.3.0';script.async=false;script.dataset.everydayV73='1';script.onload=loadNutrition73;script.onerror=()=>{try{toast?.('Alltagskatalog konnte nicht geladen werden. Bitte Internetverbindung prüfen.')}catch{}};document.head.append(script);
-  }
-  async function exportBackupV7(event){
-    const button=event.target.closest?.('#exportData');if(!button)return;
-    event.preventDefault();event.stopImmediatePropagation();
-    try{
-      const envelope=typeof backupEnvelope==='function'?backupEnvelope():{format:'cutcoach-backup',formatVersion:1,schemaVersion:typeof SCHEMA_VERSION==='number'?SCHEMA_VERSION:null,exportedAt:new Date().toISOString(),data:typeof state==='object'?JSON.parse(JSON.stringify(state)):null};
-      envelope.appVersion=RELEASE;if(envelope.data?.meta)envelope.data.meta.appVersion=RELEASE;
-      await shareOrDownload(JSON.stringify(envelope,null,2),`CutCoach-Backup-${typeof todayKey==='function'?todayKey():new Date().toISOString().slice(0,10)}.json`);
-      if(typeof commitStateMutation==='function')commitStateMutation(current=>{current.meta.lastBackupAt=envelope.exportedAt;current.meta.appVersion=RELEASE});
-      window.render?.();toast?.('Backup erstellt.');
-    }catch(error){if(error?.name!=='AbortError')toast?.('Backup konnte nicht exportiert werden.')}
-  }
-  document.addEventListener('input',event=>{if(event.target?.id==='recipeV7Search')queueMicrotask(()=>enhanceRecipeSearch(event.target))});
-  document.addEventListener('click',exportBackupV7,true);
-  const baseRender=window.render;if(typeof baseRender==='function')window.render=function(){baseRender();setVersion()};
-  const observer=new MutationObserver(setVersion);observer.observe(document.documentElement,{childList:true,subtree:true});
-  const start=()=>{loadJournal72();loadCatalog73();setVersion()};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+  function loadJournal72(){addStyle('journal-v72','./journal-v72.css?v=7.2.0');if(window.CutCoachJournalV72||document.querySelector('script[data-journal-v72]'))return;const script=document.createElement('script');script.src='./journal-v72.js?v=7.2.0';script.async=false;script.dataset.journalV72='1';script.onerror=()=>{try{toast?.('Tagebuch-Upgrade konnte nicht geladen werden. Bitte App neu öffnen.')}catch{}};document.head.append(script)}
+  function loadNutrition73(){addStyle('nutrition-v73','./nutrition-v73.css?v=7.3.1');if(window.CutCoachNutritionV73||document.querySelector('script[data-nutrition-v73]'))return;const script=document.createElement('script');script.src='./nutrition-v73.js?v=7.3.1';script.async=false;script.dataset.nutritionV73='1';script.onerror=()=>{try{toast?.('Alltagsgerichte konnten nicht vollständig geladen werden. Bitte App neu öffnen.')}catch{}};document.head.append(script)}
+  function loadCatalog73(){if(window.CutCoachEverydayCatalog){loadNutrition73();return}if(document.querySelector('script[data-everyday-v73]'))return;const script=document.createElement('script');script.src='./everyday-catalog-v73.js?v=7.3.0';script.async=false;script.dataset.everydayV73='1';script.onload=loadNutrition73;script.onerror=()=>{try{toast?.('Alltagskatalog konnte nicht geladen werden. Bitte Internetverbindung prüfen.')}catch{}};document.head.append(script)}
+  async function exportBackupV7(event){const button=event.target.closest?.('#exportData');if(!button)return;event.preventDefault();event.stopImmediatePropagation();try{const envelope=typeof backupEnvelope==='function'?backupEnvelope():{format:'cutcoach-backup',formatVersion:1,schemaVersion:typeof SCHEMA_VERSION==='number'?SCHEMA_VERSION:null,exportedAt:new Date().toISOString(),data:typeof state==='object'?JSON.parse(JSON.stringify(state)):null};envelope.appVersion=RELEASE;if(envelope.data?.meta)envelope.data.meta.appVersion=RELEASE;await shareOrDownload(JSON.stringify(envelope,null,2),`CutCoach-Backup-${typeof todayKey==='function'?todayKey():new Date().toISOString().slice(0,10)}.json`);if(typeof commitStateMutation==='function')commitStateMutation(current=>{current.meta.lastBackupAt=envelope.exportedAt;current.meta.appVersion=RELEASE});window.render?.();toast?.('Backup erstellt.')}catch(error){if(error?.name!=='AbortError')toast?.('Backup konnte nicht exportiert werden.')}}
+  document.addEventListener('input',event=>{if(event.target?.id==='recipeV7Search')queueMicrotask(()=>enhanceRecipeSearch(event.target))});document.addEventListener('click',exportBackupV7,true);
+  const baseRender=window.render;if(typeof baseRender==='function')window.render=function(){baseRender();setVersion()};const observer=new MutationObserver(setVersion);observer.observe(document.documentElement,{childList:true,subtree:true});
+  const start=()=>{loadJournal72();loadCatalog73();setVersion()};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
