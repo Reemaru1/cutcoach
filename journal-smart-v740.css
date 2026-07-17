@@ -1,0 +1,28 @@
+body.journal-v740 .journal-heading{margin-bottom:12px}
+body.journal-v740 .journal-heading h1{font-size:clamp(2rem,8vw,3rem)}
+body.journal-v740 .journal-energy-card{padding:18px}
+body.journal-v740 .journal-energy-grid{gap:14px}
+body.journal-v740 .journal-calorie-ring{transform:scale(.94);transform-origin:center}
+body.journal-v740 .journal-energy-stats{gap:10px}
+body.journal-v740 .journal-energy-stats article{padding:12px 14px}
+body.journal-v740 .journal-macros{margin-top:14px}
+
+.coach-v74-toggle{margin-left:auto;border:1px solid rgba(126,232,172,.35);background:rgba(126,232,172,.08);color:#a7f0c2;border-radius:999px;padding:7px 11px;font:inherit;font-size:.72rem;font-weight:800}
+.coach-v71-header .coach-v74-toggle{align-self:center}
+.coach-v74-collapsed .coach-v71-focus,.coach-v74-collapsed .coach-v71-pillars,.coach-v74-collapsed .coach-v71-footer{display:none!important}
+.coach-v74-collapsed{padding-bottom:18px!important}
+.coach-v74-collapsed .coach-v71-header{margin-bottom:0!important}
+
+#journalMeals .meal-v74-current{position:relative;border-color:rgba(111,234,171,.75)!important;box-shadow:0 0 0 1px rgba(111,234,171,.14),0 14px 30px rgba(36,187,126,.08)}
+#journalMeals .meal-v74-past{opacity:.72}
+#journalMeals .meal-v74-upcoming{opacity:.9}
+.meal-v74-badge{position:absolute;top:10px;right:68px;z-index:2;border-radius:999px;padding:4px 8px;background:rgba(111,234,171,.14);color:#8ceeb8;font-size:.64rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+
+@media(max-width:430px){
+  body.journal-v740 .journal-energy-card{padding:15px}
+  body.journal-v740 .journal-energy-grid{grid-template-columns:minmax(0,1.15fr) minmax(132px,.85fr)}
+  body.journal-v740 .journal-calorie-ring{transform:scale(.9)}
+  body.journal-v740 .journal-energy-stats article{padding:10px 12px}
+  .coach-v74-toggle{padding:6px 9px;font-size:.68rem}
+}
+@media(prefers-reduced-motion:reduce){#journalMeals .meal-v74-current{box-shadow:none}}
