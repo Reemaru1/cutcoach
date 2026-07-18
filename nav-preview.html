@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#070a12">
+<title>CutCoach Navigation Preview</title>
+<style>
+:root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070a12;color:#fff}
+.preview-shell{position:fixed;inset:0;background:#070a12}
+#appFrame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#070a12}
+.preview-badge{position:fixed;top:max(8px,env(safe-area-inset-top));left:50%;z-index:30;transform:translateX(-50%);padding:7px 12px;border:1px solid rgba(255,255,255,.16);border-radius:999px;background:rgba(10,14,24,.72);backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#b9c7dc;box-shadow:0 10px 30px rgba(0,0,0,.25);pointer-events:none}
+.cc-preview-nav{position:fixed;z-index:50;left:14px;right:14px;bottom:max(10px,env(safe-area-inset-bottom));height:84px;padding:8px 10px;display:grid;grid-template-columns:1fr 1fr 72px 1fr;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.16);border-radius:30px;background:linear-gradient(180deg,rgba(34,38,47,.78),rgba(14,17,24,.88));box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -1px 0 rgba(255,255,255,.04),0 18px 48px rgba(0,0,0,.5),0 4px 14px rgba(0,0,0,.35);backdrop-filter:blur(28px) saturate(165%);-webkit-backdrop-filter:blur(28px) saturate(165%)}
+.cc-preview-nav::before{content:"";position:absolute;inset:1px;border-radius:29px;pointer-events:none;background:linear-gradient(145deg,rgba(255,255,255,.08),transparent 38%,rgba(255,255,255,.025));mix-blend-mode:screen}
+.cc-tab,.cc-plus{position:relative;z-index:1;border:0;color:#d8deea;background:transparent;font:inherit;-webkit-tap-highlight-color:transparent}
+.cc-tab{height:66px;border-radius:23px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:5px 3px;transition:transform .16s ease,background .18s ease,color .18s ease,box-shadow .18s ease}
+.cc-tab:active,.cc-plus:active{transform:scale(.95)}
+.cc-tab[aria-current="page"]{color:#f5fff9;background:linear-gradient(150deg,rgba(255,255,255,.17),rgba(255,255,255,.065));box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 18px rgba(0,0,0,.24)}
+.cc-tab svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
+.cc-tab span{font-size:11px;line-height:1;font-weight:760;white-space:nowrap}
+.cc-plus{width:70px;height:70px;align-self:end;margin-bottom:3px;border-radius:50%;display:grid;place-items:center;color:#07120d;background:radial-gradient(circle at 35% 25%,#8affb0 0,#55ec80 36%,#2fd963 72%,#20ba50 100%);box-shadow:inset 0 2px 2px rgba(255,255,255,.5),inset 0 -5px 10px rgba(0,90,35,.3),0 10px 25px rgba(42,220,105,.38),0 2px 7px rgba(0,0,0,.48);border:1px solid rgba(255,255,255,.3)}
+.cc-plus::after{content:"";position:absolute;inset:7px 12px auto;height:18px;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,.5),transparent);filter:blur(.2px);opacity:.55}
+.cc-plus svg{width:34px;height:34px;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.preview-error{position:fixed;left:20px;right:20px;top:50%;z-index:60;transform:translateY(-50%);display:none;padding:20px;border:1px solid rgba(255,110,125,.35);border-radius:20px;background:#151923;color:#ffd8dc;text-align:center}
+@media(max-width:390px){.cc-preview-nav{left:9px;right:9px;gap:3px;padding-left:6px;padding-right:6px}.cc-tab span{font-size:10px}.cc-plus{width:66px;height:66px}}
+@media(prefers-reduced-motion:reduce){.cc-tab,.cc-plus{transition:none}}
+</style>
+</head>
+<body>
+<div class="preview-shell"><iframe id="appFrame" src="./?navPreviewFrame=1#today" title="CutCoach Vorschau"></iframe></div>
+<div class="preview-badge">Navigation Preview</div>
+<nav class="cc-preview-nav" aria-label="Navigationsvorschau">
+<button class="cc-tab" data-target="today" aria-current="page" type="button">
+<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h10a2 2 0 0 1 2 2v15H6a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z"/><path d="M8 3.5v17M10.5 9l1.5 1.5L15.5 7"/></svg><span>Tagebuch</span></button>
+<button class="cc-tab" data-target="progress" aria-current="false" type="button">
+<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V9M10 18V5M16 18v-7M22 18V3"/><path d="m3 8 5-3 5 4 7-6"/></svg><span>Fortschritt</span></button>
+<button class="cc-plus" id="previewAdd" type="button" aria-label="Ernährungsbereich öffnen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+<button class="cc-tab" data-target="settings" aria-current="false" type="button">
+<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.12 2.12-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20.3h-3v-.08a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-2.12-2.12.06-.06A1.7 1.7 0 0 0 5 15a1.7 1.7 0 0 0-1.56-1.03H3.3v-3h.14A1.7 1.7 0 0 0 5 9.94a1.7 1.7 0 0 0-.34-1.88L4.6 8l2.12-2.12.06.06A1.7 1.7 0 0 0 8.66 6.3 1.7 1.7 0 0 0 9.7 4.73V4.6h3v.13a1.7 1.7 0 0 0 1.03 1.57 1.7 1.7 0 0 0 1.88-.34l.06-.06L17.8 8l-.06.06a1.7 1.7 0 0 0-.34 1.88 1.7 1.7 0 0 0 1.56 1.03h.14v3h-.14A1.7 1.7 0 0 0 19.4 15Z"/></svg><span>Einstellungen</span></button>
+</nav>
+<div class="preview-error" id="previewError">Die Vorschau konnte nicht mit der App verbunden werden. Die normale App wurde nicht verändert.</div>
+<script>
+'use strict';
+const frame=document.querySelector('#appFrame');
+const tabs=[...document.querySelectorAll('.cc-tab')];
+const errorBox=document.querySelector('#previewError');
+function getDoc(){try{return frame.contentDocument||frame.contentWindow.document}catch{return null}}
+function findTab(key){const doc=getDoc();if(!doc)return null;return doc.querySelector(`nav[aria-label="Hauptnavigation"] [data-tab="${key}"]`)}
+function hideOriginalNav(){const doc=getDoc();if(!doc)return;let style=doc.querySelector('#cc-nav-preview-hide');if(!style){style=doc.createElement('style');style.id='cc-nav-preview-hide';style.textContent='body>nav[aria-label="Hauptnavigation"]{display:none!important}body{padding-bottom:118px!important}';doc.head.append(style)}}
+function setActive(key){for(const tab of tabs)tab.setAttribute('aria-current',tab.dataset.target===key?'page':'false')}
+function activate(key){const target=findTab(key);if(!target){errorBox.style.display='block';return}hideOriginalNav();target.click();setActive(key)}
+frame.addEventListener('load',()=>{setTimeout(()=>{hideOriginalNav();const doc=getDoc();if(!doc){errorBox.style.display='block';return}errorBox.style.display='none'},250)});
+for(const tab of tabs)tab.addEventListener('click',()=>activate(tab.dataset.target));
+document.querySelector('#previewAdd').addEventListener('click',()=>activate('food'));
+window.addEventListener('resize',hideOriginalNav);
+</script>
+</body>
+</html>
