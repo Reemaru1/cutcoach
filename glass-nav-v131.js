@@ -6,20 +6,35 @@
     food:'<span class="cc-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span class="cc-nav-label">Ernährung</span>',
     settings:'<span class="cc-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.12 2.12-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20.3h-3v-.08a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-2.12-2.12.06-.06A1.7 1.7 0 0 0 5 15a1.7 1.7 0 0 0-1.56-1.03H3.3v-3h.14A1.7 1.7 0 0 0 5 9.94a1.7 1.7 0 0 0-.34-1.88L4.6 8l2.12-2.12.06.06A1.7 1.7 0 0 0 8.66 6.3 1.7 1.7 0 0 0 9.7 4.73V4.6h3v.13a1.7 1.7 0 0 0 1.03 1.57 1.7 1.7 0 0 0 1.88-.34l.06-.06L17.8 8l-.06.06a1.7 1.7 0 0 0-.34 1.88 1.7 1.7 0 0 0 1.56 1.03h.14v3h-.14A1.7 1.7 0 0 0 19.4 15Z"/></svg></span><span class="cc-nav-label">Einstellungen</span>'
   };
+  function ensureFoodButton(nav){
+    let button=nav.querySelector('[data-tab="food"]');
+    if(button)return button;
+    button=document.createElement('button');
+    button.type='button';button.dataset.tab='food';button.setAttribute('aria-current','false');
+    const settings=nav.querySelector('[data-tab="settings"]');
+    if(settings)nav.insertBefore(button,settings);else nav.appendChild(button);
+    button.addEventListener('click',()=>{
+      if(location.hash!=='#food')history.replaceState(null,'','#food');
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
+    return button;
+  }
   function enhance(){
-    const nav=document.querySelector('body>nav[aria-label="Hauptnavigation"]');
-    if(!nav||nav.dataset.glassNavV131==='1')return false;
-    const required=['today','food','progress','settings'];
-    const buttons=Object.fromEntries(required.map(key=>[key,nav.querySelector(`[data-tab="${key}"]`)]));
-    if(required.some(key=>!buttons[key]))return false;
+    const nav=document.querySelector('nav[aria-label="Hauptnavigation"]');
+    if(!nav)return false;
+    const buttons={
+      today:nav.querySelector('[data-tab="today"]'),
+      progress:nav.querySelector('[data-tab="progress"]'),
+      food:ensureFoodButton(nav),
+      settings:nav.querySelector('[data-tab="settings"]')
+    };
+    if(!buttons.today||!buttons.progress||!buttons.settings)return false;
     nav.dataset.glassNavV131='1';
     nav.classList.add('cc-glass-nav-v131');
     document.body.classList.add('cc-glass-nav-active');
-    for(const key of required){
-      const button=buttons[key];
-      button.innerHTML=ICONS[key];
-      if(key==='food')button.setAttribute('aria-label','Ernährungsbereich öffnen');
-      else button.setAttribute('aria-label',key==='today'?'Tagebuch öffnen':key==='progress'?'Fortschritt öffnen':'Einstellungen öffnen');
+    for(const key of ['today','progress','food','settings']){
+      const button=buttons[key];button.hidden=false;button.style.removeProperty('display');button.innerHTML=ICONS[key];
+      button.setAttribute('aria-label',key==='today'?'Tagebuch öffnen':key==='progress'?'Fortschritt öffnen':key==='food'?'Ernährungsbereich öffnen':'Einstellungen öffnen');
     }
     return true;
   }
@@ -27,7 +42,7 @@
     if(enhance())return;
     const observer=new MutationObserver(()=>{if(enhance())observer.disconnect()});
     observer.observe(document.body||document.documentElement,{childList:true,subtree:true});
-    setTimeout(()=>observer.disconnect(),5000);
+    setTimeout(()=>observer.disconnect(),10000);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
   window.CutCoachGlassNavV131=Object.freeze({enhance});
