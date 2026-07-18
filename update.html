@@ -18,8 +18,8 @@
 <body>
   <main>
     <div class="spinner" id="spinner"></div>
-    <h1>Ernährungsbereich wird stabilisiert</h1>
-    <p id="status">Suchzustände, Ergebnislisten und die Intelligente Suche werden aktualisiert. Deine Daten bleiben erhalten.</p>
+    <h1>Tagebuch wird aktualisiert</h1>
+    <p id="status">Live-Auswertung, Schritte-Anzeige und Navigation werden verbessert. Deine Daten bleiben erhalten.</p>
     <button id="retry">Erneut versuchen</button>
   </main>
   <script>
@@ -30,10 +30,10 @@
       try{
         if('serviceWorker'in navigator){const registrations=await navigator.serviceWorker.getRegistrations();await Promise.all(registrations.filter(item=>item.scope.includes('/cutcoach/')).map(item=>item.unregister()))}
         if('caches'in window){const keys=await caches.keys();await Promise.all(keys.filter(key=>key.startsWith('cutcoach-')).map(key=>caches.delete(key)))}
-        status.textContent='Optimierte Ernährungsmodule werden geladen …';
-        if('serviceWorker'in navigator){const registration=await navigator.serviceWorker.register('./sw.js?v=1.2.6-alpha-force',{scope:'./',updateViaCache:'none'});await registration.update();await navigator.serviceWorker.ready}
+        status.textContent='Optimierte Tagebuchmodule werden geladen …';
+        if('serviceWorker'in navigator){const registration=await navigator.serviceWorker.register('./sw.js?v=1.2.7-alpha-force',{scope:'./',updateViaCache:'none'});await registration.update();await navigator.serviceWorker.ready}
         status.textContent='Update erfolgreich. CutCoach wird geöffnet …';
-        setTimeout(()=>location.replace('./?updated=126a#today'),900);
+        setTimeout(()=>location.replace('./?updated=127a#today'),900);
       }catch(error){console.error(error);document.querySelector('#spinner').style.display='none';status.className='error';status.textContent='Update fehlgeschlagen. Internetverbindung prüfen und erneut versuchen.';retry.style.display='block'}
     })();
   </script>
