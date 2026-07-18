@@ -13,12 +13,12 @@
     .status strong{display:block;font-size:20px;margin-bottom:8px}.status small{display:block;color:#9ca7bd;line-height:1.45}
     .badge{position:fixed;top:max(10px,env(safe-area-inset-top));right:12px;z-index:5;padding:6px 10px;border:1px solid rgba(132,255,190,.35);border-radius:999px;background:rgba(8,20,18,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-size:11px;font-weight:800;letter-spacing:.12em;color:#8fffc2;pointer-events:none}
   </style>
-  <script src="loader.js?v=2" defer></script>
+  <script src="loader.js?v=3" defer></script>
 </head>
 <body>
   <div class="shell">
-    <div class="status" id="status"><div><strong>CutCoach Staging V2 wird geladen …</strong><small>Eigener isolierter Browser-Kontext. Keine Service-Worker- oder Produktivdaten-Änderung.</small></div></div>
-    <iframe id="appFrame" title="CutCoach Staging" sandbox="allow-scripts allow-forms allow-modals allow-downloads allow-popups"></iframe>
+    <div class="status" id="status"><div><strong>CutCoach Staging V2 wird geladen …</strong><small>Getrennte Testdaten. Keine Änderung an der produktiven App.</small></div></div>
+    <iframe id="appFrame" title="CutCoach Staging" sandbox="allow-same-origin allow-scripts allow-forms allow-modals allow-downloads allow-popups"></iframe>
     <div class="badge">STAGING V2</div>
   </div>
 </body>
