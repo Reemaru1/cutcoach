@@ -35,10 +35,10 @@ assert.doesNotMatch(enhanced,/observe\(document\.documentElement/,'Alltags-Enhan
 assert.match(enhanced,/clearInjected/,'Alte Alltags-Treffer werden bei Query-Wechsel nicht entfernt');
 assert.match(version,/const RELEASE='1\.2\.1 Alpha'/);
 assert.match(version,/nutrition-multisearch-canonical-128\.js\?v=1\.2\.10-alpha/);
-assert.match(manifest,/version:'1\.2\.6-alpha'/);
+assert.match(manifest,/version:'1\.2\.7-alpha'/);
 assert.match(manifest,/nutrition-v73\.js\?v=7\.3\.2/);
 assert.match(manifest,/nutrition-v110\.js\?v=1\.1\.2-alpha/);
 assert.match(manifest,/nutrition-voice-111\.js\?v=1\.1\.2-alpha/);
-assert.match(sw,/runtime-manifest\.js\?v=1\.2\.6-alpha/);
-assert.match(update,/sw\.js\?v=1\.2\.6-alpha-force/);
-console.log('CutCoach nutrition QA stability with 1.2.6 runtime: ok');
+assert.match(sw,/runtime-manifest\.js\?v=1\.2\.7-alpha/);
+assert.match(update,/sw\.js\?v=1\.2\.7-alpha-force/);
+console.log('CutCoach nutrition QA stability with 1.2.7 runtime: ok');
