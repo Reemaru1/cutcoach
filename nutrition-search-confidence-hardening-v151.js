@@ -9,6 +9,9 @@
   const fmt=value=>new Intl.NumberFormat('de-DE',{maximumFractionDigits:1}).format(Number(value)||0);
   const SUPPRESSION_SELECTOR='[data-nutrition-results],.nutrition-results,.nutrition-results-section,.nutrition-empty-state';
   const IRREGULAR=Object.freeze({eier:'ei',aepfel:'apfel',apfeln:'apfel',haehnchen:'hahnchen',steaks:'steak',tomaten:'tomate',gurken:'gurke',zwiebeln:'zwiebel',kartoffeln:'kartoffel',nudeln:'nudel'});
+  const LOCAL_ITEMS=Object.freeze([
+    Object.freeze({id:'ccmeal:tantuni-durum',name:'Tantuni Dürüm',aliases:Object.freeze(['Tantuni','Mersin Tantuni','Tantuni Wrap','Tantuni mit Rindfleisch']),kind:'food',amount:350,unit:'g',calories:700,protein:38,carbs:72,fat:28,source:'cutcoach',catalog:true,estimated:true,sourceLabel:'CutCoach Standardgericht · durchschnittlicher Richtwert',category:'Türkisch'})
+  ]);
   let base=null,api=null,timer=0,renderToken=0,rendering=false,fallbackObserver=null,catalogRecords=[],catalogBuiltAt=0;
 
   function sourceLabel(item,origin){
@@ -44,27 +47,22 @@
       for(const item of items||[]){
         if(!item?.name)continue;
         const id=String(item.id||`${item.name}:${item.amount}:${item.unit}`);
-        for(const name of new Set(namesOf(item))){
-          records.push({item,id,origin,name,tokens:name.split(' ').filter(Boolean),preference:itemPreference(item,origin),isName:name===normalize(item.name)});
-        }
+        for(const name of new Set(namesOf(item))){records.push({item,id,origin,name,tokens:name.split(' ').filter(Boolean),preference:itemPreference(item,origin),isName:name===normalize(item.name)})}
       }
     };
+    push(LOCAL_ITEMS,'base');
     try{push(window.CutCoachLibrary?.exportData?.().items||[],'library')}catch{}
     try{push(window.CutCoachFoodCatalog?.items?.()||[],'catalog')}catch{}
     try{push(window.CutCoachEverydayCatalog?.items?.()||[],'everyday')}catch{}
     return records;
   }
-  function catalogIndex(){
-    if(catalogRecords.length&&Date.now()-catalogBuiltAt<INDEX_TTL)return catalogRecords;
-    catalogRecords=collectSources();catalogBuiltAt=Date.now();return catalogRecords;
-  }
+  function catalogIndex(){if(catalogRecords.length&&Date.now()-catalogBuiltAt<INDEX_TTL)return catalogRecords;catalogRecords=collectSources();catalogBuiltAt=Date.now();return catalogRecords}
   function invalidateCatalog(){catalogRecords=[];catalogBuiltAt=0}
   function collectExact(query,fallbackItem){
     const q=normalize(query);if(!q)return null;
     const records=catalogIndex().filter(record=>record.name===q);
     if(fallbackItem)records.push({item:fallbackItem,id:String(fallbackItem.id||fallbackItem.name),origin:'base',name:q,tokens:q.split(' '),isName:normalize(fallbackItem.name)===q,preference:itemPreference(fallbackItem,'base')});
-    const dedup=new Map();
-    for(const record of records){const existing=dedup.get(record.id);if(!existing||record.preference>existing.preference)dedup.set(record.id,record)}
+    const dedup=new Map();for(const record of records){const existing=dedup.get(record.id);if(!existing||record.preference>existing.preference)dedup.set(record.id,record)}
     const ranked=[...dedup.values()].sort((a,b)=>(Number(b.isName)-Number(a.isName))||b.preference-a.preference||String(a.item.name).localeCompare(String(b.item.name),'de'));
     if(!ranked.length)return null;
     const top=ranked[0],second=ranked[1],topRank=(top.isName?24:0)+top.preference,secondRank=second?(second.isName?24:0)+second.preference:-100,margin=topRank-secondRank;
@@ -73,16 +71,9 @@
     return{ambiguous:false,item:top.item,origin:top.origin,isName:top.isName,confidence:second?(top.isName?97:94):(top.isName?100:98),choices:choices.slice(1),matchType:'ranked-personal'};
   }
   function genericScore(record,query){
-    const q=normalize(query),queryTokens=q.split(' ').filter(Boolean);
-    if(!q||!queryTokens.length)return 0;
-    if(record.name===q)return 100;
+    const q=normalize(query),queryTokens=q.split(' ').filter(Boolean);if(!q||!queryTokens.length)return 0;if(record.name===q)return 100;
     let total=0;
-    for(const queryToken of queryTokens){
-      let best=0;
-      for(const candidateToken of record.tokens)best=Math.max(best,tokenMatches(queryToken,candidateToken));
-      if(!best)return 0;
-      total+=best;
-    }
+    for(const queryToken of queryTokens){let best=0;for(const candidateToken of record.tokens)best=Math.max(best,tokenMatches(queryToken,candidateToken));if(!best)return 0;total+=best}
     let score=total===queryTokens.length*3?92:84;
     if(record.name.startsWith(`${q} `)||record.name.endsWith(` ${q}`))score+=3;
     if(record.name.includes(q))score+=2;
@@ -116,9 +107,7 @@
   }
   function hardenRow(row){
     if(!row)return row;
-    let ranked=collectExact(row.query,row.item);
-    if(!ranked&&(!row.item||row.status==='missing'))ranked=collectGeneric(row.query);
-    if(!ranked)return row;
+    let ranked=collectExact(row.query,row.item);if(!ranked&&(!row.item||row.status==='missing'))ranked=collectGeneric(row.query);if(!ranked)return row;
     if(ranked.ambiguous)return{...row,item:null,status:'ambiguous',confidence:0,confidenceLabel:'',matchType:ranked.matchType||'ambiguous-ranked',alternatives:ranked.choices.map(choice=>`${choice.label}: ${choice.item.name}`),choices:ranked.choices};
     const portion=portionFor(row,ranked.item),status=portion.incompatible?'incompatible':ranked.confidence>=90?'matched':'review';
     const label=ranked.confidence>=98?`Exakt · ${ranked.confidence}%`:ranked.confidence>=90?`Sehr sicher · ${ranked.confidence}%`:`Bitte prüfen · ${ranked.confidence}%`;
@@ -128,18 +117,13 @@
   function rowsFor(value){return base?hardenRows(base.rowsFor?.(value)||[]):[]}
   function directInspection(value){
     if(!base)return{handle:false,rows:[]};
-    const direct=rowsFor(value);
-    if(direct.length)return{handle:true,rows:direct};
+    const direct=rowsFor(value);if(direct.length)return{handle:true,rows:direct};
     const text=String(value||'').trim();if(!text)return{handle:false,rows:[]};
     const probe=hardenRows(base.rowsFor?.(`1 ${text}`)||[]);
-    if(probe.length===1&&(probe[0].status==='ambiguous'||probe[0].status==='review'||String(probe[0].matchType||'').startsWith('catalog-')))return{handle:true,rows:probe};
+    if(probe.length===1&&(probe[0].status==='ambiguous'||probe[0].status==='review'||String(probe[0].matchType||'').startsWith('catalog-')||normalize(text)==='tantuni'))return{handle:true,rows:probe};
     return{handle:Boolean(base.likelyMulti?.(value)),rows:[]};
   }
-  function suppressNormalResults(active){
-    document.body.classList.toggle('canonical-multisearch-active',active);
-    if(active){for(const node of document.querySelectorAll(SUPPRESSION_SELECTOR)){if(node.dataset.cutcoachCanonicalSuppressed!=='1'){node.dataset.cutcoachCanonicalSuppressed='1';node.dataset.cutcoachCanonicalWasHidden=node.hidden?'1':'0'}node.hidden=true}return}
-    for(const node of document.querySelectorAll('[data-cutcoach-canonical-suppressed="1"]')){node.hidden=node.dataset.cutcoachCanonicalWasHidden==='1';delete node.dataset.cutcoachCanonicalSuppressed;delete node.dataset.cutcoachCanonicalWasHidden}
-  }
+  function suppressNormalResults(active){document.body.classList.toggle('canonical-multisearch-active',active);if(active){for(const node of document.querySelectorAll(SUPPRESSION_SELECTOR)){if(node.dataset.cutcoachCanonicalSuppressed!=='1'){node.dataset.cutcoachCanonicalSuppressed='1';node.dataset.cutcoachCanonicalWasHidden=node.hidden?'1':'0'}node.hidden=true}return}for(const node of document.querySelectorAll('[data-cutcoach-canonical-suppressed="1"]')){node.hidden=node.dataset.cutcoachCanonicalWasHidden==='1';delete node.dataset.cutcoachCanonicalSuppressed;delete node.dataset.cutcoachCanonicalWasHidden}}
   function host(){let node=document.querySelector('#nutritionMultiSearch');if(node)return node;const card=document.querySelector('.nutrition-search-card');if(!card)return null;node=document.createElement('section');node.id='nutritionMultiSearch';node.className='nutrition-multi-search intelligent-search';card.after(node);return node}
   function confidenceClass(value){return value>=90?'high':value>=80?'medium':'low'}
   function rowNotes(row){const notes=[];if(row.item)notes.push(`<span class="nutrition-confidence ${confidenceClass(row.confidence)}">${escapeHtml(row.confidenceLabel||`${Math.round(row.confidence)}%`)}</span>`);if(row.corrected)notes.push(`<em>Meintest du „${escapeHtml(row.corrected)}“?</em>`);if(row.amountLabel)notes.push(`<em>${escapeHtml(row.amountLabel)}${row.approximate?' · geschätzt':''}</em>`);return notes.join('')}
@@ -151,43 +135,15 @@
     if(row.status==='ambiguous')return`<article class="missing ambiguous confidence-choices"><span>?</span><div><small>${escapeHtml(row.raw)}</small><b>Bitte passenden Treffer auswählen</b>${choiceHtml(row,index)}</div></article>`;
     return`<article class="missing"><span>?</span><div><small>${escapeHtml(row.raw)}</small><b>Kein sicherer Treffer</b><em>Begriff einzeln prüfen</em></div><button type="button" data-canonical-search="${index}">Suchen</button></article>`;
   }
-  function renderRows(input,rows){
-    const node=host();if(!node)return false;if(!rows.length)return false;
-    rendering=true;
-    const complete=rows.every(row=>row.status==='matched'),single=rows.length===1,safeCount=rows.filter(row=>row.status==='matched').length,reviewCount=rows.filter(row=>row.status==='review').length,ambiguousCount=rows.filter(row=>row.status==='ambiguous').length;
-    node.dataset.canonical='1';node.dataset.query=normalize(input.value);node.hidden=false;node._canonicalRows=rows;suppressNormalResults(true);
-    const title=single?(complete?'1 sicherer Treffer':reviewCount?'1 Treffer zum Prüfen':ambiguousCount?'Treffer auswählen':'1 Begriff prüfen'):complete?`${rows.length} sichere Bestandteile`:`${safeCount} sicher${reviewCount?` · ${reviewCount} prüfen`:''}${ambiguousCount?` · ${ambiguousCount} auswählen`:''}`;
-    node.innerHTML=`<div class="nutrition-multi-head"><div><small>Intelligente Suche</small><b>${title}</b></div><button type="button" data-canonical-all ${complete?'':'disabled'}>${single&&complete?'Hinzufügen':complete?'Alle hinzufügen':'Auswahl prüfen'}</button></div><div class="nutrition-multi-list">${rows.map(renderRow).join('')}</div>`;
-    queueMicrotask(()=>{rendering=false});return true;
-  }
-  function render(input){
-    if(!base||!input)return false;const inspection=directInspection(input.value);
-    if(!inspection.handle)return Boolean(base.render?.(input));
-    if(inspection.rows.length){base.render?.(input);return renderRows(input,inspection.rows)}
-    const rendered=base.render?.(input);if(!rendered)return false;return renderRows(input,rowsFor(input.value));
-  }
+  function renderRows(input,rows){const node=host();if(!node||!rows.length)return false;rendering=true;const complete=rows.every(row=>row.status==='matched'),single=rows.length===1,safeCount=rows.filter(row=>row.status==='matched').length,reviewCount=rows.filter(row=>row.status==='review').length,ambiguousCount=rows.filter(row=>row.status==='ambiguous').length;node.dataset.canonical='1';node.dataset.query=normalize(input.value);node.hidden=false;node._canonicalRows=rows;suppressNormalResults(true);const title=single?(complete?'1 sicherer Treffer':reviewCount?'1 Treffer zum Prüfen':ambiguousCount?'Treffer auswählen':'1 Begriff prüfen'):complete?`${rows.length} sichere Bestandteile`:`${safeCount} sicher${reviewCount?` · ${reviewCount} prüfen`:''}${ambiguousCount?` · ${ambiguousCount} auswählen`:''}`;node.innerHTML=`<div class="nutrition-multi-head"><div><small>Intelligente Suche</small><b>${title}</b></div><button type="button" data-canonical-all ${complete?'':'disabled'}>${single&&complete?'Hinzufügen':complete?'Alle hinzufügen':'Auswahl prüfen'}</button></div><div class="nutrition-multi-list">${rows.map(renderRow).join('')}</div>`;queueMicrotask(()=>{rendering=false});return true}
+  function render(input){if(!base||!input)return false;const inspection=directInspection(input.value);if(!inspection.handle)return Boolean(base.render?.(input));if(inspection.rows.length){base.render?.(input);return renderRows(input,inspection.rows)}const rendered=base.render?.(input);if(!rendered)return false;return renderRows(input,rowsFor(input.value))}
   function schedule(input){clearTimeout(timer);const token=++renderToken;timer=setTimeout(()=>{if(token===renderToken&&input?.isConnected)render(input)},185)}
-  function selectChoice(button){
-    const node=button.closest('#nutritionMultiSearch'),input=document.querySelector('#nutritionSearch');if(!node?._canonicalRows||!input||normalize(input.value)!==node.dataset.query)return;
-    const [rowIndex,choiceIndex]=String(button.dataset.confidenceChoice||'').split(':').map(Number),rows=[...node._canonicalRows],row=rows[rowIndex],choice=row?.choices?.[choiceIndex];if(!choice)return;
-    const portion=portionFor(row,choice.item);rows[rowIndex]={...row,item:choice.item,status:portion.incompatible?'incompatible':'matched',confidence:100,confidenceLabel:'Ausgewählt · 100%',matchType:'user-choice',alternatives:[],choices:[],...portion};renderRows(input,rows);
-  }
-  function installFallbackObserver(){
-    if(loadedBeforeEngine||fallbackObserver)return;
-    const attach=node=>{fallbackObserver?.disconnect();fallbackObserver=new MutationObserver(()=>{if(rendering)return;const input=document.querySelector('#nutritionSearch');if(!input||node.dataset.canonical!=='1')return;const rows=rowsFor(input.value);if(rows.length)renderRows(input,rows)});fallbackObserver.observe(node,{childList:true,subtree:true})};
-    const existing=document.querySelector('#nutritionMultiSearch');if(existing){attach(existing);return}
-    fallbackObserver=new MutationObserver(()=>{const node=document.querySelector('#nutritionMultiSearch');if(node)attach(node)});fallbackObserver.observe(document.body||document.documentElement,{childList:true,subtree:true});
-  }
-  function attach(engine){
-    if(!engine||api)return api;base=engine;
-    api=Object.freeze({...engine,version:VERSION,build:BUILD,baseVersion:engine.version,rowsFor,render,likelyMulti:value=>directInspection(value).handle,invalidateIndex:()=>{invalidateCatalog();base.invalidateIndex?.()},score:value=>Object.freeze(rowsFor(value).map(row=>Object.freeze({query:row.query,name:row.item?.name||null,status:row.status,confidence:row.confidence,matchType:row.matchType,alternatives:Object.freeze([...(row.alternatives||[])])})))});
-    window.CutCoachIntelligentSearch128=api;installFallbackObserver();return api;
-  }
+  function selectChoice(button){const node=button.closest('#nutritionMultiSearch'),input=document.querySelector('#nutritionSearch');if(!node?._canonicalRows||!input||normalize(input.value)!==node.dataset.query)return;const [rowIndex,choiceIndex]=String(button.dataset.confidenceChoice||'').split(':').map(Number),rows=[...node._canonicalRows],row=rows[rowIndex],choice=row?.choices?.[choiceIndex];if(!choice)return;const portion=portionFor(row,choice.item);rows[rowIndex]={...row,item:choice.item,status:portion.incompatible?'incompatible':'matched',confidence:100,confidenceLabel:'Ausgewählt · 100%',matchType:'user-choice',alternatives:[],choices:[],...portion};renderRows(input,rows)}
+  function installFallbackObserver(){if(loadedBeforeEngine||fallbackObserver)return;const attach=node=>{fallbackObserver?.disconnect();fallbackObserver=new MutationObserver(()=>{if(rendering)return;const input=document.querySelector('#nutritionSearch');if(!input||node.dataset.canonical!=='1')return;const rows=rowsFor(input.value);if(rows.length)renderRows(input,rows)});fallbackObserver.observe(node,{childList:true,subtree:true})};const existing=document.querySelector('#nutritionMultiSearch');if(existing){attach(existing);return}fallbackObserver=new MutationObserver(()=>{const node=document.querySelector('#nutritionMultiSearch');if(node)attach(node)});fallbackObserver.observe(document.body||document.documentElement,{childList:true,subtree:true})}
+  function attach(engine){if(!engine||api)return api;base=engine;api=Object.freeze({...engine,version:VERSION,build:BUILD,baseVersion:engine.version,rowsFor,render,likelyMulti:value=>directInspection(value).handle,invalidateIndex:()=>{invalidateCatalog();base.invalidateIndex?.()},score:value=>Object.freeze(rowsFor(value).map(row=>Object.freeze({query:row.query,name:row.item?.name||null,status:row.status,confidence:row.confidence,matchType:row.matchType,alternatives:Object.freeze([...(row.alternatives||[])])})))});window.CutCoachIntelligentSearch128=api;installFallbackObserver();return api}
   document.addEventListener('input',event=>{const input=event.target;if(input?.id!=='nutritionSearch'||input.dataset.composing==='1'||input.dataset.voicePreview==='1'||!api)return;const inspection=directInspection(input.value);if(!inspection.handle)return;event.preventDefault();event.stopImmediatePropagation();schedule(input)},true);
   document.addEventListener('keydown',event=>{const input=event.target;if(input?.id!=='nutritionSearch'||!api||event.key!=='Enter')return;const inspection=directInspection(input.value);if(!inspection.handle)return;event.preventDefault();event.stopImmediatePropagation();clearTimeout(timer);render(input)},true);
   document.addEventListener('click',event=>{const choice=event.target.closest?.('[data-confidence-choice]');if(!choice)return;event.preventDefault();event.stopImmediatePropagation();selectChoice(choice)},true);
-  window.addEventListener('cutcoach:catalog-updated',invalidateCatalog);
-  window.addEventListener('cutcoach:librarychange',invalidateCatalog);
-  document.addEventListener('cutcoach:library-changed',invalidateCatalog);
+  window.addEventListener('cutcoach:catalog-updated',invalidateCatalog);window.addEventListener('cutcoach:librarychange',invalidateCatalog);document.addEventListener('cutcoach:library-changed',invalidateCatalog);
   window.CutCoachSearchConfidenceHardening151=Object.freeze({version:VERSION,build:BUILD,attach,invalidateCatalog});
 })();
