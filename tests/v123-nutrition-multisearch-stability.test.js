@@ -29,6 +29,8 @@ assert.match(intelligent,/normalize\(input\.value\)!==node\.dataset\.query/,'Ver
 assert.match(intelligent,/Kein sicherer Treffer/,'Unsichere Treffer werden nicht abgefangen');
 assert.match(intelligent,/safeFuzzyMatch/,'Tippfehler werden nicht sicher korrigiert');
 assert.match(intelligent,/portionFor/,'Mengen werden nicht auf Basisportionen umgerechnet');
+assert.match(intelligent,/cutcoach-standard-sucuk/,'Sucuk-Standard fehlt');
+assert.match(intelligent,/cutcoach-standard-toast/,'Toast-Standard fehlt');
 assert.match(voice,/updatePreview/,'Mikrofonvorschau fehlt');
 assert.match(voice,/dispatchSearch\(result\)/,'Sprachsuche wird nicht final übergeben');
 assert.doesNotMatch(voice,/dispatchSearch\(preview\)/,'Interim-Sprache löst weiterhin vollständige Suchen aus');
@@ -37,11 +39,12 @@ assert.doesNotMatch(performance,/version\.textContent/,'Nutrition-Modul übersch
 assert.doesNotMatch(enhanced,/observe\(document\.documentElement/,'Alltags-Enhancer beobachtet weiterhin die gesamte App');
 assert.match(enhanced,/clearInjected/,'Alte Alltags-Treffer werden bei Query-Wechsel nicht entfernt');
 assert.match(version,/const RELEASE='1\.2\.1 Alpha'/);
-assert.match(version,/nutrition-multisearch-canonical-128\.js\?v=1\.4\.2-alpha/);
+assert.match(version,/nutrition-multisearch-canonical-128\.js\?v=1\.4\.4-alpha/);
 assert.match(manifest,/version:'1\.2\.6-alpha'/);
 assert.match(manifest,/nutrition-v73\.js\?v=7\.3\.2/);
 assert.match(manifest,/nutrition-v110\.js\?v=1\.1\.2-alpha/);
 assert.match(manifest,/nutrition-voice-111\.js\?v=1\.1\.2-alpha/);
 assert.match(sw,/runtime-manifest\.js\?v=1\.2\.6-alpha/);
+assert.match(sw,/search144/);
 assert.match(update,/sw\.js\?v=1\.2\.6-alpha-force/);
-console.log('CutCoach nutrition QA stability with intelligent search 1.4.2: ok');
+console.log('CutCoach nutrition QA stability with intelligent search 1.4.4: ok');
