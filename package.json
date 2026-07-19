@@ -3,7 +3,7 @@
   "version": "1.3.1-alpha",
   "private": true,
   "scripts": {
-    "test": "node tests/runtime-manifest.test.js && node tests/v7-compat-v73.test.js && node tests/v73-smoke.test.js && node tests/v73-catalog.test.js && node tests/v731-ui-cleanup.test.js && node tests/v120-nutrition-multisearch.test.js && node tests/v121-nutrition-multisearch-accuracy.test.js && node tests/v122-nutrition-exact-intent.test.js && node tests/v123-nutrition-multisearch-stability.test.js",
+    "test": "node tests/runtime-manifest.test.js && node tests/css-upgrade-consolidation.test.js && node tests/v7-compat-v73.test.js && node tests/v73-smoke.test.js && node tests/v73-catalog.test.js && node tests/v731-ui-cleanup.test.js && node tests/v120-nutrition-multisearch.test.js && node tests/v121-nutrition-multisearch-accuracy.test.js && node tests/v122-nutrition-exact-intent.test.js && node tests/v123-nutrition-multisearch-stability.test.js",
     "check:syntax": "for file in *.js tests/*.js; do node --check \"$file\"; done"
   },
   "devDependencies": {
