@@ -2,28 +2,28 @@ html body>nav[aria-label="Hauptnavigation"].cc-glass-nav-v131{
   position:fixed!important;
   left:50%!important;
   right:auto!important;
-  bottom:max(2px,calc(env(safe-area-inset-bottom) - 10px))!important;
+  bottom:max(3px,calc(env(safe-area-inset-bottom) - 9px))!important;
   transform:translateX(-50%)!important;
-  width:min(392px,calc(100% - 16px))!important;
-  max-width:none!important;
-  min-width:0!important;
-  height:52px!important;
+  width:min(344px,calc(100% - 52px))!important;
+  max-width:344px!important;
+  min-width:280px!important;
+  height:50px!important;
   min-height:0!important;
-  max-height:52px!important;
+  max-height:50px!important;
   box-sizing:border-box!important;
-  padding:2px!important;
+  padding:3px!important;
   display:grid!important;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr) 42px minmax(0,1fr)!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) 40px minmax(0,1fr)!important;
   align-items:center!important;
   align-content:center!important;
-  gap:1px!important;
+  gap:3px!important;
   overflow:visible!important;
-  border:1px solid rgba(255,255,255,.12)!important;
-  border-radius:17px!important;
-  background:linear-gradient(180deg,rgba(29,33,42,.78),rgba(11,14,20,.92))!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -1px 0 rgba(255,255,255,.02),0 8px 20px rgba(0,0,0,.36)!important;
-  backdrop-filter:blur(21px) saturate(145%)!important;
-  -webkit-backdrop-filter:blur(21px) saturate(145%)!important;
+  border:1px solid rgba(255,255,255,.11)!important;
+  border-radius:24px!important;
+  background:linear-gradient(180deg,rgba(21,25,32,.82),rgba(8,11,16,.94))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -1px 0 rgba(255,255,255,.018),0 9px 24px rgba(0,0,0,.38)!important;
+  backdrop-filter:blur(22px) saturate(145%)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(145%)!important;
   -webkit-text-size-adjust:100%!important;
   text-size-adjust:100%!important;
 }
@@ -31,9 +31,9 @@ html body>nav.cc-glass-nav-v131::before{
   content:"";
   position:absolute;
   inset:1px;
-  border-radius:16px;
+  border-radius:23px;
   pointer-events:none;
-  background:linear-gradient(145deg,rgba(255,255,255,.05),transparent 42%,rgba(255,255,255,.016));
+  background:linear-gradient(145deg,rgba(255,255,255,.045),transparent 42%,rgba(255,255,255,.012));
 }
 html body>nav.cc-glass-nav-v131 button{
   position:relative!important;
@@ -41,14 +41,14 @@ html body>nav.cc-glass-nav-v131 button{
   width:100%!important;
   min-width:0!important;
   max-width:100%!important;
-  height:42px!important;
+  height:40px!important;
   min-height:0!important;
-  max-height:42px!important;
+  max-height:40px!important;
   margin:0!important;
   padding:2px!important;
   overflow:hidden!important;
   border:0!important;
-  border-radius:12px!important;
+  border-radius:20px!important;
   display:flex!important;
   flex-direction:column!important;
   align-items:center!important;
@@ -63,29 +63,29 @@ html body>nav.cc-glass-nav-v131 button{
   -webkit-tap-highlight-color:transparent!important;
   transition:transform .15s ease,background .18s ease,color .18s ease,box-shadow .18s ease!important;
 }
-html body>nav.cc-glass-nav-v131 button:active{transform:scale(.96)!important}
+html body>nav.cc-glass-nav-v131 button:active{transform:scale(.95)!important}
 html body>nav.cc-glass-nav-v131 button.active:not([data-tab="food"]),
 html body>nav.cc-glass-nav-v131 button[aria-current="page"]:not([data-tab="food"]){
-  color:#f4fff8!important;
-  background:linear-gradient(150deg,rgba(255,255,255,.1),rgba(255,255,255,.03))!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 3px 8px rgba(0,0,0,.14)!important;
+  color:#f7fff9!important;
+  background:linear-gradient(150deg,rgba(255,255,255,.14),rgba(255,255,255,.055))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 3px 8px rgba(0,0,0,.16)!important;
 }
 html body>nav.cc-glass-nav-v131 button[data-tab="today"]{order:1!important}
 html body>nav.cc-glass-nav-v131 button[data-tab="progress"]{order:2!important}
 html body>nav.cc-glass-nav-v131 button[data-tab="food"]{
   order:3!important;
-  width:40px!important;
-  max-width:40px!important;
-  height:40px!important;
-  max-height:40px!important;
+  width:38px!important;
+  max-width:38px!important;
+  height:38px!important;
+  max-height:38px!important;
   justify-self:center!important;
   align-self:center!important;
   overflow:visible!important;
   border-radius:50%!important;
   color:#07120d!important;
-  background:radial-gradient(circle at 35% 25%,#8affb0 0,#56eb81 38%,#31d963 72%,#23bc51 100%)!important;
-  border:1px solid rgba(255,255,255,.24)!important;
-  box-shadow:inset 0 1px 1px rgba(255,255,255,.36),inset 0 -3px 6px rgba(0,85,33,.23),0 5px 12px rgba(43,218,104,.22),0 2px 4px rgba(0,0,0,.3)!important;
+  background:radial-gradient(circle at 35% 25%,#91ffb5 0,#58ee84 38%,#31d963 72%,#20b94e 100%)!important;
+  border:1px solid rgba(255,255,255,.25)!important;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.38),inset 0 -3px 6px rgba(0,85,33,.22),0 5px 13px rgba(43,218,104,.24),0 2px 4px rgba(0,0,0,.3)!important;
 }
 html body>nav.cc-glass-nav-v131 button[data-tab="settings"]{order:4!important}
 html body>nav.cc-glass-nav-v131 button>span{margin:0!important}
@@ -104,7 +104,7 @@ html body>nav.cc-glass-nav-v131 .cc-nav-icon svg{
   display:block!important;
   fill:none!important;
   stroke:currentColor!important;
-  stroke-width:1.85!important;
+  stroke-width:1.9!important;
   stroke-linecap:round!important;
   stroke-linejoin:round!important;
 }
@@ -116,33 +116,34 @@ html body>nav.cc-glass-nav-v131 .cc-nav-label{
   overflow:hidden!important;
   color:inherit!important;
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif!important;
-  font-size:9px!important;
-  font-weight:730!important;
-  line-height:9px!important;
+  font-size:8.75px!important;
+  font-weight:720!important;
+  line-height:8.75px!important;
   letter-spacing:0!important;
   text-align:center!important;
   text-overflow:ellipsis!important;
   white-space:nowrap!important;
 }
-html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-icon{width:21px!important;height:21px!important}
-html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-icon svg{width:21px!important;height:21px!important;stroke-width:2!important}
+html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-icon{width:20px!important;height:20px!important}
+html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-icon svg{width:20px!important;height:20px!important;stroke-width:2!important}
 html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-label{display:none!important}
-body.cc-glass-nav-active{padding-bottom:calc(62px + env(safe-area-inset-bottom))!important}
+body.cc-glass-nav-active{padding-bottom:calc(58px + env(safe-area-inset-bottom))!important}
 @media(max-width:390px){
   html body>nav[aria-label="Hauptnavigation"].cc-glass-nav-v131{
-    bottom:max(1px,calc(env(safe-area-inset-bottom) - 11px))!important;
-    width:calc(100% - 10px)!important;
-    height:50px!important;
-    max-height:50px!important;
-    padding:2px!important;
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr) 40px minmax(0,1fr)!important;
-    gap:0!important;
-    border-radius:16px!important;
+    bottom:max(2px,calc(env(safe-area-inset-bottom) - 10px))!important;
+    width:min(326px,calc(100% - 42px))!important;
+    min-width:270px!important;
+    height:48px!important;
+    max-height:48px!important;
+    padding:3px!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) 38px minmax(0,1fr)!important;
+    gap:2px!important;
+    border-radius:23px!important;
   }
-  html body>nav.cc-glass-nav-v131::before{border-radius:15px}
-  html body>nav.cc-glass-nav-v131 button{height:40px!important;max-height:40px!important;border-radius:11px!important}
-  html body>nav.cc-glass-nav-v131 button[data-tab="food"]{width:38px!important;max-width:38px!important;height:38px!important;max-height:38px!important}
-  html body>nav.cc-glass-nav-v131 .cc-nav-label{font-size:8.75px!important;line-height:8.75px!important}
-  body.cc-glass-nav-active{padding-bottom:calc(59px + env(safe-area-inset-bottom))!important}
+  html body>nav.cc-glass-nav-v131::before{border-radius:22px}
+  html body>nav.cc-glass-nav-v131 button{height:38px!important;max-height:38px!important;border-radius:19px!important}
+  html body>nav.cc-glass-nav-v131 button[data-tab="food"]{width:36px!important;max-width:36px!important;height:36px!important;max-height:36px!important}
+  html body>nav.cc-glass-nav-v131 .cc-nav-label{font-size:8.5px!important;line-height:8.5px!important}
+  body.cc-glass-nav-active{padding-bottom:calc(56px + env(safe-area-inset-bottom))!important}
 }
 @media(prefers-reduced-motion:reduce){html body>nav.cc-glass-nav-v131 button{transition:none!important}}

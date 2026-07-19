@@ -43,30 +43,29 @@ assert.ok(window.document.body.classList.contains('nutrition-mode'),'Ernährungs
 assert.equal(new URL(window.location.href).searchParams.get('date'),'2026-07-19','Ausgewähltes Datum geht beim Ernährungswechsel verloren.');
 
 assert.match(bootCss,/body:not\(\.cc-glass-nav-active\)>nav\[aria-label="Hauptnavigation"\][\s\S]*visibility:hidden!important/,'Alte Navigation wird beim Start weiterhin kurz sichtbar.');
-assert.match(glassCss,/width:min\(392px,calc\(100% - 16px\)\)!important/,'Glasnavigation ist weiterhin unnötig breit.');
-assert.match(glassCss,/height:52px!important[\s\S]*max-height:52px!important/,'Navigationsleiste wurde vertikal nicht eng begrenzt.');
-assert.match(glassCss,/bottom:max\(2px,calc\(env\(safe-area-inset-bottom\) - 10px\)\)!important/,'Unterer Leerraum der Navigation wurde nicht reduziert.');
-assert.match(glassCss,/padding:2px!important[\s\S]*align-content:center!important/,'Oberer und unterer Innenabstand bleibt zu groß.');
+assert.match(glassCss,/width:min\(344px,calc\(100% - 52px\)\)!important/,'Navigation ist nicht als schmales mittiges Dock begrenzt.');
+assert.match(glassCss,/max-width:344px!important[\s\S]*min-width:280px!important/,'Instagram-Dock besitzt keine stabilen Breitenbegrenzungen.');
+assert.match(glassCss,/height:50px!important[\s\S]*max-height:50px!important/,'Instagram-Dock besitzt nicht die kompakte Höhe.');
+assert.match(glassCss,/border-radius:24px!important/,'Navigation besitzt keine pillenförmige Dock-Geometrie.');
 assert.match(glassCss,/left:50%!important[\s\S]*transform:translateX\(-50%\)!important/,'Glasnavigation wird nicht stabil im Viewport zentriert.');
-assert.match(glassCss,/font-size:0!important/,'Vererbte globale Navigationsschrift wird nicht neutralisiert.');
-assert.match(glassCss,/\.cc-nav-label\{[\s\S]*font-size:9px!important/,'Navigationslabels besitzen keine kompakte feste Größe.');
-assert.match(glassCss,/button\[data-tab="food"\]\{[\s\S]*width:40px!important[\s\S]*height:40px!important/,'Zentraler Plusbutton bleibt zu groß.');
-assert.match(glassCss,/body\.cc-glass-nav-active\{padding-bottom:calc\(62px \+ env\(safe-area-inset-bottom\)\)!important\}/,'Unter dem App-Inhalt wird weiterhin zu viel Platz reserviert.');
-assert.match(glassCss,/-webkit-text-size-adjust:100%!important/,'iOS-Schriftvergrößerung ist für die Navigation nicht kontrolliert.');
-assert.match(glassCss,/@media\(max-width:390px\)[\s\S]*height:50px!important[\s\S]*font-size:8\.75px!important/,'Kleine iPhones besitzen keine ultra-kompakte Skalierung.');
+assert.match(glassCss,/\.cc-nav-label\{[\s\S]*font-size:8\.75px!important/,'Navigationslabels besitzen keine reduzierte Instagram-Dock-Größe.');
+assert.match(glassCss,/button\[data-tab="food"\]\{[\s\S]*width:38px!important[\s\S]*height:38px!important/,'Grüner Plusbutton besitzt nicht die kompakte Dock-Größe.');
+assert.match(glassCss,/radial-gradient\(circle at 35% 25%,#91ffb5/,'Grüner Plusbutton hat nicht den vorgesehenen CutCoach-Akzent.');
+assert.match(glassCss,/body\.cc-glass-nav-active\{padding-bottom:calc\(58px \+ env\(safe-area-inset-bottom\)\)!important\}/,'Unter dem App-Inhalt wird weiterhin zu viel Platz reserviert.');
+assert.match(glassCss,/@media\(max-width:390px\)[\s\S]*width:min\(326px,calc\(100% - 42px\)\)!important[\s\S]*height:48px!important/,'Kleine iPhones besitzen keine schmale Dock-Skalierung.');
 
 assert.ok(live.includes("nav.dataset.glassNavV131==='1'||nav.classList.contains('cc-glass-nav-v131')"),'Live-Journal überschreibt die Glasnavigation weiterhin.');
 assert.ok(live.includes('window.CutCoachGlassNavV131?.enhance?.()'),'Live-Journal stellt die Glasnavigation nicht erneut sicher.');
 assert.ok(smart.includes("journal-live-nav-v127.js?v=1.3.2-alpha"),'Smart-Journal lädt nicht die reparierte Live-Navigation.');
 assert.ok(loader.includes("glass-nav-v131.js?v=1.3.2-alpha"),'Versionsloader lädt nicht die reparierte Glasnavigation.');
-assert.ok(loader.includes("glass-nav-v131.css?v=1.3.5-alpha"),'Versionsloader lädt nicht die ultra-kompakte Glasnavigation.');
+assert.ok(loader.includes("glass-nav-v131.css?v=1.3.6-alpha"),'Versionsloader lädt nicht das Instagram-Dock.');
 assert.match(loader,/link\.addEventListener\('load',load,[\s\S]*document\.head\.append\(link\)/,'Navigation wird nicht erst nach geladener CSS-Datei gestartet.');
 assert.ok(runtime.includes("version:'1.2.6-alpha'"),'Bestehender Runtimevertrag wurde unerwartet verändert.');
 assert.ok(runtime.includes("journal-live-nav-v127.js?v=1.3.2-alpha"),'Runtime-Manifest enthält nicht die reparierte Live-Navigation.');
 assert.ok(runtime.includes("glass-nav-v131.js?v=1.3.2-alpha"),'Runtime-Manifest enthält nicht die reparierte Glasnavigation.');
-assert.ok(runtime.includes("glass-nav-v131.css?v=1.3.5-alpha"),'Runtime-Manifest enthält nicht die ultra-kompakte Navigations-CSS.');
+assert.ok(runtime.includes("glass-nav-v131.css?v=1.3.6-alpha"),'Runtime-Manifest enthält nicht das Instagram-Dock.');
 assert.ok(sw.includes("runtime-manifest.js?v=1.2.6-alpha"),'Service Worker lädt nicht das bestehende Runtime-Manifest.');
-assert.ok(sw.includes("-nav135`"),'Service Worker verwendet nicht die neue Ultra-Compact-Cachegeneration.');
+assert.ok(sw.includes("-nav136`"),'Service Worker verwendet nicht die neue Instagram-Dock-Cachegeneration.');
 
 dom.window.close();
-console.log('Flackerfreie ultra-kompakte Vierer-Glasnavigation geprüft.');
+console.log('Flackerfreies Instagram-Dock mit grünem Plusbutton geprüft.');
