@@ -68,8 +68,9 @@ const stored=learning.snapshot().records;
 assert.equal(stored.length,1);assert.equal(stored[0].query,'protein pudding');assert.equal(stored[0].itemId,'pudding-a');assert.equal(stored[0].mealType,'Snack');assert.equal(stored[0].adds,1);
 assert.equal(learning.signal(itemA,'catalog','protein pudding','Snack').decisive,false,'Ein einzelner erfolgreicher Eintrag wird zu früh als sichere Gewohnheit behandelt.');
 
-const learningPos=loader.indexOf("nutrition-search-learning-v160.js?v=1.6.0-alpha"),confidencePos=loader.indexOf("nutrition-search-confidence-hardening-v151.js?v=1.5.2-alpha");
-assert.ok(learningPos>=0&&confidencePos>=0&&learningPos<confidencePos,'Lernschicht wird nicht vor dem Confidence-Ranking geladen.');
+assert.ok(loader.includes("const loadConfidence=()=>ensure('nutrition-search-confidence-hardening-v151','./nutrition-search-confidence-hardening-v151.js?v=1.5.2-alpha',()=>Boolean(window.CutCoachSearchConfidenceHardening151),loadCanonical)"));
+assert.ok(loader.includes("const loadLearning=()=>ensure('nutrition-search-learning-v160','./nutrition-search-learning-v160.js?v=1.6.0-alpha',()=>Boolean(window.CutCoachSearchLearning160),loadConfidence)"));
+assert.ok(loader.includes("const loadPortionHardening=()=>ensure('nutrition-portion-hardening-v153','./nutrition-portion-hardening-v153.js?v=1.5.3-alpha',()=>Boolean(window.CutCoachPortionHardening153),loadLearning)"));
 assert.match(compatibility,/nutrition-search-learning-v160\.js\?v=1\.6\.0-alpha/);
 assert.match(compatibility,/personalReason/);
 assert.match(manifest,/nutrition-search-learning-v160\.js\?v=1\.6\.0-alpha/);
