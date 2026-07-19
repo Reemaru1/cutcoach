@@ -21,9 +21,7 @@ const items=[
 ];
 const byId=id=>items.find(item=>item.id===id)||null;
 const added=[];
-const dom=new JSDOM('<!doctype html><body data-nutrition-meal-type="Frühstück"><div class="nutrition-search-card"><input id="nutritionSearch"></div><div class="nutrition-results"></div></body>',{
-  url:'https://example.test/cutcoach/',runScripts:'dangerously',pretendToBeVisual:true
-});
+const dom=new JSDOM('<!doctype html><body data-nutrition-meal-type="Frühstück"><div class="nutrition-search-card"><input id="nutritionSearch"></div><div class="nutrition-results"></div></body>',{url:'https://example.test/cutcoach/',runScripts:'dangerously',pretendToBeVisual:true});
 const {window}=dom;
 window.CutCoachFoodCatalog={items:()=>items,get:byId};
 window.CutCoachEverydayCatalog={get:byId};
@@ -32,7 +30,7 @@ window.render=()=>{};
 window.toast=()=>{};
 const script=window.document.createElement('script');script.textContent=source;window.document.head.append(script);
 const api=window.CutCoachIntelligentSearch128;
-assert.equal(api.version,'1.4.4-alpha');
+assert.equal(api.version,'1.4.5-alpha');
 
 const skyr=api.rowsFor('250 g Skyr mit Banane');
 assert.deepEqual(Array.from(skyr,row=>row.item.name),['Skyr Natur','Banane']);
@@ -81,9 +79,9 @@ assert.equal(added.length,2,'Alle erkannten Bestandteile werden nicht gemeinsam 
 assert.ok(Math.abs(added[0].options.factor-1)<0.0001);
 assert.equal(added[1].options.factor,1);
 
-assert.ok(loader.includes('nutrition-multisearch-canonical-128.js?v=1.4.4-alpha'));
-assert.ok(runtime.includes('nutrition-multisearch-canonical-128.js?v=1.4.4-alpha'));
-assert.ok(sw.includes('`${CACHE_BASE}-search144`'));
+assert.ok(loader.includes('nutrition-multisearch-canonical-128.js?v=1.4.5-alpha'));
+assert.ok(runtime.includes('nutrition-multisearch-canonical-128.js?v=1.4.5-alpha'));
+assert.ok(sw.includes('`${CACHE_BASE}-search145`'));
 
 dom.window.close();
-console.log('Mengen, natürliche Sätze, Tippfehler, Modifikatoren und Gerichte-Schutz unter 1.4.4 geprüft.');
+console.log('Mengen, natürliche Sätze, Tippfehler, Modifikatoren und Gerichte-Schutz unter 1.4.5 geprüft.');

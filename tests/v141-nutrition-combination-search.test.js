@@ -23,7 +23,7 @@ window.CutCoachLibrary={exportData:()=>({items:[]}),addCatalogItemToDay:()=>true
 const script=window.document.createElement('script');script.textContent=intelligent;window.document.head.append(script);
 
 const api=window.CutCoachIntelligentSearch128;
-assert.equal(api.version,'1.4.4-alpha','Kombinationssuche besitzt nicht die erwartete Version.');
+assert.equal(api.version,'1.4.5-alpha','Kombinationssuche besitzt nicht die erwartete Version.');
 const colaRows=api.rowsFor('Cola mit Menemen');
 assert.equal(colaRows.length,2);
 assert.deepEqual(Array.from(colaRows,row=>row.item.name),['Cola','Menemen']);
@@ -45,10 +45,10 @@ assert.match(host.textContent,/2 Bestandteile erkannt/);
 assert.match(host.textContent,/Ayran/);
 assert.match(host.textContent,/Menemen/);
 assert.ok(host.querySelector('[data-canonical-all]'));
-assert.ok(loader.includes('nutrition-multisearch-canonical-128.js?v=1.4.4-alpha'));
-assert.ok(runtime.includes('nutrition-multisearch-canonical-128.js?v=1.4.4-alpha'));
+assert.ok(loader.includes('nutrition-multisearch-canonical-128.js?v=1.4.5-alpha'));
+assert.ok(runtime.includes('nutrition-multisearch-canonical-128.js?v=1.4.5-alpha'));
 assert.ok(sw.includes('-nav136-journal137-nutrition138-dishes140`'));
-assert.ok(sw.includes('`${CACHE_BASE}-search144`'));
+assert.ok(sw.includes('`${CACHE_BASE}-search145`'));
 
 dom.window.close();
-console.log('Cola/Ayran mit Menemen bleiben unter Suche 1.4.4 stabil.');
+console.log('Cola/Ayran mit Menemen bleiben unter Suche 1.4.5 stabil.');

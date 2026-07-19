@@ -14,9 +14,7 @@ const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
 const menemenSucuk={id:'ccmeal:menemen-sucuk',name:'Menemen mit Sucuk',aliases:['Sucuklu Menemen'],amount:400,unit:'g',calories:650,protein:32,carbs:22,fat:47,source:'cutcoach',catalog:true};
 const items=[menemenSucuk];
 const added=[];
-const dom=new JSDOM('<!doctype html><body data-nutrition-meal-type="Snack"><div class="nutrition-search-card"><input id="nutritionSearch"></div><div class="nutrition-results"></div></body>',{
-  url:'https://example.test/cutcoach/',runScripts:'dangerously',pretendToBeVisual:true
-});
+const dom=new JSDOM('<!doctype html><body data-nutrition-meal-type="Snack"><div class="nutrition-search-card"><input id="nutritionSearch"></div><div class="nutrition-results"></div></body>',{url:'https://example.test/cutcoach/',runScripts:'dangerously',pretendToBeVisual:true});
 const {window}=dom;
 window.CutCoachFoodCatalog={items:()=>items,get:id=>items.find(item=>item.id===id)||null};
 window.CutCoachLibrary={exportData:()=>({items:[]}),addCatalogItemToDay:(item,options)=>{added.push({item,options});return{id:'meal'}}};
@@ -25,7 +23,7 @@ window.toast=()=>{};
 const script=window.document.createElement('script');script.textContent=source;window.document.head.append(script);
 const api=window.CutCoachIntelligentSearch128;
 
-assert.equal(api.version,'1.4.4-alpha');
+assert.equal(api.version,'1.4.5-alpha');
 
 const sucukToast=api.rowsFor('sucuk mit toast');
 assert.equal(sucukToast.length,2,'„Sucuk mit Toast“ wird nicht in zwei Bestandteile zerlegt.');
@@ -56,9 +54,9 @@ host.querySelector('[data-canonical-all]').dispatchEvent(new window.MouseEvent('
 assert.equal(added.length,2,'Sucuk und Toast werden nicht gemeinsam hinzugefügt.');
 assert.equal(added[0].options.type,'Snack');
 
-assert.ok(loader.includes('nutrition-multisearch-canonical-128.js?v=1.4.4-alpha'));
-assert.ok(runtime.includes('nutrition-multisearch-canonical-128.js?v=1.4.4-alpha'));
-assert.ok(sw.includes('`${CACHE_BASE}-search144`'));
+assert.ok(loader.includes('nutrition-multisearch-canonical-128.js?v=1.4.5-alpha'));
+assert.ok(runtime.includes('nutrition-multisearch-canonical-128.js?v=1.4.5-alpha'));
+assert.ok(sw.includes('`${CACHE_BASE}-search145`'));
 
 dom.window.close();
-console.log('Sucuk mit Toast und weitere häufige Komponenten werden intelligent erkannt.');
+console.log('Sucuk mit Toast und weitere häufige Komponenten bleiben unter 1.4.5 stabil.');
