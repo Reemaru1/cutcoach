@@ -33,12 +33,12 @@ assert.equal(api.version,'1.4.1-alpha','Neue Kombinationssuche besitzt nicht die
 
 const colaRows=api.rowsFor('Cola mit Menemen');
 assert.equal(colaRows.length,2,'„Cola mit Menemen“ wird nicht in zwei Bestandteile zerlegt.');
-assert.deepEqual(colaRows.map(row=>row.item.name),['Cola','Menemen'],'Cola und Menemen werden nicht getrennt vorgeschlagen.');
+assert.deepEqual(Array.from(colaRows,row=>row.item.name),['Cola','Menemen'],'Cola und Menemen werden nicht getrennt vorgeschlagen.');
 assert.ok(colaRows.every(row=>row.status==='matched'),'Cola-Menemen-Kombination enthält unsichere Treffer.');
 
 const ayranRows=api.rowsFor('Ayran mit Menemen');
 assert.equal(ayranRows.length,2,'„Ayran mit Menemen“ wird nicht in zwei Bestandteile zerlegt.');
-assert.deepEqual(ayranRows.map(row=>row.item.name),['Ayran','Menemen'],'Ayran und Menemen werden nicht getrennt vorgeschlagen.');
+assert.deepEqual(Array.from(ayranRows,row=>row.item.name),['Ayran','Menemen'],'Ayran und Menemen werden nicht getrennt vorgeschlagen.');
 assert.equal(ayranRows[0].item.unit,'ml','Ayran wird nicht als Getränk behandelt.');
 
 assert.equal(api.likelyMulti('Cola mit Menemen'),true,'„mit“-Kombination wird nicht als Mehrfachsuche erkannt.');
