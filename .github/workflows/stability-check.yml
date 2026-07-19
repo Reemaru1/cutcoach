@@ -29,13 +29,35 @@ jobs:
         run: node tests/app-shell-integrity.test.js
       - name: Kerndaten prüfen
         run: node tests/core-data-safety.test.js
+      - name: CSS-Konsolidierung prüfen
+        run: node tests/css-upgrade-consolidation.test.js
+      - name: Loaderkette prüfen
+        run: node tests/js-loader-cleanup.test.js
       - name: Navigation prüfen
         run: node tests/navigation-regression.test.js
       - name: Release-Konsistenz prüfen
         run: node tests/release-consistency.test.js
+      - name: Runtime-Manifest prüfen
+        run: node tests/runtime-manifest.test.js
       - name: Scanner-Fallback prüfen
         run: node tests/scanner-photo-fallback.test.js
       - name: Service Worker prüfen
         run: node tests/service-worker-cache.test.js
+      - name: Nutrition 1.2.0 prüfen
+        run: node tests/v120-nutrition-multisearch.test.js
+      - name: Nutrition 1.2.1 prüfen
+        run: node tests/v121-nutrition-multisearch-accuracy.test.js
+      - name: Nutrition 1.2.2 prüfen
+        run: node tests/v122-nutrition-exact-intent.test.js
+      - name: Nutrition 1.2.3 prüfen
+        run: node tests/v123-nutrition-multisearch-stability.test.js
+      - name: V7-Kompatibilität prüfen
+        run: node tests/v7-compat-v73.test.js
+      - name: V73-Katalog prüfen
+        run: node tests/v73-catalog.test.js
+      - name: V73-Smoke prüfen
+        run: node tests/v73-smoke.test.js
+      - name: UI-Cleanup prüfen
+        run: node tests/v731-ui-cleanup.test.js
       - name: Vollständige Testsuite prüfen
         run: npm test
