@@ -65,10 +65,9 @@ input.value='Sucuk mit Toast';
 assert.equal(facade.refresh(),true,'Alte refresh-API löst nicht den zentralen Renderer aus.');
 assert.match(window.document.querySelector('#nutritionMultiSearch').textContent,/2 Bestandteile erkannt/);
 
-const canonicalLoaderIndex=loader.indexOf('nutrition-multisearch-canonical-128.js?v=1.4.5-alpha');
-const compatibilityLoaderIndex=loader.indexOf('nutrition-multisearch-120.js?v=1.4.6-compat');
-assert.ok(canonicalLoaderIndex>=0,'Loader lädt die zentrale Engine nicht.');
-assert.ok(compatibilityLoaderIndex>canonicalLoaderIndex,'Kompatibilitätsfassade wird nicht nach der zentralen Engine geladen.');
+assert.match(loader,/addScript\('nutrition-intelligent-search-128','\.\/nutrition-multisearch-canonical-128\.js\?v=1\.4\.5-alpha',loadCompatibility\)/,'Kompatibilitätsfassade ist nicht als Onload-Folge der zentralen Engine verdrahtet.');
+assert.match(loader,/else loadCompatibility\(\)/,'Bereits geladene zentrale Engine aktiviert die Fassade nicht deterministisch.');
+assert.match(loader,/nutrition-multisearch-120\.js\?v=1\.4\.6-compat/,'Loader lädt die passive Kompatibilitätsfassade nicht.');
 assert.match(loader,/loadCompatibility/,'Loader bezeichnet die alte Datei weiterhin als aktive Legacy-Engine.');
 assert.doesNotMatch(loader,/loadLegacy/,'Loader enthält weiterhin einen Legacy-Engine-Pfad.');
 assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.4\.6-compat/,'Offline-Manifest enthält nicht die passive Fassade.');
