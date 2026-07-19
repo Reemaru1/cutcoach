@@ -2,7 +2,7 @@
 (function(){
   const RELEASE='1.2.1 Alpha';
   window.CUTCOACH_RELEASE=RELEASE;
-  const escapeHtml=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+  const escapeHtml=value=>String(value??'').replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt',"'":'&#39;','"':'&quot;'}[char]));
   const normalized=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
   const compact=value=>normalized(value).replace(/\s+/g,'');
   const fmt=(value,digits=0)=>new Intl.NumberFormat('de-DE',{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(Math.max(0,Number(value)||0));
@@ -16,7 +16,7 @@
   function loadJournalEnergy143(){if(!window.CutCoachJournalEnergyLive143)addScript('journal-energy-live-v143','./journal-energy-live-v143.js?v=1.4.3-alpha')}
   function loadNutrition110(){addStyle('nutrition-v110','./nutrition-v110.css?v=1.1.2-alpha');if(!window.CutCoachNutritionV110)addScript('nutrition-v110','./nutrition-v110.js?v=1.1.2-alpha')}
   function loadNutritionVoice111(){addStyle('nutrition-voice-111','./nutrition-voice-111.css?v=1.1.2-alpha');if(!window.CutCoachNutritionVoice111)addScript('nutrition-voice-111','./nutrition-voice-111.js?v=1.1.2-alpha')}
-  function loadNutritionMulti120(){addStyle('nutrition-multisearch-120','./nutrition-multisearch-120.css?v=1.2.3-alpha');const loadLegacy=()=>{if(!window.CutCoachNutritionMultiSearch120)addScript('nutrition-multisearch-120','./nutrition-multisearch-120.js?v=1.2.3-alpha')};if(!window.CutCoachIntelligentSearch128)addScript('nutrition-intelligent-search-128','./nutrition-multisearch-canonical-128.js?v=1.4.5-alpha',loadLegacy);else loadLegacy()}
+  function loadNutritionMulti120(){addStyle('nutrition-multisearch-120','./nutrition-multisearch-120.css?v=1.2.3-alpha');const loadCompatibility=()=>{if(!window.CutCoachNutritionMultiSearch120)addScript('nutrition-multisearch-120','./nutrition-multisearch-120.js?v=1.4.6-compat')};if(!window.CutCoachIntelligentSearch128)addScript('nutrition-intelligent-search-128','./nutrition-multisearch-canonical-128.js?v=1.4.5-alpha',loadCompatibility);else loadCompatibility()}
   function loadNutrition73(){addStyle('nutrition-v73','./nutrition-v73.css?v=7.3.1');if(window.CutCoachNutritionV73||document.querySelector('script[data-nutrition-v73]')){loadNutrition110();loadNutritionVoice111();loadNutritionMulti120();return}addScript('nutrition-v73','./nutrition-v73.js?v=7.3.2',()=>{loadNutrition110();loadNutritionVoice111();loadNutritionMulti120()})}
   function loadNutritionCleanup(){addStyle('nutrition-cleanup-101','./nutrition-cleanup-101.css?v=1.0.3-alpha');if(!window.CutCoachNutritionCleanup101)addScript('nutrition-cleanup-101','./nutrition-cleanup-101.js?v=1.0.3-alpha')}
   function loadLocalDishes140(){if(window.CutCoachLocalDishes140){loadNutrition73();return}if(document.querySelector('script[data-local-dishes-v140]')){setTimeout(loadNutrition73,100);return}addScript('local-dishes-v140','./local-dishes-v140.js?v=1.4.0-alpha',loadNutrition73)}
