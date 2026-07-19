@@ -16,50 +16,39 @@ const menemenSucuk={id:'ccmeal:menemen-sucuk',name:'Menemen mit Sucuk',aliases:[
 const noodles={id:'ccde:nudeln-tomatensauce',name:'Nudeln mit Tomatensauce',aliases:['Pasta Pomodoro'],amount:480,unit:'g',calories:620,protein:20,carbs:100,fat:15,source:'cutcoach',catalog:true};
 const items=[menemen,menemenSucuk,noodles];
 
-const dom=new JSDOM(`<!doctype html><body data-nutrition-meal-type="Frühstück"><div class="nutrition-search-card"><input id="nutritionSearch"></div><div class="nutrition-results"></div></body>`,{
-  url:'https://example.test/cutcoach/',
-  runScripts:'dangerously',
-  pretendToBeVisual:true
-});
+const dom=new JSDOM(`<!doctype html><body data-nutrition-meal-type="Frühstück"><div class="nutrition-search-card"><input id="nutritionSearch"></div><div class="nutrition-results"></div></body>`,{url:'https://example.test/cutcoach/',runScripts:'dangerously',pretendToBeVisual:true});
 const {window}=dom;
 window.CutCoachFoodCatalog={items:()=>items,get:id=>items.find(item=>item.id===id)||null};
 window.CutCoachLibrary={exportData:()=>({items:[]}),addCatalogItemToDay:()=>true};
-const script=window.document.createElement('script');
-script.textContent=intelligent;
-window.document.head.append(script);
+const script=window.document.createElement('script');script.textContent=intelligent;window.document.head.append(script);
 
 const api=window.CutCoachIntelligentSearch128;
-assert.equal(api.version,'1.4.1-alpha','Neue Kombinationssuche besitzt nicht die erwartete Version.');
-
+assert.equal(api.version,'1.4.2-alpha','Kombinationssuche besitzt nicht die erwartete Version.');
 const colaRows=api.rowsFor('Cola mit Menemen');
-assert.equal(colaRows.length,2,'„Cola mit Menemen“ wird nicht in zwei Bestandteile zerlegt.');
-assert.deepEqual(Array.from(colaRows,row=>row.item.name),['Cola','Menemen'],'Cola und Menemen werden nicht getrennt vorgeschlagen.');
-assert.ok(colaRows.every(row=>row.status==='matched'),'Cola-Menemen-Kombination enthält unsichere Treffer.');
-
+assert.equal(colaRows.length,2);
+assert.deepEqual(Array.from(colaRows,row=>row.item.name),['Cola','Menemen']);
+assert.ok(colaRows.every(row=>row.status==='matched'));
 const ayranRows=api.rowsFor('Ayran mit Menemen');
-assert.equal(ayranRows.length,2,'„Ayran mit Menemen“ wird nicht in zwei Bestandteile zerlegt.');
-assert.deepEqual(Array.from(ayranRows,row=>row.item.name),['Ayran','Menemen'],'Ayran und Menemen werden nicht getrennt vorgeschlagen.');
-assert.equal(ayranRows[0].item.unit,'ml','Ayran wird nicht als Getränk behandelt.');
+assert.equal(ayranRows.length,2);
+assert.deepEqual(Array.from(ayranRows,row=>row.item.name),['Ayran','Menemen']);
+assert.equal(ayranRows[0].item.unit,'ml');
+assert.equal(api.likelyMulti('Cola mit Menemen'),true);
+assert.equal(api.likelyMulti('Ayran mit Menemen'),true);
+assert.equal(api.likelyMulti('Menemen mit Sucuk'),false);
+assert.equal(api.rowsFor('Menemen mit Sucuk').length,0);
+assert.equal(api.likelyMulti('Nudeln mit Tomatensauce'),false);
 
-assert.equal(api.likelyMulti('Cola mit Menemen'),true,'„mit“-Kombination wird nicht als Mehrfachsuche erkannt.');
-assert.equal(api.likelyMulti('Ayran mit Menemen'),true,'Ayran-Menemen wird nicht als Mehrfachsuche erkannt.');
-assert.equal(api.likelyMulti('Menemen mit Sucuk'),false,'Eigenständiges Gericht „Menemen mit Sucuk“ wird fälschlich zerlegt.');
-assert.equal(api.rowsFor('Menemen mit Sucuk').length,0,'Eigenständiges Gericht wird als Kombination dargestellt.');
-assert.equal(api.likelyMulti('Nudeln mit Tomatensauce'),false,'Eigenständiges Gericht „Nudeln mit Tomatensauce“ wird fälschlich zerlegt.');
-
-const input=window.document.querySelector('#nutritionSearch');
-input.value='Ayran mit Menemen';
-assert.equal(api.render(input),true,'Kombinationsvorschlag wird nicht gerendert.');
+const input=window.document.querySelector('#nutritionSearch');input.value='Ayran mit Menemen';
+assert.equal(api.render(input),true);
 const host=window.document.querySelector('#nutritionMultiSearch');
-assert.match(host.textContent,/2 Bestandteile erkannt/,'Erkannte Bestandteile werden nicht verständlich bezeichnet.');
-assert.match(host.textContent,/Ayran/,'Ayran fehlt im sichtbaren Vorschlag.');
-assert.match(host.textContent,/Menemen/,'Menemen fehlt im sichtbaren Vorschlag.');
-assert.ok(host.querySelector('[data-canonical-all]'),'Gemeinsames Hinzufügen fehlt.');
-
-assert.ok(loader.includes('nutrition-multisearch-canonical-128.js?v=1.4.1-alpha'),'Versionsloader lädt nicht die neue Kombinationssuche.');
-assert.ok(runtime.includes('nutrition-multisearch-canonical-128.js?v=1.4.1-alpha'),'Runtime-Manifest enthält nicht die neue Kombinationssuche.');
-assert.ok(sw.includes('-nav136-journal137-nutrition138-dishes140`'),'Service Worker behält nicht die geprüfte Cachebasis.');
-assert.ok(sw.includes('`${CACHE_BASE}-search141`'),'Service Worker verwendet nicht die neue Such-Cachegeneration.');
+assert.match(host.textContent,/2 Bestandteile erkannt/);
+assert.match(host.textContent,/Ayran/);
+assert.match(host.textContent,/Menemen/);
+assert.ok(host.querySelector('[data-canonical-all]'));
+assert.ok(loader.includes('nutrition-multisearch-canonical-128.js?v=1.4.2-alpha'));
+assert.ok(runtime.includes('nutrition-multisearch-canonical-128.js?v=1.4.2-alpha'));
+assert.ok(sw.includes('-nav136-journal137-nutrition138-dishes140`'));
+assert.ok(sw.includes('`${CACHE_BASE}-search142`'));
 
 dom.window.close();
-console.log('Intelligente Suche erkennt Cola/Ayran mit Menemen und schützt echte „mit“-Gerichte.');
+console.log('Cola/Ayran mit Menemen bleiben unter Suche 1.4.2 stabil.');
