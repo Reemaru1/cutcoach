@@ -50,10 +50,27 @@ jobs:
       - name: JavaScript-Syntax prüfen
         run: npm run check:syntax
       - name: Test ausführen
+        id: execute
+        continue-on-error: true
         shell: bash
         run: |
-          set -o pipefail
-          node "tests/${{ matrix.test }}" 2>&1 | tail -120
+          set +e
+          node "tests/${{ matrix.test }}" > test-output.txt 2>&1
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          tail -120 test-output.txt
+          exit 0
+      - name: Fehlerausgabe sichern
+        if: steps.execute.outputs.status != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-${{ matrix.test }}
+          path: test-output.txt
+          if-no-files-found: error
+          retention-days: 3
+      - name: Fehlgeschlagenen Test markieren
+        if: steps.execute.outputs.status != '0'
+        run: exit 1
 
   suite:
     needs: test
