@@ -74,7 +74,7 @@
     const primary=primaryNamesOf(item),primaryText=primary.join(' '),primaryTokens=primaryText.split(' ').filter(Boolean),category=normalize(item?.category),categoryTokens=category.split(' ').filter(Boolean),matches=[];
     for(const candidate of PROFILES){
       const definition=candidate.measures[measure];if(!definition)continue;let score=0;
-      for(const term of candidate.terms){if(!term)continue;if(primary.includes(term))score=Math.max(score,8);else if(primaryTokens.includes(term))score=Math.max(score,7);else if(phraseMatch(primaryText,term))score=Math.max(score,6);else if(category===term)score=Math.max(score,3);else if(categoryTokens.includes(term))score=Math.max(score,2);else if(phraseMatch(category,term))score=Math.max(score,1)}
+      for(const term of candidate.terms){if(!term)continue;if(primary.includes(term))score=Math.max(score,8);else if(primaryTokens.includes(term))score=Math.max(score,7);else if(primary.some(name=>phraseMatch(name,term)))score=Math.max(score,6);else if(category===term)score=Math.max(score,3);else if(categoryTokens.includes(term))score=Math.max(score,2);else if(phraseMatch(category,term))score=Math.max(score,1)}
       if(score)matches.push({candidate,definition,score});
     }
     matches.sort((a,b)=>b.score-a.score||Number(b.definition.confidence||b.candidate.confidence)-Number(a.definition.confidence||a.candidate.confidence)||b.candidate.terms[0].length-a.candidate.terms[0].length);
