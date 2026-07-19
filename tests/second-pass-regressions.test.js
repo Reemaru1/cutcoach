@@ -35,8 +35,8 @@ assert.match(off,/if\(token!==lookupToken\)return/,'Veraltete Produktsuchergebni
 
 assert.match(water,/lastDateKey/,'Wasseranimation unterscheidet keinen Datumswechsel.');
 assert.match(water,/requestAnimationFrame\(decorate\)/,'Wasseranimation bündelt DOM-Änderungen nicht.');
-assert.match(water,/rootObserver\.observe\(root/,'Wasseranimation beobachtet nicht nur den Tagebuchbereich.');
-assert.doesNotMatch(water,/observe\(document\.body/,'Wasseranimation beobachtet weiterhin die gesamte App.');
+assert.match(water,/rootObserver\.observe\(root/,'Dauerhafte Wasserbeobachtung ist nicht auf den Tagebuchbereich begrenzt.');
+assert.match(water,/bootstrapObserver\?\.disconnect\(\);bootstrapObserver=null/,'Kurzlebiger Bootstrap-Beobachter wird nach dem Tagebuchaufbau nicht getrennt.');
 
 assert.match(sw,/const UPDATE_PATH=/,'Service Worker erkennt die Update-Seite nicht separat.');
 assert.match(sw,/fallbackKey=isUpdateNavigation\?'\.\/update\.html':'\.\/index\.html'/,'Update-Seite kann weiterhin den Offline-App-Shell-Eintrag überschreiben.');
