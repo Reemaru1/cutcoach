@@ -43,10 +43,11 @@ assert.ok(live.includes("nav.dataset.glassNavV131==='1'||nav.classList.contains(
 assert.ok(live.includes('window.CutCoachGlassNavV131?.enhance?.()'),'Live-Journal stellt die Glasnavigation nicht erneut sicher.');
 assert.ok(smart.includes("journal-live-nav-v127.js?v=1.3.2-alpha"),'Smart-Journal lädt nicht die reparierte Live-Navigation.');
 assert.ok(loader.includes("glass-nav-v131.js?v=1.3.2-alpha"),'Versionsloader lädt nicht die reparierte Glasnavigation.');
-assert.ok(runtime.includes("version:'1.2.7-nav132'"),'Runtime-Cachegeneration wurde nicht erhöht.');
+assert.ok(runtime.includes("version:'1.2.6-alpha'"),'Bestehender Runtimevertrag wurde unerwartet verändert.');
 assert.ok(runtime.includes("journal-live-nav-v127.js?v=1.3.2-alpha"),'Runtime-Manifest enthält nicht die reparierte Live-Navigation.');
 assert.ok(runtime.includes("glass-nav-v131.js?v=1.3.2-alpha"),'Runtime-Manifest enthält nicht die reparierte Glasnavigation.');
-assert.ok(sw.includes("runtime-manifest.js?v=1.2.7-nav132"),'Service Worker lädt nicht die neue Cachegeneration.');
+assert.ok(sw.includes("runtime-manifest.js?v=1.2.6-alpha"),'Service Worker lädt nicht das bestehende Runtime-Manifest.');
+assert.ok(sw.includes("-nav132`"),'Service Worker verwendet nicht die neue Navigations-Cachegeneration.');
 
 dom.window.close();
 console.log('Produktive Vierer-Glasnavigation und Cachegeneration geprüft.');
