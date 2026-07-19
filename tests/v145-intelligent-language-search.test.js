@@ -71,7 +71,7 @@ assert.equal(added[1].options.factor,1);
 
 assert.ok(loader.includes('nutrition-multisearch-canonical-128.js?v=1.4.5-alpha'));
 assert.ok(runtime.includes('nutrition-multisearch-canonical-128.js?v=1.4.5-alpha'));
-assert.ok(sw.includes('`${CACHE_BASE}-search145`'));
+assert.ok(sw.includes('`${CACHE_BASE}-search146`'));
 
 dom.window.close();
-console.log('Intelligente Suche 1.4.5: Sprache, Einheiten, Komposita und Teiltreffer geprüft.');
+console.log('Intelligente Suche: Sprache, Einheiten, Komposita und Teiltreffer unter konsolidierter Laufzeit geprüft.');

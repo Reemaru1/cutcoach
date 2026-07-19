@@ -48,7 +48,7 @@ assert.ok(host.querySelector('[data-canonical-all]'));
 assert.ok(loader.includes('nutrition-multisearch-canonical-128.js?v=1.4.5-alpha'));
 assert.ok(runtime.includes('nutrition-multisearch-canonical-128.js?v=1.4.5-alpha'));
 assert.ok(sw.includes('-nav136-journal137-nutrition138-dishes140`'));
-assert.ok(sw.includes('`${CACHE_BASE}-search145`'));
+assert.ok(sw.includes('`${CACHE_BASE}-search146`'));
 
 dom.window.close();
-console.log('Cola/Ayran mit Menemen bleiben unter Suche 1.4.5 stabil.');
+console.log('Cola/Ayran mit Menemen bleiben unter konsolidierter Suche stabil.');
