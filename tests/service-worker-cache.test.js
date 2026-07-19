@@ -18,14 +18,19 @@ assert.ok(sw.includes('Object.freeze([...new Set(['),'App-Shell muss vor dem Vor
 
 assert.ok(app.includes("navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'})"),'Normale App muss den kanonischen Service-Worker-Pfad registrieren.');
 assert.ok(update.includes("const SERVICE_WORKER_URL='./sw.js'"),'Update-Seite muss denselben kanonischen Service-Worker-Pfad verwenden.');
-assert.ok(update.includes('navigator.serviceWorker.register(SERVICE_WORKER_URL'), 'Update-Seite muss ihre zentrale Service-Worker-Konstante registrieren.');
+assert.ok(update.includes('navigator.serviceWorker.register(SERVICE_WORKER_URL'),'Update-Seite muss ihre zentrale Service-Worker-Konstante registrieren.');
 assert.ok(!update.includes('sw.js?v='),'Update-Seite darf keinen abweichenden Service-Worker-Pfad mit Query-Version registrieren.');
 
 for(const eventName of ['install','activate','message','fetch']){
   assert.ok(sw.includes(`self.addEventListener('${eventName}'`),`Fehlender Service-Worker-Handler: ${eventName}`);
 }
-assert.ok(sw.includes("fetch(request,{cache:'no-store'})"),'Netzwerkabrufe müssen den HTTP-Cache umgehen, damit Updates erkannt werden.');
+assert.ok(sw.includes("fetch(url,{cache:'reload'})"),'Vorladen muss den HTTP-Cache umgehen und aktuelle Dateien abrufen.');
+assert.ok(!sw.includes('cache.addAll('),'Service Worker darf für das Release-Precache nicht unkontrolliert cache.addAll verwenden.');
+assert.ok(sw.includes("fetch(request,{cache:'no-store'})"),'Laufende Netzwerkabrufe müssen den HTTP-Cache umgehen, damit Updates erkannt werden.');
+assert.ok(sw.includes("if(!network.ok)return (await cached('./index.html'))||network"),'Fehlerhafte Navigationsantworten müssen auf die letzte funktionierende App-Shell zurückfallen.');
+assert.ok(sw.includes('if(!network.ok)return (await cached(request))||network'),'Fehlerhafte Asset-Antworten müssen auf die letzte funktionierende Datei zurückfallen.');
 assert.ok(sw.includes("key.startsWith(CACHE_PREFIX)&&key!==CACHE_NAME"),'Aktivierung muss nur ältere CutCoach-Caches löschen.');
 assert.ok(sw.includes("event.data?.type==='SKIP_WAITING'"),'Expliziter Update-Button muss den wartenden Worker aktivieren können.');
+assert.ok(!sw.includes("self.skipWaiting();\n});\n\nself.addEventListener('activate'"),'Installation darf den neuen Worker nicht ungefragt aktivieren.');
 
-console.log('Service-Worker- und Cache-Pfade geprüft.');
+console.log('Service-Worker-, Precache- und Fehlerfallbacks geprüft.');
