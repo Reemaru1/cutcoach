@@ -20,11 +20,11 @@
 
   const profile=(id,terms,measures,confidence=94)=>Object.freeze({id,terms:Object.freeze(terms.map(normalize)),measures:Object.freeze(measures),confidence});
   const PROFILES=Object.freeze([
-    profile('toast',['toast','toastbrot','weizentoast','vollkorntoast'],{slice:{amount:25,unit:'g'}}),
-    profile('bread',['brot','mischbrot','vollkornbrot','roggenbrot','weizenbrot'],{slice:{amount:50,unit:'g'}}),
-    profile('roll',['brotchen','broetchen','semmel','brötchen'],{piece:{amount:65,unit:'g'}}),
-    profile('flatbread',['fladenbrot','pita','wrap','tortilla'],{piece:{amount:80,unit:'g'},slice:{amount:40,unit:'g'}},91),
-    profile('cheese',['kase','kaese','gouda','emmentaler','schnittkase','schnittkaese'],{slice:{amount:30,unit:'g'}}),
+    profile('toast',['toast','toastbrot','weizentoast','vollkorntoast'],{slice:{amount:25,unit:'g',basisFactor:1}}),
+    profile('bread',['brot','mischbrot','vollkornbrot','roggenbrot','weizenbrot'],{slice:{amount:50,unit:'g',basisFactor:1}}),
+    profile('roll',['brotchen','broetchen','semmel','brötchen'],{piece:{amount:65,unit:'g',basisFactor:1}}),
+    profile('flatbread',['fladenbrot','pita','wrap','tortilla'],{piece:{amount:80,unit:'g',basisFactor:1},slice:{amount:40,unit:'g'}},91),
+    profile('cheese',['kase','kaese','gouda','emmentaler','schnittkase','schnittkaese'],{slice:{amount:30,unit:'g',basisFactor:1}}),
     profile('cold-cuts',['salami','schinken','putenbrust','aufschnitt','sucuk','wurst'],{slice:{amount:20,unit:'g'}}),
     profile('butter',['butter','margarine'],{tablespoon:{amount:15,unit:'g'},teaspoon:{amount:5,unit:'g'}}),
     profile('oil',['olivenol','olivenoel','rapsol','rapsoel','sonnenblumenol','sonnenblumenoel','speiseol','speiseoel','öl','oel'],{tablespoon:{amount:10,unit:'g'},teaspoon:{amount:5,unit:'g'}},96),
@@ -35,18 +35,18 @@
     profile('dairy-spoon',['joghurt','naturjoghurt','skyr','quark','frischkase','frischkaese'],{tablespoon:{amount:20,unit:'g'},teaspoon:{amount:7,unit:'g'}}),
     profile('cooked-starch',['reis gekocht','nudeln gekocht','pasta gekocht','bulgur gekocht','couscous gekocht'],{tablespoon:{amount:20,unit:'g'},portion:{amount:200,unit:'g'}},91),
     profile('drink',['wasser','milch','ayran','cola','spezi','limonade','saft','eistee','kaffee','tee'],{glass:{amount:250,unit:'ml'},can:{amount:330,unit:'ml'},bottle:{amount:500,unit:'ml'}}),
-    profile('apple',['apfel','aepfel'],{piece:{amount:150,unit:'g'}}),
-    profile('banana',['banane','bananen'],{piece:{amount:120,unit:'g'}}),
-    profile('orange',['orange','orangen'],{piece:{amount:180,unit:'g'}}),
-    profile('pear',['birne','birnen'],{piece:{amount:160,unit:'g'}}),
-    profile('kiwi',['kiwi','kiwis'],{piece:{amount:75,unit:'g'}}),
-    profile('egg',['ei','eier','huhnerei','huehnerei'],{piece:{amount:60,unit:'g'}}),
-    profile('tomato',['tomate','tomaten'],{piece:{amount:120,unit:'g'}}),
-    profile('cucumber',['gurke','gurken','salatgurke'],{piece:{amount:350,unit:'g'}}),
-    profile('pepper',['paprika','paprikaschote'],{piece:{amount:180,unit:'g'}}),
-    profile('onion',['zwiebel','zwiebeln'],{piece:{amount:100,unit:'g'}}),
-    profile('potato',['kartoffel','kartoffeln'],{piece:{amount:150,unit:'g'}}),
-    profile('carrot',['karotte','karotten','mohre','moehre','mohren','moehren'],{piece:{amount:80,unit:'g'}}),
+    profile('apple',['apfel','aepfel'],{piece:{amount:150,unit:'g',basisFactor:1}}),
+    profile('banana',['banane','bananen'],{piece:{amount:120,unit:'g',basisFactor:1}}),
+    profile('orange',['orange','orangen'],{piece:{amount:180,unit:'g',basisFactor:1}}),
+    profile('pear',['birne','birnen'],{piece:{amount:160,unit:'g',basisFactor:1}}),
+    profile('kiwi',['kiwi','kiwis'],{piece:{amount:75,unit:'g',basisFactor:1}}),
+    profile('egg',['ei','eier','huhnerei','huehnerei'],{piece:{amount:60,unit:'g',basisFactor:1}}),
+    profile('tomato',['tomate','tomaten'],{piece:{amount:120,unit:'g',basisFactor:1}}),
+    profile('cucumber',['gurke','gurken','salatgurke'],{piece:{amount:350,unit:'g',basisFactor:1}}),
+    profile('pepper',['paprika','paprikaschote'],{piece:{amount:180,unit:'g',basisFactor:1}}),
+    profile('onion',['zwiebel','zwiebeln'],{piece:{amount:100,unit:'g',basisFactor:1}}),
+    profile('potato',['kartoffel','kartoffeln'],{piece:{amount:150,unit:'g',basisFactor:1}}),
+    profile('carrot',['karotte','karotten','mohre','moehre','mohren','moehren'],{piece:{amount:80,unit:'g',basisFactor:1}}),
     profile('berries',['erdbeere','erdbeeren','himbeere','himbeeren','blaubeere','blaubeeren','beeren'],{handful:{amount:75,unit:'g'}}),
     profile('snacks',['chips','cracker','popcorn','salzstangen'],{handful:{amount:30,unit:'g'}},90)
   ]);
@@ -66,8 +66,8 @@
     return Object.keys(map).length?map:null;
   }
   function profileFor(item,measure){
-    const text=textOf(item),matches=[];
-    for(const candidate of PROFILES){const definition=candidate.measures[measure];if(!definition)continue;let score=0;for(const term of candidate.terms){if(!term)continue;if(namesOf(item).includes(term))score=Math.max(score,4);else if(text.split(' ').includes(term))score=Math.max(score,3);else if(term.length>=4&&text.includes(term))score=Math.max(score,2);}if(score)matches.push({candidate,definition,score});}
+    const names=namesOf(item),text=names.join(' '),tokens=text.split(' '),matches=[];
+    for(const candidate of PROFILES){const definition=candidate.measures[measure];if(!definition)continue;let score=0;for(const term of candidate.terms){if(!term)continue;if(names.includes(term))score=Math.max(score,4);else if(tokens.includes(term))score=Math.max(score,3);else if(term.length>=4&&text.includes(term))score=Math.max(score,2);}if(score)matches.push({candidate,definition,score});}
     matches.sort((a,b)=>b.score-a.score||b.candidate.confidence-a.candidate.confidence);
     if(!matches.length)return null;
     const best=matches[0],second=matches[1];if(second&&second.score===best.score&&second.candidate.confidence===best.candidate.confidence&&second.candidate.id!==best.candidate.id)return null;
@@ -75,9 +75,9 @@
   }
   function standardPortion(item,measure){
     const amount=Number(item?.amount),unit=String(item?.unit||'');if(!(amount>0))return null;
-    if(measure==='portion'&&(unit==='Portion'||item?.basisLabel==='Standardportion'||/standardportion/i.test(String(item?.sourceLabel||''))))return{amount,unit,confidence:100,source:'item-basis'};
+    const isStandard=/standardportion|standardgericht/i.test(`${item?.basisLabel||''} ${item?.sourceLabel||''}`);
+    if(measure==='portion'&&(unit==='Portion'||isStandard))return{amount,unit,confidence:100,source:'item-basis'};
     if(measure==='piece'&&unit==='Stück')return{amount,unit,confidence:100,source:'item-basis'};
-    if(measure==='portion'&&unit==='Portion')return{amount,unit,confidence:100,source:'item-basis'};
     return null;
   }
   function conservativeFallback(item,measure){
@@ -91,10 +91,10 @@
   }
   function measureLabel(measure,quantity){const labels=DISPLAY[measure]||[measure,measure];return Number(quantity)===1?labels[0]:labels[1]}
   function result(item,measure,quantity,definition){
-    const count=Math.max(.01,Number(quantity)||1),base=Math.max(.01,Number(item?.amount)||1),itemUnit=String(item?.unit||'g'),converted=count*Number(definition.amount),convertedUnit=String(definition.unit||itemUnit);
-    if(!['g','ml','Stück','Portion'].includes(convertedUnit)||convertedUnit!==itemUnit)return{known:false,needsReview:true,confidence:0,measure,amountLabel:`${fmt(count)} ${measureLabel(measure,count)} · Einheit prüfen`,source:'unit-mismatch'};
-    const approximate=definition.confidence<100,operator=approximate?'≈':'=';
-    return{known:true,needsReview:definition.confidence<90,confidence:definition.confidence,measure,source:definition.source,approximate,factor:converted/base,convertedAmount:converted,convertedUnit,amountLabel:`${fmt(count)} ${measureLabel(measure,count)} ${operator} ${fmt(converted)} ${convertedUnit}`};
+    const count=Math.max(.01,Number(quantity)||1),base=Math.max(.01,Number(item?.amount)||1),itemUnit=String(item?.unit||'g'),converted=count*Number(definition.amount),convertedUnit=String(definition.unit||itemUnit),approximate=definition.confidence<100,operator=approximate?'≈':'=';
+    if(convertedUnit===itemUnit)return{known:true,needsReview:definition.confidence<90,confidence:definition.confidence,measure,source:definition.source,approximate,factor:converted/base,convertedAmount:converted,convertedUnit,amountLabel:`${fmt(count)} ${measureLabel(measure,count)} ${operator} ${fmt(converted)} ${convertedUnit}`};
+    if(Number(definition.basisFactor)>0&&(itemUnit==='Stück'||itemUnit==='Portion'))return{known:true,needsReview:definition.confidence<90,confidence:definition.confidence,measure,source:definition.source,approximate:true,factor:count*Number(definition.basisFactor),convertedAmount:converted,convertedUnit,amountLabel:`${fmt(count)} ${measureLabel(measure,count)} ≈ ${fmt(converted)} ${convertedUnit}`};
+    return{known:false,needsReview:true,confidence:0,measure,approximate:true,factor:1,amountLabel:`${fmt(count)} ${measureLabel(measure,count)} · Einheit prüfen`,source:'unit-mismatch'};
   }
   function resolve(item,measureValue,quantity=1){
     const measure=canonicalMeasure(measureValue);if(!item||!measure)return{known:false,needsReview:true,confidence:0,measure:null,amountLabel:''};
