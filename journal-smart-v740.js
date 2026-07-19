@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='1.0.0 Alpha';
+  const VERSION='1.0.1 Alpha';
   const COLLAPSE_KEY='cutcoach_coach_compact_v1';
   const $=selector=>document.querySelector(selector);
   const mealOrder=['Frühstück','Mittagessen','Abendessen','Snack'];
@@ -8,7 +8,7 @@
 
   function loadLive127(){
     const stale=document.querySelector('link[data-journal-live-nav-v127]');if(stale)stale.remove();
-    if(!window.CutCoachJournalLive127&&!document.querySelector('script[data-journal-live-nav-v132]')){const script=document.createElement('script');script.src='./journal-live-nav-v127.js?v=1.3.2-alpha';script.async=false;script.dataset.journalLiveNavV132='1';document.head.append(script)}
+    if(!window.CutCoachJournalLive127&&!document.querySelector('script[data-journal-live-nav-v133]')){const script=document.createElement('script');script.src='./journal-live-nav-v127.js?v=1.3.3-alpha';script.async=false;script.dataset.journalLiveNavV133='1';document.head.append(script)}
   }
   function nowHour(){const now=new Date();return now.getHours()+now.getMinutes()/60}
   function preferredMeal(){const value=nowHour();return value<10.5?'Frühstück':value<15?'Mittagessen':value<20.5?'Abendessen':'Snack'}
