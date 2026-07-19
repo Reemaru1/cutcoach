@@ -2,24 +2,24 @@ html body>nav[aria-label="Hauptnavigation"].cc-glass-nav-v131{
   position:fixed!important;
   left:50%!important;
   right:auto!important;
-  bottom:max(8px,env(safe-area-inset-bottom))!important;
+  bottom:max(5px,env(safe-area-inset-bottom))!important;
   transform:translateX(-50%)!important;
-  width:min(420px,calc(100% - 24px))!important;
+  width:min(400px,calc(100% - 20px))!important;
   max-width:none!important;
   min-width:0!important;
-  height:64px!important;
-  padding:6px!important;
+  height:58px!important;
+  padding:4px!important;
   display:grid!important;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr) 50px minmax(0,1fr)!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) 44px minmax(0,1fr)!important;
   align-items:center!important;
-  gap:3px!important;
+  gap:2px!important;
   overflow:visible!important;
-  border:1px solid rgba(255,255,255,.13)!important;
-  border-radius:22px!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  border-radius:19px!important;
   background:linear-gradient(180deg,rgba(29,33,42,.78),rgba(11,14,20,.92))!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),inset 0 -1px 0 rgba(255,255,255,.025),0 12px 30px rgba(0,0,0,.42)!important;
-  backdrop-filter:blur(24px) saturate(150%)!important;
-  -webkit-backdrop-filter:blur(24px) saturate(150%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -1px 0 rgba(255,255,255,.02),0 10px 24px rgba(0,0,0,.38)!important;
+  backdrop-filter:blur(22px) saturate(145%)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(145%)!important;
   -webkit-text-size-adjust:100%!important;
   text-size-adjust:100%!important;
 }
@@ -27,9 +27,9 @@ html body>nav.cc-glass-nav-v131::before{
   content:"";
   position:absolute;
   inset:1px;
-  border-radius:21px;
+  border-radius:18px;
   pointer-events:none;
-  background:linear-gradient(145deg,rgba(255,255,255,.055),transparent 42%,rgba(255,255,255,.018));
+  background:linear-gradient(145deg,rgba(255,255,255,.05),transparent 42%,rgba(255,255,255,.016));
 }
 html body>nav.cc-glass-nav-v131 button{
   position:relative!important;
@@ -37,18 +37,18 @@ html body>nav.cc-glass-nav-v131 button{
   width:100%!important;
   min-width:0!important;
   max-width:100%!important;
-  height:50px!important;
+  height:44px!important;
   min-height:0!important;
   margin:0!important;
-  padding:4px 2px!important;
+  padding:3px 2px!important;
   overflow:hidden!important;
   border:0!important;
-  border-radius:16px!important;
+  border-radius:14px!important;
   display:flex!important;
   flex-direction:column!important;
   align-items:center!important;
   justify-content:center!important;
-  gap:3px!important;
+  gap:2px!important;
   background:transparent!important;
   color:#aeb7c8!important;
   font-size:0!important;
@@ -62,30 +62,30 @@ html body>nav.cc-glass-nav-v131 button:active{transform:scale(.96)!important}
 html body>nav.cc-glass-nav-v131 button.active:not([data-tab="food"]),
 html body>nav.cc-glass-nav-v131 button[aria-current="page"]:not([data-tab="food"]){
   color:#f4fff8!important;
-  background:linear-gradient(150deg,rgba(255,255,255,.13),rgba(255,255,255,.045))!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 5px 13px rgba(0,0,0,.18)!important;
+  background:linear-gradient(150deg,rgba(255,255,255,.11),rgba(255,255,255,.035))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 10px rgba(0,0,0,.15)!important;
 }
 html body>nav.cc-glass-nav-v131 button[data-tab="today"]{order:1!important}
 html body>nav.cc-glass-nav-v131 button[data-tab="progress"]{order:2!important}
 html body>nav.cc-glass-nav-v131 button[data-tab="food"]{
   order:3!important;
-  width:48px!important;
-  max-width:48px!important;
-  height:48px!important;
+  width:42px!important;
+  max-width:42px!important;
+  height:42px!important;
   justify-self:center!important;
   align-self:center!important;
   overflow:visible!important;
   border-radius:50%!important;
   color:#07120d!important;
   background:radial-gradient(circle at 35% 25%,#8affb0 0,#56eb81 38%,#31d963 72%,#23bc51 100%)!important;
-  border:1px solid rgba(255,255,255,.27)!important;
-  box-shadow:inset 0 1px 1px rgba(255,255,255,.42),inset 0 -4px 8px rgba(0,85,33,.27),0 7px 18px rgba(43,218,104,.28),0 2px 5px rgba(0,0,0,.35)!important;
+  border:1px solid rgba(255,255,255,.25)!important;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.38),inset 0 -3px 6px rgba(0,85,33,.24),0 6px 14px rgba(43,218,104,.24),0 2px 4px rgba(0,0,0,.32)!important;
 }
 html body>nav.cc-glass-nav-v131 button[data-tab="settings"]{order:4!important}
 html body>nav.cc-glass-nav-v131 button>span{margin:0!important}
 html body>nav.cc-glass-nav-v131 .cc-nav-icon{
-  width:20px!important;
-  height:20px!important;
+  width:18px!important;
+  height:18px!important;
   display:grid!important;
   place-items:center!important;
   flex:0 0 auto!important;
@@ -93,8 +93,8 @@ html body>nav.cc-glass-nav-v131 .cc-nav-icon{
   line-height:0!important;
 }
 html body>nav.cc-glass-nav-v131 .cc-nav-icon svg{
-  width:20px!important;
-  height:20px!important;
+  width:18px!important;
+  height:18px!important;
   display:block!important;
   fill:none!important;
   stroke:currentColor!important;
@@ -110,30 +110,30 @@ html body>nav.cc-glass-nav-v131 .cc-nav-label{
   overflow:hidden!important;
   color:inherit!important;
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif!important;
-  font-size:10px!important;
-  font-weight:750!important;
-  line-height:11px!important;
+  font-size:9.25px!important;
+  font-weight:740!important;
+  line-height:10px!important;
   letter-spacing:0!important;
   text-align:center!important;
   text-overflow:ellipsis!important;
   white-space:nowrap!important;
 }
-html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-icon{width:25px!important;height:25px!important}
-html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-icon svg{width:25px!important;height:25px!important;stroke-width:2!important}
+html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-icon{width:22px!important;height:22px!important}
+html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-icon svg{width:22px!important;height:22px!important;stroke-width:2!important}
 html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-label{display:none!important}
-body.cc-glass-nav-active{padding-bottom:calc(80px + env(safe-area-inset-bottom))!important}
+body.cc-glass-nav-active{padding-bottom:calc(70px + env(safe-area-inset-bottom))!important}
 @media(max-width:390px){
   html body>nav[aria-label="Hauptnavigation"].cc-glass-nav-v131{
-    width:calc(100% - 16px)!important;
-    height:62px!important;
-    padding:5px!important;
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr) 48px minmax(0,1fr)!important;
-    gap:2px!important;
-    border-radius:20px!important;
+    width:calc(100% - 12px)!important;
+    height:56px!important;
+    padding:4px!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) 42px minmax(0,1fr)!important;
+    gap:1px!important;
+    border-radius:18px!important;
   }
-  html body>nav.cc-glass-nav-v131::before{border-radius:19px}
-  html body>nav.cc-glass-nav-v131 button{height:48px!important;border-radius:15px!important}
-  html body>nav.cc-glass-nav-v131 button[data-tab="food"]{width:46px!important;max-width:46px!important;height:46px!important}
-  html body>nav.cc-glass-nav-v131 .cc-nav-label{font-size:9.5px!important;line-height:10px!important}
+  html body>nav.cc-glass-nav-v131::before{border-radius:17px}
+  html body>nav.cc-glass-nav-v131 button{height:42px!important;border-radius:13px!important}
+  html body>nav.cc-glass-nav-v131 button[data-tab="food"]{width:40px!important;max-width:40px!important;height:40px!important}
+  html body>nav.cc-glass-nav-v131 .cc-nav-label{font-size:9px!important;line-height:9.5px!important}
 }
 @media(prefers-reduced-motion:reduce){html body>nav.cc-glass-nav-v131 button{transition:none!important}}
