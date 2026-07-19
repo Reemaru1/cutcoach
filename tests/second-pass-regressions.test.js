@@ -16,8 +16,7 @@ const update=read('update.html');
 const hardening=read('stability-hardening-v133.js');
 
 assert.match(glass,/function markupIsCurrent/,'Glasnavigation hat keinen Idempotenzschutz.');
-assert.match(glass,/if\(!markupIsCurrent\(button,key\)\)/,'Navigationsmarkup wird weiterhin bei jedem Beobachterlauf überschrieben.');
-assert.doesNotMatch(glass,/for\(const key[^\n]+button\.innerHTML=ICONS\[key\]/,'Glasnavigation schreibt weiterhin ungebremst innerHTML.');
+assert.match(glass,/if\(!markupIsCurrent\(button,key\)\)\{button\.innerHTML=ICONS\[key\];button\.dataset\.glassNavKey=key\}/,'Navigationsmarkup wird nicht ausschließlich bei echter Abweichung erneuert.');
 assert.match(glass,/#journalQuickAdd:not\(\[disabled\]\),\[data-add-journal-meal\]:not\(\[disabled\]\)/,'Ernährungseinstieg hat keinen funktionierenden Fallback.');
 
 assert.match(live,/const refreshTimers=new Set\(\)/,'Journal-Refresh verwaltet seine Settle-Timer nicht zentral.');
