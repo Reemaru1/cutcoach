@@ -57,7 +57,7 @@ setTimeout(()=>{
   assert.ok(loader.includes("nutrition-polish-v138.js?v=1.3.8-alpha"),'Versionsloader lädt die neue Empfehlungslogik nicht.');
   assert.ok(runtime.includes("nutrition-polish-v138.css?v=1.3.8-alpha"),'Runtime-Manifest enthält die neue Ernährungs-CSS nicht.');
   assert.ok(runtime.includes("nutrition-polish-v138.js?v=1.3.8-alpha"),'Runtime-Manifest enthält die neue Empfehlungslogik nicht.');
-  assert.ok(sw.includes('-nav136-journal137-nutrition138`'),'Service Worker verwendet nicht die neue Ernährungs-Cachegeneration.');
+  assert.ok(sw.includes('-nav136-journal137-nutrition138-dishes140`'),'Service Worker verwendet nicht die neue Ernährungs- und Gerichte-Cachegeneration.');
 
   console.log('Mahlzeitpassende Empfehlungen, kompakter Kopf, klare Aktionen und aufgeräumte Lebensmittelkarten geprüft.');
 },40);
