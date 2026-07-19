@@ -7,16 +7,22 @@
   const fmt=value=>new Intl.NumberFormat('de-DE',{maximumFractionDigits:1}).format(Number(value)||0);
   const MEASURES=Object.freeze({
     scheibe:'slice',scheiben:'slice',slice:'slice',
-    el:'tablespoon',essloffel:'tablespoon',essloeffel:'tablespoon',tablespoon:'tablespoon',
-    tl:'teaspoon',teeloffel:'teaspoon',teeloeffel:'teaspoon',teaspoon:'teaspoon',
+    el:'tablespoon',essloffel:'tablespoon',essloeffel:'tablespoon',essloffeln:'tablespoon',essloeffeln:'tablespoon',tablespoon:'tablespoon',tablespoons:'tablespoon',
+    tl:'teaspoon',teeloffel:'teaspoon',teeloeffel:'teaspoon',teeloffeln:'teaspoon',teeloeffeln:'teaspoon',teaspoon:'teaspoon',teaspoons:'teaspoon',
     handvoll:'handful',hand:'handful',
-    glas:'glass',glaser:'glass',glaeser:'glass',
+    glas:'glass',glaser:'glass',glaeser:'glass',glasern:'glass',glaesern:'glass',
     dose:'can',dosen:'can',
     flasche:'bottle',flaschen:'bottle',
     stuck:'piece',stueck:'piece',stucke:'piece',stuecke:'piece',
     portion:'portion',portionen:'portion'
   });
   const DISPLAY=Object.freeze({slice:['Scheibe','Scheiben'],tablespoon:['EL','EL'],teaspoon:['TL','TL'],handful:['Handvoll','Handvoll'],glass:['Glas','Gläser'],can:['Dose','Dosen'],bottle:['Flasche','Flaschen'],piece:['Stück','Stück'],portion:['Portion','Portionen']});
+  const UNIT_ALIASES=Object.freeze({
+    g:{unit:'g',scale:1},gramm:{unit:'g',scale:1},gram:{unit:'g',scale:1},kg:{unit:'g',scale:1000},kilogramm:{unit:'g',scale:1000},kilo:{unit:'g',scale:1000},
+    ml:{unit:'ml',scale:1},milliliter:{unit:'ml',scale:1},l:{unit:'ml',scale:1000},liter:{unit:'ml',scale:1000},
+    stuck:{unit:'Stück',scale:1},stueck:{unit:'Stück',scale:1},stucke:{unit:'Stück',scale:1},stuecke:{unit:'Stück',scale:1},
+    portion:{unit:'Portion',scale:1},portionen:{unit:'Portion',scale:1}
+  });
 
   const profile=(id,terms,measures,confidence=94)=>Object.freeze({id,terms:Object.freeze(terms.map(normalize)),measures:Object.freeze(measures),confidence});
   const PROFILES=Object.freeze([
@@ -31,10 +37,10 @@
     profile('spread',['honig','marmelade','konfiture','konfituere','ajvar','nusscreme','erdnussbutter','aufstrich'],{tablespoon:{amount:20,unit:'g'},teaspoon:{amount:7,unit:'g'}}),
     profile('sauce',['ketchup','mayonnaise','mayo','senf','sauce','dressing','paste'],{tablespoon:{amount:15,unit:'g'},teaspoon:{amount:5,unit:'g'}},91),
     profile('oats',['haferflocken','muesli','musli','cornflakes','cerealien','flocken'],{tablespoon:{amount:10,unit:'g'},handful:{amount:30,unit:'g'}}),
-    profile('nuts',['nuss','nusse','nuesse','mandel','mandeln','cashew','walnuss','walnusse','walnuesse','pistazie','pistazien','kerne','samen'],{tablespoon:{amount:10,unit:'g'},handful:{amount:30,unit:'g'}}),
+    profile('nuts',['nuss','nusse','nuesse','mandel','mandeln','cashew','walnuss','walnusse','walnuesse','walnusskerne','pistazie','pistazien','kerne','samen'],{tablespoon:{amount:10,unit:'g'},handful:{amount:30,unit:'g'}}),
     profile('dairy-spoon',['joghurt','naturjoghurt','skyr','quark','frischkase','frischkaese'],{tablespoon:{amount:20,unit:'g'},teaspoon:{amount:7,unit:'g'}}),
     profile('cooked-starch',['reis gekocht','nudeln gekocht','pasta gekocht','bulgur gekocht','couscous gekocht'],{tablespoon:{amount:20,unit:'g'},portion:{amount:200,unit:'g'}},91),
-    profile('drink',['wasser','milch','ayran','cola','spezi','limonade','saft','eistee','kaffee','tee'],{glass:{amount:250,unit:'ml'},can:{amount:330,unit:'ml'},bottle:{amount:500,unit:'ml'}}),
+    profile('drink',['wasser','milch','ayran','cola','spezi','limonade','saft','eistee','kaffee','tee'],{glass:{amount:250,unit:'ml',confidence:86},can:{amount:330,unit:'ml',confidence:92},bottle:{amount:500,unit:'ml',confidence:78}}),
     profile('apple',['apfel','aepfel'],{piece:{amount:150,unit:'g',basisFactor:1}}),
     profile('banana',['banane','bananen'],{piece:{amount:120,unit:'g',basisFactor:1}}),
     profile('orange',['orange','orangen'],{piece:{amount:180,unit:'g',basisFactor:1}}),
@@ -52,48 +58,51 @@
   ]);
 
   function canonicalMeasure(value){return MEASURES[normalize(value)]||null}
+  function canonicalUnit(value,fallback=''){return UNIT_ALIASES[normalize(value||fallback)]||null}
   function primaryNamesOf(item){return[item?.name,...(Array.isArray(item?.aliases)?item.aliases:[item?.aliases])].filter(Boolean).map(normalize)}
-  function namesOf(item){return[...primaryNamesOf(item),item?.category].filter(Boolean).map(normalize)}
+  function phraseMatch(text,term){return Boolean(term.includes(' ')&&` ${text} `.includes(` ${term} `))}
   function directMeasures(item){
     const source=item?.householdMeasures||item?.portions||item?.portionProfiles;
     if(!source||typeof source!=='object')return null;
     const map={};
-    if(Array.isArray(source)){
-      for(const entry of source){const key=canonicalMeasure(entry?.measure||entry?.name||entry?.label);const amount=Number(entry?.amount),unit=String(entry?.unit||item?.unit||'');if(key&&amount>0&&['g','ml','Stück','Portion'].includes(unit))map[key]={amount,unit,confidence:100,source:'item'};}
-    }else{
-      for(const [rawKey,entry] of Object.entries(source)){const key=canonicalMeasure(rawKey);const amount=Number(typeof entry==='number'?entry:entry?.amount),unit=String(typeof entry==='number'?(item?.unit||''):entry?.unit||item?.unit||'');if(key&&amount>0&&['g','ml','Stück','Portion'].includes(unit))map[key]={amount,unit,confidence:100,source:'item'};}
-    }
+    const add=(rawMeasure,rawAmount,rawUnit)=>{const key=canonicalMeasure(rawMeasure),amount=Number(rawAmount),unitInfo=canonicalUnit(rawUnit,item?.unit);if(key&&amount>0&&unitInfo)map[key]={amount:amount*unitInfo.scale,unit:unitInfo.unit,confidence:100,source:'item'}};
+    if(Array.isArray(source)){for(const entry of source)add(entry?.measure||entry?.name||entry?.label,entry?.amount,entry?.unit)}
+    else{for(const [rawKey,entry] of Object.entries(source))add(rawKey,typeof entry==='number'?entry:entry?.amount,typeof entry==='number'?item?.unit:entry?.unit)}
     return Object.keys(map).length?map:null;
   }
   function profileFor(item,measure){
-    const primary=primaryNamesOf(item),primaryText=primary.join(' '),primaryTokens=primaryText.split(' '),category=normalize(item?.category),categoryTokens=category.split(' ').filter(Boolean),matches=[];
-    for(const candidate of PROFILES){const definition=candidate.measures[measure];if(!definition)continue;let score=0;for(const term of candidate.terms){if(!term)continue;if(primary.includes(term))score=Math.max(score,8);else if(primaryTokens.includes(term))score=Math.max(score,7);else if(term.length>=4&&primaryText.includes(term))score=Math.max(score,6);else if(category===term)score=Math.max(score,3);else if(categoryTokens.includes(term))score=Math.max(score,2);else if(term.length>=4&&category.includes(term))score=Math.max(score,1);}if(score)matches.push({candidate,definition,score});}
-    matches.sort((a,b)=>b.score-a.score||b.candidate.confidence-a.candidate.confidence||b.candidate.terms[0].length-a.candidate.terms[0].length);
+    const primary=primaryNamesOf(item),primaryText=primary.join(' '),primaryTokens=primaryText.split(' ').filter(Boolean),category=normalize(item?.category),categoryTokens=category.split(' ').filter(Boolean),matches=[];
+    for(const candidate of PROFILES){
+      const definition=candidate.measures[measure];if(!definition)continue;let score=0;
+      for(const term of candidate.terms){if(!term)continue;if(primary.includes(term))score=Math.max(score,8);else if(primaryTokens.includes(term))score=Math.max(score,7);else if(phraseMatch(primaryText,term))score=Math.max(score,6);else if(category===term)score=Math.max(score,3);else if(categoryTokens.includes(term))score=Math.max(score,2);else if(phraseMatch(category,term))score=Math.max(score,1)}
+      if(score)matches.push({candidate,definition,score});
+    }
+    matches.sort((a,b)=>b.score-a.score||Number(b.definition.confidence||b.candidate.confidence)-Number(a.definition.confidence||a.candidate.confidence)||b.candidate.terms[0].length-a.candidate.terms[0].length);
     if(!matches.length)return null;
-    const best=matches[0],second=matches[1];if(second&&second.score===best.score&&second.candidate.confidence===best.candidate.confidence&&second.candidate.id!==best.candidate.id)return null;
-    return{...best.definition,confidence:best.candidate.confidence,source:`profile:${best.candidate.id}`};
+    const best=matches[0],second=matches[1],bestConfidence=Number(best.definition.confidence||best.candidate.confidence);
+    if(second&&second.score===best.score&&Number(second.definition.confidence||second.candidate.confidence)===bestConfidence&&second.candidate.id!==best.candidate.id)return null;
+    return{...best.definition,confidence:bestConfidence,source:`profile:${best.candidate.id}`};
   }
   function standardPortion(item,measure){
-    const amount=Number(item?.amount),unit=String(item?.unit||'');if(!(amount>0))return null;
-    const isStandard=/standardportion|standardgericht/i.test(`${item?.basisLabel||''} ${item?.sourceLabel||''}`);
-    if(measure==='portion'&&(unit==='Portion'||isStandard))return{amount,unit,confidence:100,source:'item-basis'};
-    if(measure==='piece'&&unit==='Stück')return{amount,unit,confidence:100,source:'item-basis'};
+    const amount=Number(item?.amount),unitInfo=canonicalUnit(item?.unit,'g');if(!(amount>0)||!unitInfo)return null;
+    const unit=unitInfo.unit,scaledAmount=amount*unitInfo.scale,isStandard=/standardportion|standardgericht/i.test(`${item?.basisLabel||''} ${item?.sourceLabel||''}`);
+    if(measure==='portion'&&(unit==='Portion'||isStandard))return{amount:scaledAmount,unit,confidence:100,source:'item-basis'};
+    if(measure==='piece'&&unit==='Stück')return{amount:scaledAmount,unit,confidence:100,source:'item-basis'};
     return null;
   }
   function conservativeFallback(item,measure){
-    const unit=String(item?.unit||'');
-    if(unit==='ml'){
-      if(measure==='glass')return{amount:250,unit:'ml',confidence:82,source:'fallback-liquid'};
-      if(measure==='can')return{amount:330,unit:'ml',confidence:80,source:'fallback-liquid'};
-      if(measure==='bottle')return{amount:500,unit:'ml',confidence:78,source:'fallback-liquid'};
-    }
+    const unitInfo=canonicalUnit(item?.unit,'g');if(unitInfo?.unit!=='ml')return null;
+    if(measure==='glass')return{amount:250,unit:'ml',confidence:82,source:'fallback-liquid'};
+    if(measure==='can')return{amount:330,unit:'ml',confidence:80,source:'fallback-liquid'};
+    if(measure==='bottle')return{amount:500,unit:'ml',confidence:78,source:'fallback-liquid'};
     return null;
   }
   function measureLabel(measure,quantity){const labels=DISPLAY[measure]||[measure,measure];return Number(quantity)===1?labels[0]:labels[1]}
   function result(item,measure,quantity,definition){
-    const count=Math.max(.01,Number(quantity)||1),base=Math.max(.01,Number(item?.amount)||1),itemUnit=String(item?.unit||'g'),converted=count*Number(definition.amount),convertedUnit=String(definition.unit||itemUnit),approximate=definition.confidence<100,operator=approximate?'≈':'=';
-    if(convertedUnit===itemUnit)return{known:true,needsReview:definition.confidence<90,confidence:definition.confidence,measure,source:definition.source,approximate,factor:converted/base,convertedAmount:converted,convertedUnit,amountLabel:`${fmt(count)} ${measureLabel(measure,count)} ${operator} ${fmt(converted)} ${convertedUnit}`};
-    if(Number(definition.basisFactor)>0&&(itemUnit==='Stück'||itemUnit==='Portion'))return{known:true,needsReview:definition.confidence<90,confidence:definition.confidence,measure,source:definition.source,approximate:true,factor:count*Number(definition.basisFactor),convertedAmount:converted,convertedUnit,amountLabel:`${fmt(count)} ${measureLabel(measure,count)} ≈ ${fmt(converted)} ${convertedUnit}`};
+    const count=Math.max(.01,Number(quantity)||1),itemUnitInfo=canonicalUnit(item?.unit,'g'),definitionUnitInfo=canonicalUnit(definition.unit,item?.unit);if(!itemUnitInfo||!definitionUnitInfo)return{known:false,needsReview:true,confidence:0,measure,approximate:true,factor:1,amountLabel:`${fmt(count)} ${measureLabel(measure,count)} · Einheit prüfen`,source:'unit-mismatch'};
+    const base=Math.max(.01,Number(item?.amount)||1)*itemUnitInfo.scale,converted=count*Number(definition.amount)*definitionUnitInfo.scale,itemUnit=itemUnitInfo.unit,convertedUnit=definitionUnitInfo.unit,confidence=Number(definition.confidence)||0,approximate=confidence<100,operator=approximate?'≈':'=';
+    if(convertedUnit===itemUnit)return{known:true,needsReview:confidence<90,confidence,measure,source:definition.source,approximate,factor:converted/base,convertedAmount:converted,convertedUnit,amountLabel:`${fmt(count)} ${measureLabel(measure,count)} ${operator} ${fmt(converted)} ${convertedUnit}`};
+    if(Number(definition.basisFactor)>0&&(itemUnit==='Stück'||itemUnit==='Portion'))return{known:true,needsReview:confidence<90,confidence,measure,source:definition.source,approximate:true,factor:count*Number(definition.basisFactor),convertedAmount:converted,convertedUnit,amountLabel:`${fmt(count)} ${measureLabel(measure,count)} ≈ ${fmt(converted)} ${convertedUnit}`};
     return{known:false,needsReview:true,confidence:0,measure,approximate:true,factor:1,amountLabel:`${fmt(count)} ${measureLabel(measure,count)} · Einheit prüfen`,source:'unit-mismatch'};
   }
   function resolve(item,measureValue,quantity=1){
