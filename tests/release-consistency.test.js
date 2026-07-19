@@ -24,8 +24,9 @@ assert.ok(versionLoader.includes(`const RELEASE='${human}'`),'version-v7.js muss
 assert.ok(sw.includes(`./runtime-manifest.js?v=${packageJson.version}`),'Service Worker muss das aktuelle Runtime-Manifest importieren.');
 assert.ok(update.includes(`CutCoach ${human}`),'Update-Seite muss die aktuelle sichtbare Version nennen.');
 assert.ok(index.includes(`version-v7.js?v=${packageJson.version}`),'index.html muss den Release-Loader mit der Paketversion laden.');
+assert.ok(index.includes(`stability-hardening-v133.js?v=${packageJson.version}`),'index.html muss die zweite Stabilitätsschicht direkt laden.');
 
-for(const asset of ['./core.js?v=7.0.1','./app.js?v=7.0.1','./scanner-v2.js?v=7.0.1']){
+for(const asset of ['./core.js?v=7.0.2','./app.js?v=7.0.1','./scanner-v2.js?v=7.0.2','./off-lookup.js?v=7.0.1','./water-animation.js?v=6.8.6',`./stability-hardening-v133.js?v=${packageJson.version}`]){
   assert.ok([...runtime.baseAssets,...runtime.scripts].includes(asset),`Runtime-Manifest enthält nicht ${asset}.`);
   assert.ok(index.includes(asset.slice(2)),`index.html enthält nicht ${asset}.`);
 }

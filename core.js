@@ -1,6 +1,6 @@
 'use strict';
 
-const APP_VERSION = '1.3.2 Alpha';
+const APP_VERSION = '1.3.3 Alpha';
 const STORAGE_KEY = 'cutcoach_v2';
 const RECOVERY_KEY = 'cutcoach_recovery_raw';
 const PREVIOUS_STATE_KEY = 'cutcoach_previous_state';

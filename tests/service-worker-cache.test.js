@@ -27,10 +27,21 @@ for(const eventName of ['install','activate','message','fetch']){
 assert.ok(sw.includes("fetch(url,{cache:'reload'})"),'Vorladen muss den HTTP-Cache umgehen und aktuelle Dateien abrufen.');
 assert.ok(!sw.includes('cache.addAll('),'Service Worker darf für das Release-Precache nicht unkontrolliert cache.addAll verwenden.');
 assert.ok(sw.includes("fetch(request,{cache:'no-store'})"),'Laufende Netzwerkabrufe müssen den HTTP-Cache umgehen, damit Updates erkannt werden.');
-assert.ok(sw.includes("if(!network.ok)return (await cached('./index.html'))||network"),'Fehlerhafte Navigationsantworten müssen auf die letzte funktionierende App-Shell zurückfallen.');
+assert.ok(sw.includes("const UPDATE_PATH=new URL('./update.html',self.location.href).pathname"),'Update-Seite muss als eigene Navigation erkannt werden.');
+assert.ok(sw.includes("const fallbackKey=isUpdateNavigation?'./update.html':'./index.html'"),'Update-Navigation und App-Shell müssen getrennte Cacheziele verwenden.');
+assert.ok(sw.includes('await cache.put(fallbackKey,page.clone())'),'Navigationen müssen unter dem kanonischen Fallbackziel gespeichert werden.');
+assert.ok(sw.includes('if(!network.ok)return (await cached(fallbackKey))||network'),'Fehlerhafte Navigationen müssen auf die passende letzte funktionierende Seite zurückfallen.');
 assert.ok(sw.includes('if(!network.ok)return (await cached(request))||network'),'Fehlerhafte Asset-Antworten müssen auf die letzte funktionierende Datei zurückfallen.');
-assert.ok(sw.includes("key.startsWith(CACHE_PREFIX)&&key!==CACHE_NAME"),'Aktivierung muss nur ältere CutCoach-Caches löschen.');
+assert.ok(sw.includes("key.startsWith(CACHE_PREFIX)&&key!==CACHE_NAME"),'Erst die erfolgreiche Aktivierung darf ältere CutCoach-Caches löschen.');
 assert.ok(sw.includes("event.data?.type==='SKIP_WAITING'"),'Expliziter Update-Button muss den wartenden Worker aktivieren können.');
 assert.ok(!sw.includes("self.skipWaiting();\n});\n\nself.addEventListener('activate'"),'Installation darf den neuen Worker nicht ungefragt aktivieren.');
 
-console.log('Service-Worker-, Precache- und Fehlerfallbacks geprüft.');
+assert.ok(update.includes("if(!navigator.onLine)throw new Error('offline')"),'Offline-Update darf die bestehende Version nicht gefährden.');
+assert.ok(update.indexOf('await preflight()')<update.indexOf('navigator.serviceWorker.register'),'Update muss neue Kerndateien vor der Worker-Registrierung prüfen.');
+assert.ok(!update.includes('caches.delete('),'Update-Seite darf die letzte funktionierende Cacheversion nicht selbst löschen.');
+assert.ok(!update.includes('.unregister()'),'Update-Seite darf den funktionierenden Worker nicht vor erfolgreicher Neuinstallation entfernen.');
+assert.match(update,/function waitForInstall\(worker\)/,'Update-Seite wartet nicht auf die Installation des neuen Workers.');
+assert.match(update,/waiting\.postMessage\(\{type:'SKIP_WAITING'\}\)/,'Wartender Worker wird nicht kontrolliert aktiviert.');
+assert.match(update,/controllerchange/,'Update wartet nicht auf den Controllerwechsel.');
+
+console.log('Service-Worker-, Precache-, transaktionale Update- und Fehlerfallbacks geprüft.');
