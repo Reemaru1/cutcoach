@@ -34,6 +34,6 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
  const choices=host.querySelectorAll('[data-confidence-choice]');assert.equal(choices.length,2);choices[0].dispatchEvent(new w.MouseEvent('click',{bubbles:true}));assert.equal(added.length,0);assert.equal(host._canonicalRows[0].status,'matched');
  host.querySelector('[data-canonical-add]').dispatchEvent(new w.MouseEvent('click',{bubbles:true}));assert.equal(added.length,1);
  assert.equal(w.CutCoachNutritionMultiSearch120.resolve('Skyr').match.id,'personal-skyr');
- assert.match(manifest,/nutrition-search-confidence-hardening-v151\.js\?v=1\.5\.2-alpha/);assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.5\.0-compat/);
- dom.window.close();console.log('Confidence-Hardening mit Resolver 1.5.2: ok');
+ assert.match(manifest,/nutrition-portion-profiles-v153\.js\?v=1\.5\.3-alpha/);assert.match(manifest,/nutrition-portion-hardening-v153\.js\?v=1\.5\.3-alpha/);assert.match(manifest,/nutrition-search-confidence-hardening-v151\.js\?v=1\.5\.2-alpha/);assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.5\.3-compat/);
+ dom.window.close();console.log('Confidence-Hardening 1.5.2 bleibt unter Portionsfassade 1.5.3 stabil.');
 })().catch(error=>{console.error(error);process.exitCode=1});
