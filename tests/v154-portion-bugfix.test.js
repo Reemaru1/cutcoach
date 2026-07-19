@@ -38,11 +38,11 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   resolved=profiles.resolve(cola,'Flasche',1);assert.equal(resolved.known,true);assert.equal(resolved.needsReview,true);assert.equal(resolved.confidence,78);assert.ok(Math.abs(resolved.factor-(500/330))<.0001);
 
   let rowCalls=0,baseRenderCalls=0;
-  const householdRow=(item,label,confidence=100)=>({raw:`1 ${label} ${item.name}`,query:item.name.toLowerCase(),quantity:1,quantitySpecified:true,unitInfo:{kind:label==='Stück'?'count':'serving',label},modifier:'',item,status:'matched',matchType:'exact-name',confidence,confidenceLabel:`Exakt · ${confidence}%`,factor:1,amountLabel:`1 ${label}`,approximate:true,alternatives:[],choices:[]});
+  const householdRow=(item,label,confidence=100,quantity=1)=>({raw:`${quantity} ${label} ${item.name}`,query:item.name.toLowerCase(),quantity,quantitySpecified:true,unitInfo:{kind:label==='Stück'?'count':'serving',label},modifier:'',item,status:'matched',matchType:'exact-name',confidence,confidenceLabel:`Exakt · ${confidence}%`,factor:quantity,amountLabel:`${quantity} ${label}`,approximate:true,alternatives:[],choices:[]});
   const puddingA={id:'pudding-a',name:'Protein Pudding',amount:200,unit:'g'},puddingB={id:'pudding-b',name:'Protein Pudding',amount:200,unit:'g'};
   const base={
     version:'test-base',build:'test-base',
-    rowsFor(value){rowCalls++;const key=String(value||'');if(key==='1 EL Butter')return[householdRow(butter,'EL')];if(key==='1 EL Whey')return[householdRow(whey,'EL',98)];if(key==='1 Glas Milch')return[householdRow(milk,'Glas')];if(key==='1 Dose Cola')return[householdRow(cola,'Dose')];if(key==='1 Flasche Cola')return[householdRow(cola,'Flasche')];if(key==='Protein Pudding')return[{raw:key,query:'protein pudding',quantity:1,quantitySpecified:false,unitInfo:null,item:null,status:'ambiguous',confidence:0,alternatives:[],choices:[{item:puddingA,label:'Eigene'},{item:puddingB,label:'Eigene'}]}];return[]},
+    rowsFor(value){rowCalls++;const key=String(value||'');if(key==='1 EL Butter')return[householdRow(butter,'EL')];if(key==='2 EL Butter')return[householdRow(butter,'EL',100,2)];if(key==='2 TL Butter')return[householdRow(butter,'TL',100,2)];if(key==='1 EL Whey')return[householdRow(whey,'EL',98)];if(key==='1 Glas Milch')return[householdRow(milk,'Glas')];if(key==='1 Dose Cola')return[householdRow(cola,'Dose')];if(key==='1 Flasche Cola')return[householdRow(cola,'Flasche')];if(key==='2 Gläser Cola')return[householdRow(cola,'Gläser',100,2)];if(key==='Protein Pudding')return[{raw:key,query:'protein pudding',quantity:1,quantitySpecified:false,unitInfo:null,item:null,status:'ambiguous',confidence:0,alternatives:[],choices:[{item:puddingA,label:'Eigene'},{item:puddingB,label:'Eigene'}]}];return[]},
     likelyMulti(){return false},
     render(){baseRenderCalls++;return true},
     score(){return[]}
@@ -53,13 +53,21 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   assert.equal(portionModule.looksLikeHouseholdInput('Menemen'),false);
   assert.equal(portionModule.looksLikeHouseholdInput('1 EL Butter'),true);
   assert.equal(portionModule.looksLikeHouseholdInput('2Stück Kartoffeln'),true);
+  assert.equal(portionModule.looksLikeHouseholdInput('2 Essloeffeln Butter'),true);
+  assert.equal(portionModule.normalizeHouseholdSyntax('2 Essloeffeln Butter'),'2 EL Butter');
+  assert.equal(portionModule.normalizeHouseholdSyntax('2 Teelöffeln Butter'),'2 TL Butter');
+  assert.equal(portionModule.normalizeHouseholdSyntax('2 Glaeser Cola'),'2 Gläser Cola');
+  assert.equal(portionModule.normalizeHouseholdSyntax('2 Stuecke Apfel'),'2 Stück Apfel');
 
   assert.equal(api.likelyMulti('Menemen'),false);assert.equal(rowCalls,0,'Normale Suche löst unnötig den Portionsresolver aus.');
   input.value='Menemen';input.dispatchEvent(new w.Event('input',{bubbles:true}));assert.equal(rowCalls,0,'Normale Eingabe scannt unnötig den Katalog.');
   api.rowsFor('1 EL Butter');api.rowsFor('1 EL Butter');assert.equal(rowCalls,1,'Identische Portionsabfrage wird doppelt aufgelöst.');
   w.dispatchEvent(new w.CustomEvent('cutcoach:librarychange'));api.rowsFor('1 EL Butter');assert.equal(rowCalls,2,'Portionscache wird nach Bibliotheksänderung nicht invalidiert.');
 
-  let row=api.rowsFor('1 Glas Milch')[0];assert.equal(row.status,'review');assert.equal(row.confidence,86);assert.equal(row.portionNeedsReview,true);
+  let row=api.rowsFor('2 Essloeffeln Butter')[0];assert.equal(row.status,'matched');assert.equal(row.factor,3);assert.equal(row.raw,'2 Essloeffeln Butter');assert.match(row.amountLabel,/30 g/);
+  row=api.rowsFor('2 Teelöffeln Butter')[0];assert.equal(row.status,'matched');assert.equal(row.factor,1);assert.match(row.amountLabel,/10 g/);
+  row=api.rowsFor('2 Glaeser Cola')[0];assert.equal(row.status,'review');assert.equal(row.confidence,86);assert.ok(Math.abs(row.factor-(500/330))<.0001);assert.equal(row.raw,'2 Glaeser Cola');
+  row=api.rowsFor('1 Glas Milch')[0];assert.equal(row.status,'review');assert.equal(row.confidence,86);assert.equal(row.portionNeedsReview,true);
   row=api.rowsFor('1 Dose Cola')[0];assert.equal(row.status,'matched');assert.equal(row.confidence,92);
   row=api.rowsFor('1 Flasche Cola')[0];assert.equal(row.status,'review');assert.equal(row.confidence,78);
 
@@ -67,11 +75,12 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   input.value='1 Glas Milch';assert.equal(api.render(input),true);host=w.document.querySelector('#nutritionMultiSearch');assert.match(host.textContent,/Portionsgröße vor dem Eintragen prüfen/);assert.doesNotMatch(host.textContent,/bitte prüfen/);
 
   host.dataset.portion153='1';input.value='Protein Pudding';input.dispatchEvent(new w.Event('input',{bubbles:true}));assert.equal(host.hasAttribute('data-portion153'),false,'Alter Portionsmarker bleibt bei normaler Suche aktiv.');
+  host.dataset.portion153='1';input.value='1 EL';input.dispatchEvent(new w.Event('input',{bubbles:true}));assert.equal(host.hasAttribute('data-portion153'),false,'Unvollständige Portionssuche lässt einen alten Marker zurück.');
   host.dataset.portion153='1';host.dataset.canonical='1';host.dataset.query='protein pudding';host._canonicalRows=base.rowsFor('Protein Pudding');host.innerHTML='<button type="button" data-confidence-choice="0:0">Auswahl</button>';
-  let propagated=0;const bubble=()=>{propagated++};w.document.addEventListener('click',bubble);host.querySelector('button').dispatchEvent(new w.MouseEvent('click',{bubbles:true}));w.document.removeEventListener('click',bubble);assert.equal(propagated,1,'Veralteter Portionslistener blockiert eine normale Mehrdeutigkeitsauswahl.');
+  input.value='Protein Pudding';let propagated=0;const bubble=()=>{propagated++};w.document.addEventListener('click',bubble);host.querySelector('button').dispatchEvent(new w.MouseEvent('click',{bubbles:true}));w.document.removeEventListener('click',bubble);assert.equal(propagated,1,'Veralteter Portionslistener blockiert eine normale Mehrdeutigkeitsauswahl.');
 
   portionModule.invalidateRowCache();rowCalls=0;input.value='1 EL Butter';input.dispatchEvent(new w.Event('input',{bubbles:true}));await wait(240);assert.equal(rowCalls,1,'Eingabe und Rendering lösen denselben Kataloglauf doppelt aus.');assert.equal(baseRenderCalls,0);
 
   dom.window.close();
-  console.log('Portions-Bugfix 1.5.4: Fehlzuordnungen, Cache, UI-Marker und Einheiten geprüft.');
+  console.log('Portions-Bugfix 1.5.4: Fehlzuordnungen, Cache, UI-Marker, Schreibweisen und Einheiten geprüft.');
 })().catch(error=>{console.error(error);process.exitCode=1});
