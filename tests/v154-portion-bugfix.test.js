@@ -48,11 +48,11 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
     score(){return[]}
   };
   script=w.document.createElement('script');script.textContent=hardeningSource;w.document.head.append(script);
-  const api=w.CutCoachPortionHardening153.attach(base),input=w.document.querySelector('#nutritionSearch');
+  const portionModule=w.CutCoachPortionHardening153,api=portionModule.attach(base),input=w.document.querySelector('#nutritionSearch');
   assert.ok(api);
-  assert.equal(api.looksLikeHouseholdInput('Menemen'),false);
-  assert.equal(api.looksLikeHouseholdInput('1 EL Butter'),true);
-  assert.equal(api.looksLikeHouseholdInput('2Stück Kartoffeln'),true);
+  assert.equal(portionModule.looksLikeHouseholdInput('Menemen'),false);
+  assert.equal(portionModule.looksLikeHouseholdInput('1 EL Butter'),true);
+  assert.equal(portionModule.looksLikeHouseholdInput('2Stück Kartoffeln'),true);
 
   assert.equal(api.likelyMulti('Menemen'),false);assert.equal(rowCalls,0,'Normale Suche löst unnötig den Portionsresolver aus.');
   input.value='Menemen';input.dispatchEvent(new w.Event('input',{bubbles:true}));assert.equal(rowCalls,0,'Normale Eingabe scannt unnötig den Katalog.');
@@ -70,7 +70,7 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   host.dataset.portion153='1';host.dataset.canonical='1';host.dataset.query='protein pudding';host._canonicalRows=base.rowsFor('Protein Pudding');host.innerHTML='<button type="button" data-confidence-choice="0:0">Auswahl</button>';
   let propagated=0;const bubble=()=>{propagated++};w.document.addEventListener('click',bubble);host.querySelector('button').dispatchEvent(new w.MouseEvent('click',{bubbles:true}));w.document.removeEventListener('click',bubble);assert.equal(propagated,1,'Veralteter Portionslistener blockiert eine normale Mehrdeutigkeitsauswahl.');
 
-  api.invalidateRowCache();rowCalls=0;input.value='1 EL Butter';input.dispatchEvent(new w.Event('input',{bubbles:true}));await wait(240);assert.equal(rowCalls,1,'Eingabe und Rendering lösen denselben Kataloglauf doppelt aus.');assert.equal(baseRenderCalls,0);
+  portionModule.invalidateRowCache();rowCalls=0;input.value='1 EL Butter';input.dispatchEvent(new w.Event('input',{bubbles:true}));await wait(240);assert.equal(rowCalls,1,'Eingabe und Rendering lösen denselben Kataloglauf doppelt aus.');assert.equal(baseRenderCalls,0);
 
   dom.window.close();
   console.log('Portions-Bugfix 1.5.4: Fehlzuordnungen, Cache, UI-Marker und Einheiten geprüft.');
