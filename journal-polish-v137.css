@@ -1,0 +1,59 @@
+/* CutCoach 1.3.7 – gezielter Tagebuch-Polish */
+body.journal-mode.cc-glass-nav-active{padding-bottom:0!important}
+body.journal-mode .app{min-height:100dvh!important;padding-bottom:calc(62px + env(safe-area-inset-bottom))!important}
+body.journal-mode main{padding-bottom:0!important}
+body.journal-mode [data-screen="today"]{min-height:0!important;padding-bottom:4px!important}
+body.journal-mode #today560{padding-bottom:0!important}
+
+#journalSummaryDone{display:none!important}
+#journalSummaryClose{
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 38px!important;
+  width:38px!important;
+  min-width:38px!important;
+  max-width:38px!important;
+  height:38px!important;
+  min-height:38px!important;
+  max-height:38px!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:1px solid rgba(151,170,205,.24)!important;
+  border-radius:50%!important;
+  background:rgba(20,29,46,.94)!important;
+  color:#f4f7fb!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important;
+  font-size:0!important;
+  line-height:1!important;
+  transform:none!important;
+}
+#journalSummaryClose::before{
+  content:"×";
+  display:block;
+  color:inherit;
+  font-size:25px;
+  font-weight:500;
+  line-height:1;
+  transform:translateY(-1px);
+}
+#journalSummaryClose:active{transform:scale(.95)!important}
+
+@media(max-width:430px){
+  body.journal-mode .journal-macros article:nth-child(2) .journal-macro-title{gap:3px!important}
+  body.journal-mode .journal-macros article:nth-child(2) .journal-macro-title>span{flex:0 0 27px!important;width:27px!important;height:27px!important}
+  body.journal-mode .journal-macros article:nth-child(2) .journal-macro-title b{
+    max-width:none!important;
+    overflow:visible!important;
+    font-size:8.25px!important;
+    line-height:1.05!important;
+    letter-spacing:-.055em!important;
+    text-overflow:clip!important;
+    white-space:nowrap!important;
+  }
+}
+@media(max-width:390px){
+  body.journal-mode .app{padding-bottom:calc(60px + env(safe-area-inset-bottom))!important}
+  body.journal-mode [data-screen="today"]{padding-bottom:2px!important}
+}
