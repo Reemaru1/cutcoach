@@ -4,7 +4,8 @@ const RUNTIME=self.CUTCOACH_RUNTIME;
 const CACHE_PREFIX='cutcoach-';
 const CACHE_BASE=`cutcoach-v${RUNTIME.version}-nav136-journal137-nutrition138-dishes140`;
 const PORTION_CACHE=`${CACHE_BASE}-search153-portions`;
-const SEARCH_CACHE=`${PORTION_CACHE}-search160-learning`;
+const LEARNING_CACHE=`${PORTION_CACHE}-search160-learning`;
+const SEARCH_CACHE=`${LEARNING_CACHE}-search161-hardening`;
 const CACHE_NAME=`${SEARCH_CACHE}-energy143`;
 const APP_SHELL=['./','./index.html','./runtime-manifest.js?v=1.2.6-alpha',...RUNTIME.baseAssets,...RUNTIME.styles,...RUNTIME.scripts,'./update.html'];
 async function preparePage(response){const body=await response.arrayBuffer(),headers=new Headers(response.headers);headers.set('content-type','text/html; charset=utf-8');headers.set('cache-control','no-cache');return new Response(body,{status:response.status,statusText:response.statusText,headers})}
