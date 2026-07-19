@@ -11,9 +11,29 @@ permissions:
   contents: read
 
 jobs:
-  check:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      tests: ${{ steps.matrix.outputs.tests }}
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+      - name: Testmatrix erzeugen
+        id: matrix
+        shell: bash
+        run: |
+          tests=$(node -e "const fs=require('fs');const fixtures=new Set(['v72-smoke.test.js','v7-smoke.test.js']);process.stdout.write(JSON.stringify(fs.readdirSync('tests').filter(name=>name.endsWith('.test.js')&&!fixtures.has(name)).sort()))")
+          echo "tests=$tests" >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: discover
+    name: Test ${{ matrix.test }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        test: ${{ fromJSON(needs.discover.outputs.tests) }}
     steps:
       - name: Repository auschecken
         uses: actions/checkout@v4
@@ -25,39 +45,22 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: JavaScript-Syntax prüfen
         run: npm run check:syntax
-      - name: App-Shell prüfen
-        run: node tests/app-shell-integrity.test.js
-      - name: Kerndaten prüfen
-        run: node tests/core-data-safety.test.js
-      - name: CSS-Konsolidierung prüfen
-        run: node tests/css-upgrade-consolidation.test.js
-      - name: Loaderkette prüfen
-        run: node tests/js-loader-cleanup.test.js
-      - name: Navigation prüfen
-        run: node tests/navigation-regression.test.js
-      - name: Release-Konsistenz prüfen
-        run: node tests/release-consistency.test.js
-      - name: Runtime-Manifest prüfen
-        run: node tests/runtime-manifest.test.js
-      - name: Scanner-Fallback prüfen
-        run: node tests/scanner-photo-fallback.test.js
-      - name: Service Worker prüfen
-        run: node tests/service-worker-cache.test.js
-      - name: Nutrition 1.2.0 prüfen
-        run: node tests/v120-nutrition-multisearch.test.js
-      - name: Nutrition 1.2.1 prüfen
-        run: node tests/v121-nutrition-multisearch-accuracy.test.js
-      - name: Nutrition 1.2.2 prüfen
-        run: node tests/v122-nutrition-exact-intent.test.js
-      - name: Nutrition 1.2.3 prüfen
-        run: node tests/v123-nutrition-multisearch-stability.test.js
-      - name: V7-Kompatibilität prüfen
-        run: node tests/v7-compat-v73.test.js
-      - name: V73-Katalog prüfen
-        run: node tests/v73-catalog.test.js
-      - name: V73-Smoke prüfen
-        run: node tests/v73-smoke.test.js
-      - name: UI-Cleanup prüfen
-        run: node tests/v731-ui-cleanup.test.js
-      - name: Vollständige Testsuite prüfen
-        run: npm test
+      - name: Test ausführen
+        run: node "tests/${{ matrix.test }}"
+
+  suite:
+    needs: test
+    name: Vollständige Testsuite
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+      - name: Node.js einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Abhängigkeiten installieren
+        run: npm install --no-audit --no-fund
+      - name: Syntax und vollständige Tests prüfen
+        run: npm run check
