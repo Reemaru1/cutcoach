@@ -8,6 +8,7 @@
 
   function restoreNav(){
     const nav=$('nav[aria-label="Hauptnavigation"]');if(!nav)return;
+    if(nav.dataset.glassNavV131==='1'||nav.classList.contains('cc-glass-nav-v131')){try{window.CutCoachGlassNavV131?.enhance?.()}catch{}return}
     nav.classList.remove('cutcoach-nav-v127');
     for(const button of nav.querySelectorAll('[data-tab]')){
       const key=button.dataset.tab,label=navLabels[key];if(!label)continue;
