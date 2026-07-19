@@ -41,8 +41,11 @@ assert.doesNotMatch(water,/observe\(document\.body/,'Wasseranimation beobachtet 
 
 assert.match(sw,/const UPDATE_PATH=/,'Service Worker erkennt die Update-Seite nicht separat.');
 assert.match(sw,/fallbackKey=isUpdateNavigation\?'\.\/update\.html':'\.\/index\.html'/,'Update-Seite kann weiterhin den Offline-App-Shell-Eintrag überschreiben.');
-assert.ok(update.indexOf('await preflight()')<update.indexOf("caches.delete(key)"),'Update löscht weiterhin Caches vor der Netzprüfung.');
-assert.match(update,/Die bisherige funktionierende Version wurde nicht gelöscht/,'Update erklärt den sicheren Offline-Abbruch nicht.');
+assert.ok(update.indexOf('await preflight()')<update.indexOf('navigator.serviceWorker.register'),'Update startet nicht mit einer Netzprüfung.');
+assert.doesNotMatch(update,/caches\.delete\(/,'Update-Seite löscht weiterhin selbst die letzte funktionierende Cacheversion.');
+assert.doesNotMatch(update,/\.unregister\(\)/,'Update-Seite entfernt weiterhin den aktiven Worker vor erfolgreicher Installation.');
+assert.match(update,/waiting\.postMessage\(\{type:'SKIP_WAITING'\}\)/,'Neue Worker-Version wird nicht kontrolliert aktiviert.');
+assert.match(update,/Die bisherige funktionierende Version wurde nicht gelöscht/,'Update erklärt den sicheren Fehlerabbruch nicht.');
 
 assert.match(hardening,/const returnFocus=new WeakMap\(\)/,'Gestapelte Modals speichern ihren Fokus nicht getrennt.');
 assert.match(hardening,/const topModal=/,'Escape und Fokusfalle kennen das oberste Modal nicht.');
