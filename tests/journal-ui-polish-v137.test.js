@@ -56,7 +56,7 @@ setTimeout(()=>{
     assert.ok(loader.includes("journal-polish-v137.js?v=1.3.7-alpha"),'Versionsloader lädt den Tagebuch-Polish nicht.');
     assert.ok(runtime.includes("journal-polish-v137.css?v=1.3.7-alpha"),'Runtime-Manifest enthält die neue CSS-Datei nicht.');
     assert.ok(runtime.includes("journal-polish-v137.js?v=1.3.7-alpha"),'Runtime-Manifest enthält die neue JavaScript-Datei nicht.');
-    assert.ok(sw.includes('-nav136-journal137`'),'Service Worker verwendet nicht die neue Tagebuch-Cachegeneration.');
+    assert.ok(sw.includes('-nav136-journal137-nutrition138`'),'Service Worker verwendet nicht die aktuelle Tagebuch- und Ernährungs-Cachegeneration.');
 
     console.log('Tagebuch-Leerraum, Makrotitel, Schritte-Metadaten und Tagesabschluss geprüft.');
   },20);
