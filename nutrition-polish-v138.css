@@ -1,0 +1,72 @@
+/* CutCoach 1.3.8 – kompakter Ernährungsbereich und klarere Ergebnislisten */
+body.nutrition-mode .nutrition-shell{gap:7px!important}
+body.nutrition-mode .nutrition-header{min-height:58px!important;padding:6px 8px!important;gap:8px!important;border-radius:18px!important}
+body.nutrition-mode .nutrition-meal-switch{font-size:21px!important}
+body.nutrition-mode .nutrition-header-copy p{margin-top:3px!important;font-size:9px!important}
+body.nutrition-mode .nutrition-back,body.nutrition-mode .nutrition-done{min-height:38px!important;height:38px!important;border-radius:12px!important}
+body.nutrition-mode .nutrition-back{width:38px!important;font-size:26px!important}
+body.nutrition-mode .nutrition-done{padding:0 11px!important;font-size:9.5px!important}
+
+body.nutrition-mode .nutrition-search-card{padding:6px 8px!important;border-radius:17px!important}
+body.nutrition-mode .nutrition-search-row{grid-template-columns:24px minmax(0,1fr) 36px!important;gap:6px!important;padding-left:9px!important;border-radius:14px!important}
+body.nutrition-mode .nutrition-search-row>span{font-size:20px!important}
+body.nutrition-mode .nutrition-search-row input{height:39px!important;font-size:13px!important}
+body.nutrition-mode .nutrition-search-row button{width:35px!important;height:35px!important;border-radius:10px!important;font-size:16px!important}
+body.nutrition-mode .nutrition-search-card p{min-height:0!important;margin-top:5px!important;font-size:8px!important}
+
+body.nutrition-mode .nutrition-shortcuts{gap:5px!important}
+body.nutrition-mode .nutrition-shortcuts button{grid-template-rows:25px minmax(18px,auto)!important;gap:3px!important;min-height:54px!important;padding:6px 3px!important;border-radius:14px!important}
+body.nutrition-mode .nutrition-shortcuts span{width:26px!important;height:26px!important;border-radius:9px!important;font-size:14px!important}
+body.nutrition-mode .nutrition-shortcuts b{display:-webkit-box!important;overflow:hidden!important;font-size:8.25px!important;line-height:1.08!important;text-overflow:ellipsis!important;white-space:normal!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;line-clamp:2!important}
+
+body.nutrition-mode .nutrition-meal-card{border-radius:17px!important}
+body.nutrition-mode .nutrition-meal-summary{grid-template-columns:34px minmax(0,1fr) auto!important;gap:8px!important;min-height:57px!important;padding:7px 8px!important}
+body.nutrition-mode .nutrition-meal-icon{width:34px!important;height:34px!important;border-radius:11px!important;font-size:16px!important}
+body.nutrition-mode .nutrition-meal-copy small{font-size:7.5px!important}
+body.nutrition-mode .nutrition-meal-copy strong{margin-top:3px!important;font-size:11.5px!important}
+body.nutrition-mode .nutrition-meal-actions button{min-height:32px!important;padding:0 7px!important;font-size:7.5px!important}
+body.nutrition-mode .nutrition-day-budget{padding:6px 8px 7px!important}
+body.nutrition-mode .nutrition-macro-compass{gap:5px!important;padding:6px 8px 8px!important}
+body.nutrition-mode .nutrition-macro-compass article{padding:6px 7px!important;border-radius:10px!important}
+body.nutrition-mode .nutrition-v7-analysis{padding:5px 8px 6px!important}
+body.nutrition-mode .nutrition-v7-analysis-head{min-height:35px!important}
+body.nutrition-mode .nutrition-v7-analysis-head small{font-size:7.5px!important}
+body.nutrition-mode .nutrition-v7-analysis-head strong{font-size:10.5px!important}
+body.nutrition-mode .nutrition-v7-analysis-toggle{flex-basis:24px!important;width:24px!important;height:24px!important}
+body.nutrition-mode .nutrition-v7-analysis-toggle::before{left:8px!important;top:7px!important;width:7px!important;height:7px!important}
+body.nutrition-mode .nutrition-v7-analysis:not(.is-collapsed) .nutrition-v7-analysis-toggle::before{top:10px!important}
+
+body.nutrition-mode .nutrition-tabs button{min-height:34px!important;padding:0 8px!important;font-size:8.5px!important}
+body.nutrition-mode .nutrition-browse-head{padding-top:1px!important}
+body.nutrition-mode .nutrition-browse-head h2{font-size:17px!important}
+body.nutrition-mode .nutrition-browse-head small,body.nutrition-mode .nutrition-browse-head>span{font-size:7.5px!important}
+
+body.nutrition-mode .nutrition-results{border-radius:17px!important}
+body.nutrition-mode .nutrition-result-row{grid-template-columns:minmax(0,1fr) 58px 34px!important;gap:4px!important}
+body.nutrition-mode .nutrition-result-main{grid-template-columns:36px minmax(0,1fr)!important;gap:8px!important;min-height:61px!important;padding:7px 0 7px 8px!important}
+body.nutrition-mode .nutrition-result-icon{width:36px!important;height:36px!important;border-radius:12px!important;font-size:16px!important}
+body.nutrition-mode .nutrition-result-copy b{gap:3px 4px!important;font-size:10.75px!important;line-height:1.18!important}
+body.nutrition-mode .nutrition-result-copy b>span{-webkit-line-clamp:1!important;line-clamp:1!important}
+body.nutrition-mode .nutrition-result-copy small{margin-top:3px!important;font-size:7.7px!important}
+body.nutrition-mode .nutrition-source{padding:2px 4px!important;font-size:5.7px!important;opacity:.82}
+body.nutrition-mode .nutrition-routine{padding:2px 4px!important;font-size:5.9px!important}
+body.nutrition-mode .nutrition-result-energy{min-width:54px!important}
+body.nutrition-mode .nutrition-result-energy b{font-size:9.4px!important}
+body.nutrition-mode .nutrition-result-energy i{margin-top:4px!important;padding:2px 4px!important;font-size:5.7px!important}
+body.nutrition-mode .nutrition-result-add{width:31px!important;height:31px!important;margin-right:3px!important;font-size:19px!important}
+
+@media(max-width:390px){
+  body.nutrition-mode .nutrition-header{min-height:56px!important;padding:5px 7px!important}
+  body.nutrition-mode .nutrition-meal-switch{font-size:20px!important}
+  body.nutrition-mode .nutrition-shortcuts button{min-height:52px!important}
+  body.nutrition-mode .nutrition-shortcuts b{font-size:7.8px!important}
+  body.nutrition-mode .nutrition-result-row{grid-template-columns:minmax(0,1fr) 54px 32px!important}
+  body.nutrition-mode .nutrition-result-main{grid-template-columns:34px minmax(0,1fr)!important;min-height:58px!important;padding-left:7px!important}
+  body.nutrition-mode .nutrition-result-icon{width:34px!important;height:34px!important}
+  body.nutrition-mode .nutrition-result-copy b{font-size:10.2px!important}
+  body.nutrition-mode .nutrition-result-energy{min-width:50px!important}
+  body.nutrition-mode .nutrition-result-energy b{font-size:8.9px!important}
+  body.nutrition-mode .nutrition-result-add{width:30px!important;height:30px!important;margin-right:2px!important}
+}
+
+@media(prefers-reduced-motion:reduce){body.nutrition-mode .nutrition-shortcuts button,body.nutrition-mode .nutrition-result-add{transition:none!important}}
