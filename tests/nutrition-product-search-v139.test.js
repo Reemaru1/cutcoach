@@ -64,7 +64,8 @@ const {JSDOM}=require('jsdom');
   assert.equal(database.items.length,1,'Ausgewähltes Produkt wurde nicht dauerhaft in der Bibliothek gespeichert.');
   assert.equal(database.items[0].source,'off','Gespeichertes Markenprodukt verliert seine Datenquelle.');
   assert.equal(database.items[0].barcode,'4056489123456','Barcode wird beim Speichern nicht erhalten.');
-  assert.deepEqual(added.options,{type:'Frühstück',dateKey:'2026-07-19'},'Produkt wird nicht zur richtigen Mahlzeit und zum gewählten Tag hinzugefügt.');
+  assert.equal(added.options.type,'Frühstück','Produkt wird nicht zur aktuell ausgewählten Mahlzeit hinzugefügt.');
+  assert.equal(added.options.dateKey,'2026-07-19','Produkt wird nicht zum ausgewählten Tagebuchdatum hinzugefügt.');
 
   await window.CutCoachNutritionProducts139.search('skyr');
   assert.equal(fetchCount,1,'Identische Produktsuche ignoriert den lokalen Cache und belastet die API erneut.');
@@ -79,7 +80,7 @@ const {JSDOM}=require('jsdom');
   assert.ok(loader.includes("nutrition-product-search-v139.js?v=1.3.9-alpha"),'Versionsloader lädt die Produktsuche nicht.');
   assert.ok(runtime.includes("nutrition-product-search-v139.css?v=1.3.9-alpha"),'Runtime-Manifest enthält die Produktsuch-CSS nicht.');
   assert.ok(runtime.includes("nutrition-product-search-v139.js?v=1.3.9-alpha"),'Runtime-Manifest enthält die Produktsuche nicht.');
-  assert.ok(sw.includes('-products139`'),'Service Worker verwendet nicht die neue Produktdatenbank-Cachegeneration.');
+  assert.ok(sw.includes("'-products139'"),'Service Worker verwendet nicht die neue Produktdatenbank-Cachegeneration.');
 
   dom.window.close();
   console.log('BLS-Basis, explizite Markenproduktsuche, API-Schutz, Cache und dauerhafte Produktübernahme geprüft.');
