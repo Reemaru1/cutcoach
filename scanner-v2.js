@@ -1,7 +1,7 @@
 'use strict';
 
 (function(){
-  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'6.8.0';
+  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'1.3.2 Alpha';
   let scanner=null;
   let scanning=false;
   let activeTrack=null;
@@ -179,10 +179,10 @@
     ensureFrame();
     if(typeof Html5Qrcode!=='function'){setStatus('Scanner-Modul konnte nicht geladen werden.','error');return;}
     setStatus('Foto wird in mehreren Varianten geprüft …');
-    const variants=[];
+    const variants=[file];
     try{
-      variants.push(file);
-      variants.push(...await makeImageVariants(file));
+      try{variants.push(...await makeImageVariants(file));}
+      catch(error){console.warn('Bildvarianten nicht verfügbar, Originalfoto wird geprüft',error);}
       for(let index=0;index<variants.length;index++){
         ensureFrame();
         scanner=newScanner();
@@ -202,24 +202,27 @@
   }
 
   async function makeImageVariants(file){
-    const bitmap=await createImageBitmap(file);
-    const maxSide=1800;
-    const scale=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));
-    const width=Math.max(1,Math.round(bitmap.width*scale));
-    const height=Math.max(1,Math.round(bitmap.height*scale));
-    const variants=[];
-    variants.push(await canvasVariant(bitmap,width,height,0,0,bitmap.width,bitmap.height,false));
-    variants.push(await canvasVariant(bitmap,width,height,0,0,bitmap.width,bitmap.height,true));
-    const cropX=bitmap.width*.08,cropY=bitmap.height*.18,cropW=bitmap.width*.84,cropH=bitmap.height*.64;
-    variants.push(await canvasVariant(bitmap,Math.round(width*.84),Math.round(height*.64),cropX,cropY,cropW,cropH,true));
-    bitmap.close?.();
-    return variants;
+    let bitmap=null;
+    try{
+      bitmap=await createImageBitmap(file);
+      const maxSide=1800;
+      const scale=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height));
+      const width=Math.max(1,Math.round(bitmap.width*scale));
+      const height=Math.max(1,Math.round(bitmap.height*scale));
+      const variants=[];
+      variants.push(await canvasVariant(bitmap,width,height,0,0,bitmap.width,bitmap.height,false));
+      variants.push(await canvasVariant(bitmap,width,height,0,0,bitmap.width,bitmap.height,true));
+      const cropX=bitmap.width*.08,cropY=bitmap.height*.18,cropW=bitmap.width*.84,cropH=bitmap.height*.64;
+      variants.push(await canvasVariant(bitmap,Math.round(width*.84),Math.round(height*.64),cropX,cropY,cropW,cropH,true));
+      return variants;
+    }finally{bitmap?.close?.();}
   }
 
   function canvasVariant(bitmap,width,height,sx,sy,sw,sh,enhance){
     return new Promise((resolve,reject)=>{
       const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
       const context=canvas.getContext('2d',{willReadFrequently:enhance});
+      if(!context){reject(new Error('canvas-context'));return;}
       context.drawImage(bitmap,sx,sy,sw,sh,0,0,width,height);
       if(enhance){
         const image=context.getImageData(0,0,width,height),data=image.data;
