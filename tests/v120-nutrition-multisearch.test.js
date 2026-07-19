@@ -41,7 +41,7 @@ assert.match(version,/nutrition-multisearch-canonical-128\.js\?v=1\.5\.0-alpha/,
 assert.match(version,/nutrition-multisearch-120\.js\?v=1\.5\.0-compat/,'Produktiver Loaderpfad der Fassade fehlt');
 assert.match(manifest,/nutrition-multisearch-canonical-128\.js\?v=1\.5\.0-alpha/,'Zentrale Suchlogik fehlt im Cache');
 assert.match(manifest,/nutrition-search-confidence-hardening-v151\.js\?v=1\.5\.1-alpha/,'Confidence-Hardening fehlt im Cache');
-assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.5\.1-compat/,'Aktuelle Kompatibilitätsbrücke fehlt im Cache');
+assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.5\.0-compat/,'Produktive Kompatibilitäts-URL fehlt im Cache');
 assert.match(sw,/search150-confidence/,'Confidence-Cachebasis fehlt');
 assert.match(update,/sw\.js\?v=1\.2\.6-alpha-force/,'Update-Seite installiert nicht 1.2.6 Alpha');
 console.log('CutCoach Confidence-Hardening 1.5.1 QA: ok');
