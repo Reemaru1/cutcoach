@@ -6,6 +6,7 @@ const {JSDOM}=require('jsdom');
 const root=path.resolve(__dirname,'..');
 const profiles=fs.readFileSync(path.join(root,'nutrition-portion-profiles-v153.js'),'utf8');
 const portions=fs.readFileSync(path.join(root,'nutrition-portion-hardening-v153.js'),'utf8');
+const learning=fs.readFileSync(path.join(root,'nutrition-search-learning-v160.js'),'utf8');
 const confidence=fs.readFileSync(path.join(root,'nutrition-search-confidence-hardening-v151.js'),'utf8');
 const canonical=fs.readFileSync(path.join(root,'nutrition-multisearch-canonical-128.js'),'utf8');
 const compatibility=fs.readFileSync(path.join(root,'nutrition-multisearch-120.js'),'utf8');
@@ -28,10 +29,10 @@ const w=dom.window;const added=[];
 w.CutCoachFoodCatalog={items:()=>items,get:id=>items.find(item=>item.id===id)||null};
 w.CutCoachEverydayCatalog={items:()=>[],get:()=>null};
 w.CutCoachLibrary={exportData:()=>({items:[]}),addCatalogItemToDay:(item,options)=>{added.push({item,options});return{id:'meal'}}};w.render=()=>{};w.toast=()=>{};
-for(const source of [profiles,portions,confidence,canonical]){const script=w.document.createElement('script');script.textContent=source;w.document.head.append(script)}
+for(const source of [profiles,portions,learning,confidence,canonical]){const script=w.document.createElement('script');script.textContent=source;w.document.head.append(script)}
 let engine=w.CutCoachIntelligentSearch128;engine=w.CutCoachSearchConfidenceHardening151.attach(engine);engine=w.CutCoachPortionHardening153.attach(engine);
 const api=w.CutCoachIntelligentSearch128;
-assert.equal(api.version,'1.5.3-alpha');assert.equal(api.build,'1.5.3-food-specific-portions');assert.equal(api.portionVersion,'1.5.3-alpha');
+assert.equal(api.version,'1.5.3-alpha');assert.equal(api.build,'1.5.3-food-specific-portions');assert.equal(api.portionVersion,'1.5.3-alpha');assert.equal(api.learningVersion,'1.6.0-alpha');
 let row=api.rowsFor('2 Scheiben Toast')[0];assert.equal(row.item.name,'Toastbrot');assert.equal(row.status,'matched');assert.equal(row.factor,2);assert.match(row.amountLabel,/2 Scheiben ≈ 50 g/);
 row=api.rowsFor('1 EL Butter')[0];assert.equal(row.status,'matched');assert.equal(row.factor,1.5);assert.match(row.amountLabel,/1 EL ≈ 15 g/);
 row=api.rowsFor('1 Handvoll Haferflocken')[0];assert.equal(row.status,'matched');assert.ok(Math.abs(row.factor-.6)<.0001);assert.match(row.amountLabel,/30 g/);
@@ -46,7 +47,8 @@ const input=w.document.querySelector('#nutritionSearch');input.value='1 EL Steak
 const facadeScript=w.document.createElement('script');facadeScript.textContent=compatibility;w.document.head.append(facadeScript);assert.equal(w.CutCoachNutritionMultiSearch120.version,'1.5.3-compat');assert.match(w.CutCoachNutritionMultiSearch120.resolve('1 EL Butter').amountLabel,/15 g/);
 assert.ok(loader.includes("const loadCanonical=()=>ensure('nutrition-intelligent-search-128','./nutrition-multisearch-canonical-128.js?v=1.5.0-alpha',()=>Boolean(window.CutCoachIntelligentSearch128),attachLayers)"));
 assert.ok(loader.includes("const loadConfidence=()=>ensure('nutrition-search-confidence-hardening-v151','./nutrition-search-confidence-hardening-v151.js?v=1.5.2-alpha',()=>Boolean(window.CutCoachSearchConfidenceHardening151),loadCanonical)"));
-assert.ok(loader.includes("const loadPortionHardening=()=>ensure('nutrition-portion-hardening-v153','./nutrition-portion-hardening-v153.js?v=1.5.3-alpha',()=>Boolean(window.CutCoachPortionHardening153),loadConfidence)"));
+assert.ok(loader.includes("const loadLearning=()=>ensure('nutrition-search-learning-v160','./nutrition-search-learning-v160.js?v=1.6.0-alpha',()=>Boolean(window.CutCoachSearchLearning160),loadConfidence)"));
+assert.ok(loader.includes("const loadPortionHardening=()=>ensure('nutrition-portion-hardening-v153','./nutrition-portion-hardening-v153.js?v=1.5.3-alpha',()=>Boolean(window.CutCoachPortionHardening153),loadLearning)"));
 assert.ok(loader.includes("ensure('nutrition-portion-profiles-v153','./nutrition-portion-profiles-v153.js?v=1.5.3-alpha',()=>Boolean(window.CutCoachPortionProfiles153),loadPortionHardening)"));
-assert.match(manifest,/nutrition-portion-profiles-v153\.js\?v=1\.5\.3-alpha/);assert.match(manifest,/nutrition-portion-hardening-v153\.js\?v=1\.5\.3-alpha/);assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.5\.3-compat/);assert.match(sw,/search153-portions/);
-dom.window.close();console.log('Lebensmittelbezogene Portionsprofile 1.5.3: ok');
+assert.match(manifest,/nutrition-portion-profiles-v153\.js\?v=1\.5\.3-alpha/);assert.match(manifest,/nutrition-portion-hardening-v153\.js\?v=1\.5\.3-alpha/);assert.match(manifest,/nutrition-search-learning-v160\.js\?v=1\.6\.0-alpha/);assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.5\.3-compat/);assert.match(sw,/search153-portions/);assert.match(sw,/search160-learning/);
+dom.window.close();console.log('Lebensmittelbezogene Portionsprofile 1.5.3 bleiben unter lokaler Lernschicht stabil.');

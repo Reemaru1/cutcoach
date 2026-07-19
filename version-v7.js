@@ -20,10 +20,11 @@
     addStyle('nutrition-multisearch-120','./nutrition-multisearch-120.css?v=1.2.3-alpha');addStyle('nutrition-search-confidence-v150','./nutrition-search-confidence-v150.css?v=1.5.0-alpha');
     const ensure=(key,src,ready,next)=>{if(ready()){next();return}const existing=document.querySelector(`script[data-${key}]`);if(existing){existing.addEventListener('load',next,{once:true});existing.addEventListener('error',next,{once:true});return}addScript(key,src,next)};
     const loadCompatibility=()=>{if(!window.CutCoachNutritionMultiSearch120)addScript('nutrition-multisearch-120','./nutrition-multisearch-120.js?v=1.5.3-compat')};
-    const attachLayers=()=>{let engine=window.CutCoachIntelligentSearch128;engine=window.CutCoachSearchConfidenceHardening151?.attach?.(engine)||engine;engine=window.CutCoachPortionHardening153?.attach?.(engine)||engine;loadCompatibility()};
+    const attachLayers=()=>{let engine=window.CutCoachIntelligentSearch128;engine=window.CutCoachSearchConfidenceHardening151?.attach?.(engine)||engine;engine=window.CutCoachPortionHardening153?.attach?.(engine)||engine;window.CutCoachSearchLearning160?.installLibraryHook?.();loadCompatibility()};
     const loadCanonical=()=>ensure('nutrition-intelligent-search-128','./nutrition-multisearch-canonical-128.js?v=1.5.0-alpha',()=>Boolean(window.CutCoachIntelligentSearch128),attachLayers);
     const loadConfidence=()=>ensure('nutrition-search-confidence-hardening-v151','./nutrition-search-confidence-hardening-v151.js?v=1.5.2-alpha',()=>Boolean(window.CutCoachSearchConfidenceHardening151),loadCanonical);
-    const loadPortionHardening=()=>ensure('nutrition-portion-hardening-v153','./nutrition-portion-hardening-v153.js?v=1.5.3-alpha',()=>Boolean(window.CutCoachPortionHardening153),loadConfidence);
+    const loadLearning=()=>ensure('nutrition-search-learning-v160','./nutrition-search-learning-v160.js?v=1.6.0-alpha',()=>Boolean(window.CutCoachSearchLearning160),loadConfidence);
+    const loadPortionHardening=()=>ensure('nutrition-portion-hardening-v153','./nutrition-portion-hardening-v153.js?v=1.5.3-alpha',()=>Boolean(window.CutCoachPortionHardening153),loadLearning);
     ensure('nutrition-portion-profiles-v153','./nutrition-portion-profiles-v153.js?v=1.5.3-alpha',()=>Boolean(window.CutCoachPortionProfiles153),loadPortionHardening);
   }
   function loadNutrition73(){addStyle('nutrition-v73','./nutrition-v73.css?v=7.3.1');if(window.CutCoachNutritionV73||document.querySelector('script[data-nutrition-v73]')){loadNutrition110();loadNutritionVoice111();loadNutritionMulti120();return}addScript('nutrition-v73','./nutrition-v73.js?v=7.3.2',()=>{loadNutrition110();loadNutritionVoice111();loadNutritionMulti120()})}
