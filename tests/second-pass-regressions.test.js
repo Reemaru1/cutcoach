@@ -31,7 +31,7 @@ assert.match(scanner,/const localScanner=newScanner\(\)/,'Foto- und Live-Scanner
 
 assert.match(off,/lookupToken/,'Produktsuche besitzt keinen Schutz gegen verspätete Antworten.');
 assert.match(off,/function cancelLookup/,'Produktsuche kann beim Schließen nicht abgebrochen werden.');
-assert.match(off,/importData\(db\\)!==true|importData\(db\)!==true/,'Fehlgeschlagenes Bibliotheksspeichern wird weiterhin als Erfolg behandelt.');
+assert.match(off,/importData\(db\)!==true/,'Fehlgeschlagenes Bibliotheksspeichern wird weiterhin als Erfolg behandelt.');
 assert.match(off,/if\(token!==lookupToken\)return/,'Veraltete Produktsuchergebnisse werden nicht verworfen.');
 
 assert.match(water,/lastDateKey/,'Wasseranimation unterscheidet keinen Datumswechsel.');
