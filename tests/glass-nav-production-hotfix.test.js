@@ -65,7 +65,7 @@ assert.ok(runtime.includes("journal-live-nav-v127.js?v=1.3.2-alpha"),'Runtime-Ma
 assert.ok(runtime.includes("glass-nav-v131.js?v=1.3.2-alpha"),'Runtime-Manifest enthält nicht die reparierte Glasnavigation.');
 assert.ok(runtime.includes("glass-nav-v131.css?v=1.3.6-alpha"),'Runtime-Manifest enthält nicht das Instagram-Dock.');
 assert.ok(sw.includes("runtime-manifest.js?v=1.2.6-alpha"),'Service Worker lädt nicht das bestehende Runtime-Manifest.');
-assert.ok(sw.includes("-nav136`"),'Service Worker verwendet nicht die neue Instagram-Dock-Cachegeneration.');
+assert.ok(sw.includes('-nav136-journal137`'),'Service Worker verwendet nicht die Instagram-Dock- und Tagebuch-Cachegeneration.');
 
 dom.window.close();
 console.log('Flackerfreies Instagram-Dock mit grünem Plusbutton geprüft.');
