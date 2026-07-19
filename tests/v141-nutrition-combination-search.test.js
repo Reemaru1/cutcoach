@@ -58,7 +58,8 @@ assert.ok(host.querySelector('[data-canonical-all]'),'Gemeinsames Hinzufügen fe
 
 assert.ok(loader.includes('nutrition-multisearch-canonical-128.js?v=1.4.1-alpha'),'Versionsloader lädt nicht die neue Kombinationssuche.');
 assert.ok(runtime.includes('nutrition-multisearch-canonical-128.js?v=1.4.1-alpha'),'Runtime-Manifest enthält nicht die neue Kombinationssuche.');
-assert.ok(sw.includes('-dishes140-search141`'),'Service Worker verwendet nicht die neue Such-Cachegeneration.');
+assert.ok(sw.includes('-nav136-journal137-nutrition138-dishes140`'),'Service Worker behält nicht die geprüfte Cachebasis.');
+assert.ok(sw.includes('`${CACHE_BASE}-search141`'),'Service Worker verwendet nicht die neue Such-Cachegeneration.');
 
 dom.window.close();
 console.log('Intelligente Suche erkennt Cola/Ayran mit Menemen und schützt echte „mit“-Gerichte.');
