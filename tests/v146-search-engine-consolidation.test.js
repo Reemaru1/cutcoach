@@ -13,7 +13,7 @@ const manifest=fs.readFileSync(path.join(root,'runtime-manifest.js'),'utf8');
 const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
 
 assert.match(compatibility,/mode:'compatibility-facade'/,'Alte API ist nicht eindeutig als passive Fassade gekennzeichnet.');
-assert.match(compatibility,/version:'1\.4\.6-compat'/,'Kompatibilitätsversion fehlt.');
+assert.match(compatibility,/const VERSION='1\.4\.6-compat'/,'Kompatibilitätsversion fehlt.');
 assert.doesNotMatch(compatibility,/addEventListener\s*\(/,'Kompatibilitätsfassade registriert weiterhin eigene Listener.');
 assert.doesNotMatch(compatibility,/setTimeout|setInterval|requestAnimationFrame|requestIdleCallback/,'Kompatibilitätsfassade besitzt weiterhin eigene Zeitsteuerung.');
 assert.doesNotMatch(compatibility,/MutationObserver/,'Kompatibilitätsfassade beobachtet weiterhin das DOM.');
