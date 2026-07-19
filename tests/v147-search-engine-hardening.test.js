@@ -12,13 +12,11 @@ const alpha={id:'catalog-alpha',name:'Alpha',aliases:[],amount:100,unit:'g',calo
 const beta={id:'catalog-beta',name:'Beta',aliases:[],amount:100,unit:'g',calories:100,protein:1,carbs:1,fat:1,source:'cutcoach',catalog:true};
 const gamma={id:'library-gamma',name:'Gamma',aliases:[],amount:100,unit:'g',calories:100,protein:1,carbs:1,fat:1,source:'user',kind:'food'};
 const delta={id:'library-delta',name:'Delta',aliases:[],amount:100,unit:'g',calories:100,protein:1,carbs:1,fat:1,source:'user',kind:'food'};
-const dom=new JSDOM(`<!doctype html><body data-nutrition-meal-type="Snack"><div class="nutrition-search-card"><input id="nutritionSearch"></div><section class="nutrition-results" id="visibleResults"></section><section class="nutrition-empty-state" id="hiddenEmpty" hidden></section></body>`,{url:'https://example.test/cutcoach/',runScripts:'dangerously',pretendToBeVisual:true});
+const dom=new JSDOM('<!doctype html><body data-nutrition-meal-type="Snack"><div class="nutrition-search-card"><input id="nutritionSearch"></div><section class="nutrition-results" id="visibleResults"></section><section class="nutrition-empty-state" id="hiddenEmpty" hidden></section></body>',{url:'https://example.test/cutcoach/',runScripts:'dangerously',pretendToBeVisual:true});
 const {window}=dom;
 let libraryMode='throw',addResult=null;
 window.CutCoachLibrary={exportData:()=>{if(libraryMode==='throw')throw new Error('library unavailable');return{items:libraryMode==='items'?[gamma,delta]:[]}},addCatalogItemToDay:()=>addResult};
-window.CutCoachFoodCatalog={items:()=>[alpha,beta],get:()=>null};
-window.CutCoachEverydayCatalog={items:()=>[],get:()=>null};
-window.render=()=>{};window.toast=()=>{};
+window.CutCoachFoodCatalog={items:()=>[alpha,beta],get:()=>null};window.CutCoachEverydayCatalog={items:()=>[],get:()=>null};window.render=()=>{};window.toast=()=>{};
 let listenerCount=0;const nativeAdd=window.document.addEventListener.bind(window.document);window.document.addEventListener=(...args)=>{listenerCount++;return nativeAdd(...args)};
 let script=window.document.createElement('script');script.textContent=source;window.document.head.append(script);const listenersAfterFirst=listenerCount;assert.ok(listenersAfterFirst>0);
 script=window.document.createElement('script');script.textContent=source;window.document.head.append(script);assert.equal(listenerCount,listenersAfterFirst);
@@ -30,5 +28,5 @@ input.value='Sucuk';input.dispatchEvent(new window.Event('input',{bubbles:true})
 input.value='Sucuk mit Toast';assert.equal(api.render(input),true);input.dispatchEvent(new window.Event('compositionstart',{bubbles:true}));input.value='Sucuk';input.dispatchEvent(new window.Event('compositionend',{bubbles:true}));assert.equal(window.document.querySelector('#nutritionMultiSearch').hidden,true);
 libraryMode='items';input.value='Gamma und Delta';assert.ok(api.rowsFor(input.value).every(row=>!row.item));window.dispatchEvent(new window.CustomEvent('cutcoach:librarychange'));const refreshed=window.document.querySelector('#nutritionMultiSearch');assert.equal(refreshed.hidden,false);assert.match(refreshed.textContent,/Gamma/);assert.match(refreshed.textContent,/Delta/);
 addResult=null;input.value='Sucuk mit Toast';assert.equal(api.render(input),true);const addAll=window.document.querySelector('[data-canonical-all]');addAll.dispatchEvent(new window.MouseEvent('click',{bubbles:true}));assert.equal(addAll.disabled,false);assert.equal(addAll.getAttribute('aria-busy'),null);assert.match(addAll.textContent,/Erneut versuchen/);
-assert.match(loader,/nutrition-multisearch-canonical-128\.js\?v=1\.5\.0-alpha/);assert.match(loader,/existing\.addEventListener\('load',loadCompatibility/);assert.match(manifest,/nutrition-multisearch-canonical-128\.js\?v=1\.5\.0-alpha/);assert.match(sw,/search150-confidence/);
-dom.window.close();console.log('Such-Engine 1.5.0: Hardening und Confidence Score geprüft.');
+assert.match(loader,/nutrition-multisearch-canonical-128\.js\?v=1\.5\.0-alpha/);assert.match(loader,/existing\.addEventListener\('load',loadCompatibility/);assert.match(manifest,/nutrition-multisearch-canonical-128\.js\?v=1\.5\.0-alpha/);assert.match(sw,/search152-catalog/);
+dom.window.close();console.log('Such-Engine 1.5.0 bleibt unter Resolver-Cache 1.5.2 stabil.');
