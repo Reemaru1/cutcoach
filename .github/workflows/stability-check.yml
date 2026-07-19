@@ -22,7 +22,7 @@ jobs:
         id: matrix
         shell: bash
         run: |
-          tests=$(node -e "const fs=require('fs');const fixtures=new Set(['v72-smoke.test.js','v7-smoke.test.js']);process.stdout.write(JSON.stringify(fs.readdirSync('tests').filter(name=>name.endsWith('.test.js')&&!fixtures.has(name)).sort()))")
+          tests=$(node -e "const fs=require('fs');const fixtures=new Set(['journal-regression.test.js','v72-smoke.test.js','v7-smoke.test.js']);process.stdout.write(JSON.stringify(fs.readdirSync('tests').filter(name=>name.endsWith('.test.js')&&!fixtures.has(name)).sort()))")
           echo "tests=$tests" >> "$GITHUB_OUTPUT"
 
   test:
