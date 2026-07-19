@@ -38,7 +38,7 @@ assert.match(enhanced,/clearInjected/,'Alte Alltags-Treffer werden bei Query-Wec
 assert.match(version,/nutrition-multisearch-canonical-128\.js\?v=1\.5\.0-alpha/);
 assert.match(version,/nutrition-multisearch-120\.js\?v=1\.5\.0-compat/);
 assert.match(manifest,/nutrition-search-confidence-hardening-v151\.js\?v=1\.5\.1-alpha/);
-assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.5\.1-compat/);
+assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.5\.0-compat/);
 assert.match(sw,/runtime-manifest\.js\?v=1\.2\.6-alpha/);
 assert.match(sw,/search150-confidence/);
 assert.match(update,/sw\.js\?v=1\.2\.6-alpha-force/);
