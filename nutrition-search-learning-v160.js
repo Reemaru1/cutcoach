@@ -55,8 +55,18 @@
     let reason='';if(choices>=2)reason='Deine Wahl';else if(uses>=3||adds>=3)reason='Häufig genutzt';else if(favorite)reason='Favorit';else if(recencyScore)reason='Kürzlich genutzt';
     return Object.freeze({score,decisive,reason,uses,adds,choices,contextHits:contextRecord?(contextRecord.adds+contextRecord.choices):0,itemId:id});
   }
+  function queryForItem(item){
+    const id=itemKey(item),node=document.querySelector('#nutritionMultiSearch'),rows=Array.isArray(node?._canonicalRows)?node._canonicalRows:[],row=rows.find(candidate=>candidate?.item&&itemKey(candidate.item)===id);
+    return row?.query||document.querySelector('#nutritionSearch')?.value||'';
+  }
+  function installLibraryHook(){
+    const library=global.CutCoachLibrary,original=library?.addCatalogItemToDay;if(typeof original!=='function'||original.__cutcoachLearning160)return false;
+    function wrapped(item,options={}){const result=original.call(library,item,options);if(result)record(queryForItem(item),item,{kind:'add',mealType:options?.type});return result}
+    Object.defineProperty(wrapped,'__cutcoachLearning160',{value:true});library.addCatalogItemToDay=wrapped;return true;
+  }
   function clear(){db=blank();try{localStorage.removeItem(STORAGE_KEY)}catch{}notify();return true}
   function snapshot(){return JSON.parse(JSON.stringify(db))}
 
-  global.CutCoachSearchLearning160=Object.freeze({version:VERSION,build:BUILD,record,signal,clear,snapshot,normalize,itemKey});
+  global.CutCoachSearchLearning160=Object.freeze({version:VERSION,build:BUILD,record,signal,clear,snapshot,normalize,itemKey,installLibraryHook});
+  installLibraryHook();
 })(window);
