@@ -28,5 +28,5 @@ const engine=window.CutCoachIntelligentSearch128,facade=window.CutCoachNutrition
 const direct=engine.rowsFor('Sucuk mit Toast'),delegated=facade.rowsFor('Sucuk mit Toast');assert.deepEqual(Array.from(delegated,row=>row.item?.name),Array.from(direct,row=>row.item?.name));
 const resolved=facade.resolve('Sucuk');assert.equal(resolved.match?.name,'Sucuk');assert.equal(resolved.confidence,100);assert.equal(resolved.status,'matched');
 assert.match(loader,/nutrition-multisearch-canonical-128\.js\?v=1\.5\.0-alpha/);assert.match(loader,/nutrition-multisearch-120\.js\?v=1\.5\.0-compat/);assert.doesNotMatch(loader,/loadLegacy/);
-assert.match(manifest,/nutrition-search-confidence-hardening-v151\.js\?v=1\.5\.1-alpha/);assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.5\.1-compat/);assert.match(sw,/search150-confidence/);
+assert.match(manifest,/nutrition-search-confidence-hardening-v151\.js\?v=1\.5\.1-alpha/);assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.5\.0-compat/);assert.match(sw,/search150-confidence/);
 dom.window.close();console.log('Eine zentrale Such-Engine mit Confidence-Hardening und passiver Brücke: ok');
