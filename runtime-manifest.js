@@ -17,6 +17,7 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './library.css?v=7.0.0'
   ]),
   styles:freezeAssets([
+    './upgrade-legacy.css?v=1.3.1-alpha',
     './upgrade-360.css?v=4.2.0',
     './upgrade-420.css?v=4.2.0',
     './upgrade-430.css?v=4.3.0',
@@ -45,28 +46,6 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './glass-nav-v131.css?v=1.3.1-alpha'
   ]),
   scripts:freezeAssets([
-    './food-catalog.js?v=7.0.0',
-    './everyday-catalog-v73.js?v=7.3.0',
-    './library.js?v=7.0.0',
-    './library-init.js?v=7.0.0',
-    './scanner-v2.js?v=7.0.0',
-    './off-lookup.js?v=7.0.0',
-    './upgrade-340.js?v=7.0.0',
-    './nutrition.js?v=7.0.0',
-    './journal.js?v=7.0.0',
-    './water-animation.js?v=6.8.5',
-    './nutrition-v7.js?v=7.0.0',
-    './nutrition-v73.js?v=7.3.2',
-    './ui-effects-v7.js?v=7.1.0',
-    './journal-v72.js?v=7.2.0',
-    './journal-smart-v740.js?v=1.0.0-alpha',
-    './journal-live-nav-v127.js?v=1.2.7-alpha',
-    './nutrition-cleanup-101.js?v=1.0.3-alpha',
-    './nutrition-v110.js?v=1.1.2-alpha',
-    './nutrition-voice-111.js?v=1.1.2-alpha',
-    './nutrition-multisearch-canonical-128.js?v=1.2.10-alpha',
-    './nutrition-multisearch-120.js?v=1.2.3-alpha',
-    './glass-nav-v131.js?v=1.3.1-alpha',
-    './version-v7.js?v=1.3.1-alpha'
+    './food-catalog.js?v=7.0.0','./everyday-catalog-v73.js?v=7.3.0','./library.js?v=7.0.0','./library-init.js?v=7.0.0','./scanner-v2.js?v=7.0.0','./off-lookup.js?v=7.0.0','./upgrade-340.js?v=7.0.0','./nutrition.js?v=7.0.0','./journal.js?v=7.0.0','./water-animation.js?v=6.8.5','./nutrition-v7.js?v=7.0.0','./nutrition-v73.js?v=7.3.2','./ui-effects-v7.js?v=7.1.0','./journal-v72.js?v=7.2.0','./journal-smart-v740.js?v=1.0.0-alpha','./journal-live-nav-v127.js?v=1.2.7-alpha','./nutrition-cleanup-101.js?v=1.0.3-alpha','./nutrition-v110.js?v=1.1.2-alpha','./nutrition-voice-111.js?v=1.1.2-alpha','./nutrition-multisearch-canonical-128.js?v=1.2.10-alpha','./nutrition-multisearch-120.js?v=1.2.3-alpha','./glass-nav-v131.js?v=1.3.1-alpha','./version-v7.js?v=1.3.1-alpha'
   ])
 });
