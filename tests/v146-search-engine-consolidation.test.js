@@ -1,73 +1,33 @@
 'use strict';
-
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {JSDOM}=require('jsdom');
-
 const root=path.resolve(__dirname,'..');
 const canonical=fs.readFileSync(path.join(root,'nutrition-multisearch-canonical-128.js'),'utf8');
 const compatibility=fs.readFileSync(path.join(root,'nutrition-multisearch-120.js'),'utf8');
 const loader=fs.readFileSync(path.join(root,'version-v7.js'),'utf8');
 const manifest=fs.readFileSync(path.join(root,'runtime-manifest.js'),'utf8');
 const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
-
 assert.match(compatibility,/mode:'compatibility-facade'/);
-assert.match(compatibility,/const VERSION='1\.4\.6-compat'/);
+assert.match(compatibility,/const VERSION='1\.5\.0-compat'/);
 assert.doesNotMatch(compatibility,/addEventListener\s*\(/);
 assert.doesNotMatch(compatibility,/setTimeout|setInterval|requestAnimationFrame|requestIdleCallback/);
 assert.doesNotMatch(compatibility,/MutationObserver/);
 assert.doesNotMatch(compatibility,/innerHTML|replaceChildren|createElement/);
 assert.doesNotMatch(compatibility,/CutCoachLibrary/);
-
 const dom=new JSDOM('<!doctype html><body data-nutrition-meal-type="Snack"><div class="nutrition-search-card"><input id="nutritionSearch"></div><div class="nutrition-results"></div></body>',{url:'https://example.test/cutcoach/',runScripts:'dangerously',pretendToBeVisual:true});
 const {window}=dom;
 window.CutCoachFoodCatalog={items:()=>[],get:()=>null};
 window.CutCoachLibrary={exportData:()=>({items:[]}),addCatalogItemToDay:()=>true};
-window.render=()=>{};
-window.toast=()=>{};
-
-let listenerCount=0;
-const nativeAdd=window.document.addEventListener.bind(window.document);
-window.document.addEventListener=(...args)=>{listenerCount++;return nativeAdd(...args)};
-const canonicalScript=window.document.createElement('script');
-canonicalScript.textContent=canonical;
-window.document.head.append(canonicalScript);
-const canonicalListeners=listenerCount;
-assert.ok(canonicalListeners>0);
-
-const compatibilityScript=window.document.createElement('script');
-compatibilityScript.textContent=compatibility;
-window.document.head.append(compatibilityScript);
-assert.equal(listenerCount,canonicalListeners);
-
-const engine=window.CutCoachIntelligentSearch128;
-const facade=window.CutCoachNutritionMultiSearch120;
-assert.ok(engine);
-assert.ok(facade);
-assert.equal(facade.mode,'compatibility-facade');
-assert.equal(facade.engineVersion(),engine.version);
-
-const direct=engine.rowsFor('Sucuk mit Toast');
-const delegated=facade.rowsFor('Sucuk mit Toast');
-assert.deepEqual(Array.from(delegated,row=>row.item?.name),Array.from(direct,row=>row.item?.name));
-assert.deepEqual(Array.from(delegated,row=>row.item?.name),['Sucuk','Toastbrot']);
-const resolved=facade.resolve('Sucuk');
-assert.equal(resolved.match?.name,'Sucuk');
-assert.equal(resolved.confidence,100);
-
-const input=window.document.querySelector('#nutritionSearch');
-input.value='Sucuk mit Toast';
-assert.equal(facade.refresh(),true);
-assert.match(window.document.querySelector('#nutritionMultiSearch').textContent,/2 Bestandteile erkannt/);
-
-assert.match(loader,/nutrition-multisearch-canonical-128\.js\?v=1\.4\.5-alpha&h=147/);
-assert.match(loader,/if\(window\.CutCoachIntelligentSearch128\)\{loadCompatibility\(\);return\}/);
-assert.match(loader,/existing\.addEventListener\('load',loadCompatibility,\{once:true\}\)/);
-assert.match(loader,/nutrition-multisearch-120\.js\?v=1\.4\.6-compat/);
-assert.doesNotMatch(loader,/loadLegacy/);
-assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.4\.6-compat/);
-assert.match(sw,/search146/);
-
-dom.window.close();
-console.log('Such-Engine bleibt konsolidiert und der Loader ist gehärtet.');
+window.CutCoachEverydayCatalog={items:()=>[],get:()=>null};
+window.render=()=>{};window.toast=()=>{};
+let listenerCount=0;const nativeAdd=window.document.addEventListener.bind(window.document);window.document.addEventListener=(...args)=>{listenerCount++;return nativeAdd(...args)};
+let script=window.document.createElement('script');script.textContent=canonical;window.document.head.append(script);const canonicalListeners=listenerCount;assert.ok(canonicalListeners>0);
+script=window.document.createElement('script');script.textContent=compatibility;window.document.head.append(script);assert.equal(listenerCount,canonicalListeners);
+const engine=window.CutCoachIntelligentSearch128,facade=window.CutCoachNutritionMultiSearch120;assert.ok(engine);assert.ok(facade);assert.equal(facade.mode,'compatibility-facade');assert.equal(facade.engineVersion(),engine.version);
+const direct=engine.rowsFor('Sucuk mit Toast'),delegated=facade.rowsFor('Sucuk mit Toast');assert.deepEqual(Array.from(delegated,row=>row.item?.name),Array.from(direct,row=>row.item?.name));assert.deepEqual(Array.from(delegated,row=>row.item?.name),['Sucuk','Toastbrot']);
+const resolved=facade.resolve('Sucuk');assert.equal(resolved.match?.name,'Sucuk');assert.equal(resolved.confidence,100);assert.equal(resolved.status,'matched');
+const input=window.document.querySelector('#nutritionSearch');input.value='Sucuk mit Toast';assert.equal(facade.refresh(),true);assert.match(window.document.querySelector('#nutritionMultiSearch').textContent,/2 sichere Bestandteile/);
+assert.match(loader,/nutrition-multisearch-canonical-128\.js\?v=1\.5\.0-alpha/);assert.match(loader,/if\(window\.CutCoachIntelligentSearch128\)\{loadCompatibility\(\);return\}/);assert.match(loader,/existing\.addEventListener\('load',loadCompatibility,\{once:true\}\)/);assert.match(loader,/nutrition-multisearch-120\.js\?v=1\.5\.0-compat/);assert.doesNotMatch(loader,/loadLegacy/);assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.5\.0-compat/);assert.match(sw,/search150-confidence/);
+dom.window.close();console.log('Such-Engine bleibt konsolidiert und verwendet Confidence Score 1.5.0.');
