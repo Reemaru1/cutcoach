@@ -61,7 +61,7 @@
   function collectExact(query,fallbackItem){
     const q=normalize(query);if(!q)return null;
     const records=catalogIndex().filter(record=>record.name===q);
-    if(fallbackItem)records.push({item:fallbackItem,id:String(fallbackItem.id||fallbackItem.name),origin:'base',name:q,tokens:q.split(' '),isName:normalize(fallbackItem.name)===q,preference:itemPreference(fallbackItem,'base')});
+    if(fallbackItem&&namesOf(fallbackItem).includes(q))records.push({item:fallbackItem,id:String(fallbackItem.id||fallbackItem.name),origin:'base',name:q,tokens:q.split(' '),isName:normalize(fallbackItem.name)===q,preference:itemPreference(fallbackItem,'base')});
     const dedup=new Map();for(const record of records){const existing=dedup.get(record.id);if(!existing||record.preference>existing.preference)dedup.set(record.id,record)}
     const ranked=[...dedup.values()].sort((a,b)=>(Number(b.isName)-Number(a.isName))||b.preference-a.preference||String(a.item.name).localeCompare(String(b.item.name),'de'));
     if(!ranked.length)return null;
