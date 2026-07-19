@@ -51,7 +51,7 @@
     const id=itemKey(item),q=normalize(query),context=mealType(requestedMealType),uses=Math.max(0,Number(item?.uses)||0),favorite=Boolean(item?.favorite),records=db.records.filter(entry=>entry.itemId===id&&entry.query===q);
     const contextRecord=records.find(entry=>entry.mealType===context),adds=records.reduce((sum,entry)=>sum+entry.adds,0),choices=records.reduce((sum,entry)=>sum+entry.choices,0),lastRecord=records.reduce((latest,entry)=>!latest||entry.lastUsedAt>latest?entry.lastUsedAt:latest,null);
     const useScore=Math.min(7,Math.floor(Math.log2(uses+1)*2)),favoriteScore=favorite?6:0,recencyScore=Math.max(ageScore(item?.lastUsedAt),ageScore(lastRecord)),learnedScore=Math.min(8,adds*2+choices*3),contextScore=contextRecord?Math.min(3,contextRecord.adds+contextRecord.choices):0,sourceScore=origin==='library'||item?.source==='user'?1:0;
-    const score=Math.min(18,useScore+favoriteScore+recencyScore+learnedScore+contextScore+sourceScore),decisive=favorite||uses>=3||adds>=3||choices>=2;
+    const decisive=favorite||uses>=3||adds>=3||choices>=2,rawScore=useScore+favoriteScore+recencyScore+learnedScore+contextScore+sourceScore,score=decisive?Math.min(18,rawScore):Math.min(3,rawScore);
     let reason='';if(choices>=2)reason='Deine Wahl';else if(uses>=3||adds>=3)reason='Häufig genutzt';else if(favorite)reason='Favorit';else if(recencyScore)reason='Kürzlich genutzt';
     return Object.freeze({score,decisive,reason,uses,adds,choices,contextHits:contextRecord?(contextRecord.adds+contextRecord.choices):0,itemId:id});
   }
