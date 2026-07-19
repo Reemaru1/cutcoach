@@ -58,7 +58,6 @@ setTimeout(()=>{
     assert.ok(runtime.includes("journal-polish-v137.js?v=1.3.7-alpha"),'Runtime-Manifest enthält die neue JavaScript-Datei nicht.');
     assert.ok(sw.includes('-nav136-journal137`'),'Service Worker verwendet nicht die neue Tagebuch-Cachegeneration.');
 
-    dom.window.close();
     console.log('Tagebuch-Leerraum, Makrotitel, Schritte-Metadaten und Tagesabschluss geprüft.');
   },20);
 },20);
