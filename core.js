@@ -1,6 +1,6 @@
 'use strict';
 
-const APP_VERSION = '6.8.0';
+const APP_VERSION = '1.3.2 Alpha';
 const STORAGE_KEY = 'cutcoach_v2';
 const RECOVERY_KEY = 'cutcoach_recovery_raw';
 const PREVIOUS_STATE_KEY = 'cutcoach_previous_state';
@@ -11,7 +11,7 @@ const MEAL_TYPES = ['Frühstück', 'Mittagessen', 'Abendessen', 'Snack'];
 const DEFAULTS = {
   settings: { age:28, height:179, calories:2300, maintenance:3000, protein:190, fat:65, carbs:200, steps:6000, gymGoal:5, goalWeight:null },
   days: {}, onboarded:false,
-  meta:{ schemaVersion:SCHEMA_VERSION, createdAt:null, lastBackupAt:null }
+  meta:{ schemaVersion:SCHEMA_VERSION, appVersion:APP_VERSION, createdAt:null, lastBackupAt:null }
 };
 
 const $ = selector => document.querySelector(selector);
@@ -109,7 +109,7 @@ function sanitizeMeal(meal={},fallbackId=makeId()){
     salt:meal.salt===null||meal.salt===undefined||meal.salt===''?null:mealNumber(meal.salt,null,0,100),
     quantity:unit?nullable(meal.quantity??meal.amount,0.1,100000):null,
     unit,
-    source:['bls','off','user','recipe','manual'].includes(meal.source)?meal.source:'manual',
+    source:['bls','off','cutcoach','user','recipe','manual'].includes(meal.source)?meal.source:'manual',
     sourceItemId:/^[A-Za-z0-9._:-]{1,128}$/.test(sourceId)?sourceId:''
   };
 }
@@ -172,6 +172,7 @@ function sanitizeState(raw={},options={}){
   result.onboarded=Boolean(raw.onboarded);
   result.meta={
     schemaVersion:SCHEMA_VERSION,
+    appVersion:APP_VERSION,
     createdAt:validTimestamp(raw.meta?.createdAt)||new Date().toISOString(),
     lastBackupAt:validTimestamp(raw.meta?.lastBackupAt)
   };
