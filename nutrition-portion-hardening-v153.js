@@ -14,6 +14,7 @@
   function confidenceLabel(value){const score=Math.round(clamp(value,0,100));if(score===100)return'Exakt · 100%';if(score>=90)return`Sehr sicher · ${score}%`;if(score>=72)return`Bitte prüfen · ${score}%`;return`Menge prüfen · ${score}%`}
   function confidenceClass(value){if(value>=90)return'high';if(value>=80)return'medium';return'low'}
   function looksLikeHouseholdInput(value){return HOUSEHOLD_HINT_RE.test(normalize(value))}
+  function normalizeHouseholdSyntax(value){return String(value||'').replace(/\bessl(?:oe|ö)ffeln?\b/gi,'EL').replace(/\bteel(?:oe|ö)ffeln?\b/gi,'TL').replace(/\bgl(?:ae|ä)sern?\b/gi,'Gläser').replace(/\bst(?:ue|ü)cke(?:n)?\b/gi,'Stück')}
   function isHouseholdRow(row){return Boolean(row?.quantitySpecified&&row?.unitInfo&&['serving','count'].includes(row.unitInfo.kind))}
   function invalidateRowCache(){cachedValue=null;cachedRows=null}
   function cacheRows(value,rows){cachedValue=String(value||'');cachedRows=rows;return rows}
@@ -27,7 +28,7 @@
     return{...row,status,confidence,confidenceLabel:confidenceLabel(confidence),factor:resolved.factor,amountLabel:resolved.amountLabel,approximate:resolved.approximate,portionSource:resolved.source,portionNeedsReview:Boolean(resolved.needsReview),convertedAmount:resolved.convertedAmount,convertedUnit:resolved.convertedUnit};
   }
   const applyRows=rows=>Array.from(rows||[],applyPortion);
-  function rowsFor(value){const key=String(value||'');if(cachedValue===key&&cachedRows)return cachedRows;return cacheRows(key,base?applyRows(base.rowsFor?.(value)||[]):[])}
+  function rowsFor(value){const key=String(value||'');if(cachedValue===key&&cachedRows)return cachedRows;const prepared=normalizeHouseholdSyntax(key),sourceRows=base?.rowsFor?.(prepared)||[];let rows=applyRows(sourceRows);if(prepared!==key&&rows.length===1)rows=[{...rows[0],raw:key.trim()}];return cacheRows(key,rows)}
   function hasHouseholdInput(value){return looksLikeHouseholdInput(value)&&rowsFor(value).some(isHouseholdRow)}
 
   function suppressNormalResults(active){document.body.classList.toggle('canonical-multisearch-active',active);if(active){for(const node of document.querySelectorAll(SUPPRESSION_SELECTOR)){if(node.dataset.cutcoachCanonicalSuppressed!=='1'){node.dataset.cutcoachCanonicalSuppressed='1';node.dataset.cutcoachCanonicalWasHidden=node.hidden?'1':'0'}node.hidden=true}return}for(const node of document.querySelectorAll('[data-cutcoach-canonical-suppressed="1"]')){node.hidden=node.dataset.cutcoachCanonicalWasHidden==='1';delete node.dataset.cutcoachCanonicalSuppressed;delete node.dataset.cutcoachCanonicalWasHidden}}
@@ -64,13 +65,13 @@
   }
 
   document.addEventListener('compositionstart',event=>{if(event.target?.id==='nutritionSearch')composing=true},true);
-  document.addEventListener('compositionend',event=>{if(event.target?.id!=='nutritionSearch'||!api)return;composing=false;if(!looksLikeHouseholdInput(event.target.value)){clearPortionMarker();return}if(!hasHouseholdInput(event.target.value))return;event.preventDefault();event.stopImmediatePropagation();schedule(event.target)},true);
-  document.addEventListener('input',event=>{const input=event.target;if(input?.id!=='nutritionSearch'||!api||composing||input.dataset.composing==='1'||input.dataset.voicePreview==='1')return;if(!looksLikeHouseholdInput(input.value)){clearPortionMarker();return}if(!hasHouseholdInput(input.value))return;event.preventDefault();event.stopImmediatePropagation();schedule(input)},true);
-  document.addEventListener('keydown',event=>{const input=event.target;if(input?.id!=='nutritionSearch'||!api||event.key!=='Enter'||!looksLikeHouseholdInput(input.value)||!hasHouseholdInput(input.value))return;event.preventDefault();event.stopImmediatePropagation();clearTimeout(timer);render(input)},true);
+  document.addEventListener('compositionend',event=>{if(event.target?.id!=='nutritionSearch'||!api)return;composing=false;if(!looksLikeHouseholdInput(event.target.value)){clearPortionMarker();return}if(!hasHouseholdInput(event.target.value)){clearPortionMarker();return}event.preventDefault();event.stopImmediatePropagation();schedule(event.target)},true);
+  document.addEventListener('input',event=>{const input=event.target;if(input?.id!=='nutritionSearch'||!api||composing||input.dataset.composing==='1'||input.dataset.voicePreview==='1')return;if(!looksLikeHouseholdInput(input.value)){clearPortionMarker();return}if(!hasHouseholdInput(input.value)){clearPortionMarker();return}event.preventDefault();event.stopImmediatePropagation();schedule(input)},true);
+  document.addEventListener('keydown',event=>{const input=event.target;if(input?.id!=='nutritionSearch'||!api||event.key!=='Enter'||!looksLikeHouseholdInput(input.value))return;if(!hasHouseholdInput(input.value)){clearPortionMarker();return}event.preventDefault();event.stopImmediatePropagation();clearTimeout(timer);render(input)},true);
   document.addEventListener('click',event=>{const choice=event.target.closest?.('#nutritionMultiSearch[data-portion153="1"] [data-confidence-choice]');if(!choice)return;if(selectChoice(choice)){event.preventDefault();event.stopImmediatePropagation()}},true);
   window.addEventListener('cutcoach:catalog-updated',invalidateRowCache);
   window.addEventListener('cutcoach:librarychange',invalidateRowCache);
   document.addEventListener('cutcoach:library-changed',invalidateRowCache);
 
-  global.CutCoachPortionHardening153=Object.freeze({version:VERSION,build:BUILD,attach,applyRows,looksLikeHouseholdInput,invalidateRowCache});
+  global.CutCoachPortionHardening153=Object.freeze({version:VERSION,build:BUILD,attach,applyRows,looksLikeHouseholdInput,normalizeHouseholdSyntax,invalidateRowCache});
 })(window);
