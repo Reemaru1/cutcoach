@@ -17,7 +17,7 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './library.css?v=7.0.0'
   ]),
   styles:freezeAssets([
-    './upgrade-legacy.css?v=1.3.2-alpha',
+    './upgrade-legacy.css?v=1.3.3-alpha',
     './upgrade-360.css?v=4.2.0',
     './upgrade-420.css?v=4.2.0',
     './upgrade-430.css?v=4.3.0',
