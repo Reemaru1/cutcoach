@@ -21,6 +21,7 @@ window.renderMeta=()=>{};
 window.openModal=id=>{const modal=window.document.getElementById(id);modal.classList.add('open');modal.setAttribute('aria-hidden','false')};
 window.closeModal=modal=>{modal.classList.remove('open');modal.setAttribute('aria-hidden','true')};
 const script=window.document.createElement('script');script.textContent=source;window.document.head.append(script);
+window.document.dispatchEvent(new window.Event('DOMContentLoaded',{bubbles:true}));
 
 const opener=window.document.getElementById('opener');
 opener.focus();window.openModal('first');
