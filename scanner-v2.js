@@ -1,11 +1,12 @@
 'use strict';
 
 (function(){
-  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'1.3.2 Alpha';
+  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'1.3.3 Alpha';
   let scanner=null;
   let scanning=false;
   let activeTrack=null;
   let handled=false;
+  let scanGeneration=0;
 
   function $(selector){return document.querySelector(selector);}
   function setStatus(text,type='info'){
@@ -94,19 +95,24 @@
   }
 
   async function startScanner(){
+    const generation=++scanGeneration;
     openModal('scannerModal');
     handled=false;
     ensureControls();
-    await stopScanner();
+    await stopScanner(false);
+    if(generation!==scanGeneration)return;
     ensureFrame();
     if(typeof Html5Qrcode!=='function'){
       setStatus('Scanner-Modul konnte nicht geladen werden. Bitte Internet prüfen und erneut öffnen.','error');
       return;
     }
+    let localScanner=null;
     try{
       setStatus('Kamera wird vorbereitet …');
-      scanner=newScanner();
+      localScanner=newScanner();
+      scanner=localScanner;
       const camera=await chooseBackCamera();
+      if(generation!==scanGeneration){try{localScanner.clear();}catch{}return;}
       const config={
         fps:18,
         qrbox:(width,height)=>({width:Math.floor(Math.min(width*.92,420)),height:Math.floor(Math.min(height*.46,190))}),
@@ -115,13 +121,17 @@
         experimentalFeatures:{useBarCodeDetectorIfSupported:true}
       };
       scanning=true;
-      await scanner.start(camera.id,config,onDecoded,()=>{});
+      await localScanner.start(camera.id,config,text=>onDecoded(text,generation),()=>{});
+      if(generation!==scanGeneration){try{await localScanner.stop();}catch{}try{localScanner.clear();}catch{}return;}
       activeTrack=$('#scannerReader video')?.srcObject?.getVideoTracks?.()[0]||null;
       configureCapabilities();
       setStatus('Live-Scan aktiv: Barcode quer, ruhig und gut beleuchtet in den Rahmen halten.');
     }catch(error){
+      if(generation!==scanGeneration)return;
       console.warn('Scanner 2.0 start failed',error);
       scanning=false;
+      if(scanner===localScanner)scanner=null;
+      try{localScanner?.clear();}catch{}
       setStatus('Live-Kamera konnte nicht gestartet werden. Tippe auf „Kamera neu starten“ oder fotografiere den Barcode.','error');
     }
   }
@@ -152,30 +162,38 @@
     }catch{setStatus('Die Taschenlampe wird von dieser Kamera nicht freigegeben.','error');}
   }
 
-  async function stopScanner(){
-    if(scanner){
-      try{if(scanning)await scanner.stop();}catch{}
-      try{scanner.clear();}catch{}
+  async function stopScanner(invalidate=true){
+    if(invalidate)scanGeneration++;
+    const current=scanner;
+    scanner=null;
+    const wasScanning=scanning;
+    scanning=false;
+    activeTrack=null;
+    if(current){
+      try{if(wasScanning)await current.stop();}catch{}
+      try{current.clear();}catch{}
     }
-    scanner=null;scanning=false;activeTrack=null;
     const torch=$('#scannerTorch');if(torch){torch.hidden=true;torch.dataset.on='false';torch.textContent='💡 Licht';}
   }
 
-  async function onDecoded(decodedText){
-    if(handled)return;
+  async function onDecoded(decodedText,generation=scanGeneration){
+    if(generation!==scanGeneration||handled)return;
     const code=String(decodedText||'').trim();
     if(!code)return;
     handled=true;
     setStatus(`Erkannt: ${code}`,'success');
-    if(navigator.vibrate)navigator.vibrate([70,40,70]);
-    await stopScanner();
+    try{navigator.vibrate?.([70,40,70]);}catch{}
+    await stopScanner(false);
+    if(generation!==scanGeneration)return;
     const input=$('#manualCode');if(input)input.value=code;
-    setTimeout(()=>$('#lookupManualCode')?.click(),250);
+    setTimeout(()=>{if(generation===scanGeneration)$('#lookupManualCode')?.click();},250);
   }
 
   async function scanPhoto(input){
     const file=input.files?.[0];input.value='';if(!file)return;
-    await stopScanner();
+    const generation=++scanGeneration;
+    await stopScanner(false);
+    if(generation!==scanGeneration)return;
     ensureFrame();
     if(typeof Html5Qrcode!=='function'){setStatus('Scanner-Modul konnte nicht geladen werden.','error');return;}
     setStatus('Foto wird in mehreren Varianten geprüft …');
@@ -184,18 +202,22 @@
       try{variants.push(...await makeImageVariants(file));}
       catch(error){console.warn('Bildvarianten nicht verfügbar, Originalfoto wird geprüft',error);}
       for(let index=0;index<variants.length;index++){
+        if(generation!==scanGeneration)return;
         ensureFrame();
-        scanner=newScanner();
+        const localScanner=newScanner();
+        scanner=localScanner;
         try{
           setStatus(`Foto wird geprüft (${index+1}/${variants.length}) …`);
-          const result=await scanner.scanFile(variants[index],false);
-          await onDecoded(result);
+          const result=await localScanner.scanFile(variants[index],false);
+          if(generation!==scanGeneration)return;
+          await onDecoded(result,generation);
           return;
         }catch{}
-        finally{try{scanner?.clear();}catch{}scanner=null;}
+        finally{try{localScanner.clear();}catch{}if(scanner===localScanner)scanner=null;}
       }
-      setStatus('Kein Barcode erkannt. Barcode möglichst formatfüllend, gerade und ohne Spiegelung fotografieren.','error');
+      if(generation===scanGeneration)setStatus('Kein Barcode erkannt. Barcode möglichst formatfüllend, gerade und ohne Spiegelung fotografieren.','error');
     }catch(error){
+      if(generation!==scanGeneration)return;
       console.warn('Photo scan failed',error);
       setStatus('Foto konnte nicht verarbeitet werden. Bitte erneut aufnehmen oder Code manuell eingeben.','error');
     }
