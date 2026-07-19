@@ -22,9 +22,10 @@ const dom=new JSDOM('<!doctype html><body data-nutrition-meal-type="Snack"><div 
 const {window}=dom;
 window.CutCoachFoodCatalog={items:()=>[],get:()=>null};window.CutCoachLibrary={exportData:()=>({items:[]}),addCatalogItemToDay:()=>true};window.CutCoachEverydayCatalog={items:()=>[],get:()=>null};window.render=()=>{};window.toast=()=>{};
 let listenerCount=0;const nativeAdd=window.document.addEventListener.bind(window.document);window.document.addEventListener=(...args)=>{listenerCount++;return nativeAdd(...args)};
-let script=window.document.createElement('script');script.textContent=canonical;window.document.head.append(script);const canonicalListeners=listenerCount;assert.ok(canonicalListeners>0);
-script=window.document.createElement('script');script.textContent=compatibility;window.document.head.append(script);assert.equal(listenerCount,canonicalListeners,'Kompatibilitätsbrücke registriert eigene Dokument-Listener.');
-const engine=window.CutCoachIntelligentSearch128,facade=window.CutCoachNutritionMultiSearch120;assert.ok(engine);assert.ok(facade);assert.equal(facade.mode,'compatibility-facade');assert.equal(facade.engineVersion(),engine.version);
+let script=window.document.createElement('script');script.textContent=canonical;window.document.head.append(script);assert.ok(listenerCount>0);
+script=window.document.createElement('script');script.textContent=hardening;window.document.head.append(script);window.CutCoachSearchConfidenceHardening151.attach(window.CutCoachIntelligentSearch128);const activeEngineListeners=listenerCount;assert.ok(activeEngineListeners>0);
+script=window.document.createElement('script');script.textContent=compatibility;window.document.head.append(script);assert.equal(listenerCount,activeEngineListeners,'Passive Kompatibilitätsbrücke registriert zusätzliche Dokument-Listener.');
+const engine=window.CutCoachIntelligentSearch128,facade=window.CutCoachNutritionMultiSearch120;assert.ok(engine);assert.ok(facade);assert.equal(engine.version,'1.5.1-alpha');assert.equal(facade.mode,'compatibility-facade');assert.equal(facade.engineVersion(),engine.version);
 const direct=engine.rowsFor('Sucuk mit Toast'),delegated=facade.rowsFor('Sucuk mit Toast');assert.deepEqual(Array.from(delegated,row=>row.item?.name),Array.from(direct,row=>row.item?.name));
 const resolved=facade.resolve('Sucuk');assert.equal(resolved.match?.name,'Sucuk');assert.equal(resolved.confidence,100);assert.equal(resolved.status,'matched');
 assert.match(loader,/nutrition-multisearch-canonical-128\.js\?v=1\.5\.0-alpha/);assert.match(loader,/nutrition-multisearch-120\.js\?v=1\.5\.0-compat/);assert.doesNotMatch(loader,/loadLegacy/);
