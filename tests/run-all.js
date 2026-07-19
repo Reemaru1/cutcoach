@@ -5,7 +5,7 @@ const path=require('node:path');
 const {spawnSync}=require('node:child_process');
 
 const testsDir=__dirname;
-const fixtures=new Set(['v7-smoke.test.js']);
+const fixtures=new Set(['v72-smoke.test.js','v7-smoke.test.js']);
 const testFiles=fs.readdirSync(testsDir)
   .filter(name=>name.endsWith('.test.js')&&!fixtures.has(name))
   .sort((left,right)=>left.localeCompare(right,'en'));
