@@ -52,8 +52,8 @@
   ]);
 
   function canonicalMeasure(value){return MEASURES[normalize(value)]||null}
-  function namesOf(item){return[item?.name,...(Array.isArray(item?.aliases)?item.aliases:[item?.aliases]),item?.category].filter(Boolean).map(normalize)}
-  function textOf(item){return namesOf(item).join(' ')}
+  function primaryNamesOf(item){return[item?.name,...(Array.isArray(item?.aliases)?item.aliases:[item?.aliases])].filter(Boolean).map(normalize)}
+  function namesOf(item){return[...primaryNamesOf(item),item?.category].filter(Boolean).map(normalize)}
   function directMeasures(item){
     const source=item?.householdMeasures||item?.portions||item?.portionProfiles;
     if(!source||typeof source!=='object')return null;
@@ -66,9 +66,9 @@
     return Object.keys(map).length?map:null;
   }
   function profileFor(item,measure){
-    const names=namesOf(item),text=names.join(' '),tokens=text.split(' '),matches=[];
-    for(const candidate of PROFILES){const definition=candidate.measures[measure];if(!definition)continue;let score=0;for(const term of candidate.terms){if(!term)continue;if(names.includes(term))score=Math.max(score,4);else if(tokens.includes(term))score=Math.max(score,3);else if(term.length>=4&&text.includes(term))score=Math.max(score,2);}if(score)matches.push({candidate,definition,score});}
-    matches.sort((a,b)=>b.score-a.score||b.candidate.confidence-a.candidate.confidence);
+    const primary=primaryNamesOf(item),primaryText=primary.join(' '),primaryTokens=primaryText.split(' '),category=normalize(item?.category),categoryTokens=category.split(' ').filter(Boolean),matches=[];
+    for(const candidate of PROFILES){const definition=candidate.measures[measure];if(!definition)continue;let score=0;for(const term of candidate.terms){if(!term)continue;if(primary.includes(term))score=Math.max(score,8);else if(primaryTokens.includes(term))score=Math.max(score,7);else if(term.length>=4&&primaryText.includes(term))score=Math.max(score,6);else if(category===term)score=Math.max(score,3);else if(categoryTokens.includes(term))score=Math.max(score,2);else if(term.length>=4&&category.includes(term))score=Math.max(score,1);}if(score)matches.push({candidate,definition,score});}
+    matches.sort((a,b)=>b.score-a.score||b.candidate.confidence-a.candidate.confidence||b.candidate.terms[0].length-a.candidate.terms[0].length);
     if(!matches.length)return null;
     const best=matches[0],second=matches[1];if(second&&second.score===best.score&&second.candidate.confidence===best.candidate.confidence&&second.candidate.id!==best.candidate.id)return null;
     return{...best.definition,confidence:best.candidate.confidence,source:`profile:${best.candidate.id}`};
