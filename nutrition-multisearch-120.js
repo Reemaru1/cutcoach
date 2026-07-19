@@ -6,13 +6,14 @@
     {selector:'script[data-nutrition-portion-hardening-v153],script[data-portion-hardening-v153]',dataset:'nutritionPortionHardeningV153',src:'./nutrition-portion-hardening-v153.js?v=1.5.3-alpha',ready:()=>Boolean(window.CutCoachPortionHardening153)},
     {selector:'script[data-nutrition-search-confidence-hardening-v151],script[data-confidence-hardening-v151]',dataset:'nutritionSearchConfidenceHardeningV151',src:'./nutrition-search-confidence-hardening-v151.js?v=1.5.2-alpha',ready:()=>Boolean(window.CutCoachSearchConfidenceHardening151)}
   ];
+  const currentDocument=()=>window.document||null;
   const engine=()=>window.CutCoachIntelligentSearch128||null;
-  const input=()=>document.querySelector('#nutritionSearch');
+  const input=()=>currentDocument()?.querySelector?.('#nutritionSearch')||null;
   let hostBootstrap=null;
   function refreshCurrent(){const current=engine(),field=input();if(!current||!field||!String(field.value||'').trim())return false;return Boolean(current.render?.(field))}
-  function ensureFirstHardenedRender(){if(document.querySelector('#nutritionMultiSearch')){queueMicrotask(refreshCurrent);return}if(hostBootstrap)return;hostBootstrap=new MutationObserver(()=>{if(!document.querySelector('#nutritionMultiSearch'))return;hostBootstrap.disconnect();hostBootstrap=null;queueMicrotask(refreshCurrent)});hostBootstrap.observe(document.body||document.documentElement,{childList:true,subtree:true})}
+  function ensureFirstHardenedRender(){const page=currentDocument();if(!page)return;if(page.querySelector?.('#nutritionMultiSearch')){queueMicrotask(refreshCurrent);return}if(hostBootstrap)return;const target=page.body||page.documentElement;if(!target)return;hostBootstrap=new MutationObserver(()=>{const livePage=currentDocument();if(!livePage?.querySelector?.('#nutritionMultiSearch'))return;hostBootstrap?.disconnect();hostBootstrap=null;queueMicrotask(refreshCurrent)});hostBootstrap.observe(target,{childList:true,subtree:true})}
   function attachLayers(){let current=engine();current=window.CutCoachSearchConfidenceHardening151?.attach?.(current)||current;current=window.CutCoachPortionHardening153?.attach?.(current)||current;ensureFirstHardenedRender()}
-  function loadAsset(index){if(index>=ASSETS.length){attachLayers();return}const asset=ASSETS[index];if(asset.ready()){loadAsset(index+1);return}let script=document.querySelector(asset.selector);if(script){const previous=script.onload;script.onload=event=>{previous?.call(script,event);loadAsset(index+1)};return}script=document.createElement('script');script.src=asset.src;script.async=false;script.dataset[asset.dataset]='1';script.onload=()=>loadAsset(index+1);document.head.append(script)}
+  function loadAsset(index){if(index>=ASSETS.length){attachLayers();return}const asset=ASSETS[index];if(asset.ready()){loadAsset(index+1);return}const page=currentDocument();if(!page)return;let script=page.querySelector?.(asset.selector);if(script){const previous=script.onload;script.onload=event=>{previous?.call(script,event);loadAsset(index+1)};return}script=page.createElement('script');script.src=asset.src;script.async=false;script.dataset[asset.dataset]='1';script.onload=()=>loadAsset(index+1);page.head?.append(script)}
   function parse(value){return engine()?.parse?.(value)||[]}
   function rowsFor(value){return engine()?.rowsFor?.(value)||[]}
   function refresh(){return refreshCurrent()}
