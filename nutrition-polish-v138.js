@@ -41,8 +41,8 @@
   function rowName(row){return row.querySelector('.nutrition-result-copy b>span,.nutrition-result-copy b')?.textContent?.trim()||''}
   function recommendationScore(row,index,meal){
     let score=1000-index*12+mealAffinity(rowName(row),meal);
-    if(row.querySelector('.nutrition-routine'))score+=520;
-    if(row.querySelector('.nutrition-favorite'))score+=360;
+    if(row.querySelector('.nutrition-routine'))score+=900;
+    if(row.querySelector('.nutrition-favorite'))score+=480;
     const fit=normalize(row.querySelector('.nutrition-result-energy i')?.textContent);
     if(fit.includes('eiweiss fit'))score+=90;
     else if(fit.includes('budget fit'))score+=55;
