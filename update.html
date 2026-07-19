@@ -32,15 +32,31 @@
       if(!navigator.onLine)throw new Error('offline');
       for(const url of [RUNTIME_MANIFEST_URL,SERVICE_WORKER_URL]){const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error(`preflight:${url}:${response.status}`)}
     }
+    function waitForInstall(worker){
+      if(!worker||worker.state==='installed'||worker.state==='activated')return Promise.resolve();
+      return new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error('worker-install-timeout')),20000);const changed=()=>{if(worker.state==='installed'||worker.state==='activated'){clearTimeout(timeout);worker.removeEventListener('statechange',changed);resolve()}else if(worker.state==='redundant'){clearTimeout(timeout);worker.removeEventListener('statechange',changed);reject(new Error('worker-redundant'))}};worker.addEventListener('statechange',changed)});
+    }
+    async function activateUpdate(registration){
+      const worker=registration.waiting||registration.installing;
+      await waitForInstall(worker);
+      const waiting=registration.waiting||(worker?.state==='installed'?worker:null);
+      if(!waiting)return;
+      const hadController=Boolean(navigator.serviceWorker.controller);
+      const changed=hadController?new Promise(resolve=>{const timeout=setTimeout(resolve,8000);navigator.serviceWorker.addEventListener('controllerchange',()=>{clearTimeout(timeout);resolve()},{once:true})}):Promise.resolve();
+      waiting.postMessage({type:'SKIP_WAITING'});
+      await changed;
+    }
     (async()=>{
       try{
         status.textContent='Neue Version wird geprüft …';
         await preflight();
-        const appScope=new URL('./',location.href).href;
-        if('serviceWorker'in navigator){const registrations=await navigator.serviceWorker.getRegistrations();await Promise.all(registrations.filter(item=>item.scope===appScope).map(item=>item.unregister()))}
-        if('caches'in window){const keys=await caches.keys();await Promise.all(keys.filter(key=>key.startsWith('cutcoach-')).map(key=>caches.delete(key)))}
         status.textContent='CutCoach 1.3.3 Alpha wird vorbereitet …';
-        if('serviceWorker'in navigator){const registration=await navigator.serviceWorker.register(SERVICE_WORKER_URL,{scope:'./',updateViaCache:'none'});await registration.update();await navigator.serviceWorker.ready}
+        if('serviceWorker'in navigator){
+          const registration=await navigator.serviceWorker.register(SERVICE_WORKER_URL,{scope:'./',updateViaCache:'none'});
+          await registration.update();
+          await activateUpdate(registration);
+          await navigator.serviceWorker.ready;
+        }
         status.textContent='Update erfolgreich. CutCoach wird geöffnet …';
         setTimeout(()=>location.replace('./?updated=133a#today'),900);
       }catch(error){console.error(error);document.querySelector('#spinner').style.display='none';status.className='error';status.textContent=error?.message==='offline'?'Du bist offline. Die bisherige funktionierende Version wurde nicht gelöscht. Stelle eine Internetverbindung her und versuche es erneut.':'Update fehlgeschlagen. Die bisherige funktionierende Version wurde nicht gelöscht. Internetverbindung prüfen und erneut versuchen.';retry.style.display='block'}
