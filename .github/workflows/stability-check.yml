@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Repository auschecken
         uses: actions/checkout@v4
+        with:
+          show-progress: false
       - name: Testmatrix erzeugen
         id: matrix
         shell: bash
@@ -41,12 +43,10 @@ jobs:
     steps:
       - name: Repository auschecken
         uses: actions/checkout@v4
-      - name: Node.js einrichten
-        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          show-progress: false
       - name: Abhängigkeiten installieren
-        run: npm install --no-audit --no-fund
+        run: npm install --silent --no-audit --no-fund
       - name: JavaScript-Syntax prüfen
         run: npm run check:syntax
       - name: Test ausführen
@@ -63,12 +63,10 @@ jobs:
     steps:
       - name: Repository auschecken
         uses: actions/checkout@v4
-      - name: Node.js einrichten
-        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          show-progress: false
       - name: Abhängigkeiten installieren
-        run: npm install --no-audit --no-fund
+        run: npm install --silent --no-audit --no-fund
       - name: Syntax und vollständige Tests prüfen
         shell: bash
         run: |
