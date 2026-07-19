@@ -32,14 +32,16 @@ assert.ok(sw.includes("const fallbackKey=isUpdateNavigation?'./update.html':'./i
 assert.ok(sw.includes('await cache.put(fallbackKey,page.clone())'),'Navigationen müssen unter dem kanonischen Fallbackziel gespeichert werden.');
 assert.ok(sw.includes('if(!network.ok)return (await cached(fallbackKey))||network'),'Fehlerhafte Navigationen müssen auf die passende letzte funktionierende Seite zurückfallen.');
 assert.ok(sw.includes('if(!network.ok)return (await cached(request))||network'),'Fehlerhafte Asset-Antworten müssen auf die letzte funktionierende Datei zurückfallen.');
-assert.ok(sw.includes("key.startsWith(CACHE_PREFIX)&&key!==CACHE_NAME"),'Aktivierung muss nur ältere CutCoach-Caches löschen.');
+assert.ok(sw.includes("key.startsWith(CACHE_PREFIX)&&key!==CACHE_NAME"),'Erst die erfolgreiche Aktivierung darf ältere CutCoach-Caches löschen.');
 assert.ok(sw.includes("event.data?.type==='SKIP_WAITING'"),'Expliziter Update-Button muss den wartenden Worker aktivieren können.');
 assert.ok(!sw.includes("self.skipWaiting();\n});\n\nself.addEventListener('activate'"),'Installation darf den neuen Worker nicht ungefragt aktivieren.');
 
-const preflightIndex=update.indexOf('await preflight()');
-const deleteIndex=update.indexOf("keys.filter(key=>key.startsWith('cutcoach-'))");
-assert.ok(preflightIndex>=0&&deleteIndex>preflightIndex,'Update muss neue Dateien prüfen, bevor die letzte funktionierende Cacheversion gelöscht wird.');
-assert.ok(update.includes("if(!navigator.onLine)throw new Error('offline')"),'Offline-Update darf die bestehende Version nicht löschen.');
-assert.ok(update.includes("const appScope=new URL('./',location.href).href"),'Service-Worker-Scope darf nicht auf einen festen Repositorypfad verdrahtet sein.');
+assert.ok(update.includes("if(!navigator.onLine)throw new Error('offline')"),'Offline-Update darf die bestehende Version nicht gefährden.');
+assert.ok(update.indexOf('await preflight()')<update.indexOf('navigator.serviceWorker.register'),'Update muss neue Kerndateien vor der Worker-Registrierung prüfen.');
+assert.ok(!update.includes('caches.delete('),'Update-Seite darf die letzte funktionierende Cacheversion nicht selbst löschen.');
+assert.ok(!update.includes('.unregister()'),'Update-Seite darf den funktionierenden Worker nicht vor erfolgreicher Neuinstallation entfernen.');
+assert.match(update,/function waitForInstall\(worker\)/,'Update-Seite wartet nicht auf die Installation des neuen Workers.');
+assert.match(update,/waiting\.postMessage\(\{type:'SKIP_WAITING'\}\)/,'Wartender Worker wird nicht kontrolliert aktiviert.');
+assert.match(update,/controllerchange/,'Update wartet nicht auf den Controllerwechsel.');
 
-console.log('Service-Worker-, Precache-, Update- und Fehlerfallbacks geprüft.');
+console.log('Service-Worker-, Precache-, transaktionale Update- und Fehlerfallbacks geprüft.');
