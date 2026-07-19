@@ -1,6 +1,6 @@
 {
   "name": "cutcoach",
-  "version": "1.3.1-alpha",
+  "version": "1.3.2-alpha",
   "private": true,
   "scripts": {
     "test": "node tests/run-all.js",

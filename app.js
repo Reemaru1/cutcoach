@@ -19,13 +19,19 @@
     const now=new Date(),next=new Date(now);next.setHours(24,0,1,0);
     rolloverTimer=setTimeout(()=>{refreshCurrentDay(true);scheduleDayRollover()},Math.max(1000,next-now));
   }
+  function replaceHash(hash){
+    try{
+      const url=new URL(location.href);url.hash=hash;
+      history.replaceState(null,'',`${url.pathname}${url.search}${url.hash}`);
+    }catch{history.replaceState(null,'',hash)}
+  }
 
   function switchTab(name,updateHash=true){
     const target=$(`[data-screen="${name}"]`),button=$(`[data-tab="${name}"]`);
     if(!target||!button)return;
     $$('[data-tab]').forEach(item=>{item.classList.toggle('active',item===button);item.setAttribute('aria-current',item===button?'page':'false');});
     $$('.screen').forEach(screen=>screen.classList.toggle('active',screen===target));
-    if(updateHash&&location.hash!==`#${name}`)history.replaceState(null,'',`#${name}`);
+    if(updateHash&&location.hash!==`#${name}`)replaceHash(`#${name}`);
     window.scrollTo({top:0,behavior:'smooth'});
   }
   function tabFromHash(){
@@ -119,7 +125,7 @@
       try{
         const parsed=JSON.parse(event.newValue);
         if(schemaVersionOf(parsed)>SCHEMA_VERSION){toast('Ein anderes Fenster nutzt eine neuere CutCoach-Version.');return;}
-        state=sanitizeState(parsed);lastSavedSnapshot=event.newValue;render();toast('Daten aus einem anderen Fenster übernommen.');
+        state=sanitizeState(parsed);lastSavedSnapshot=JSON.stringify(state);render();toast('Daten aus einem anderen Fenster übernommen.');
       }catch{toast('Änderung aus anderem Fenster konnte nicht übernommen werden.');}
     });
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){refreshCurrentDay(true);checkForUpdates();updateStorageStatus()}});

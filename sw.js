@@ -1,6 +1,6 @@
 'use strict';
 
-const RUNTIME_MANIFEST_URL='./runtime-manifest.js?v=1.3.1-alpha';
+const RUNTIME_MANIFEST_URL='./runtime-manifest.js?v=1.3.2-alpha';
 importScripts(RUNTIME_MANIFEST_URL);
 
 const RUNTIME=self.CUTCOACH_RUNTIME;
@@ -20,6 +20,15 @@ async function openRuntimeCache(){
   return caches.open(CACHE_NAME);
 }
 
+async function precacheAppShell(){
+  const cache=await openRuntimeCache();
+  for(const url of APP_SHELL){
+    const response=await fetch(url,{cache:'reload'});
+    if(!response.ok)throw new Error(`precache-failed:${url}:${response.status}`);
+    await cache.put(url,response.clone());
+  }
+}
+
 async function preparePage(response){
   const body=await response.arrayBuffer();
   const headers=new Headers(response.headers);
@@ -28,16 +37,12 @@ async function preparePage(response){
   return new Response(body,{status:response.status,statusText:response.statusText,headers});
 }
 
-async function cacheSuccessfulResponse(request,response){
-  if(response.ok){
-    const cache=await openRuntimeCache();
-    await cache.put(request,response.clone());
-  }
-  return response;
+async function cached(request){
+  return (await caches.match(request))||null;
 }
 
 self.addEventListener('install',event=>{
-  event.waitUntil(openRuntimeCache().then(cache=>cache.addAll(APP_SHELL)));
+  event.waitUntil(precacheAppShell());
 });
 
 self.addEventListener('activate',event=>{
@@ -65,14 +70,13 @@ self.addEventListener('fetch',event=>{
     event.respondWith((async()=>{
       try{
         const network=await fetch(request,{cache:'no-store'});
+        if(!network.ok)return (await cached('./index.html'))||network;
         const page=await preparePage(network);
-        if(page.ok){
-          const cache=await openRuntimeCache();
-          await cache.put('./index.html',page.clone());
-        }
+        const cache=await openRuntimeCache();
+        await cache.put('./index.html',page.clone());
         return page;
       }catch{
-        return (await caches.match('./index.html'))||Response.error();
+        return (await cached('./index.html'))||Response.error();
       }
     })());
     return;
@@ -80,10 +84,13 @@ self.addEventListener('fetch',event=>{
 
   event.respondWith((async()=>{
     try{
-      const response=await fetch(request,{cache:'no-store'});
-      return cacheSuccessfulResponse(request,response);
+      const network=await fetch(request,{cache:'no-store'});
+      if(!network.ok)return (await cached(request))||network;
+      const cache=await openRuntimeCache();
+      await cache.put(request,network.clone());
+      return network;
     }catch{
-      return (await caches.match(request))||Response.error();
+      return (await cached(request))||Response.error();
     }
   })());
 });

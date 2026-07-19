@@ -1,0 +1,91 @@
+name: Stability Check
+
+on:
+  push:
+    branches:
+      - agent/full-stability-audit
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stability-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      tests: ${{ steps.matrix.outputs.tests }}
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - name: Testmatrix erzeugen
+        id: matrix
+        shell: bash
+        run: |
+          tests=$(node -e "const fs=require('fs');const fixtures=new Set(['journal-regression.test.js','v72-smoke.test.js','v7-smoke.test.js']);process.stdout.write(JSON.stringify(fs.readdirSync('tests').filter(name=>name.endsWith('.test.js')&&!fixtures.has(name)).sort()))")
+          echo "tests=$tests" >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: discover
+    name: Test ${{ matrix.test }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        test: ${{ fromJSON(needs.discover.outputs.tests) }}
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - name: Abhängigkeiten installieren
+        run: npm install --silent --no-audit --no-fund
+      - name: JavaScript-Syntax prüfen
+        run: npm run check:syntax
+      - name: Test ausführen
+        id: execute
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          node "tests/${{ matrix.test }}" > test-output.txt 2>&1
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          tail -120 test-output.txt
+          exit 0
+      - name: Fehlerausgabe sichern
+        if: steps.execute.outputs.status != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-${{ matrix.test }}
+          path: test-output.txt
+          if-no-files-found: error
+          retention-days: 3
+      - name: Fehlgeschlagenen Test markieren
+        if: steps.execute.outputs.status != '0'
+        run: exit 1
+
+  suite:
+    needs: test
+    name: Vollständige Testsuite
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - name: Abhängigkeiten installieren
+        run: npm install --silent --no-audit --no-fund
+      - name: Syntax und vollständige Tests prüfen
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run check 2>&1 | tail -160
