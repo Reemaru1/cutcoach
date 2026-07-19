@@ -23,22 +23,26 @@ window.closeModal=modal=>{modal.classList.remove('open');modal.setAttribute('ari
 const script=window.document.createElement('script');script.textContent=source;window.document.head.append(script);
 window.document.dispatchEvent(new window.Event('DOMContentLoaded',{bubbles:true}));
 
-const opener=window.document.getElementById('opener');
-opener.focus();window.openModal('first');
-window.document.getElementById('firstButton').focus();window.openModal('second');
-assert.equal(window.CutCoachStability133.topModal()?.id,'second','Oberstes Modal wird falsch erkannt.');
-window.document.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
-assert.equal(window.document.getElementById('second').classList.contains('open'),false,'Escape schließt nicht das oberste Modal.');
-assert.equal(window.document.getElementById('first').classList.contains('open'),true,'Escape schließt fälschlich das darunterliegende Modal.');
+(async()=>{
+  const opener=window.document.getElementById('opener');
+  opener.focus();window.openModal('first');
+  window.document.getElementById('firstButton').focus();window.openModal('second');
+  assert.equal(window.CutCoachStability133.topModal()?.id,'second','Oberstes Modal wird falsch erkannt.');
+  window.document.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
+  assert.equal(window.document.getElementById('second').classList.contains('open'),false,'Escape schließt nicht das oberste Modal.');
+  assert.equal(window.document.getElementById('first').classList.contains('open'),true,'Escape schließt fälschlich das darunterliegende Modal.');
+  await Promise.resolve();
 
-window.history.replaceState(null,'','/?date=2026-07-18#library');
-window.CutCoachStability133.preserveLibraryUrl();
-assert.equal(new URL(window.location.href).searchParams.get('date'),'2026-07-18','Bibliothekswechsel verliert das ausgewählte Datum.');
+  window.history.replaceState(null,'','/?date=2026-07-18#library');
+  window.CutCoachStability133.preserveLibraryUrl();
+  assert.equal(new URL(window.location.href).searchParams.get('date'),'2026-07-18','Bibliothekswechsel verliert das ausgewählte Datum.');
 
-const future=JSON.stringify({meta:{schemaVersion:99}});
-window.dispatchEvent(new window.StorageEvent('storage',{key:'cutcoach_v2',newValue:future}));
-assert.equal(window.storageReadOnly,true,'Neuere Fremddaten aktivieren den Nur-Lesen-Schutz nicht.');
-assert.equal(window.localStorage.getItem('cutcoach_recovery_raw'),future,'Neuere Fremddaten werden nicht als Rohdaten gesichert.');
+  const future=JSON.stringify({meta:{schemaVersion:99}});
+  window.dispatchEvent(new window.StorageEvent('storage',{key:'cutcoach_v2',newValue:future}));
+  assert.equal(window.storageReadOnly,true,'Neuere Fremddaten aktivieren den Nur-Lesen-Schutz nicht.');
+  assert.equal(window.localStorage.getItem('cutcoach_recovery_raw'),future,'Neuere Fremddaten werden nicht als Rohdaten gesichert.');
+  await Promise.resolve();
 
-dom.window.close();
-console.log('Modal-, Fokus-, Bibliotheks- und Fremddatenhärtung geprüft.');
+  dom.window.close();
+  console.log('Modal-, Fokus-, Bibliotheks- und Fremddatenhärtung geprüft.');
+})().catch(error=>{console.error(error);dom.window.close();process.exitCode=1});
