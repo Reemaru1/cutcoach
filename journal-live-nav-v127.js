@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='1.2.8-alpha';
+  const VERSION='1.3.2-alpha';
   const $=selector=>document.querySelector(selector);
   let refreshTimer=0,renderWrapped=false,libraryWrapped=false,observer=null;
   const navLabels={today:'Tagebuch',food:'Ernährung',progress:'Fortschritt',settings:'Einstellungen'};
@@ -8,6 +8,10 @@
 
   function restoreNav(){
     const nav=$('nav[aria-label="Hauptnavigation"]');if(!nav)return;
+    if(nav.dataset.glassNavV131==='1'||nav.classList.contains('cc-glass-nav-v131')){
+      try{window.CutCoachGlassNavV131?.enhance?.()}catch{}
+      return;
+    }
     nav.classList.remove('cutcoach-nav-v127');
     for(const button of nav.querySelectorAll('[data-tab]')){
       const key=button.dataset.tab,label=navLabels[key];if(!label)continue;
