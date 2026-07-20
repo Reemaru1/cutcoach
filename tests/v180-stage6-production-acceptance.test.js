@@ -9,88 +9,28 @@ const inject=(window,source)=>{const script=window.document.createElement('scrip
 const tick=()=>new Promise(resolve=>queueMicrotask(resolve));
 const delay=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
 const ready=window=>window.document.readyState==='loading'?new Promise(resolve=>window.document.addEventListener('DOMContentLoaded',resolve,{once:true})):Promise.resolve();
-
 (async()=>{
-  const stage6=read('nutrition-production-acceptance-v180.js');
-  const stage6Css=read('nutrition-production-acceptance-v180.css');
-  const voice=read('nutrition-voice-111.js');
-  const scanner=read('scanner-v2.js');
-  const off=read('off-lookup.js');
-  const sw=read('sw.js');
-  const loader=read('version-v7.js');
-  const manifest=read('runtime-manifest.js');
-  const update=read('update.html');
-
-  assert.match(stage6,/const VERSION='1\.8\.0-alpha'/);
-  assert.match(stage6,/frozenArchitecture:true/);
-  assert.match(stage6,/MAX_QUERY_LENGTH=240/);
-  assert.match(stage6,/compositionstart/);
-  assert.match(stage6,/visualViewport/);
-  assert.match(stage6,/pagehide/);
-  assert.doesNotMatch(stage6,/addCatalogItemToDay|addItemToDay|undoDayAdd|data-canonical-add|data-canonical-all|data-confidence-choice/,'Der ausdrücklich ausgelassene Eintrags- und Undo-Bereich wurde in Stufe 6 verändert.');
-  assert.match(voice,/const VERSION='1\.8\.0-alpha'/);
-  assert.match(voice,/restoreInitial/);
-  assert.match(voice,/stop\(false\)/);
-  assert.doesNotMatch(voice,/finalText\|\|interimText\|\|input\.value/);
-  assert.match(scanner,/CutCoachScannerV2=Object\.freeze/);
-  assert.match(scanner,/generation/);
-  assert.match(scanner,/offline-library/);
-  assert.match(off,/CutCoachOffLookup=Object\.freeze/);
-  assert.match(off,/Promise\.allSettled/);
-  assert.match(off,/AbortController/);
-  assert.match(sw,/stage6-production180/);
-  assert.match(sw,/html5-qrcode@2\.3\.8/);
-  assert.match(sw,/NAVIGATION_TIMEOUT_MS=4500/);
-  assert.match(sw,/ASSET_TIMEOUT_MS=6500/);
-  assert.doesNotMatch(update,/\.unregister\(|caches\.delete/,'Die Update-Seite löscht den bisherigen Offline-Stand vor einem erfolgreichen Update.');
-  assert.match(update,/sw\.js\?v=1\.2\.6-alpha-force-stage6/);
-  assert.match(loader,/nutrition-production-acceptance-v180\.js\?v=1\.8\.0-alpha/);
-  assert.match(loader,/nutrition-production-acceptance-v180\.css\?v=1\.8\.0-alpha/);
-  assert.match(loader,/nutrition-voice-111\.js\?v=1\.8\.0-alpha/);
-  assert.match(manifest,/nutrition-production-acceptance-v180\.js\?v=1\.8\.0-alpha/);
-  assert.match(manifest,/nutrition-production-acceptance-v180\.css\?v=1\.8\.0-alpha/);
-  assert.match(stage6Css,/@media\(max-width:360px\)/);
-  assert.match(stage6Css,/cutcoach-keyboard-open/);
-
+  const stage6=read('nutrition-production-acceptance-v180.js'),stage6Css=read('nutrition-production-acceptance-v180.css'),voice=read('nutrition-voice-111.js'),scanner=read('scanner-v2.js'),off=read('off-lookup.js'),sw=read('sw.js'),loader=read('version-v7.js'),manifest=read('runtime-manifest.js'),update=read('update.html');
+  assert.match(stage6,/const VERSION='1\.8\.0-alpha'/);assert.match(stage6,/frozenArchitecture:true/);assert.match(stage6,/MAX_QUERY_LENGTH=240/);assert.match(stage6,/compositionstart/);assert.match(stage6,/visualViewport/);assert.match(stage6,/pagehide/);assert.doesNotMatch(stage6,/addCatalogItemToDay|addItemToDay|undoDayAdd|data-canonical-add|data-canonical-all|data-confidence-choice/,'Der ausdrücklich ausgelassene Eintrags- und Undo-Bereich wurde in Stufe 6 verändert.');
+  assert.match(voice,/const VERSION='1\.9\.0-alpha'/);assert.match(voice,/restoreInitial/);assert.match(voice,/sessionActive/);assert.match(voice,/clearStaleResults/);assert.match(voice,/stop\(false\)/);assert.doesNotMatch(voice,/finalText\|\|interimText\|\|input\.value/);
+  assert.match(scanner,/CutCoachScannerV2=Object\.freeze/);assert.match(scanner,/generation/);assert.match(scanner,/offline-library/);assert.match(off,/CutCoachOffLookup=Object\.freeze/);assert.match(off,/Promise\.allSettled/);assert.match(off,/AbortController/);
+  assert.match(sw,/stage6-production180/);assert.match(sw,/search190-integrity/);assert.match(sw,/html5-qrcode@2\.3\.8/);assert.match(sw,/NAVIGATION_TIMEOUT_MS=4500/);assert.match(sw,/ASSET_TIMEOUT_MS=6500/);
+  assert.doesNotMatch(update,/\.unregister\(|caches\.delete/,'Die Update-Seite löscht den bisherigen Offline-Stand vor einem erfolgreichen Update.');assert.match(update,/sw\.js\?v=1\.2\.6-alpha-force-stage6/);
+  assert.match(loader,/nutrition-production-acceptance-v180\.js\?v=1\.8\.0-alpha/);assert.match(loader,/nutrition-production-acceptance-v180\.css\?v=1\.8\.0-alpha/);assert.match(loader,/nutrition-voice-111\.js\?v=1\.9\.0-alpha/);assert.match(loader,/nutrition-search-exact-whole-v170\.js\?v=1\.9\.0-alpha/);assert.match(loader,/nutrition-portion-hardening-v153\.js\?v=1\.9\.0-alpha/);
+  assert.match(manifest,/nutrition-production-acceptance-v180\.js\?v=1\.8\.0-alpha/);assert.match(manifest,/nutrition-production-acceptance-v180\.css\?v=1\.8\.0-alpha/);assert.match(manifest,/nutrition-voice-111\.js\?v=1\.9\.0-alpha/);assert.match(manifest,/nutrition-search-exact-whole-v170\.js\?v=1\.9\.0-alpha/);assert.match(stage6Css,/@media\(max-width:360px\)/);assert.match(stage6Css,/cutcoach-keyboard-open/);
   const dom=new JSDOM('<!doctype html><body><div class="nutrition-search-card"><input id="nutritionSearch"></div><section id="nutritionMultiSearch" data-canonical="1" data-query="alt"><b>Alt</b></section><div class="nutrition-results" hidden data-cutcoach-canonical-suppressed="1" data-cutcoach-canonical-was-hidden="0"></div></body>',{url:'https://example.test/cutcoach/',runScripts:'dangerously',pretendToBeVisual:true});
-  const w=dom.window,input=w.document.querySelector('#nutritionSearch'),host=w.document.querySelector('#nutritionMultiSearch'),normal=w.document.querySelector('.nutrition-results');
-  let voiceStops=0,scannerStops=0;
-  w.CutCoachNutritionVoice111={stop:commit=>{assert.equal(commit,false);voiceStops++}};
-  w.CutCoachScannerV2={stop:()=>{scannerStops++}};
-  inject(w,stage6);const api=w.CutCoachNutritionStage6;await ready(w);inject(w,stage6);
-  assert.equal(w.CutCoachNutritionStage6,api,'Doppeltes Laden erzeugt eine zweite Stufe-6-Instanz.');
-  assert.equal(api.version,'1.8.0-alpha');assert.equal(api.frozenArchitecture,true);assert.equal(input.maxLength,240);
-
-  input.value='neu';input.dispatchEvent(new w.Event('input',{bubbles:true}));await tick();
-  assert.equal(host.hidden,true,'Veraltete Ergebnisse bleiben bei schneller Eingabe sichtbar.');
-  assert.equal(normal.hidden,false,'Normale Ergebnisse bleiben nach dem Ausblenden alter Treffer unterdrückt.');
-  const afterOne=api.snapshot();assert.equal(afterOne.inputs,1,'Doppeltes Laden registriert doppelte Eingabe-Listener.');
-
-  host.hidden=false;host.dataset.canonical='1';host.dataset.query='leer';host.innerHTML='<b>Alt</b>';input.value='';input.dispatchEvent(new w.Event('input',{bubbles:true}));
-  assert.equal(host.hidden,true);assert.equal(host.innerHTML,'');
-
+  const w=dom.window,input=w.document.querySelector('#nutritionSearch'),host=w.document.querySelector('#nutritionMultiSearch'),normal=w.document.querySelector('.nutrition-results');let voiceStops=0,scannerStops=0;w.CutCoachNutritionVoice111={stop:commit=>{assert.equal(commit,false);voiceStops++}};w.CutCoachScannerV2={stop:()=>{scannerStops++}};inject(w,stage6);const api=w.CutCoachNutritionStage6;await ready(w);inject(w,stage6);assert.equal(w.CutCoachNutritionStage6,api,'Doppeltes Laden erzeugt eine zweite Stufe-6-Instanz.');assert.equal(api.version,'1.8.0-alpha');assert.equal(api.frozenArchitecture,true);assert.equal(input.maxLength,240);
+  input.value='neu';input.dispatchEvent(new w.Event('input',{bubbles:true}));await tick();assert.equal(host.hidden,true,'Veraltete Ergebnisse bleiben bei schneller Eingabe sichtbar.');assert.equal(normal.hidden,false,'Normale Ergebnisse bleiben nach dem Ausblenden alter Treffer unterdrückt.');const afterOne=api.snapshot();assert.equal(afterOne.inputs,1,'Doppeltes Laden registriert doppelte Eingabe-Listener.');
+  host.hidden=false;host.dataset.canonical='1';host.dataset.query='leer';host.innerHTML='<b>Alt</b>';input.value='';input.dispatchEvent(new w.Event('input',{bubbles:true}));assert.equal(host.hidden,true);assert.equal(host.innerHTML,'');
   host.hidden=false;host.dataset.canonical='1';host.dataset.query='komposition';host.innerHTML='<b>Bleibt</b>';input.dispatchEvent(new w.CompositionEvent('compositionstart',{bubbles:true}));input.value='';input.dispatchEvent(new w.Event('input',{bubbles:true}));assert.match(host.innerHTML,/Bleibt/,'Während einer IME-Komposition wird die Oberfläche voreilig geleert.');input.dispatchEvent(new w.CompositionEvent('compositionend',{bubbles:true}));assert.equal(host.innerHTML,'');
-
-  input.value='x'.repeat(400);input.dispatchEvent(new w.Event('input',{bubbles:true}));assert.equal(input.value.length,240,'Sehr lange Suchtexte werden nicht begrenzt.');
-  Object.defineProperty(w.document,'hidden',{configurable:true,value:true});w.document.dispatchEvent(new w.Event('visibilitychange'));assert.equal(voiceStops,1);assert.equal(scannerStops,1);await delay(120);
-  dom.window.close();
-
-  let recognitionInstance=null;
-  class FakeRecognition{
-    constructor(){recognitionInstance=this}
-    start(){this.onstart?.()}
-    stop(){this.onend?.()}
-    abort(){this.onerror?.({error:'aborted'});this.onend?.()}
-  }
-  const voiceDom=new JSDOM('<!doctype html><body><button id="nutritionVoice"></button><input id="nutritionSearch" value="Alt"><div id="nutritionVoiceStatus"></div></body>',{url:'https://example.test/',runScripts:'dangerously',pretendToBeVisual:true});
-  const vw=voiceDom.window;vw.webkitSpeechRecognition=FakeRecognition;Object.defineProperty(vw.navigator,'onLine',{configurable:true,value:true});inject(vw,voice);await ready(vw);const voiceApi=vw.CutCoachNutritionVoice111,voiceInput=vw.document.querySelector('#nutritionSearch');inject(vw,voice);assert.equal(vw.CutCoachNutritionVoice111,voiceApi);
-  assert.equal(voiceApi.start(),true);const interim=[{transcript:'Banane'}];interim.isFinal=false;recognitionInstance.onresult({resultIndex:0,results:[interim]});assert.equal(voiceInput.value,'Banane');assert.equal(voiceInput.dataset.voicePreview,'1');voiceApi.stop(false);assert.equal(voiceInput.value,'Alt','Abgebrochene Spracheingabe lässt den Vorschautext zurück.');assert.equal(voiceInput.dataset.voicePreview,undefined);
-  let committedInputs=0;voiceInput.addEventListener('input',()=>committedInputs++);assert.equal(voiceApi.start(),true);const final=[{transcript:'Skyr'}];final.isFinal=true;recognitionInstance.onresult({resultIndex:0,results:[final]});voiceApi.stop(true);assert.equal(voiceInput.value,'Skyr');assert.equal(committedInputs,1);await delay(2700);
-  voiceDom.window.close();
-
+  input.value='x'.repeat(400);input.dispatchEvent(new w.Event('input',{bubbles:true}));assert.equal(input.value.length,240,'Sehr lange Suchtexte werden nicht begrenzt.');Object.defineProperty(w.document,'hidden',{configurable:true,value:true});w.document.dispatchEvent(new w.Event('visibilitychange'));assert.equal(voiceStops,1);assert.equal(scannerStops,1);await delay(120);dom.window.close();
+  let recognitionInstance=null;class FakeRecognition{constructor(){recognitionInstance=this}start(){this.onstart?.()}stop(){this.onend?.()}abort(){this.onerror?.({error:'aborted'});this.onend?.()}}
+  const voiceDom=new JSDOM('<!doctype html><body><button id="nutritionVoice"></button><input id="nutritionSearch" value="Alt"><div id="nutritionVoiceStatus"></div><section id="nutritionMultiSearch" data-canonical="1"><b>Alt</b></section></body>',{url:'https://example.test/',runScripts:'dangerously',pretendToBeVisual:true});
+  const vw=voiceDom.window;vw.webkitSpeechRecognition=FakeRecognition;Object.defineProperty(vw.navigator,'onLine',{configurable:true,value:true});inject(vw,voice);await ready(vw);const voiceApi=vw.CutCoachNutritionVoice111,voiceInput=vw.document.querySelector('#nutritionSearch');inject(vw,voice);assert.equal(vw.CutCoachNutritionVoice111,voiceApi);assert.equal(voiceApi.version,'1.9.0-alpha');
+  assert.equal(voiceApi.start(),true);const interim=[{transcript:'Banane'}];interim.isFinal=false;recognitionInstance.onresult({resultIndex:0,results:[interim]});assert.equal(voiceInput.value,'Banane');assert.equal(voiceInput.dataset.voicePreview,'1');assert.equal(vw.document.querySelector('#nutritionMultiSearch').hidden,true);voiceApi.stop(false);assert.equal(voiceInput.value,'Alt','Abgebrochene Spracheingabe lässt den Vorschautext zurück.');assert.equal(voiceInput.dataset.voicePreview,undefined);
+  voiceInput.value='Manuell';voiceApi.stop(false);assert.equal(voiceInput.value,'Manuell','Inaktiver Abbruch überschreibt eine spätere manuelle Eingabe.');
+  let committedInputs=0;voiceInput.addEventListener('input',()=>committedInputs++);assert.equal(voiceApi.start(),true);const final=[{transcript:'Skyr'}];final.isFinal=true;recognitionInstance.onresult({resultIndex:0,results:[final]});voiceApi.stop(true);assert.equal(voiceInput.value,'Skyr');assert.equal(committedInputs,1);await delay(2700);voiceDom.window.close();
   const scannerDom=new JSDOM('<!doctype html><body><button id="scanCode"></button><div id="scannerModal"></div><div class="scanner-frame"></div><div id="scannerStatus"></div><input id="manualCode"><button id="lookupManualCode"></button></body>',{url:'https://example.test/',runScripts:'dangerously',pretendToBeVisual:true});
-  const swindow=scannerDom.window;swindow.openModal=()=>{};Object.defineProperty(swindow.navigator,'onLine',{configurable:true,value:false});inject(swindow,scanner);await ready(swindow);const scannerApi=swindow.CutCoachScannerV2;inject(swindow,scanner);assert.equal(swindow.CutCoachScannerV2,scannerApi);const before=scannerApi.state().generation;await scannerApi.stop();assert.ok(scannerApi.state().generation>before);assert.equal(await scannerApi.start(),false);assert.match(swindow.document.querySelector('#scannerStatus').textContent,/offline gespeichert|Live-Kamera/);await delay(20);
-  scannerDom.window.close();
-
-  console.log('Stufe 6 Produktionsabnahme: Eingabe, Sprache, Scanner, Offline, Update und iPhone-Layout geprüft; Eintrags-/Undo-Punkt bewusst ausgeschlossen.');
+  const swindow=scannerDom.window;swindow.openModal=()=>{};Object.defineProperty(swindow.navigator,'onLine',{configurable:true,value:false});inject(swindow,scanner);await ready(swindow);const scannerApi=swindow.CutCoachScannerV2;inject(swindow,scanner);assert.equal(swindow.CutCoachScannerV2,scannerApi);const before=scannerApi.state().generation;await scannerApi.stop();assert.ok(scannerApi.state().generation>before);assert.equal(await scannerApi.start(),false);assert.match(swindow.document.querySelector('#scannerStatus').textContent,/offline gespeichert|Live-Kamera/);await delay(20);scannerDom.window.close();
+  console.log('Stufe 6 Produktionsabnahme unter A–Z-Suchintegrität 1.9.0: Eingabe, Sprache, Scanner, Offline, Update und iPhone-Layout geprüft; Eintrags-/Undo-Punkt bewusst ausgeschlossen.');
 })().catch(error=>{console.error(error);process.exitCode=1});
