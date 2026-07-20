@@ -1,7 +1,7 @@
 'use strict';
 (function(){
-  const VERSION='1.3.9 Alpha';
-  const PRESENTATION_VERSION='1.9.4-alpha';
+  const VERSION='1.3.10 Alpha';
+  const PRESENTATION_VERSION='1.9.5-alpha';
   const $=(selector,scope=document)=>scope.querySelector(selector);
   const $$=(selector,scope=document)=>[...scope.querySelectorAll(selector)];
   const normalize=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
@@ -15,7 +15,7 @@
     steak:Object.freeze({id:'cutcoach-standard-steak-v192',name:'Rindersteak',aliases:Object.freeze(['Steak','Beefsteak','Rind Steak']),kind:'food',amount:1,unit:'Stück',calories:400,protein:52,carbs:0,fat:22,fiber:0,sugar:0,saturatedFat:8.5,salt:.35,source:'cutcoach',catalog:true,estimated:true,sourceLabel:'CutCoach Standardwert · ca. 200 g gegart',category:'Fleisch'})
   });
 
-  let root=null,observer=null,frame=0,inputTimer=0,renderToken=0,syncing=false,renderWrites=0,locked=new WeakSet();
+  let root=null,observer=null,frame=0,inputTimer=0,renderToken=0,syncing=false,renderWrites=0,intelligentEvaluations=0,locked=new WeakSet();
 
   const mealRules={
     'Frühstück':[
@@ -69,6 +69,12 @@
   }
   function baseRows(value){try{return Array.from(engine()?.rowsFor?.(value)||[])}catch{return[]}}
   function splitParts(value){return String(value||'').split(/\s+(?:und|plus|sowie|mit\s+dazu|dazu|zusammen\s+mit|außerdem|ausserdem)\s+|\s*[,;+&]\s*/i).map(part=>part.trim()).filter(Boolean)}
+  function mayNeedIntelligent(value){
+    const raw=String(value||'').trim();if(!raw)return false;
+    const parsed=fallbackKeyFor(raw);if(parsed.query==='done'||(parsed.specified&&parsed.key))return true;
+    if(quantityInfo(raw).specified||splitParts(raw).length>=2)return true;
+    return /\s+(?:mit|auf|zu|dazu|neben|zusammen\s+mit|ohne)\s+|\s*\/\s*|[,;+&]/i.test(raw);
+  }
   function resolveRows(value){
     const direct=baseRows(value).map(patchRow);if(direct.length)return direct;
     const parts=splitParts(value);if(parts.length>=2){const rows=[];for(const part of parts){const resolved=baseRows(part).map(patchRow);if(resolved.length)rows.push(...resolved);else{const fallback=fallbackRow(part);if(fallback)rows.push(fallback);else rows.push({raw:part,query:normalize(quantityInfo(part).source),item:null,status:'missing',confidence:0,alternatives:[],choices:[],factor:1,amountLabel:'',incompatible:false,approximate:false})}}return rows}
@@ -123,7 +129,7 @@
     const bulk=complete&&rows.length>1?'<button class="nutrition-bulk-action" type="button" data-v192-all>Alle hinzufügen</button>':'';
     node.innerHTML=`<div class="nutrition-multi-head"><div><small>Erkannte Einträge</small></div>${bulk}</div><div class="nutrition-multi-list">${rows.map(renderRow).join('')}</div>`;renderWrites++;return true;
   }
-  function scheduleSearch(input,rows){clearTimeout(inputTimer);const token=++renderToken;inputTimer=setTimeout(()=>{if(input?.isConnected&&token===renderToken)renderSearchPresentation(input,rows,token)},110)}
+  function scheduleSearch(input,rows){clearTimeout(inputTimer);const token=++renderToken;inputTimer=setTimeout(()=>{if(input?.isConnected&&token===renderToken)renderSearchPresentation(input,rows,token)},0)}
   function addRow(row){if(!row?.item||row.status!=='matched'||row.incompatible)return false;try{return Boolean(window.CutCoachLibrary?.addCatalogItemToDay?.(row.item,{type:currentMeal(),dateKey:typeof selectedDate==='string'?selectedDate:undefined,factor:Number(row.factor)||1}))}catch{return false}}
   function normalSearch(row){const input=$('#nutritionSearch',root);if(!input)return;clearSearchPresentation();input.dataset.v192Bypass='1';input.value=row?.item?.name||row?.query||row?.raw||'';input.dispatchEvent(new Event('input',{bubbles:true}));queueMicrotask(()=>delete input.dataset.v192Bypass);try{input.focus({preventScroll:true})}catch{input.focus()}}
   function chooseRow(button){const node=button.closest('#nutritionMultiSearch'),input=$('#nutritionSearch',root);if(!node?._v192Rows||!input)return;const [rowIndex,choiceIndex]=String(button.dataset.v192Choice||'').split(':').map(Number),rows=[...node._v192Rows],row=rows[rowIndex],choice=row?.choices?.[choiceIndex];if(!choice)return;rows[rowIndex]={...row,item:choice.item,status:'matched',confidence:100,confidenceLabel:'',matchType:'user-choice',alternatives:[],choices:[],factor:Number(row.factor)||1};renderSearchPresentation(input,rows)}
@@ -133,12 +139,20 @@
     if(target.dataset.v192Add!==undefined){const row=node._v192Rows[Number(target.dataset.v192Add)];if(addRow(row)){count=1;target.innerHTML='<strong>Hinzugefügt</strong>'}else target.disabled=false}else{for(const row of node._v192Rows)if(addRow(row))count++;target.textContent=count===node._v192Rows.length?'Hinzugefügt':count?`${count}/${node._v192Rows.length} hinzugefügt`:'Erneut versuchen';if(!count)target.disabled=false}
     target.removeAttribute('aria-busy');setTimeout(()=>locked.delete(target),700);if(count){window.render?.();toast?.(count===1?'Lebensmittel hinzugefügt.':`${count} Lebensmittel hinzugefügt.`);if(target.dataset.v192All!==undefined){const input=$('#nutritionSearch',root);if(input){input.value='';input.blur()}clearSearchPresentation()}}else toast?.('Lebensmittel konnten nicht hinzugefügt werden.');
   }
-  function handleInput(event){const input=event.target;if(input?.id!=='nutritionSearch'||input.dataset.v192Bypass==='1'||input.dataset.composing==='1'||input.dataset.voicePreview==='1')return;const rows=resolveRows(input.value);if(!shouldHandle(input.value,rows)){clearSearchPresentation();return}event.stopImmediatePropagation();scheduleSearch(input,rows)}
-  function handleKeydown(event){const input=event.target;if(input?.id!=='nutritionSearch')return;if(event.key==='Escape'){clearSearchPresentation();return}if(event.key!=='Enter')return;const rows=resolveRows(input.value);if(!shouldHandle(input.value,rows))return;event.preventDefault();event.stopImmediatePropagation();clearTimeout(inputTimer);renderSearchPresentation(input,rows)}
+  function handleInput(event){
+    const input=event.target;if(input?.id!=='nutritionSearch'||input.dataset.v192Bypass==='1'||input.dataset.composing==='1'||input.dataset.voicePreview==='1')return;
+    if(!mayNeedIntelligent(input.value)){clearSearchPresentation();return}
+    intelligentEvaluations++;const rows=resolveRows(input.value);if(!shouldHandle(input.value,rows)){clearSearchPresentation();return}
+    event.stopImmediatePropagation();scheduleSearch(input,rows);
+  }
+  function handleKeydown(event){
+    const input=event.target;if(input?.id!=='nutritionSearch')return;if(event.key==='Escape'){clearSearchPresentation();return}if(event.key!=='Enter'||!mayNeedIntelligent(input.value))return;
+    intelligentEvaluations++;const rows=resolveRows(input.value);if(!shouldHandle(input.value,rows))return;event.preventDefault();event.stopImmediatePropagation();clearTimeout(inputTimer);renderSearchPresentation(input,rows);
+  }
 
   function sync(){
     frame=0;if(syncing||!root?.isConnected||!document.body.classList.contains('nutrition-mode'))return;syncing=true;
-    try{root.dataset.nutritionPolishV138='1';root.dataset.searchPresentation='1.9.4';renameShortcuts();polishMealActions();decorateRows();reorderRecommendations()}finally{syncing=false}
+    try{root.dataset.nutritionPolishV138='1';root.dataset.searchPresentation='1.9.5';renameShortcuts();polishMealActions();decorateRows();reorderRecommendations()}finally{syncing=false}
   }
   function queue(){if(frame)return;frame=requestAnimationFrame(sync)}
   function mutationNeedsSync(record){const target=record.target?.nodeType===1?record.target:record.target?.parentElement;if(target?.closest?.('#nutritionMultiSearch'))return false;return Boolean(record.addedNodes.length||record.removedNodes.length||record.type==='characterData')}
@@ -146,7 +160,8 @@
   function boot(){const found=document.querySelector('[data-screen="food"]');if(found){start(found);return}const bootstrap=new MutationObserver(()=>{const node=document.querySelector('[data-screen="food"]');if(!node)return;bootstrap.disconnect();start(node)});bootstrap.observe(document.body||document.documentElement,{childList:true,subtree:true})}
 
   window.addEventListener('input',handleInput,true);window.addEventListener('keydown',handleKeydown,true);window.addEventListener('click',handlePresentationClick,true);
+  window.addEventListener('cutcoach:search-input-pending',()=>{if($('#nutritionMultiSearch')?.dataset.presentationV192==='1')clearSearchPresentation()});
   document.addEventListener('compositionend',event=>{if(event.target?.id==='nutritionSearch')queueMicrotask(()=>handleInput({target:event.target,stopImmediatePropagation(){}}))},true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
-  window.CutCoachNutritionPolish138=Object.freeze({version:VERSION,presentationVersion:PRESENTATION_VERSION,refresh:queue,mealAffinity,resolveRows,shouldHandle,interactionStats:()=>Object.freeze({renderWrites,pendingFrame:Boolean(frame)})});
+  window.CutCoachNutritionPolish138=Object.freeze({version:VERSION,presentationVersion:PRESENTATION_VERSION,refresh:queue,mealAffinity,resolveRows,shouldHandle,mayNeedIntelligent,interactionStats:()=>Object.freeze({renderWrites,pendingFrame:Boolean(frame),intelligentEvaluations})});
 })();
