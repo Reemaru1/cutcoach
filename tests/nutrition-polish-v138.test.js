@@ -62,15 +62,16 @@ setTimeout(()=>{
   assert.match(css,/\.nutrition-row-action\{[\s\S]*min-width:98px!important/,'Intelligente Suche verwendet weiterhin fehlerhafte reine Pluskästen.');
 
   assert.ok(loader.includes('nutrition-polish-v138.js?v=1.3.11-alpha'),'Versionsloader lädt nicht die finale Ernährungslogik.');
-  assert.ok(loader.includes('nutrition-search-input-performance-v193.js?v=1.9.7-alpha'),'Versionsloader lädt nicht die neue Tipp-Performance.');
+  assert.ok(loader.includes('nutrition-search-input-performance-v193.js?v=1.9.8-alpha'),'Versionsloader lädt nicht die 230-ms-Suche.');
   assert.ok(runtime.includes("nutrition-polish-v138.js?v=1.3.11-alpha"),'Runtime-Manifest enthält die finale Ernährungslogik nicht.');
-  assert.ok(runtime.includes("nutrition-search-input-performance-v193.js?v=1.9.7-alpha"),'Runtime-Manifest enthält die neue Tipp-Performance nicht.');
+  assert.ok(runtime.includes("nutrition-search-input-performance-v193.js?v=1.9.8-alpha"),'Runtime-Manifest enthält die 230-ms-Suche nicht.');
   assert.ok(sw.includes('search192-ui-overhaul'),'Service Worker verwendet nicht die Such-UI-Cachegeneration.');
   assert.ok(sw.includes('search194-interaction-unlock'),'Service Worker enthält den Interaktions-Hotfix nicht.');
   assert.ok(sw.includes('search195-stability'),'Service Worker enthält die Suchstabilitätsgeneration nicht.');
   assert.ok(sw.includes('search196-article-sequence'),'Service Worker enthält den Artikel-/Sequenzschutz nicht.');
   assert.ok(sw.includes('search197-typing-performance'),'Service Worker enthält die Tipp-Performancegeneration nicht.');
+  assert.ok(sw.includes('search198-idle-live'),'Service Worker enthält die 230-ms-Live-Generation nicht.');
 
   dom.window.close();
-  console.log('Mikrofon, Trefferaktionen, finale Suchdarstellung und Tipp-Performance 1.9.7 geprüft.');
+  console.log('Mikrofon, Trefferaktionen, Suchdarstellung und 230-ms-Suche 1.9.8 geprüft.');
 },60);
