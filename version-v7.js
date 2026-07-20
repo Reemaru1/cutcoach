@@ -19,11 +19,12 @@
   function loadNutritionMulti120(){
     addStyle('nutrition-multisearch-120','./nutrition-multisearch-120.css?v=1.2.3-alpha');addStyle('nutrition-search-confidence-v150','./nutrition-search-confidence-v150.css?v=1.5.0-alpha');
     const ensure=(key,src,ready,next)=>{if(ready()){next();return}const existing=document.querySelector(`script[data-${key}]`);if(existing){existing.addEventListener('load',next,{once:true});existing.addEventListener('error',next,{once:true});return}addScript(key,src,next)};
-    const loadCompatibility=()=>{if(!window.CutCoachNutritionMultiSearch120)addScript('nutrition-multisearch-120','./nutrition-multisearch-120.js?v=1.6.1-compat')};
-    const attachLayers=()=>{let engine=window.CutCoachIntelligentSearch128;engine=window.CutCoachSearchConfidenceHardening151?.attach?.(engine)||engine;engine=window.CutCoachPortionHardening153?.attach?.(engine)||engine;window.CutCoachSearchLearning161?.installLibraryHook?.();loadCompatibility()};
+    const loadCompatibility=()=>{if(!window.CutCoachNutritionMultiSearch120)addScript('nutrition-multisearch-120','./nutrition-multisearch-120.js?v=1.7.0-compat')};
+    const attachLayers=()=>{let engine=window.CutCoachIntelligentSearch128;engine=window.CutCoachSearchExactWhole170?.attach?.(engine)||engine;engine=window.CutCoachSearchConfidenceHardening151?.attach?.(engine)||engine;engine=window.CutCoachPortionHardening153?.attach?.(engine)||engine;window.CutCoachSearchLearning161?.installLibraryHook?.();loadCompatibility()};
     const loadCanonical=()=>ensure('nutrition-intelligent-search-128','./nutrition-multisearch-canonical-128.js?v=1.5.0-alpha',()=>Boolean(window.CutCoachIntelligentSearch128),attachLayers);
     const loadConfidence=()=>ensure('nutrition-search-confidence-hardening-v151','./nutrition-search-confidence-hardening-v151.js?v=1.6.1-alpha',()=>Boolean(window.CutCoachSearchConfidenceHardening151),loadCanonical);
-    const loadLearning=()=>ensure('nutrition-search-learning-v161','./nutrition-search-learning-v161.js?v=1.6.1-alpha',()=>Boolean(window.CutCoachSearchLearning161),loadConfidence);
+    const loadExactWhole=()=>ensure('nutrition-search-exact-whole-v170','./nutrition-search-exact-whole-v170.js?v=1.7.0-alpha',()=>Boolean(window.CutCoachSearchExactWhole170),loadConfidence);
+    const loadLearning=()=>ensure('nutrition-search-learning-v161','./nutrition-search-learning-v161.js?v=1.6.1-alpha',()=>Boolean(window.CutCoachSearchLearning161),loadExactWhole);
     const loadPortionHardening=()=>ensure('nutrition-portion-hardening-v153','./nutrition-portion-hardening-v153.js?v=1.5.3-alpha',()=>Boolean(window.CutCoachPortionHardening153),loadLearning);
     ensure('nutrition-portion-profiles-v153','./nutrition-portion-profiles-v153.js?v=1.5.3-alpha',()=>Boolean(window.CutCoachPortionProfiles153),loadPortionHardening);
   }
