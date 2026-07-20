@@ -59,7 +59,7 @@
     {"id":"exact-butter-cookie-not-butter","class":"correct","query":"10 g Butterkeks","ids":["food-butterkeks"],"statuses":["matched"],"factors":[1],"notIds":["butter"]},
     {"id":"exact-watermelon","class":"correct","query":"100 g Wassermelone","ids":["food-watermelon"],"statuses":["matched"],"factors":[1]},
     {"id":"exact-honeydew","class":"correct","query":"100 g Honigmelone","ids":["food-honeydew"],"statuses":["matched"],"factors":[1]},
-    {"id":"personal-skyr-priority","class":"correct","query":"Skyr","ids":["personal-skyr"],"statuses":["matched"]},
+    {"id":"personal-skyr-priority","class":"correct","query":"250 g Skyr","ids":["personal-skyr"],"statuses":["matched"],"factors":[0.5]},
     {"id":"same-name-pudding","class":"ambiguous","query":"200 g Protein Pudding","statuses":["ambiguous"]}
   ]
 }
