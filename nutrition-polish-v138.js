@@ -1,7 +1,7 @@
 'use strict';
 (function(){
-  const VERSION='1.3.8 Alpha';
-  const PRESENTATION_VERSION='1.9.2-alpha';
+  const VERSION='1.3.9 Alpha';
+  const PRESENTATION_VERSION='1.9.4-alpha';
   const $=(selector,scope=document)=>scope.querySelector(selector);
   const $$=(selector,scope=document)=>[...scope.querySelectorAll(selector)];
   const normalize=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
@@ -15,7 +15,7 @@
     steak:Object.freeze({id:'cutcoach-standard-steak-v192',name:'Rindersteak',aliases:Object.freeze(['Steak','Beefsteak','Rind Steak']),kind:'food',amount:1,unit:'Stück',calories:400,protein:52,carbs:0,fat:22,fiber:0,sugar:0,saturatedFat:8.5,salt:.35,source:'cutcoach',catalog:true,estimated:true,sourceLabel:'CutCoach Standardwert · ca. 200 g gegart',category:'Fleisch'})
   });
 
-  let root=null,observer=null,frame=0,inputTimer=0,renderToken=0,syncing=false,locked=new WeakSet();
+  let root=null,observer=null,frame=0,inputTimer=0,renderToken=0,syncing=false,renderWrites=0,locked=new WeakSet();
 
   const mealRules={
     'Frühstück':[
@@ -104,7 +104,7 @@
 
   function searchHost(){let node=$('#nutritionMultiSearch');if(node)return node;const card=$('.nutrition-search-card',root);if(!card)return null;node=document.createElement('section');node.id='nutritionMultiSearch';node.className='nutrition-multi-search intelligent-search nutrition-presentation-v192';card.after(node);return node}
   function suppressNormalResults(active){document.body.classList.toggle('canonical-multisearch-active',active);const selector='[data-nutrition-results],.nutrition-results,.nutrition-results-section,.nutrition-empty-state';if(active){for(const node of $$(selector)){if(node.dataset.v192Suppressed!=='1'){node.dataset.v192Suppressed='1';node.dataset.v192WasHidden=node.hidden?'1':'0'}node.hidden=true}}else for(const node of $$('[data-v192-suppressed="1"]')){node.hidden=node.dataset.v192WasHidden==='1';delete node.dataset.v192Suppressed;delete node.dataset.v192WasHidden}}
-  function clearSearchPresentation(){clearTimeout(inputTimer);renderToken++;const node=$('#nutritionMultiSearch');if(node?.dataset.presentationV192==='1'){node.hidden=true;node.replaceChildren();delete node.dataset.presentationV192;delete node.dataset.query;delete node._v192Rows}suppressNormalResults(false)}
+  function clearSearchPresentation(){clearTimeout(inputTimer);renderToken++;const node=$('#nutritionMultiSearch');if(node?.dataset.presentationV192==='1'){node.hidden=true;node.replaceChildren();delete node.dataset.presentationV192;delete node.dataset.query;delete node.dataset.renderSignature;delete node._v192Rows}suppressNormalResults(false)}
   function rowMeta(row){const notes=[];if(row.amountLabel)notes.push(row.amountLabel);if(row.modifier)notes.push(`ohne ${row.modifier}`);if(row.personalReason)notes.push(row.personalReason);return notes.join(' · ')}
   function choiceHtml(row,index){return`<div class="confidence-choice-list">${(row.choices||[]).map((choice,choiceIndex)=>`<button type="button" data-v192-choice="${index}:${choiceIndex}"><b>${escapeHtml(choice.item.name)}</b><small>${fmt(choice.item.calories)} kcal · ${fmt(choice.item.amount,Number(choice.item.amount)%1?1:0)} ${escapeHtml(choice.item.unit||'g')}</small></button>`).join('')}</div>`}
   function renderRow(row,index){
@@ -115,10 +115,13 @@
     if(row.status==='incompatible')return`<article class="missing"><span class="nutrition-row-state" aria-hidden="true">!</span><div>${raw}<b>Einheit passt nicht</b><em>${escapeHtml(row.amountLabel||'Menge bitte prüfen')}</em></div><button class="nutrition-row-action inspect" type="button" data-v192-search="${index}">Prüfen</button></article>`;
     return`<article class="missing"><span class="nutrition-row-state" aria-hidden="true">?</span><div>${raw}<b>Kein passender Treffer</b><em>Einzeln suchen oder neu anlegen</em></div><button class="nutrition-row-action inspect" type="button" data-v192-search="${index}">Suchen</button></article>`;
   }
+  function presentationSignature(input,rows){return`${normalize(input?.value)}::${rows.map(row=>[row.status,row.item?.id||row.item?.name||'',row.raw||'',row.query||'',Number(row.factor)||1,row.amountLabel||'',(row.choices||[]).map(choice=>choice.item?.id||choice.item?.name||'').join(',')].join(':')).join('|')}`}
   function renderSearchPresentation(input,rows,token=++renderToken){
-    if(!input||token!==renderToken||!rows.length)return false;const node=searchHost();if(!node)return false;const complete=rows.every(row=>row.status==='matched');node.dataset.presentationV192='1';node.dataset.canonical='1';node.dataset.query=normalize(input.value);node.hidden=false;node._v192Rows=rows;suppressNormalResults(true);
+    if(!input||token!==renderToken||!rows.length)return false;const node=searchHost();if(!node)return false;const complete=rows.every(row=>row.status==='matched'),signature=presentationSignature(input,rows);node.dataset.presentationV192='1';node.dataset.canonical='1';node.dataset.query=normalize(input.value);node.hidden=false;node._v192Rows=rows;suppressNormalResults(true);
+    if(node.dataset.renderSignature===signature)return true;
+    node.dataset.renderSignature=signature;
     const bulk=complete&&rows.length>1?'<button class="nutrition-bulk-action" type="button" data-v192-all>Alle hinzufügen</button>':'';
-    node.innerHTML=`<div class="nutrition-multi-head"><div><small>Erkannte Einträge</small></div>${bulk}</div><div class="nutrition-multi-list">${rows.map(renderRow).join('')}</div>`;return true;
+    node.innerHTML=`<div class="nutrition-multi-head"><div><small>Erkannte Einträge</small></div>${bulk}</div><div class="nutrition-multi-list">${rows.map(renderRow).join('')}</div>`;renderWrites++;return true;
   }
   function scheduleSearch(input,rows){clearTimeout(inputTimer);const token=++renderToken;inputTimer=setTimeout(()=>{if(input?.isConnected&&token===renderToken)renderSearchPresentation(input,rows,token)},110)}
   function addRow(row){if(!row?.item||row.status!=='matched'||row.incompatible)return false;try{return Boolean(window.CutCoachLibrary?.addCatalogItemToDay?.(row.item,{type:currentMeal(),dateKey:typeof selectedDate==='string'?selectedDate:undefined,factor:Number(row.factor)||1}))}catch{return false}}
@@ -135,14 +138,15 @@
 
   function sync(){
     frame=0;if(syncing||!root?.isConnected||!document.body.classList.contains('nutrition-mode'))return;syncing=true;
-    try{root.dataset.nutritionPolishV138='1';root.dataset.searchPresentation='1.9.2';renameShortcuts();polishMealActions();decorateRows();reorderRecommendations();const input=$('#nutritionSearch',root);if(input?.value.trim()&&$('#nutritionMultiSearch')?.dataset.presentationV192==='1'){const rows=resolveRows(input.value);if(shouldHandle(input.value,rows))renderSearchPresentation(input,rows)}}finally{syncing=false}
+    try{root.dataset.nutritionPolishV138='1';root.dataset.searchPresentation='1.9.4';renameShortcuts();polishMealActions();decorateRows();reorderRecommendations()}finally{syncing=false}
   }
   function queue(){if(frame)return;frame=requestAnimationFrame(sync)}
-  function start(found){root=found;observer?.disconnect();observer=new MutationObserver(records=>{if(records.some(record=>record.addedNodes.length||record.removedNodes.length||record.type==='characterData'))queue()});observer.observe(root,{childList:true,subtree:true,characterData:true});root.addEventListener('change',queue,{passive:true});root.addEventListener('click',queue,true);queue()}
+  function mutationNeedsSync(record){const target=record.target?.nodeType===1?record.target:record.target?.parentElement;if(target?.closest?.('#nutritionMultiSearch'))return false;return Boolean(record.addedNodes.length||record.removedNodes.length||record.type==='characterData')}
+  function start(found){root=found;observer?.disconnect();observer=new MutationObserver(records=>{if(records.some(mutationNeedsSync))queue()});observer.observe(root,{childList:true,subtree:true,characterData:true});root.addEventListener('change',queue,{passive:true});root.addEventListener('click',queue,true);queue()}
   function boot(){const found=document.querySelector('[data-screen="food"]');if(found){start(found);return}const bootstrap=new MutationObserver(()=>{const node=document.querySelector('[data-screen="food"]');if(!node)return;bootstrap.disconnect();start(node)});bootstrap.observe(document.body||document.documentElement,{childList:true,subtree:true})}
 
   window.addEventListener('input',handleInput,true);window.addEventListener('keydown',handleKeydown,true);window.addEventListener('click',handlePresentationClick,true);
   document.addEventListener('compositionend',event=>{if(event.target?.id==='nutritionSearch')queueMicrotask(()=>handleInput({target:event.target,stopImmediatePropagation(){}}))},true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
-  window.CutCoachNutritionPolish138=Object.freeze({version:VERSION,presentationVersion:PRESENTATION_VERSION,refresh:queue,mealAffinity,resolveRows,shouldHandle});
+  window.CutCoachNutritionPolish138=Object.freeze({version:VERSION,presentationVersion:PRESENTATION_VERSION,refresh:queue,mealAffinity,resolveRows,shouldHandle,interactionStats:()=>Object.freeze({renderWrites,pendingFrame:Boolean(frame)})});
 })();

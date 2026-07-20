@@ -49,7 +49,8 @@ setTimeout(()=>{
   assert.ok(names.indexOf('Skyr natur')<names.indexOf('Hähnchenbrustfilet gebraten'),'Frühstückstypisches Skyr wird weiterhin hinter Hähnchen einsortiert.');
   assert.ok(names.indexOf('Haferflocken mit Milch')<names.indexOf('Hähnchenbrustfilet gebraten'),'Frühstückstypische Haferflocken werden weiterhin hinter Hähnchen einsortiert.');
   assert.ok(window.CutCoachNutritionPolish138.mealAffinity('Skyr natur','Frühstück')>window.CutCoachNutritionPolish138.mealAffinity('Hähnchenbrustfilet gebraten','Frühstück'),'Mahlzeitenaffinität bevorzugt kein typisches Frühstück.');
-  assert.equal(window.CutCoachNutritionPolish138.presentationVersion,'1.9.2-alpha');
+  assert.equal(window.CutCoachNutritionPolish138.presentationVersion,'1.9.4-alpha');
+  assert.equal(window.CutCoachNutritionPolish138.interactionStats().renderWrites,0,'Darstellung schreibt ohne aktive Suche unnötig Karten-HTML.');
   assert.ok(window.document.querySelector('.nutrition-source').title,'Quellenbadge besitzt keinen verständlichen Hinweis.');
 
   assert.match(css,/\.nutrition-search-row\{grid-template-columns:26px minmax\(0,1fr\) 52px!important/,'Mikrofon erhält keinen größeren, sauber gefitteten Bereich.');
@@ -60,11 +61,12 @@ setTimeout(()=>{
   assert.match(css,/\.nutrition-row-action\{[\s\S]*min-width:98px!important/,'Intelligente Suche verwendet weiterhin fehlerhafte reine Pluskästen.');
 
   assert.ok(loader.includes("nutrition-polish-v138.css?v=1.3.8-alpha"),'Versionsloader lädt die Ernährungs-CSS nicht.');
-  assert.ok(loader.includes("nutrition-polish-v138.js?v=1.3.8-alpha"),'Versionsloader lädt die Ernährungslogik nicht.');
+  assert.ok(loader.includes("nutrition-polish-v138.js?v=1.3.9-alpha"),'Versionsloader lädt den Interaktions-Hotfix nicht.');
   assert.ok(runtime.includes("nutrition-polish-v138.css?v=1.3.8-alpha"),'Runtime-Manifest enthält die Ernährungs-CSS nicht.');
-  assert.ok(runtime.includes("nutrition-polish-v138.js?v=1.3.8-alpha"),'Runtime-Manifest enthält die Ernährungslogik nicht.');
-  assert.ok(sw.includes('search192-ui-overhaul'),'Service Worker verwendet nicht die neue Such-UI-Cachegeneration.');
+  assert.ok(runtime.includes("nutrition-polish-v138.js?v=1.3.9-alpha"),'Runtime-Manifest enthält den Interaktions-Hotfix nicht.');
+  assert.ok(sw.includes('search192-ui-overhaul'),'Service Worker verwendet nicht die Such-UI-Cachegeneration.');
+  assert.ok(sw.includes('search194-interaction-unlock'),'Service Worker enthält den Interaktions-Hotfix nicht.');
 
   dom.window.close();
-  console.log('Mikrofon, Trefferaktionen, Vortag/Einträge und kontrastreiche Suchdarstellung geprüft.');
+  console.log('Mikrofon, Trefferaktionen und interaktionssichere Suchdarstellung geprüft.');
 },60);

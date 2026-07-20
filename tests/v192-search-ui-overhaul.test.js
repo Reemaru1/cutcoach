@@ -69,14 +69,14 @@ const type=async value=>{input.value=value;input.dispatchEvent(new w.Event('inpu
   assert.match(host.textContent,/2 EL · Standardwert/,'Mengenhinweis wurde zusammen mit den Prozenten fälschlich entfernt.');
   assert.doesNotMatch(host.textContent,/94%|100%|Sehr sicher|Exakt|3 sichere Bestandteile/);
   assert.ok(host.querySelector('[data-v192-all]'),'Saubere Alle-hinzufügen-Aktion fehlt.');
-  const stable=host.innerHTML;await wait(140);assert.equal(host.innerHTML,stable,'DOM-Polisher löst durch eigene Änderungen eine Render-Schleife aus.');
+  const stable=host.innerHTML,writes=w.CutCoachNutritionPolish138.interactionStats().renderWrites;await wait(180);assert.equal(host.innerHTML,stable,'DOM-Polisher verändert die Karte ohne Zustandswechsel.');assert.equal(w.CutCoachNutritionPolish138.interactionStats().renderWrites,writes,'DOM-Polisher schreibt dieselbe Karte erneut.');
 
   assert.equal(w.document.querySelector('#nutritionVoice').textContent,'🎙️');
   assert.equal(w.document.querySelector('#nutritionCopyPrevious').textContent,'Vortag');
   assert.match(w.document.querySelector('#nutritionCurrentToggle').textContent,/Einträge/);
   assert.equal(w.document.querySelector('.nutrition-result-add').textContent,'+');
-  assert.equal(w.CutCoachNutritionPolish138.presentationVersion,'1.9.2-alpha');
+  assert.equal(w.CutCoachNutritionPolish138.presentationVersion,'1.9.4-alpha');
 
   dom.window.close();
-  console.log('Such-UI 1.9.2: Döne, Brot/Steak, Butter/Cola/Brot, kontrastreiche Karten und stabile DOM-Laufzeit bestanden.');
+  console.log('Such-UI 1.9.4: Alltagssuche, klare Karten und stabile Interaktion ohne Selbst-Rendern bestanden.');
 })().catch(error=>{console.error(error);dom.window.close();process.exitCode=1});
