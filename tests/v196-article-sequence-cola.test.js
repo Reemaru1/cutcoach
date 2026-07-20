@@ -59,7 +59,7 @@ const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
   inject(w,read('nutrition-polish-v138.js'));
   w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
   input.value=query;input.dispatchEvent(new w.Event('input',{bubbles:true}));
-  await wait(700);
+  await wait(1050);
   const host=w.document.querySelector('#nutritionMultiSearch');
   assert.ok(host&&!host.hidden,'Die intelligente Screenshot-Suche wird nicht dargestellt.');
   assert.match(host.textContent,/Erkannte Einträge/,'Die finale Suchdarstellung übernimmt die Treffer nicht.');
@@ -71,5 +71,5 @@ const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
   assert.equal(host.innerHTML,stable,'Eine ältere Suchschicht überschreibt die Karte zeitversetzt.');
 
   dom.window.close();
-  console.log('Suchintegrität 1.9.6: Artikelmengen, interne Standardtreffer und finale Dreifachkarte bestehen.');
+  console.log('Suchintegrität 1.9.6 bleibt mit der ruhigeren Tipp-Performance 1.9.7 vollständig erhalten.');
 })().catch(error=>{console.error(error);process.exitCode=1});
