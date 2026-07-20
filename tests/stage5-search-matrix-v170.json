@@ -50,8 +50,8 @@
     {"id":"protected-goezleme","class":"protected","query":"Gözleme mit Spinat und Käse","length":0},
     {"id":"protected-cola-zero","class":"protected","query":"Cola ohne Zucker","length":0},
 
-    {"id":"unknown-single","class":"unknown","query":"Quantenbrot","statuses":["missing"]},
-    {"id":"unknown-nonsense","class":"unknown","query":"Xylophonauflauf","statuses":["missing"]},
+    {"id":"unknown-single","class":"unknown","query":"Quantenbrot","length":0},
+    {"id":"unknown-nonsense","class":"unknown","query":"Xylophonauflauf","length":0},
     {"id":"unknown-second-part","class":"unknown","query":"Banane und Xylophonauflauf","namesAt":["Banane",null],"statuses":["matched","missing"]},
     {"id":"typo-review-oats","class":"review","query":"Haferflaken","names":["Haferflocken"],"statuses":["review"]},
 
