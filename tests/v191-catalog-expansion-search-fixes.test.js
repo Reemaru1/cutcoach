@@ -57,18 +57,32 @@ assert.deepEqual(Array.from(rows,row=>row.status),['matched','matched']);
 assert.equal(rows[0].factor,2,'Das Zahlwort Zwei wird beim Sahnetortenstück nicht übernommen.');
 assert.equal(rows[1].factor,1,'Das Zahlwort ein wird beim Köfte nicht übernommen.');
 
-rows=api.rowsFor('hahnchengeschnetzeltes mit reis');
-assert.equal(rows.length,1,'Das vollständige Gericht wird weiterhin am Wort mit zerlegt.');
-assert.equal(rows[0].item?.id,'ccx:haehnchengeschnetzeltes-reis');
-assert.equal(rows[0].status,'matched');
-assert.ok(rows[0].confidence>=97);
+const chickenDish=w.CutCoachFoodCatalog.get('ccx:haehnchengeschnetzeltes-reis');
+assert.ok(chickenDish,'Hähnchengeschnetzeltes mit Reis fehlt im vollständigen Katalog.');
+assert.ok([chickenDish.name,...chickenDish.aliases].some(value=>normalize(value)==='hahnchengeschnetzeltes mit reis'),'Die Screenshot-Schreibweise ist weder Hauptname noch Alias.');
+assert.ok([chickenDish.name,...chickenDish.aliases].some(value=>normalize(value)==='hahnchen geschnetzeltes mit reis'),'Die getrennte ASCII-Schreibweise fehlt.');
 
-rows=api.rowsFor('Hähnchen Geschnetzeltes mit Reis');
-assert.equal(rows.length,1);assert.equal(rows[0].item?.id,'ccx:haehnchengeschnetzeltes-reis');
+const input=w.document.querySelector('#nutritionSearch');
+input.value='hahnchengeschnetzeltes mit reis';
+assert.equal(api.likelyMulti(input.value),false,'Das vollständige Einzelgericht wird weiterhin als Mehrfachsuche eingestuft.');
+assert.equal(api.rowsFor(input.value).length,0,'Das vollständige Einzelgericht wird weiterhin in Bestandteile zerlegt.');
+assert.equal(api.render(input),false,'Das vollständige Einzelgericht erzeugt fälschlich eine intelligente Mehrfachkarte.');
+let host=w.document.querySelector('#nutritionMultiSearch');
+assert.ok(!host||host.hidden,'Nach dem Einzelgericht bleibt eine intelligente Mehrfachkarte sichtbar.');
+
+input.value='Hähnchen Geschnetzeltes mit Reis';
+assert.equal(api.likelyMulti(input.value),false,'Die getrennte Schreibweise wird als Mehrfachsuche eingestuft.');
+assert.equal(api.rowsFor(input.value).length,0,'Die getrennte Schreibweise wird in Hähnchen und Reis zerlegt.');
+assert.equal(api.render(input),false,'Die getrennte Schreibweise erzeugt fälschlich eine Mehrfachkarte.');
+host=w.document.querySelector('#nutritionMultiSearch');
+assert.ok(!host||host.hidden,'Bei der getrennten Schreibweise bleibt eine Mehrfachkarte sichtbar.');
+
 rows=api.rowsFor('3 Köfte');
 assert.equal(rows.length,1);assert.equal(rows[0].item?.id,'ccx:koefte-stueck');assert.equal(rows[0].factor,3);
 rows=api.rowsFor('Köfte Teller');
-assert.equal(rows.length,1);assert.equal(rows[0].item?.id,'existing-koefte-teller','Der neutrale Köfte-Eintrag überschreibt den bestehenden Teller.');
+assert.equal(rows.length,0,'Der bestehende Köfte Teller wird fälschlich als intelligente Mehrfachsuche übernommen.');
+assert.equal(api.likelyMulti('Köfte Teller'),false,'Der bestehende Köfte Teller wird nicht als vollständiges Einzelgericht geschützt.');
+assert.equal(w.CutCoachFoodCatalog.get('existing-koefte-teller')?.name,'Köfte Teller','Der neutrale Köfte-Eintrag überschreibt den bestehenden Teller.');
 
 const loader=read('version-v7.js'),manifest=read('runtime-manifest.js'),sw=read('sw.js'),packageJson=JSON.parse(read('package.json'));
 assert.match(loader,/catalog-expansion-v191\.js\?v=1\.9\.1-alpha/,'Produktiver Loader enthält das Paket nicht.');
