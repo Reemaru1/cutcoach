@@ -55,7 +55,7 @@ const tick=()=>new Promise(resolve=>queueMicrotask(resolve));
   let voiceStops=0,scannerStops=0;
   w.CutCoachNutritionVoice111={stop:commit=>{assert.equal(commit,false);voiceStops++}};
   w.CutCoachScannerV2={stop:()=>{scannerStops++}};
-  inject(w,stage6);const api=w.CutCoachNutritionStage6;inject(w,stage6);
+  inject(w,stage6);const api=w.CutCoachNutritionStage6;w.document.dispatchEvent(new w.Event('DOMContentLoaded'));inject(w,stage6);
   assert.equal(w.CutCoachNutritionStage6,api,'Doppeltes Laden erzeugt eine zweite Stufe-6-Instanz.');
   assert.equal(api.version,'1.8.0-alpha');assert.equal(api.frozenArchitecture,true);assert.equal(input.maxLength,240);
 
