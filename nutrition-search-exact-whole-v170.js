@@ -42,6 +42,7 @@
     for(const record of buildIndex().get(q)||[]){const previous=dedup.get(record.id);if(!previous||record.isName&&!previous.isName||record.preference>previous.preference)dedup.set(record.id,record)}
     return[...dedup.values()].sort((a,b)=>(Number(b.isName)-Number(a.isName))||b.preference-a.preference||String(a.item.name).localeCompare(String(b.item.name),'de'));
   }
+  function literalNameMatch(value){const raw=String(value||'').trim(),cleaned=cleanNatural(raw),prefix=cleaned.match(AMOUNT_RE);if(!cleaned||!prefix)return null;const candidates=exactCandidates(cleaned);if(!candidates.length)return null;return{part:{raw,source:cleaned,query:normalize(cleaned),quantity:1,quantitySpecified:false,unitInfo:null,modifier:'',smart:false,literalName:true},candidates}}
   function parseAmount(value){
     const raw=String(value||'').trim(),cleaned=cleanNatural(raw);if(!cleaned||exactCandidates(cleaned).length)return null;
     const match=cleaned.match(AMOUNT_RE);if(!match)return null;const source=cleaned.slice(match[0].length).trim();if(!source)return null;
@@ -51,30 +52,30 @@
   function invalidRow(part){const name=part.source||'Menge',item={id:'__cutcoach_invalid_quantity__',name,amount:1,unit:part.unitInfo?.unit||'g',calories:0,protein:0,carbs:0,fat:0,source:'cutcoach',catalog:false};return{...part,query:'',unitInfo:null,parsedUnitInfo:part.unitInfo,directItem:item,directMatch:{item,matchType:'invalid-quantity',confidence:0,alternatives:[]},item,status:'review',matchType:'invalid-quantity',confidence:0,confidenceLabel:'Menge prüfen',corrected:'',alternatives:[],choices:[],factor:0,amountLabel:'Menge muss größer als 0 sein',incompatible:false,approximate:false,invalidQuantity:true}}
   function portionFor(part,item){
     const quantity=Number(part.quantity),itemInfo=canonicalItemUnit(item.unit),baseRaw=Number(item.amount),baseAmount=Math.max(.01,(Number.isFinite(baseRaw)&&baseRaw>0?baseRaw:1)*(itemInfo?.scale||1)),itemUnit=itemInfo?.unit||String(item.unit||'g'),info=part.unitInfo;
-    if(!info){if(quantity>10&&(itemUnit==='g'||itemUnit==='ml'))return{factor:quantity/baseAmount,amountLabel:`${fmt(quantity)} ${itemUnit}`,incompatible:false,approximate:false};return{factor:quantity,amountLabel:`${fmt(quantity)}×`,incompatible:false,approximate:false}}
+    if(!info){if(quantity>10&&(itemUnit==='g'||itemUnit==='ml'))return{factor:quantity/baseAmount,amountLabel:`${fmt(quantity)} ${itemUnit}`,incompatible:false,approximate:false};return{factor:quantity,amountLabel:part.literalName?'':`${fmt(quantity)}×`,incompatible:false,approximate:false}}
     if(info.kind==='dimension'){const amount=quantity*Number(info.scale||1);if(itemUnit!==info.unit)return{factor:1,amountLabel:`${fmt(quantity)} ${info.label}`,incompatible:true,approximate:false};return{factor:amount/baseAmount,amountLabel:`${fmt(amount)} ${info.unit}`,incompatible:false,approximate:false}}
     if(info.kind==='count'&&itemUnit===info.unit)return{factor:quantity/baseAmount,amountLabel:`${fmt(quantity)} ${info.label}`,incompatible:false,approximate:false};
     return{factor:quantity,amountLabel:`${fmt(quantity)} ${info.label||''}`.trim(),incompatible:false,approximate:true};
   }
-  function protectedRows(value){
-    const invalid=invalidPart(value);if(invalid)return[invalidRow(invalid)];
-    const part=parseAmount(value);if(!part)return null;const candidates=exactCandidates(part.source);if(!candidates.length)return null;
+  function rowsFromCandidates(part,candidates){
     const choices=candidates.slice(0,6).map(record=>({item:record.item,label:labelFor(record),origin:record.origin,personalReason:''}));
     const top=candidates[0],second=candidates[1],topRank=(top.isName?24:0)+top.preference,secondRank=second?(second.isName?24:0)+second.preference:-100;
-    if(second&&topRank-secondRank<4)return[{...part,directItem:null,directMatch:{item:null,matchType:'ambiguous-exact-whole',confidence:0,alternatives:choices.map(choice=>choice.item.name)},item:null,status:'ambiguous',matchType:'ambiguous-exact-whole',confidence:0,confidenceLabel:'',corrected:'',alternatives:choices.map(choice=>`${choice.label}: ${choice.item.name}`),choices,factor:1,amountLabel:'',incompatible:false,approximate:false}];
-    const item=top.item,portion=portionFor(part,item),confidence=top.isName?100:97,status=portion.incompatible?'incompatible':'matched';
-    return[{...part,directItem:item,directMatch:{item,matchType:top.isName?'exact-whole-name':'exact-whole-alias',confidence,alternatives:choices.slice(1).map(choice=>choice.item.name)},item,status,matchType:top.isName?'exact-whole-name':'exact-whole-alias',confidence,confidenceLabel:confidence===100?'Exakt · 100%':`Sehr sicher · ${confidence}%`,corrected:'',alternatives:choices.slice(1).map(choice=>`${choice.label}: ${choice.item.name}`),choices:choices.slice(1),origin:top.origin,...portion}];
+    if(second&&topRank-secondRank<4)return[{...part,directItem:null,directMatch:{item:null,matchType:part.literalName?'ambiguous-literal-name':'ambiguous-exact-whole',confidence:0,alternatives:choices.map(choice=>choice.item.name)},item:null,status:'ambiguous',matchType:part.literalName?'ambiguous-literal-name':'ambiguous-exact-whole',confidence:0,confidenceLabel:'',corrected:'',alternatives:choices.map(choice=>`${choice.label}: ${choice.item.name}`),choices,factor:1,amountLabel:'',incompatible:false,approximate:false}];
+    const item=top.item,portion=portionFor(part,item),confidence=top.isName?100:97,baseType=part.literalName?'exact-literal':'exact-whole',matchType=top.isName?`${baseType}-name`:`${baseType}-alias`,status=portion.incompatible?'incompatible':'matched';
+    return[{...part,directItem:item,directMatch:{item,matchType,confidence,alternatives:choices.slice(1).map(choice=>choice.item.name)},item,status,matchType,confidence,confidenceLabel:confidence===100?'Exakt · 100%':`Sehr sicher · ${confidence}%`,corrected:'',alternatives:choices.slice(1).map(choice=>`${choice.label}: ${choice.item.name}`),choices:choices.slice(1),origin:top.origin,...portion}];
+  }
+  function protectedRows(value){
+    const literal=literalNameMatch(value);if(literal)return rowsFromCandidates(literal.part,literal.candidates);
+    const invalid=invalidPart(value);if(invalid)return[invalidRow(invalid)];
+    const part=parseAmount(value);if(!part)return null;const candidates=exactCandidates(part.source);if(!candidates.length)return null;
+    return rowsFromCandidates(part,candidates);
   }
   function rowsFor(value){return protectedRows(value)||base?.rowsFor?.(value)||[]}
   function parse(value){return protectedRows(value)||base?.parse?.(value)||[]}
   function indexStats(){buildIndex();return Object.freeze({keys:index.size,records:indexRecordCount,builtAt,origins:indexOrigins})}
-  function attach(engine){
-    if(!engine)return null;if(api)return api;base=engine;
-    api=Object.freeze({...engine,exactWholeVersion:VERSION,exactWholeBuild:BUILD,rowsFor,parse,likelyMulti:value=>Boolean(protectedRows(value))||Boolean(base.likelyMulti?.(value)),invalidateIndex,indexStats});
-    global.CutCoachIntelligentSearch128=api;return api;
-  }
+  function attach(engine){if(!engine)return null;if(api)return api;base=engine;api=Object.freeze({...engine,exactWholeVersion:VERSION,exactWholeBuild:BUILD,rowsFor,parse,likelyMulti:value=>Boolean(protectedRows(value))||Boolean(base.likelyMulti?.(value)),invalidateIndex,indexStats});global.CutCoachIntelligentSearch128=api;return api}
   global.addEventListener?.('cutcoach:catalog-updated',invalidateIndex);
   global.addEventListener?.('cutcoach:librarychange',invalidateIndex);
   global.document?.addEventListener?.('cutcoach:library-changed',invalidateIndex);
-  global.CutCoachSearchExactWhole170=Object.freeze({version:VERSION,build:BUILD,attach,protectedRows,invalidateIndex,indexStats,cleanNatural,parseAmount});
+  global.CutCoachSearchExactWhole170=Object.freeze({version:VERSION,build:BUILD,attach,protectedRows,invalidateIndex,indexStats,cleanNatural,parseAmount,literalNameMatch});
 })(window);
