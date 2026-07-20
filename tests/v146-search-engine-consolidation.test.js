@@ -15,13 +15,14 @@ const loader=fs.readFileSync(path.join(root,'version-v7.js'),'utf8');
 const manifest=fs.readFileSync(path.join(root,'runtime-manifest.js'),'utf8');
 const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
 assert.match(compatibility,/mode:'compatibility-facade'/);
-assert.match(compatibility,/const VERSION='1\.9\.0-compat'/);
+assert.match(compatibility,/const VERSION='1\.9\.6-compat'/);
 assert.match(compatibility,/attachLayers/);
 assert.match(compatibility,/status:'multiple'/);
 assert.match(compatibility,/nutrition-portion-profiles-v153/);
 assert.match(compatibility,/nutrition-portion-hardening-v153/);
 assert.match(compatibility,/nutrition-search-learning-v161/);
 assert.match(compatibility,/nutrition-search-exact-whole-v170/);
+assert.match(compatibility,/nutrition-search-exact-whole-v170\.js\?v=1\.9\.6-alpha/);
 assert.doesNotMatch(compatibility,/addEventListener\s*\(|setTimeout|setInterval|requestAnimationFrame|requestIdleCallback|innerHTML|CutCoachLibrary/);
 assert.match(portions,/const VERSION='1\.9\.0-alpha'/);
 assert.match(portions,/search-integrity/);
@@ -52,7 +53,7 @@ let listenerCount=0;const nativeAdd=window.document.addEventListener.bind(window
 for(const source of [profiles,portions,learning,exactWhole,hardening,canonical]){const script=window.document.createElement('script');script.textContent=source;window.document.head.append(script)}
 let engine=window.CutCoachIntelligentSearch128;engine=window.CutCoachSearchExactWhole170.attach(engine);engine=window.CutCoachSearchConfidenceHardening151.attach(engine);engine=window.CutCoachPortionHardening153.attach(engine);const activeEngineListeners=listenerCount;assert.ok(activeEngineListeners>0);
 const facadeScript=window.document.createElement('script');facadeScript.textContent=compatibility;window.document.head.append(facadeScript);assert.equal(listenerCount,activeEngineListeners,'Passive Kompatibilitätsbrücke registriert zusätzliche Dokument-Listener.');
-const facade=window.CutCoachNutritionMultiSearch120;engine=window.CutCoachIntelligentSearch128;assert.ok(engine);assert.ok(facade);assert.equal(engine.version,'1.9.0-alpha');assert.equal(engine.build,'1.9.0-search-integrity');assert.equal(engine.learningVersion,'1.6.1-alpha');assert.equal(engine.exactWholeVersion,'1.9.6-alpha');assert.equal(facade.mode,'compatibility-facade');assert.equal(facade.engineVersion(),engine.version);
+const facade=window.CutCoachNutritionMultiSearch120;engine=window.CutCoachIntelligentSearch128;assert.ok(engine);assert.ok(facade);assert.equal(engine.version,'1.9.0-alpha');assert.equal(engine.build,'1.9.0-search-integrity');assert.equal(engine.learningVersion,'1.6.1-alpha');assert.equal(engine.exactWholeVersion,'1.9.6-alpha');assert.equal(facade.mode,'compatibility-facade');assert.equal(facade.version,'1.9.6-compat');assert.equal(facade.engineVersion(),engine.version);
 const direct=engine.rowsFor('Sucuk mit Toast'),delegated=facade.rowsFor('Sucuk mit Toast');assert.deepEqual(Array.from(delegated,row=>row.item?.name),Array.from(direct,row=>row.item?.name));
 const resolved=facade.resolve('Sucuk');assert.equal(resolved.match?.name,'Sucuk');assert.equal(resolved.confidence,100);assert.equal(resolved.status,'matched');assert.equal(resolved.personalReason,'');assert.equal(resolved.multiple,false);
 const multiple=facade.resolve('Sucuk mit Toast');assert.equal(multiple.match,null);assert.equal(multiple.multiple,true);assert.equal(multiple.status,'multiple');
@@ -63,6 +64,6 @@ assert.match(loader,/const loadConfidence=\(\)=>ensure\('nutrition-search-confid
 assert.match(loader,/const loadExactWhole=\(\)=>ensure\('nutrition-search-exact-whole-v170','\.\/nutrition-search-exact-whole-v170\.js\?v=1\.9\.6-alpha'/);
 assert.match(loader,/const loadLearning=\(\)=>ensure\('nutrition-search-learning-v161','\.\/nutrition-search-learning-v161\.js\?v=1\.6\.1-alpha'/);
 assert.match(loader,/const loadPortionHardening=\(\)=>ensure\('nutrition-portion-hardening-v153','\.\/nutrition-portion-hardening-v153\.js\?v=1\.9\.0-alpha'/);
-assert.match(loader,/nutrition-multisearch-120\.js\?v=1\.9\.0-compat/);assert.doesNotMatch(loader,/loadLegacy/);
-assert.match(manifest,/nutrition-portion-profiles-v153\.js\?v=1\.5\.3-alpha/);assert.match(manifest,/nutrition-portion-hardening-v153\.js\?v=1\.9\.0-alpha/);assert.match(manifest,/nutrition-search-learning-v161\.js\?v=1\.6\.1-alpha/);assert.match(manifest,/nutrition-search-exact-whole-v170\.js\?v=1\.9\.6-alpha/);assert.match(manifest,/nutrition-search-confidence-hardening-v151\.js\?v=1\.9\.0-alpha/);assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.9\.0-compat/);assert.match(sw,/search153-portions/);assert.match(sw,/search160-learning/);assert.match(sw,/search161-hardening/);assert.match(sw,/search170-exact-whole/);assert.match(sw,/search171-edge-hardening/);assert.match(sw,/stage6-production180/);assert.match(sw,/search190-integrity/);assert.match(sw,/search196-article-sequence/);
+assert.match(loader,/nutrition-multisearch-120\.js\?v=1\.9\.6-compat/);assert.doesNotMatch(loader,/loadLegacy/);
+assert.match(manifest,/nutrition-portion-profiles-v153\.js\?v=1\.5\.3-alpha/);assert.match(manifest,/nutrition-portion-hardening-v153\.js\?v=1\.9\.0-alpha/);assert.match(manifest,/nutrition-search-learning-v161\.js\?v=1\.6\.1-alpha/);assert.match(manifest,/nutrition-search-exact-whole-v170\.js\?v=1\.9\.6-alpha/);assert.match(manifest,/nutrition-search-confidence-hardening-v151\.js\?v=1\.9\.0-alpha/);assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.9\.6-compat/);assert.match(sw,/search153-portions/);assert.match(sw,/search160-learning/);assert.match(sw,/search161-hardening/);assert.match(sw,/search170-exact-whole/);assert.match(sw,/search171-edge-hardening/);assert.match(sw,/stage6-production180/);assert.match(sw,/search190-integrity/);assert.match(sw,/search196-article-sequence/);
 dom.window.close();console.log('Eine zentrale Such-Engine mit Vollkatalog-, Artikel-, Sequenz-, Portions-, Lern- und A–Z-Integrität: ok');
