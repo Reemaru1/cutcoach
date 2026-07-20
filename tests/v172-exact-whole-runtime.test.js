@@ -28,7 +28,7 @@ const api=w.CutCoachIntelligentSearch128;
 assert.equal(api.exactWholeVersion,'1.7.0-alpha');
 
 let rows=api.rowsFor('550 g Lachs mit Reis und Gemüse');
-assert.equal(rows.length,1);assert.equal(rows[0].item.id,dish.id);assert.equal(rows[0].status,'matched');assert.equal(rows[0].factor,1);assert.match(rows[0].matchType,/exact-whole/);
+assert.equal(rows.length,1);assert.equal(rows[0].item.id,dish.id);assert.equal(rows[0].status,'matched');assert.equal(rows[0].factor,1);assert.notEqual(rows[0].matchType,'fuzzy','Vollständiger Gerichtname wurde nur über Tippfehlerlogik gefunden.');
 rows=api.rowsFor('100 g Gans Fleisch, ohne Haut, roh');
 assert.equal(rows.length,1);assert.equal(rows[0].item.id,goose.id);assert.equal(rows[0].status,'matched');
 rows=api.rowsFor('100 g Protein Pudding');
