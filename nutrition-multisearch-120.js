@@ -2,7 +2,6 @@
 (function(){
   const VERSION='1.9.0-compat';
   if(window.CutCoachNutritionMultiSearch120?.version===VERSION)return;
-  const ASSET_TIMEOUT_MS=4500;
   const ASSETS=[
     {selector:'script[data-nutrition-portion-profiles-v153],script[data-portion-profiles-v153]',dataset:'nutritionPortionProfilesV153',src:'./nutrition-portion-profiles-v153.js?v=1.5.3-alpha',ready:()=>Boolean(window.CutCoachPortionProfiles153)},
     {selector:'script[data-nutrition-portion-hardening-v153],script[data-portion-hardening-v153]',dataset:'nutritionPortionHardeningV153',src:'./nutrition-portion-hardening-v153.js?v=1.9.0-alpha',ready:()=>Boolean(window.CutCoachPortionHardening153)},
@@ -21,12 +20,12 @@
     if(index>=ASSETS.length){attachLayers();return}
     const asset=ASSETS[index];if(asset.ready()){loadAsset(index+1);return}
     const page=currentDocument();if(!page)return;
-    let completed=false,timeout=0;
-    const next=()=>{if(completed)return;completed=true;clearTimeout(timeout);loadAsset(index+1)};
-    timeout=setTimeout(next,ASSET_TIMEOUT_MS);
-    let script=page.querySelector?.(asset.selector);
-    if(script){const previousLoad=script.onload,previousError=script.onerror;script.onload=event=>{previousLoad?.call(script,event);next()};script.onerror=event=>{previousError?.call(script,event);next()};queueMicrotask(()=>{if(asset.ready())next()});return}
-    script=page.createElement('script');script.src=asset.src;script.async=false;script.dataset[asset.dataset]='1';script.onload=next;script.onerror=next;(page.head||page.documentElement)?.append(script);
+    let completed=false;
+    const next=()=>{if(completed)return;completed=true;loadAsset(index+1)};
+    const create=()=>{const script=page.createElement('script');script.src=asset.src;script.async=false;script.dataset[asset.dataset]='1';script.onload=next;script.onerror=next;(page.head||page.documentElement)?.append(script)};
+    const existing=page.querySelector?.(asset.selector);
+    if(existing){const previousLoad=existing.onload,previousError=existing.onerror;existing.onload=event=>{previousLoad?.call(existing,event);next()};existing.onerror=event=>{previousError?.call(existing,event);next()};queueMicrotask(()=>{if(asset.ready()){next();return}if(existing.dataset.cutcoachRetry!=='1'){existing.dataset.cutcoachRetry='1';create()}});return}
+    create();
   }
   function parse(value){return engine()?.parse?.(value)||[]}
   function rowsFor(value){return engine()?.rowsFor?.(value)||[]}
