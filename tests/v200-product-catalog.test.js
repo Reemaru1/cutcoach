@@ -67,7 +67,8 @@ assert.deepEqual(Array.from(rows,row=>row.status),['matched','matched']);
 
 const loader=read('version-v7.js'),runtime=read('runtime-manifest.js'),sw=read('sw.js'),packageJson=JSON.parse(read('package.json'));
 assert.match(loader,/product-catalog-v200\.js\?v=2\.0\.0-alpha/,'Produktiver Loader enthält den Produktkatalog nicht.');
-assert.ok(loader.indexOf('catalog-expansion-v191.js?v=1.9.1-alpha')<loader.indexOf('product-catalog-v200.js?v=2.0.0-alpha'),'Produktkatalog wird vor seinen Basiskatalogen geladen.');
+assert.match(loader,/function loadProductCatalog200\(\)[\s\S]*product-catalog-v200\.js\?v=2\.0\.0-alpha[\s\S]*loadNutrition73/,'Produktkatalog übergibt nicht an die Ernährungssuche.');
+assert.match(loader,/function loadCatalogExpansion191\(\)[\s\S]*loadProductCatalog200[\s\S]*catalog-expansion-v191\.js\?v=1\.9\.1-alpha[^\n]*loadProductCatalog200/,'Basiskatalog übergibt nicht an den Produktkatalog.');
 assert.ok(runtime.indexOf('catalog-expansion-v191.js?v=1.9.1-alpha')<runtime.indexOf('product-catalog-v200.js?v=2.0.0-alpha'));
 assert.ok(runtime.indexOf('product-catalog-v200.js?v=2.0.0-alpha')<runtime.indexOf('nutrition-v73.js?v=7.3.2'));
 assert.match(sw,/catalog200-products/,'Eigene Cachegeneration für verifizierte Produkte fehlt.');
