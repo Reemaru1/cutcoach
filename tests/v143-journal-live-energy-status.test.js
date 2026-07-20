@@ -54,13 +54,14 @@ const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
 
   assert.ok(loader.includes("journal-energy-live-v143.js?v=1.4.3-alpha"),'Der Versionsloader lädt den Live-Fix nicht.');
   assert.ok(runtime.includes("journal-energy-live-v143.js?v=1.4.3-alpha"),'Das Offline-Manifest enthält den Live-Fix nicht.');
-  assert.ok(sw.includes('`${UI_CACHE}-energy143`'),'Die Cachegeneration für Tageskurs und neue Such-UI ist nicht verkettet.');
+  assert.ok(sw.includes('`${INPUT_CACHE}-energy143`'),'Die Cachegeneration für Tageskurs und Eingabe-Performance ist nicht verkettet.');
   assert.ok(sw.includes('search170-exact-whole'),'Stufe-5-Vollnamen-Cachegeneration fehlt.');
   assert.ok(sw.includes('search171-edge-hardening'),'Stufe-5-Randfall-Cachegeneration fehlt.');
   assert.ok(sw.includes('stage6-production180'),'Stufe-6-Cachegeneration fehlt.');
   assert.ok(sw.includes('search190-integrity'),'A–Z-Suchintegritäts-Cachegeneration fehlt.');
   assert.ok(sw.includes('catalog191-expansion'),'Katalogerweiterungs-Cachegeneration fehlt.');
-  assert.ok(sw.includes('search192-ui-overhaul'),'Such-UI-Cachegeneration fehlt vor dem Tageskurs-Cache.');
+  assert.ok(sw.includes('search192-ui-overhaul'),'Such-UI-Cachegeneration fehlt.');
+  assert.ok(sw.includes('search193-input-performance'),'Eingabe-Performance-Cachegeneration fehlt vor dem Tageskurs-Cache.');
 
   dom.window.close();
   console.log('Tageskurs aktualisiert sich nach Mahlzeitenänderungen ohne App-Neustart.');
