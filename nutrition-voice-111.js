@@ -4,7 +4,7 @@
   const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
   const MAX_TRANSCRIPT=240;
   if(window.CutCoachNutritionVoice111)return;
-  let recognition=null,state='idle',finalText='',interimText='',startedAt=0,timeoutId=0,session=0,commitOnEnd=true;
+  let recognition=null,state='idle',finalText='',interimText='',initialValue='',startedAt=0,timeoutId=0,session=0,commitOnEnd=true;
   const $=selector=>document.querySelector(selector);
   const normalize=value=>String(value||'').replace(/\s+/g,' ').trim().slice(0,MAX_TRANSCRIPT);
   function nodes(){return{button:$('#nutritionVoice'),input:$('#nutritionSearch'),status:$('#nutritionVoiceStatus')}}
@@ -13,13 +13,14 @@
   function clearTimer(){clearTimeout(timeoutId);timeoutId=0}
   function updatePreview(text){const {input}=nodes(),value=normalize(text);if(!input||!value)return false;input.value=value;input.dataset.voicePreview='1';return true}
   function dispatchSearch(text){const {input}=nodes(),value=normalize(text);if(!input||!value)return false;input.value=value;delete input.dataset.voicePreview;let event;try{event=new InputEvent('input',{bubbles:true,inputType:'insertFromDictation',data:value})}catch{event=new Event('input',{bubbles:true})}input.dispatchEvent(event);input.dispatchEvent(new Event('change',{bubbles:true}));return true}
+  function restoreInitial(){const {input}=nodes();if(!input)return;input.value=initialValue;delete input.dataset.voicePreview}
   function cleanup(next='idle'){clearTimer();recognition=null;commitOnEnd=true;setButton(next)}
   function fallback(message='Nutze die Diktierfunktion der iPhone-Tastatur.'){cleanup();const {input}=nodes();setStatus(message,'fallback');input?.focus({preventScroll:true});try{input?.setSelectionRange(input.value.length,input.value.length)}catch{}}
   function stop(commit=true){
     const instance=recognition;
-    if(!instance){cleanup();return false}
+    if(!instance){if(!commit)restoreInitial();cleanup();return false}
     clearTimer();commitOnEnd=Boolean(commit);
-    if(!commit){session++;recognition=null;setButton('idle');try{instance.abort()}catch{}return true}
+    if(!commit){session++;recognition=null;restoreInitial();setButton('idle');try{instance.abort()}catch{}return true}
     setButton('processing');try{instance.stop()}catch{cleanup()}
     return true;
   }
@@ -29,15 +30,15 @@
     if(state==='listening'||state==='processing'){stop(true);return true}
     if(navigator.onLine===false){fallback('Offline ist die Browser-Spracherkennung nicht verfügbar. Nutze die iPhone-Diktierfunktion oder tippe den Begriff ein.');return false}
     if(!SpeechRecognition){fallback();return false}
-    const token=++session;finalText='';interimText='';startedAt=Date.now();commitOnEnd=true;
+    const token=++session;finalText='';interimText='';initialValue=input.value;startedAt=Date.now();commitOnEnd=true;
     const instance=new SpeechRecognition();recognition=instance;instance.lang='de-DE';instance.continuous=false;instance.interimResults=true;instance.maxAlternatives=1;
     instance.onstart=()=>{if(token!==session)return;setButton('listening');setStatus('Sprich jetzt – zum Beenden erneut tippen.','listening');timeoutId=setTimeout(()=>{if(token===session&&state==='listening')stop(true)},12000)};
     instance.onspeechstart=()=>{if(token===session)setStatus('Ich höre zu …','listening')};
     instance.onresult=event=>{if(token!==session)return;let finalChunk='',interimChunk='';for(let i=event.resultIndex;i<event.results.length;i++){const text=event.results[i]?.[0]?.transcript||'';if(event.results[i].isFinal)finalChunk+=` ${text}`;else interimChunk+=` ${text}`}if(finalChunk)finalText=normalize(`${finalText} ${finalChunk}`);interimText=normalize(interimChunk);const preview=normalize(`${finalText} ${interimText}`);if(preview){updatePreview(preview);setStatus(`Erkannt: „${preview}“`,'result')}};
-    instance.onerror=event=>{if(token!==session)return;const code=event.error||'unknown';if(code==='aborted'&&!commitOnEnd){cleanup();return}if(code==='aborted'&&Date.now()-startedAt<500)return;setStatus(errorMessage(code),'error');cleanup()};
+    instance.onerror=event=>{if(token!==session)return;const code=event.error||'unknown';if(code==='aborted'&&!commitOnEnd){restoreInitial();cleanup();return}if(code==='aborted'&&Date.now()-startedAt<500)return;restoreInitial();setStatus(errorMessage(code),'error');cleanup()};
     instance.onnomatch=()=>{if(token===session)setStatus('Nicht eindeutig erkannt. Bitte noch einmal versuchen.','error')};
-    instance.onend=()=>{if(token!==session)return;const shouldCommit=commitOnEnd,result=normalize(finalText||interimText);cleanup();if(!shouldCommit)return;if(result){dispatchSearch(result);setStatus(`Intelligente Suche nach „${result}“`,'success');input.focus({preventScroll:true});setTimeout(()=>{const status=$('#nutritionVoiceStatus');if(status?.dataset.voiceState==='success')status.hidden=true},2600)}else if(Date.now()-startedAt>400){delete input.dataset.voicePreview;setStatus('Keine Sprache erkannt. Tippe erneut oder nutze die Tastatur.','error')}};
-    try{instance.start();return true}catch(error){console.warn('CutCoach voice start failed',error);fallback('Spracheingabe ist gerade belegt. Kurz warten oder die iPhone-Diktierfunktion nutzen.');return false}
+    instance.onend=()=>{if(token!==session)return;const shouldCommit=commitOnEnd,result=normalize(finalText||interimText);cleanup();if(!shouldCommit){restoreInitial();return}if(result){dispatchSearch(result);setStatus(`Intelligente Suche nach „${result}“`,'success');input.focus({preventScroll:true});setTimeout(()=>{const status=$('#nutritionVoiceStatus');if(status?.dataset.voiceState==='success')status.hidden=true},2600)}else if(Date.now()-startedAt>400){restoreInitial();setStatus('Keine Sprache erkannt. Tippe erneut oder nutze die Tastatur.','error')}};
+    try{instance.start();return true}catch(error){console.warn('CutCoach voice start failed',error);restoreInitial();fallback('Spracheingabe ist gerade belegt. Kurz warten oder die iPhone-Diktierfunktion nutzen.');return false}
   }
   function prepareButton(){const button=$('#nutritionVoice');if(!button||button.dataset.voice180)return false;button.dataset.voice180='1';button.setAttribute('aria-pressed','false');button.setAttribute('aria-busy','false');button.title='Lebensmittel per Sprache suchen';return true}
   document.addEventListener('click',event=>{const button=event.target.closest?.('#nutritionVoice');if(!button)return;event.preventDefault();event.stopImmediatePropagation();begin()},true);
