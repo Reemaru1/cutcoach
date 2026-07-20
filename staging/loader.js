@@ -13,11 +13,12 @@
       <meta name="robots" content="noindex,nofollow">
       <link rel="stylesheet" href="staging/staging-nav.css?v=2">
       <script src="staging/bootstrap.js?v=2"><\/script>
+      <script src="staging/search-idle-v198.js?v=1.9.8-staging"><\/script>
       <script src="staging/staging-nav.js?v=2" defer><\/script>
     `;
     html=html.replace('<head>','<head>'+injection)
-      .replace('<title>CutCoach</title>','<title>CutCoach Staging</title>')
-      .replace('</body>','<div class="cc-staging-badge" aria-label="Staging-Version">STAGING</div></body>');
+      .replace('<title>CutCoach</title>','<title>CutCoach Staging · Suche 230 ms</title>')
+      .replace('</body>','<div class="cc-staging-badge" aria-label="Staging-Version">STAGING · SUCHE 230 MS</div></body>');
     document.open();document.write(html);document.close();
   }catch(error){
     console.error(error);
