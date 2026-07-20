@@ -55,10 +55,10 @@
     {"id":"unknown-second-part","class":"unknown","query":"Banane und Xylophonauflauf","namesAt":["Banane",null],"statuses":["matched","missing"]},
     {"id":"typo-review-oats","class":"review","query":"Haferflaken","names":["Haferflocken"],"statuses":["review"]},
 
-    {"id":"exact-milkrice-not-milk","class":"correct","query":"Milchreis","ids":["dish-milchreis"],"statuses":["matched"],"notIds":["milk"]},
-    {"id":"exact-butter-cookie-not-butter","class":"correct","query":"Butterkeks","ids":["food-butterkeks"],"statuses":["matched"],"notIds":["butter"]},
-    {"id":"exact-watermelon","class":"correct","query":"Wassermelone","ids":["food-watermelon"],"statuses":["matched"]},
-    {"id":"exact-honeydew","class":"correct","query":"Honigmelone","ids":["food-honeydew"],"statuses":["matched"]},
+    {"id":"exact-milkrice-not-milk","class":"correct","query":"300 g Milchreis","ids":["dish-milchreis"],"statuses":["matched"],"factors":[1],"notIds":["milk"]},
+    {"id":"exact-butter-cookie-not-butter","class":"correct","query":"10 g Butterkeks","ids":["food-butterkeks"],"statuses":["matched"],"factors":[1],"notIds":["butter"]},
+    {"id":"exact-watermelon","class":"correct","query":"100 g Wassermelone","ids":["food-watermelon"],"statuses":["matched"],"factors":[1]},
+    {"id":"exact-honeydew","class":"correct","query":"100 g Honigmelone","ids":["food-honeydew"],"statuses":["matched"],"factors":[1]},
     {"id":"personal-skyr-priority","class":"correct","query":"Skyr","ids":["personal-skyr"],"statuses":["matched"]},
     {"id":"same-name-pudding","class":"ambiguous","query":"Protein Pudding","statuses":["ambiguous"]}
   ]
