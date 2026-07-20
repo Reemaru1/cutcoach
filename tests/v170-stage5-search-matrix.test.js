@@ -41,12 +41,7 @@ const library=[
 function createRuntime({libraryItems=library,catalogItems=catalog}={}){
   const dom=new JSDOM('<!doctype html><body data-nutrition-meal-type="Abendessen"><section data-screen="food" class="active"><div class="nutrition-search-card"><input id="nutritionSearch"></div><div id="nutritionResults"></div></section></body>',{url:'https://example.test/cutcoach/',runScripts:'dangerously',pretendToBeVisual:true});
   const w=dom.window;
-  w.CutCoachLibrary={
-    exportData:()=>({items:libraryItems}),
-    addItemToDay:()=>({id:'meal'}),
-    addCatalogItemToDay:()=>({id:'meal'}),
-    undoDayAdd:()=>true
-  };
+  w.CutCoachLibrary={exportData:()=>({items:libraryItems}),addItemToDay:()=>({id:'meal'}),addCatalogItemToDay:()=>({id:'meal'}),undoDayAdd:()=>true};
   w.CutCoachFoodCatalog={items:()=>catalogItems,get:id=>catalogItems.find(item=>item.id===id)||null};
   w.CutCoachEverydayCatalog={items:()=>[],get:()=>null};
   w.render=()=>{};w.toast=()=>{};
@@ -56,33 +51,15 @@ function createRuntime({libraryItems=library,catalogItems=catalog}={}){
   engine=w.CutCoachPortionHardening153.attach(engine);
   return{dom,window:w,api:w.CutCoachIntelligentSearch128};
 }
-
-function approximately(actual,expected,message){
-  assert.ok(Math.abs(Number(actual)-Number(expected))<0.0001,`${message}: erwartet ${expected}, erhalten ${actual}`);
-}
-
+function approximately(actual,expected,message){assert.ok(Math.abs(Number(actual)-Number(expected))<0.0001,`${message}: erwartet ${expected}, erhalten ${actual}`)}
 function verifyCase(api,testCase){
   const rows=api.rowsFor(testCase.query);
   if(Number.isInteger(testCase.length))assert.equal(rows.length,testCase.length,`${testCase.id}: falsche Trefferzahl`);
-  if(testCase.statuses){
-    assert.equal(rows.length,testCase.statuses.length,`${testCase.id}: Statusmatrix hat andere Länge`);
-    assert.deepEqual(Array.from(rows,row=>row.status),testCase.statuses,`${testCase.id}: falsche Klassifizierung`);
-  }
-  if(testCase.names){
-    assert.equal(rows.length,testCase.names.length,`${testCase.id}: Namensmatrix hat andere Länge`);
-    assert.deepEqual(Array.from(rows,row=>row.item?.name||null),testCase.names,`${testCase.id}: falsche Lebensmittel`);
-  }
-  if(testCase.namesAt){
-    testCase.namesAt.forEach((expected,index)=>assert.equal(rows[index]?.item?.name||null,expected,`${testCase.id}: falsches Lebensmittel an Position ${index+1}`));
-  }
-  if(testCase.ids){
-    assert.equal(rows.length,testCase.ids.length,`${testCase.id}: ID-Matrix hat andere Länge`);
-    assert.deepEqual(Array.from(rows,row=>row.item?.id||null),testCase.ids,`${testCase.id}: falsche IDs`);
-  }
-  if(testCase.notIds){
-    const actualIds=rows.map(row=>row.item?.id).filter(Boolean);
-    for(const id of testCase.notIds)assert.ok(!actualIds.includes(id),`${testCase.id}: verbotene Fehlzuordnung auf ${id}`);
-  }
+  if(testCase.statuses){assert.equal(rows.length,testCase.statuses.length,`${testCase.id}: Statusmatrix hat andere Länge`);assert.deepEqual(Array.from(rows,row=>row.status),testCase.statuses,`${testCase.id}: falsche Klassifizierung`)}
+  if(testCase.names){assert.equal(rows.length,testCase.names.length,`${testCase.id}: Namensmatrix hat andere Länge`);assert.deepEqual(Array.from(rows,row=>row.item?.name||null),testCase.names,`${testCase.id}: falsche Lebensmittel`)}
+  if(testCase.namesAt)testCase.namesAt.forEach((expected,index)=>assert.equal(rows[index]?.item?.name||null,expected,`${testCase.id}: falsches Lebensmittel an Position ${index+1}`));
+  if(testCase.ids){assert.equal(rows.length,testCase.ids.length,`${testCase.id}: ID-Matrix hat andere Länge`);assert.deepEqual(Array.from(rows,row=>row.item?.id||null),testCase.ids,`${testCase.id}: falsche IDs`)}
+  if(testCase.notIds){const actualIds=rows.map(row=>row.item?.id).filter(Boolean);for(const id of testCase.notIds)assert.ok(!actualIds.includes(id),`${testCase.id}: verbotene Fehlzuordnung auf ${id}`)}
   if(testCase.factors)testCase.factors.forEach((factor,index)=>approximately(rows[index]?.factor,factor,`${testCase.id}: Faktor ${index+1}`));
   if(testCase.labels)testCase.labels.forEach((label,index)=>assert.equal(rows[index]?.amountLabel,label,`${testCase.id}: Mengenlabel ${index+1}`));
   if(testCase.labelsRegex)testCase.labelsRegex.forEach((pattern,index)=>assert.match(String(rows[index]?.amountLabel||''),new RegExp(pattern,'i'),`${testCase.id}: Mengenlabel ${index+1}`));
@@ -97,25 +74,16 @@ function verifyCase(api,testCase){
   assert.deepEqual(new Set(matrix.cases.map(testCase=>testCase.id)).size,matrix.cases.length,'Matrix-IDs müssen eindeutig sein.');
   const classes=new Set(matrix.cases.map(testCase=>testCase.class));
   for(const expected of matrix.classes)assert.ok(classes.has(expected),`Matrixklasse ${expected} fehlt.`);
-
   const runtime=createRuntime();
-  assert.equal(runtime.api.version,'1.5.3-alpha');
+  assert.equal(runtime.api.version,'1.9.0-alpha');assert.equal(runtime.api.build,'1.9.0-search-integrity');
   assert.equal(runtime.api.learningVersion,'1.6.1-alpha');
-  for(const testCase of matrix.cases){
-    if(testCase.id==='personal-skyr-priority')continue;
-    verifyCase(runtime.api,testCase);
-  }
+  for(const testCase of matrix.cases){if(testCase.id==='personal-skyr-priority')continue;verifyCase(runtime.api,testCase)}
   runtime.dom.window.close();
-
   const personalSkyr={id:'personal-skyr',name:'Skyr Natur',aliases:['Skyr'],amount:500,unit:'g',calories:315,protein:55,carbs:20,fat:1,source:'user',favorite:true,uses:6};
   const personalRuntime=createRuntime({libraryItems:[personalSkyr]});
   verifyCase(personalRuntime.api,matrix.cases.find(testCase=>testCase.id==='personal-skyr-priority'));
-  const quantity=personalRuntime.api.rowsFor('250 g Skyr')[0];
-  assert.equal(quantity.item.id,'personal-skyr','Persönlicher Skyr wird bei Mengenangabe nicht priorisiert.');
-  approximately(quantity.factor,0.5,'Persönlicher Skyr verwendet nicht seine eigene Bezugsmenge');
+  const quantity=personalRuntime.api.rowsFor('250 g Skyr')[0];assert.equal(quantity.item.id,'personal-skyr','Persönlicher Skyr wird bei Mengenangabe nicht priorisiert.');approximately(quantity.factor,0.5,'Persönlicher Skyr verwendet nicht seine eigene Bezugsmenge');
   personalRuntime.dom.window.close();
-
-  const unknownCases=matrix.cases.filter(testCase=>testCase.class==='unknown');
-  assert.ok(unknownCases.length>=4,'Liste unbekannter Begriffe ist zu klein.');
-  console.log(`Stufe 5 Suchmatrix ${matrix.version}: ${matrix.cases.length} Fälle in ${classes.size} Klassen geprüft; ${unknownCases.length} unbekannte/partielle Begriffe abgesichert.`);
-})()
+  const unknownCases=matrix.cases.filter(testCase=>testCase.class==='unknown');assert.ok(unknownCases.length>=4,'Liste unbekannter Begriffe ist zu klein.');
+  console.log(`Stufe 5 Suchmatrix ${matrix.version} unter A–Z-Integrität 1.9.0: ${matrix.cases.length} Fälle in ${classes.size} Klassen geprüft; ${unknownCases.length} unbekannte/partielle Begriffe abgesichert.`);
+})();
