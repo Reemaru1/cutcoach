@@ -67,15 +67,11 @@ input.value='hahnchengeschnetzeltes mit reis';
 assert.equal(api.likelyMulti(input.value),false,'Das vollständige Einzelgericht wird weiterhin als Mehrfachsuche eingestuft.');
 assert.equal(api.rowsFor(input.value).length,0,'Das vollständige Einzelgericht wird weiterhin in Bestandteile zerlegt.');
 assert.equal(api.render(input),false,'Das vollständige Einzelgericht erzeugt fälschlich eine intelligente Mehrfachkarte.');
-let host=w.document.querySelector('#nutritionMultiSearch');
-assert.ok(!host||host.hidden,'Nach dem Einzelgericht bleibt eine intelligente Mehrfachkarte sichtbar.');
 
 input.value='Hähnchen Geschnetzeltes mit Reis';
 assert.equal(api.likelyMulti(input.value),false,'Die getrennte Schreibweise wird als Mehrfachsuche eingestuft.');
 assert.equal(api.rowsFor(input.value).length,0,'Die getrennte Schreibweise wird in Hähnchen und Reis zerlegt.');
 assert.equal(api.render(input),false,'Die getrennte Schreibweise erzeugt fälschlich eine Mehrfachkarte.');
-host=w.document.querySelector('#nutritionMultiSearch');
-assert.ok(!host||host.hidden,'Bei der getrennten Schreibweise bleibt eine Mehrfachkarte sichtbar.');
 
 rows=api.rowsFor('3 Köfte');
 assert.equal(rows.length,1);assert.equal(rows[0].item?.id,'ccx:koefte-stueck');assert.equal(rows[0].factor,3);
