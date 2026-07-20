@@ -83,4 +83,5 @@ const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
 
   dom.window.close();
   console.log('iPhone-Tippen bleibt bei schnellen und langsamen Tippserien frei; Suche startet erst nach echter Pause oder Enter.');
+  setImmediate(()=>process.exit(0));
 })().catch(error=>{console.error(error);process.exitCode=1;setImmediate(()=>process.exit(1))});
