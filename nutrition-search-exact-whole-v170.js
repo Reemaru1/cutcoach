@@ -17,18 +17,19 @@
   });
   const AMOUNT_RE=/^(\d+(?:[.,]\d+)?|halb(?:e|en|er|es)?|anderthalb|ein(?:e|en|er|es)?|eins|zwei|drei|vier|f(?:ü|ue)nf|sechs|sieben|acht|neun|zehn)\s*(kg|kilogramm|kilo|g|gramm|ml|milliliter|l|liter|st(?:ü|ue)ck|portion(?:en)?|dose(?:n)?|glas|gl(?:ä|ae)ser|flasche(?:n)?|scheibe(?:n)?|essl(?:ö|oe)ffel|el|teel(?:ö|oe)ffel|tl|handvoll)?\b\s*/i;
 
-  let base=null,api=null,index=[],builtAt=0;
+  let base=null,api=null,index=new Map(),builtAt=0,indexRecordCount=0;
   const sourceWeight=item=>item?.source==='user'?14:item?.source==='cutcoach'?8:item?.source==='bls'?4:item?.source==='off'?2:0;
   const preference=item=>sourceWeight(item)+Number(Boolean(item?.favorite))*8+Math.min(8,Math.floor(Math.max(0,Number(item?.uses)||0)/2));
   const labelFor=item=>item?.source==='user'?'Eigene':item?.source==='cutcoach'?'Standard':item?.source==='bls'?'BLS':item?.source==='off'?'Produkt':'Katalog';
-  function invalidateIndex(){index=[];builtAt=0}
+  function invalidateIndex(){index=new Map();builtAt=0;indexRecordCount=0}
   function buildIndex(){
-    if(index.length&&Date.now()-builtAt<INDEX_TTL)return index;
-    const records=[],seen=new Set(),push=items=>{for(const item of items||[]){if(!item?.name)continue;const id=String(item.id||item.name),canonical=normalize(item.name);for(const name of new Set([item.name,...(Array.isArray(item.aliases)?item.aliases:[item.aliases])].filter(Boolean).map(normalize))){if(!name)continue;const signature=`${id}:${name}`;if(seen.has(signature))continue;seen.add(signature);records.push({item,id,name,isName:name===canonical,preference:preference(item)})}}};
+    if(index.size&&Date.now()-builtAt<INDEX_TTL)return index;
+    const map=new Map(),seen=new Set();let recordCount=0;
+    const push=items=>{for(const item of items||[]){if(!item?.name)continue;const id=String(item.id||item.name),canonical=normalize(item.name);for(const name of new Set([item.name,...(Array.isArray(item.aliases)?item.aliases:[item.aliases])].filter(Boolean).map(normalize))){if(!name)continue;const signature=`${id}:${name}`;if(seen.has(signature))continue;seen.add(signature);const records=map.get(name)||[];records.push({item,id,name,isName:name===canonical,preference:preference(item)});map.set(name,records);recordCount++}}};
     try{push(global.CutCoachLibrary?.exportData?.().items||[])}catch{}
     try{push(global.CutCoachFoodCatalog?.items?.()||[])}catch{}
     try{push(global.CutCoachEverydayCatalog?.items?.()||[])}catch{}
-    index=records;builtAt=Date.now();return index;
+    index=map;indexRecordCount=recordCount;builtAt=Date.now();return index;
   }
   function amountOf(token){const numeric=Number(String(token||'').replace(',','.'));return Number.isFinite(numeric)&&numeric>0?numeric:NUMBER_WORDS[normalize(token)]||1}
   function parseAmount(value){
@@ -38,7 +39,7 @@
   }
   function exactCandidates(query){
     const q=normalize(query),dedup=new Map();if(!q)return[];
-    for(const record of buildIndex()){if(record.name!==q)continue;const previous=dedup.get(record.id);if(!previous||record.isName&&!previous.isName||record.preference>previous.preference)dedup.set(record.id,record)}
+    for(const record of buildIndex().get(q)||[]){const previous=dedup.get(record.id);if(!previous||record.isName&&!previous.isName||record.preference>previous.preference)dedup.set(record.id,record)}
     return[...dedup.values()].sort((a,b)=>(Number(b.isName)-Number(a.isName))||b.preference-a.preference||String(a.item.name).localeCompare(String(b.item.name),'de'));
   }
   function portionFor(part,item){
@@ -58,13 +59,14 @@
   }
   function rowsFor(value){return protectedRows(value)||base?.rowsFor?.(value)||[]}
   function parse(value){return protectedRows(value)||base?.parse?.(value)||[]}
+  function indexStats(){buildIndex();return Object.freeze({keys:index.size,records:indexRecordCount,builtAt})}
   function attach(engine){
     if(!engine)return null;if(api)return api;base=engine;
-    api=Object.freeze({...engine,exactWholeVersion:VERSION,exactWholeBuild:BUILD,rowsFor,parse,likelyMulti:value=>Boolean(protectedRows(value))||Boolean(base.likelyMulti?.(value)),invalidateIndex});
+    api=Object.freeze({...engine,exactWholeVersion:VERSION,exactWholeBuild:BUILD,rowsFor,parse,likelyMulti:value=>Boolean(protectedRows(value))||Boolean(base.likelyMulti?.(value)),invalidateIndex,indexStats});
     global.CutCoachIntelligentSearch128=api;return api;
   }
   global.addEventListener?.('cutcoach:catalog-updated',invalidateIndex);
   global.addEventListener?.('cutcoach:librarychange',invalidateIndex);
   global.document?.addEventListener?.('cutcoach:library-changed',invalidateIndex);
-  global.CutCoachSearchExactWhole170=Object.freeze({version:VERSION,build:BUILD,attach,protectedRows,invalidateIndex});
+  global.CutCoachSearchExactWhole170=Object.freeze({version:VERSION,build:BUILD,attach,protectedRows,invalidateIndex,indexStats});
 })(window);
