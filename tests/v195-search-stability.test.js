@@ -40,25 +40,25 @@ const inject=(window,source)=>{const script=window.document.createElement('scrip
   input.addEventListener('input',()=>{normalRuns++});
 
   input.value='Erdbeere';input.dispatchEvent(new window.Event('input',{bubbles:true}));
-  await wait(620);
+  await wait(1000);
   assert.equal(normalRuns,1,'Ein einfacher Einzelbegriff erreicht die normale Suche nicht genau einmal.');
   assert.equal(intelligentRuns,0,'Ein einfacher Einzelbegriff startet weiterhin unnötig die intelligente Mehrfachsuche.');
   assert.equal(window.CutCoachNutritionPolish138.interactionStats().intelligentEvaluations,0);
 
   normalRuns=0;intelligentRuns=0;
   const slowValues=['T','To','Toa','Toas','Toast'];
-  for(const value of slowValues){input.value=value;input.dispatchEvent(new window.Event('input',{bubbles:true}));await wait(240)}
-  assert.equal(normalRuns,0,'Eine langsame Tippserie startet vor dem Ende bereits Katalogsuchen.');
-  await wait(620);
+  for(const value of slowValues){input.value=value;input.dispatchEvent(new window.Event('input',{bubbles:true}));await wait(430)}
+  assert.equal(normalRuns,0,'Eine langsame iPhone-Tippserie startet vor dem Ende bereits Katalogsuchen.');
+  await wait(1000);
   assert.equal(normalRuns,1,'Eine langsame Tippserie erzeugt nicht genau einen finalen Suchlauf.');
   assert.equal(intelligentRuns,0,'Eine einfache langsame Tippserie startet die intelligente Suche.');
   const inputStats=window.CutCoachSearchInputPerformance193.stats();
-  assert.ok(inputStats.lastDelay>=320&&inputStats.lastDelay<=540,'Adaptive Tipp-Pause liegt außerhalb des stabilen Bereichs.');
+  assert.ok(inputStats.lastDelay>=560&&inputStats.lastDelay<=900,'Adaptive Tipp-Pause liegt außerhalb des neuen iPhone-Bereichs.');
   assert.equal(inputStats.pending,false);
 
   normalRuns=0;intelligentRuns=0;
   input.value='Toastbrot mit Erdbeere';input.dispatchEvent(new window.Event('input',{bubbles:true}));
-  await wait(620);
+  await wait(1000);
   assert.equal(intelligentRuns,1,'Eine echte Kombination wird mehrfach intelligent berechnet.');
   assert.equal(normalRuns,0,'Bei einer intelligent übernommenen Kombination läuft zusätzlich die normale Vollkatalogsuche.');
   const host=window.document.querySelector('#nutritionMultiSearch');
@@ -67,5 +67,6 @@ const inject=(window,source)=>{const script=window.document.createElement('scrip
   assert.equal(window.CutCoachNutritionPolish138.interactionStats().intelligentEvaluations,1);
 
   dom.window.close();
-  console.log('Suchstabilität 1.9.5: langsame Tippserien, Einzelbegriffe und Kombinationen laufen jeweils nur über den nötigen Suchpfad.');
-})().catch(error=>{console.error(error);process.exitCode=1});
+  console.log('Suchstabilität 1.9.7: langsames iPhone-Tippen, Einzelbegriffe und Kombinationen laufen nur über den nötigen Suchpfad.');
+  setImmediate(()=>process.exit(0));
+})().catch(error=>{console.error(error);setImmediate(()=>process.exit(1))});
