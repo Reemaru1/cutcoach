@@ -1,7 +1,7 @@
 'use strict';
 (function(global){
-  const VERSION='1.5.3-alpha';
-  const BUILD='1.5.3-food-specific-portions';
+  const VERSION='1.9.0-alpha';
+  const BUILD='1.9.0-search-integrity';
   if(global.CutCoachPortionHardening153)return;
 
   const normalize=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
@@ -16,6 +16,7 @@
   function looksLikeHouseholdInput(value){return HOUSEHOLD_HINT_RE.test(normalize(value))}
   function normalizeHouseholdSyntax(value){return String(value||'').replace(/\bessl(?:oe|ö)ffeln?\b/gi,'EL').replace(/\bteel(?:oe|ö)ffeln?\b/gi,'TL').replace(/\bgl(?:ae|ä)sern?\b/gi,'Gläser').replace(/\bst(?:ue|ü)cke(?:n)?\b/gi,'Stück')}
   function isHouseholdRow(row){return Boolean(row?.quantitySpecified&&row?.unitInfo&&['serving','count'].includes(row.unitInfo.kind))}
+  function learning(){return global.CutCoachSearchLearning161||global.CutCoachSearchLearning160||null}
   function invalidateRowCache(){cachedValue=null;cachedRows=null}
   function cacheRows(value,rows){cachedValue=String(value||'');cachedRows=rows;return rows}
   function applyPortion(row){
@@ -23,7 +24,7 @@
     const profiles=global.CutCoachPortionProfiles153,resolved=profiles?.resolve?.(row.item,row.unitInfo.label,row.quantity);
     if(!resolved)return row;
     const baseConfidence=clamp(row.confidence||100,0,100);
-    if(!resolved.known){const confidence=Math.min(baseConfidence,65);return{...row,status:'review',confidence,confidenceLabel:confidenceLabel(confidence),factor:1,amountLabel:resolved.amountLabel,approximate:true,portionSource:resolved.source||'unknown',portionNeedsReview:true};}
+    if(!resolved.known){const confidence=Math.min(baseConfidence,65);return{...row,status:'review',confidence,confidenceLabel:confidenceLabel(confidence),factor:1,amountLabel:resolved.amountLabel,approximate:true,portionSource:resolved.source||'unknown',portionNeedsReview:true}}
     const confidence=Math.min(baseConfidence,clamp(resolved.confidence,0,100)),status=row.status==='ambiguous'?'ambiguous':resolved.needsReview||confidence<90?'review':'matched';
     return{...row,status,confidence,confidenceLabel:confidenceLabel(confidence),factor:resolved.factor,amountLabel:resolved.amountLabel,approximate:resolved.approximate,portionSource:resolved.source,portionNeedsReview:Boolean(resolved.needsReview),convertedAmount:resolved.convertedAmount,convertedUnit:resolved.convertedUnit};
   }
@@ -56,7 +57,8 @@
   function selectChoice(button){
     const node=button.closest('#nutritionMultiSearch'),input=document.querySelector('#nutritionSearch');if(!node?._canonicalRows||!input||normalize(input.value)!==node.dataset.query)return false;
     const [rowIndex,choiceIndex]=String(button.dataset.confidenceChoice||'').split(':').map(Number),rows=[...node._canonicalRows],row=rows[rowIndex],choice=row?.choices?.[choiceIndex];if(!row||!isHouseholdRow(row)||!choice)return false;
-    rows[rowIndex]=applyPortion({...row,item:choice.item,status:'matched',confidence:100,confidenceLabel:'Ausgewählt · 100%',matchType:'user-choice',alternatives:[],choices:[]});renderRows(input,rows);return true;
+    try{learning()?.record?.(row.query||input.value,choice.item,{kind:'choice',mealType:document.body?.dataset?.nutritionMealType})}catch{}
+    rows[rowIndex]=applyPortion({...row,item:choice.item,status:'matched',confidence:100,confidenceLabel:'Ausgewählt · 100%',matchType:'user-choice',personalReason:'Deine Wahl',alternatives:[],choices:[]});invalidateRowCache();renderRows(input,rows);return true;
   }
   function attach(engine){
     if(!engine||api)return api;base=engine;invalidateRowCache();
@@ -71,6 +73,7 @@
   document.addEventListener('click',event=>{const choice=event.target.closest?.('#nutritionMultiSearch[data-portion153="1"] [data-confidence-choice]');if(!choice)return;if(selectChoice(choice)){event.preventDefault();event.stopImmediatePropagation()}},true);
   window.addEventListener('cutcoach:catalog-updated',invalidateRowCache);
   window.addEventListener('cutcoach:librarychange',invalidateRowCache);
+  window.addEventListener('cutcoach:search-learningchange',invalidateRowCache);
   document.addEventListener('cutcoach:library-changed',invalidateRowCache);
 
   global.CutCoachPortionHardening153=Object.freeze({version:VERSION,build:BUILD,attach,applyRows,looksLikeHouseholdInput,normalizeHouseholdSyntax,invalidateRowCache});
