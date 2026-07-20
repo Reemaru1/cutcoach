@@ -35,7 +35,8 @@ rows=api.rowsFor('100 g Protein Pudding');assert.equal(rows.length,1);assert.equ
 rows=api.rowsFor('500 ml Menemen');assert.equal(rows.length,1);assert.equal(rows[0].item.id,menemen.id);assert.equal(rows[0].status,'incompatible');
 rows=api.rowsFor('2 Portionen Menemen');assert.equal(rows.length,1);assert.equal(rows[0].item.id,menemen.id);assert.equal(rows[0].status,'matched');assert.equal(rows[0].factor,2);
 rows=api.rowsFor('0 g Menemen');assert.equal(rows[0].status,'review');assert.equal(rows[0].invalidQuantity,true);assert.equal(rows[0].factor,0);
-assert.equal(api.rowsFor('5 Korn Brot').length,0,'Führende Zahl eines Lebensmittelnamens wurde als Mengenangabe übernommen.');rows=api.rowsFor('2 Stück 5 Korn Brot');assert.equal(rows[0].item.id,numeric.id);assert.equal(rows[0].factor,2);
+rows=api.rowsFor('5 Korn Brot');assert.equal(rows.length,1);assert.equal(rows[0].item.id,numeric.id);assert.equal(rows[0].factor,1);assert.notEqual(rows[0].item.name,'Korn Brot','Führende Zahl wurde als Menge statt als Teil des Namens behandelt.');
+rows=api.rowsFor('2 Stück 5 Korn Brot');assert.equal(rows[0].item.id,numeric.id);assert.equal(rows[0].factor,2);
 assert.equal(api.rowsFor('Lachs mit Reis und Gemüse').length,0,'Normale Gerichtesuche darf nicht durch die Mengenebene übernommen werden.');
 rows=api.rowsFor('Toast mit Quantenbrot');assert.equal(rows.length,2);assert.equal(rows[0].item.name,'Toastbrot');assert.equal(rows[1].status,'missing');
 
