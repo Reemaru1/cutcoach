@@ -14,11 +14,13 @@ const dom=new JSDOM('<!doctype html><body data-nutrition-meal-type="Abendessen">
 const w=dom.window;
 w.CutCoachLibrary={exportData:()=>({items:[]}),addItemToDay:()=>({id:'meal'}),addCatalogItemToDay:()=>({id:'meal'}),undoDayAdd:()=>true};
 w.render=()=>{};w.toast=()=>{};
-for(const name of ['food-catalog.js','everyday-catalog-v73.js','local-dishes-v140.js','nutrition-portion-profiles-v153.js','nutrition-portion-hardening-v153.js','nutrition-search-learning-v161.js','nutrition-search-confidence-hardening-v151.js','nutrition-multisearch-canonical-128.js'])inject(w,read(name));
+for(const name of ['food-catalog.js','everyday-catalog-v73.js','local-dishes-v140.js','nutrition-portion-profiles-v153.js','nutrition-portion-hardening-v153.js','nutrition-search-learning-v161.js','nutrition-search-exact-whole-v170.js','nutrition-search-confidence-hardening-v151.js','nutrition-multisearch-canonical-128.js'])inject(w,read(name));
 let engine=w.CutCoachIntelligentSearch128;
+engine=w.CutCoachSearchExactWhole170.attach(engine);
 engine=w.CutCoachSearchConfidenceHardening151.attach(engine);
 engine=w.CutCoachPortionHardening153.attach(engine);
 const api=w.CutCoachIntelligentSearch128;
+assert.equal(api.exactWholeVersion,'1.7.0-alpha');
 
 const foodItems=w.CutCoachFoodCatalog.items();
 const everydayItems=w.CutCoachEverydayCatalog.items();
