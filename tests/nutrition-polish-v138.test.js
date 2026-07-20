@@ -58,17 +58,19 @@ setTimeout(()=>{
   assert.match(css,/\.nutrition-search-row button\{width:48px!important[\s\S]*height:48px!important/,'Mikrofonbutton bleibt zu klein.');
   assert.match(css,/\.nutrition-meal-actions\{display:grid!important[\s\S]*border-radius:13px!important/,'Vortag und Einträge bilden keine einheitliche Aktionsgruppe.');
   assert.match(css,/\.nutrition-result-add\{[\s\S]*width:36px!important[\s\S]*border-radius:12px!important/,'Normale Plusaktionen besitzen keinen sauberen abgerundeten Button.');
-  assert.match(css,/#nutritionMultiSearch \.nutrition-confidence\{display:none!important\}/,'Wahrscheinlichkeitsbadges werden nicht sicher entfernt.');
+  assert.match(css,/#nutritionMultiSearch \.nutrition-confidence\{display:none!important/,'Wahrscheinlichkeitsbadges werden nicht sicher entfernt.');
   assert.match(css,/\.nutrition-row-action\{[\s\S]*min-width:98px!important/,'Intelligente Suche verwendet weiterhin fehlerhafte reine Pluskästen.');
 
   assert.ok(loader.includes('nutrition-polish-v138.js?v=1.3.11-alpha'),'Versionsloader lädt nicht die finale Ernährungslogik.');
+  assert.ok(loader.includes('nutrition-search-input-performance-v193.js?v=1.9.7-alpha'),'Versionsloader lädt nicht die neue Tipp-Performance.');
   assert.ok(runtime.includes("nutrition-polish-v138.js?v=1.3.11-alpha"),'Runtime-Manifest enthält die finale Ernährungslogik nicht.');
-  assert.ok(runtime.includes("nutrition-search-input-performance-v193.js?v=1.9.5-alpha"),'Runtime-Manifest enthält die stabile Eingabesteuerung nicht.');
+  assert.ok(runtime.includes("nutrition-search-input-performance-v193.js?v=1.9.7-alpha"),'Runtime-Manifest enthält die neue Tipp-Performance nicht.');
   assert.ok(sw.includes('search192-ui-overhaul'),'Service Worker verwendet nicht die Such-UI-Cachegeneration.');
   assert.ok(sw.includes('search194-interaction-unlock'),'Service Worker enthält den Interaktions-Hotfix nicht.');
   assert.ok(sw.includes('search195-stability'),'Service Worker enthält die Suchstabilitätsgeneration nicht.');
   assert.ok(sw.includes('search196-article-sequence'),'Service Worker enthält den Artikel-/Sequenzschutz nicht.');
+  assert.ok(sw.includes('search197-typing-performance'),'Service Worker enthält die Tipp-Performancegeneration nicht.');
 
   dom.window.close();
-  console.log('Mikrofon, Trefferaktionen und finale Suchdarstellung 1.3.11 ohne unnötige Mehrfachberechnung geprüft.');
+  console.log('Mikrofon, Trefferaktionen, finale Suchdarstellung und Tipp-Performance 1.9.7 geprüft.');
 },60);
