@@ -61,13 +61,14 @@ setTimeout(()=>{
   assert.match(css,/#nutritionMultiSearch \.nutrition-confidence\{display:none!important\}/,'Wahrscheinlichkeitsbadges werden nicht sicher entfernt.');
   assert.match(css,/\.nutrition-row-action\{[\s\S]*min-width:98px!important/,'Intelligente Suche verwendet weiterhin fehlerhafte reine Pluskästen.');
 
-  assert.ok(loader.includes('nutrition-polish-v138.js'),'Versionsloader lädt die Ernährungslogik nicht.');
-  assert.ok(runtime.includes("nutrition-polish-v138.js?v=1.3.10-alpha"),'Runtime-Manifest enthält die stabile Ernährungslogik nicht.');
+  assert.ok(loader.includes('nutrition-polish-v138.js?v=1.3.11-alpha'),'Versionsloader lädt nicht die finale Ernährungslogik.');
+  assert.ok(runtime.includes("nutrition-polish-v138.js?v=1.3.11-alpha"),'Runtime-Manifest enthält die finale Ernährungslogik nicht.');
   assert.ok(runtime.includes("nutrition-search-input-performance-v193.js?v=1.9.5-alpha"),'Runtime-Manifest enthält die stabile Eingabesteuerung nicht.');
   assert.ok(sw.includes('search192-ui-overhaul'),'Service Worker verwendet nicht die Such-UI-Cachegeneration.');
   assert.ok(sw.includes('search194-interaction-unlock'),'Service Worker enthält den Interaktions-Hotfix nicht.');
   assert.ok(sw.includes('search195-stability'),'Service Worker enthält die Suchstabilitätsgeneration nicht.');
+  assert.ok(sw.includes('search196-article-sequence'),'Service Worker enthält den Artikel-/Sequenzschutz nicht.');
 
   dom.window.close();
-  console.log('Mikrofon, Trefferaktionen und stabile Suchdarstellung ohne unnötige Mehrfachberechnung geprüft.');
+  console.log('Mikrofon, Trefferaktionen und finale Suchdarstellung 1.3.11 ohne unnötige Mehrfachberechnung geprüft.');
 },60);
