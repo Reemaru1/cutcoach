@@ -26,11 +26,13 @@ assert.match(journalLive,/CutCoachJournalV72\?\.render/,'Live-Journal wird nach 
 assert.match(journalLive,/Schnell anlegen/,'Manueller Eintrag wurde nicht verständlicher benannt');
 assert.match(journalLive,/Noch nicht eingetragen/,'Doppelte Schritte-Anzeige wird nicht korrigiert');
 assert.match(journalLiveCss,/nav-v127-icon/,'Neue Navigation fehlt');
-assert.ok(version.includes("const RELEASE='1.2.1 Alpha'"),'Releaseversion ist nicht 1.2.1 Alpha');
-assert.ok(manifest.includes("version:'1.2.6-alpha'"),'Cacheversion ist nicht 1.2.6 Alpha');
+assert.ok(version.includes("const RELEASE='1.2.2 Alpha'"),'Releaseversion ist nicht 1.2.2 Alpha');
+assert.ok(manifest.includes("version:'1.2.7-alpha'"),'Cacheversion ist nicht 1.2.7 Alpha');
 assert.ok(manifest.includes('journal-live-nav-v127.js?v=1.3.2-alpha'),'Repariertes Live-Journal-Modul fehlt im Cache');
 assert.ok(manifest.includes('nutrition-v73.js?v=7.3.2'),'Nutrition-QA-Modul fehlt im Cache');
 assert.ok(manifest.includes('ui-cleanup-v732.css?v=7.3.3'),'Cleanup-CSS fehlt im Cache');
-assert.ok(sw.includes('runtime-manifest.js?v=1.2.6-alpha'),'Service Worker lädt falsches Manifest');
-assert.ok(update.includes('sw.js?v=1.2.6-alpha-force'),'Update-Seite installiert nicht 1.2.6 Alpha');
-console.log('CutCoach 1.2.1 Alpha UI and fixed live journal patch with 1.2.6 runtime: ok');
+assert.ok(manifest.includes('nutrition-search-exact-whole-v170.js?v=1.9.6-alpha'),'Artikel- und Sequenzschutz fehlt im Cache');
+assert.ok(sw.includes('runtime-manifest.js?v=1.2.7-alpha'),'Service Worker lädt falsches Manifest');
+assert.ok(sw.includes('search196-article-sequence'),'Service Worker enthält die Artikel- und Sequenzgeneration nicht');
+assert.ok(update.includes('sw.js?v=1.2.7-alpha-force-search196'),'Update-Seite installiert nicht 1.2.7 Alpha');
+console.log('CutCoach 1.2.2 Alpha UI and fixed live journal patch with 1.2.7 runtime: ok');
