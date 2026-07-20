@@ -44,7 +44,7 @@ w.CutCoachIntelligentSearch128={
 
 const script=w.document.createElement('script');script.textContent=source;w.document.head.append(script);w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
 const input=w.document.querySelector('#nutritionSearch');
-const type=async value=>{input.value=value;input.dispatchEvent(new w.Event('input',{bubbles:true}));await wait(180);return w.document.querySelector('#nutritionMultiSearch')};
+const type=async value=>{input.value=value;input.dispatchEvent(new w.Event('input',{bubbles:true}));await wait(80);return w.document.querySelector('#nutritionMultiSearch')};
 
 (async()=>{
   let host=await type('Döne');
@@ -75,8 +75,8 @@ const type=async value=>{input.value=value;input.dispatchEvent(new w.Event('inpu
   assert.equal(w.document.querySelector('#nutritionCopyPrevious').textContent,'Vortag');
   assert.match(w.document.querySelector('#nutritionCurrentToggle').textContent,/Einträge/);
   assert.equal(w.document.querySelector('.nutrition-result-add').textContent,'+');
-  assert.equal(w.CutCoachNutritionPolish138.presentationVersion,'1.9.4-alpha');
+  assert.equal(w.CutCoachNutritionPolish138.presentationVersion,'1.9.5-alpha');
 
   dom.window.close();
-  console.log('Such-UI 1.9.4: Alltagssuche, klare Karten und stabile Interaktion ohne Selbst-Rendern bestanden.');
+  console.log('Such-UI 1.9.5: Alltagssuche, klare Karten und stabile Interaktion ohne unnötige Mehrfachberechnung bestanden.');
 })().catch(error=>{console.error(error);dom.window.close();process.exitCode=1});
