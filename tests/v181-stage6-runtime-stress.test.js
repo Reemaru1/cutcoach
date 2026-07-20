@@ -8,42 +8,20 @@ const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const inject=(window,source)=>{const script=window.document.createElement('script');script.textContent=source;window.document.head.append(script)};
 const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
 const ready=window=>window.document.readyState==='loading'?new Promise(resolve=>window.document.addEventListener('DOMContentLoaded',resolve,{once:true})):Promise.resolve();
-
 (async()=>{
   const stage6=read('nutrition-production-acceptance-v180.js'),scanner=read('scanner-v2.js'),sw=read('sw.js'),manifest=read('runtime-manifest.js'),loader=read('version-v7.js'),packageJson=JSON.parse(read('package.json'));
   assert.doesNotMatch(stage6,/setInterval|requestAnimationFrame\([^)]*requestAnimationFrame/,'Stufe 6 erzeugt eine ungebremste Dauerschleife.');
-  assert.match(sw,/EDGE_CACHE.*stage6-production180/s,'Die neue Cachegeneration baut nicht auf dem Stufe-5-Cache auf.');
+  assert.match(sw,/EDGE_CACHE.*stage6-production180[\s\S]*STAGE6_CACHE.*search190-integrity/s,'Die Integritäts-Cachegeneration baut nicht lückenlos auf Stufe 5 und 6 auf.');
   assert.match(sw,/keys\.filter\(key=>key\.startsWith\(CACHE_PREFIX\)&&key!==CACHE_NAME\)/,'Alte PWA-Caches werden nach erfolgreicher Aktivierung nicht entfernt.');
-  assert.match(manifest,/scanner-v2\.js\?v=7\.0\.0/,'Der produktive Scanner fehlt im Offline-App-Shell.');
-  assert.match(manifest,/off-lookup\.js\?v=7\.0\.0/,'Die Barcode-Suche fehlt im Offline-App-Shell.');
-  assert.match(loader,/loadNutritionStage6\(\)/,'Stufe 6 wird im produktiven Start nicht geladen.');
-  assert.match(packageJson.scripts.test,/v180-stage6-production-acceptance\.test\.js/,'Stufe-6-Abnahme fehlt in der Gesamttestkette.');
-  assert.match(packageJson.scripts.test,/v181-stage6-runtime-stress\.test\.js/,'Stufe-6-Stresstest fehlt in der Gesamttestkette.');
-
+  assert.match(manifest,/scanner-v2\.js\?v=7\.0\.0/,'Der produktive Scanner fehlt im Offline-App-Shell.');assert.match(manifest,/off-lookup\.js\?v=7\.0\.0/,'Die Barcode-Suche fehlt im Offline-App-Shell.');assert.match(manifest,/nutrition-search-exact-whole-v170\.js\?v=1\.9\.0-alpha/);assert.match(manifest,/nutrition-portion-hardening-v153\.js\?v=1\.9\.0-alpha/);assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.9\.0-compat/);
+  assert.match(loader,/loadNutritionStage6\(\)/,'Stufe 6 wird im produktiven Start nicht geladen.');assert.match(loader,/nutrition-search-exact-whole-v170\.js\?v=1\.9\.0-alpha/);assert.match(loader,/nutrition-multisearch-120\.js\?v=1\.9\.0-compat/);
+  assert.match(packageJson.scripts.test,/v180-stage6-production-acceptance\.test\.js/,'Stufe-6-Abnahme fehlt in der Gesamttestkette.');assert.match(packageJson.scripts.test,/v181-stage6-runtime-stress\.test\.js/,'Stufe-6-Stresstest fehlt in der Gesamttestkette.');assert.match(packageJson.scripts.test,/v190-intelligent-search-a-z-integrity\.test\.js/,'A–Z-Suchintegrität fehlt in der Gesamttestkette.');
   const dom=new JSDOM('<!doctype html><body><div class="nutrition-search-card"><input id="nutritionSearch"></div><section id="nutritionMultiSearch" hidden></section><div class="nutrition-results"></div></body>',{url:'https://example.test/',runScripts:'dangerously',pretendToBeVisual:true});
   const w=dom.window,input=w.document.querySelector('#nutritionSearch'),host=w.document.querySelector('#nutritionMultiSearch');inject(w,stage6);await ready(w);const api=w.CutCoachNutritionStage6;assert.ok(Object.isFrozen(api));
-  for(let index=0;index<500;index++){
-    input.value=`Lebensmittel ${index}`;host.hidden=false;host.dataset.canonical='1';host.dataset.query=`lebensmittel ${index-1}`;input.dispatchEvent(new w.Event('input',{bubbles:true}));
-  }
-  await wait(0);
-  const metrics=api.snapshot();assert.equal(metrics.inputs,500);assert.ok(metrics.staleHides>=1);assert.equal(w.document.querySelectorAll('#nutritionMultiSearch').length,1,'Schnelle Eingaben erzeugen mehrere Ergebnis-Hosts.');assert.equal(w.document.querySelectorAll('[data-stage6-prepared="1"]').length,1,'Die Suchfeldeinrichtung wird dupliziert.');
-  input.value='';input.dispatchEvent(new w.Event('input',{bubbles:true}));assert.equal(host.innerHTML,'');assert.equal(w.document.body.classList.contains('canonical-multisearch-active'),false);await wait(50);
-  dom.window.close();
-
+  for(let index=0;index<500;index++){input.value=`Lebensmittel ${index}`;host.hidden=false;host.dataset.canonical='1';host.dataset.query=`lebensmittel ${index-1}`;input.dispatchEvent(new w.Event('input',{bubbles:true}))}
+  await wait(0);const metrics=api.snapshot();assert.equal(metrics.inputs,500);assert.ok(metrics.staleHides>=1);assert.equal(w.document.querySelectorAll('#nutritionMultiSearch').length,1,'Schnelle Eingaben erzeugen mehrere Ergebnis-Hosts.');assert.equal(w.document.querySelectorAll('[data-stage6-prepared="1"]').length,1,'Die Suchfeldeinrichtung wird dupliziert.');input.value='';input.dispatchEvent(new w.Event('input',{bubbles:true}));assert.equal(host.innerHTML,'');assert.equal(w.document.body.classList.contains('canonical-multisearch-active'),false);await wait(50);dom.window.close();
   const scannerDom=new JSDOM('<!doctype html><body><button id="scanCode"></button><div id="scannerModal"></div><div class="scanner-frame"></div><div id="scannerStatus"></div><button id="scannerTorch"></button><input id="manualCode"><button id="lookupManualCode"></button></body>',{url:'https://example.test/',runScripts:'dangerously',pretendToBeVisual:true});
-  const swindow=scannerDom.window;Object.defineProperty(swindow.navigator,'onLine',{configurable:true,value:true});swindow.openModal=()=>{};
-  const instances=[];
-  class FakeScanner{
-    constructor(){this.stops=0;this.clears=0;instances.push(this)}
-    static async getCameras(){return[{id:'back',label:'Back Camera'}]}
-    async start(){this.started=true;await wait(2)}
-    async stop(){this.stops++}
-    clear(){this.clears++}
-    async scanFile(){throw new Error('none')}
-  }
-  swindow.Html5Qrcode=FakeScanner;swindow.Html5QrcodeSupportedFormats={QR_CODE:1,EAN_13:2,EAN_8:3,UPC_A:4,UPC_E:5,CODE_128:6,CODE_39:7};inject(swindow,scanner);await ready(swindow);const scannerApi=swindow.CutCoachScannerV2;
-  const results=await Promise.all([scannerApi.start(),scannerApi.start(),scannerApi.start()]);assert.equal(results.filter(Boolean).length,1,'Überlappende Scannerstarts bleiben gleichzeitig aktiv.');assert.equal(scannerApi.state().scanning,true);assert.ok(instances.length>=1);await scannerApi.stop();assert.equal(scannerApi.state().scanning,false);assert.ok(instances.some(instance=>instance.stops>=1||instance.clears>=1),'Eine verworfene Kamera-Session wird nicht bereinigt.');await wait(20);
-  scannerDom.window.close();
-
-  console.log('Stufe 6 Laufzeitstress: 500 schnelle Eingaben, Singleton-Listener, Cachemigration und überlappende Scannerstarts geprüft.');
+  const swindow=scannerDom.window;Object.defineProperty(swindow.navigator,'onLine',{configurable:true,value:true});swindow.openModal=()=>{};const instances=[];class FakeScanner{constructor(){this.stops=0;this.clears=0;instances.push(this)}static async getCameras(){return[{id:'back',label:'Back Camera'}]}async start(){this.started=true;await wait(2)}async stop(){this.stops++}clear(){this.clears++}async scanFile(){throw new Error('none')}}
+  swindow.Html5Qrcode=FakeScanner;swindow.Html5QrcodeSupportedFormats={QR_CODE:1,EAN_13:2,EAN_8:3,UPC_A:4,UPC_E:5,CODE_128:6,CODE_39:7};inject(swindow,scanner);await ready(swindow);const scannerApi=swindow.CutCoachScannerV2;const results=await Promise.all([scannerApi.start(),scannerApi.start(),scannerApi.start()]);assert.equal(results.filter(Boolean).length,1,'Überlappende Scannerstarts bleiben gleichzeitig aktiv.');assert.equal(scannerApi.state().scanning,true);assert.ok(instances.length>=1);await scannerApi.stop();assert.equal(scannerApi.state().scanning,false);assert.ok(instances.some(instance=>instance.stops>=1||instance.clears>=1),'Eine verworfene Kamera-Session wird nicht bereinigt.');await wait(20);scannerDom.window.close();
+  console.log('Stufe 6 Laufzeitstress unter A–Z-Suchintegrität 1.9.0: 500 schnelle Eingaben, Singleton-Listener, Cachemigration und überlappende Scannerstarts geprüft.');
 })().catch(error=>{console.error(error);process.exitCode=1});
