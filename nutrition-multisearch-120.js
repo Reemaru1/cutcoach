@@ -1,12 +1,12 @@
 'use strict';
 (function(){
-  const VERSION='1.9.0-compat';
+  const VERSION='1.9.6-compat';
   if(window.CutCoachNutritionMultiSearch120?.version===VERSION)return;
   const ASSETS=[
     {selector:'script[data-nutrition-portion-profiles-v153],script[data-portion-profiles-v153]',dataset:'nutritionPortionProfilesV153',src:'./nutrition-portion-profiles-v153.js?v=1.5.3-alpha',ready:()=>Boolean(window.CutCoachPortionProfiles153)},
     {selector:'script[data-nutrition-portion-hardening-v153],script[data-portion-hardening-v153]',dataset:'nutritionPortionHardeningV153',src:'./nutrition-portion-hardening-v153.js?v=1.9.0-alpha',ready:()=>Boolean(window.CutCoachPortionHardening153)},
     {selector:'script[data-nutrition-search-learning-v161],script[data-search-learning-v161]',dataset:'nutritionSearchLearningV161',src:'./nutrition-search-learning-v161.js?v=1.6.1-alpha',ready:()=>Boolean(window.CutCoachSearchLearning161)},
-    {selector:'script[data-nutrition-search-exact-whole-v170],script[data-search-exact-whole-v170]',dataset:'nutritionSearchExactWholeV170',src:'./nutrition-search-exact-whole-v170.js?v=1.9.0-alpha',ready:()=>Boolean(window.CutCoachSearchExactWhole170)},
+    {selector:'script[data-nutrition-search-exact-whole-v170],script[data-search-exact-whole-v170]',dataset:'nutritionSearchExactWholeV170',src:'./nutrition-search-exact-whole-v170.js?v=1.9.6-alpha',ready:()=>Boolean(window.CutCoachSearchExactWhole170)},
     {selector:'script[data-nutrition-search-confidence-hardening-v151],script[data-confidence-hardening-v151]',dataset:'nutritionSearchConfidenceHardeningV151',src:'./nutrition-search-confidence-hardening-v151.js?v=1.9.0-alpha',ready:()=>Boolean(window.CutCoachSearchConfidenceHardening151)}
   ];
   const currentDocument=()=>window.document||null;
