@@ -51,9 +51,10 @@ const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
   assert.equal(window.CutCoachSearchInputPerformance193.version,'1.9.3-alpha');
   assert.match(loader,/script\.src='\.\/nutrition-search-input-performance-v193\.js\?v=1\.9\.3-alpha'[\s\S]*script\.onload=loadPolish/,'Performance-Schicht startet den Such-Polisher nicht erst nach erfolgreichem Laden.');
   assert.match(loader,/script\.onerror=loadPolish/,'Such-Polisher besitzt keinen sicheren Fallback bei einem Ladefehler.');
-  assert.ok(runtime.indexOf('nutrition-search-input-performance-v193.js?v=1.9.3-alpha')<runtime.indexOf('nutrition-polish-v138.js?v=1.3.8-alpha'),'Offline-Manifest ordnet die Performance-Schicht nicht vor dem Such-Polisher ein.');
+  assert.ok(runtime.indexOf('nutrition-search-input-performance-v193.js?v=1.9.3-alpha')<runtime.indexOf('nutrition-polish-v138.js?v=1.3.9-alpha'),'Offline-Manifest ordnet die Performance-Schicht nicht vor dem Interaktions-Hotfix ein.');
   assert.ok(sw.includes('search193-input-performance'),'Service-Worker-Cachegeneration wurde nicht erhöht.');
+  assert.ok(sw.includes('search194-interaction-unlock'),'Interaktions-Hotfix fehlt nach der Eingabe-Performance-Schicht.');
 
   dom.window.close();
-  console.log('Suchfeld verarbeitet Tippserien nur einmal und bleibt bei Enter sowie internen Ereignissen korrekt.');
+  console.log('Suchfeld verarbeitet Tippserien nur einmal und bleibt mit Interaktions-Hotfix korrekt.');
 })().catch(error=>{console.error(error);process.exitCode=1});
