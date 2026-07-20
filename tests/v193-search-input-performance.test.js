@@ -24,19 +24,19 @@ const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
   }
   assert.equal(downstream,0,'Teure Folgesuche läuft weiterhin bei jedem Tastendruck.');
   assert.equal(window.CutCoachSearchInputPerformance193.stats().pending,true,'Eingabepause wird nicht abgewartet.');
-  await wait(150);
+  await wait(620);
   assert.equal(downstream,1,'Eine Tippserie erzeugt nicht exakt einen Suchlauf.');
   assert.equal(lastValue,'haehnchen','Der letzte Suchstand wird nicht verarbeitet.');
   assert.equal(window.CutCoachSearchInputPerformance193.stats().releaseCount,1);
 
   input.value='döne';input.dispatchEvent(new window.Event('input',{bubbles:true}));
   input.value='döner';input.dispatchEvent(new window.Event('input',{bubbles:true}));
-  await wait(40);
-  assert.equal(downstream,1,'Debounce wird während des Tippens zu früh ausgelöst.');
+  await wait(100);
+  assert.equal(downstream,1,'Adaptive Tipp-Pause wird während des Tippens zu früh ausgelöst.');
   input.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
   assert.equal(downstream,2,'Enter übergibt den aktuellen Suchtext nicht sofort.');
   assert.equal(lastValue,'döner');
-  await wait(140);
+  await wait(620);
   assert.equal(downstream,2,'Nach Enter läuft ein alter Timer ein zweites Mal nach.');
 
   input.dataset.v192Bypass='1';input.value='Brot';input.dispatchEvent(new window.Event('input',{bubbles:true}));
@@ -45,16 +45,18 @@ const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
 
   input.value='Steak';input.dispatchEvent(new window.Event('input',{bubbles:true}));
   window.CutCoachSearchInputPerformance193.cancel();
-  await wait(140);
+  await wait(620);
   assert.equal(downstream,3,'Abgebrochene Suche wird dennoch ausgeführt.');
 
-  assert.equal(window.CutCoachSearchInputPerformance193.version,'1.9.3-alpha');
-  assert.match(loader,/script\.src='\.\/nutrition-search-input-performance-v193\.js\?v=1\.9\.3-alpha'[\s\S]*script\.onload=loadPolish/,'Performance-Schicht startet den Such-Polisher nicht erst nach erfolgreichem Laden.');
+  const stats=window.CutCoachSearchInputPerformance193.stats();
+  assert.equal(window.CutCoachSearchInputPerformance193.version,'1.9.5-alpha');
+  assert.deepEqual({...window.CutCoachSearchInputPerformance193.debounceRange},{min:320,max:540});
+  assert.ok(stats.lastDelay>=320&&stats.lastDelay<=540);
+  assert.match(loader,/nutrition-search-input-performance-v193\.js[\s\S]*script\.onload=loadPolish/,'Performance-Schicht startet den Such-Polisher nicht erst nach erfolgreichem Laden.');
   assert.match(loader,/script\.onerror=loadPolish/,'Such-Polisher besitzt keinen sicheren Fallback bei einem Ladefehler.');
-  assert.ok(runtime.indexOf('nutrition-search-input-performance-v193.js?v=1.9.3-alpha')<runtime.indexOf('nutrition-polish-v138.js?v=1.3.9-alpha'),'Offline-Manifest ordnet die Performance-Schicht nicht vor dem Interaktions-Hotfix ein.');
-  assert.ok(sw.includes('search193-input-performance'),'Service-Worker-Cachegeneration wurde nicht erhöht.');
-  assert.ok(sw.includes('search194-interaction-unlock'),'Interaktions-Hotfix fehlt nach der Eingabe-Performance-Schicht.');
+  assert.ok(runtime.indexOf('nutrition-search-input-performance-v193.js?v=1.9.5-alpha')<runtime.indexOf('nutrition-polish-v138.js?v=1.3.10-alpha'),'Offline-Manifest ordnet die stabile Eingabeschicht nicht vor dem Such-Polisher ein.');
+  assert.ok(sw.includes('search195-stability'),'Service-Worker-Cachegeneration wurde nicht auf Suchstabilität erhöht.');
 
   dom.window.close();
-  console.log('Suchfeld verarbeitet Tippserien nur einmal und bleibt mit Interaktions-Hotfix korrekt.');
+  console.log('Suchfeld verarbeitet schnelle und langsame Tippserien nur einmal und bleibt bei Enter sowie internen Ereignissen korrekt.');
 })().catch(error=>{console.error(error);process.exitCode=1});

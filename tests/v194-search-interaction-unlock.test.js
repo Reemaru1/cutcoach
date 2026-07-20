@@ -42,11 +42,11 @@ const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
 
   input.value='Toastbrot mit Erdbeere';
   input.dispatchEvent(new w.Event('input',{bubbles:true}));
-  await wait(180);
+  await wait(80);
   const host=w.document.querySelector('#nutritionMultiSearch');
   assert.ok(host&&!host.hidden,'Mehrdeutige Screenshot-Suche wird nicht dargestellt.');
   assert.equal(host.querySelectorAll('[data-v192-choice]').length,2);
-  assert.equal(w.CutCoachNutritionPolish138.presentationVersion,'1.9.4-alpha');
+  assert.equal(w.CutCoachNutritionPolish138.presentationVersion,'1.9.5-alpha');
   assert.equal(w.CutCoachNutritionPolish138.interactionStats().renderWrites,1,'Erste Suchkarte wird mehrfach geschrieben.');
 
   let internalMutations=0;
@@ -74,7 +74,8 @@ const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
   await wait(220);
   assert.equal(w.CutCoachNutritionPolish138.interactionStats().renderWrites,writes,'Nach der Auswahl beginnt erneut eine Render-Endlosschleife.');
 
-  assert.match(sw,/search194-interaction-unlock/,'Neue Cachegeneration für den Interaktions-Hotfix fehlt.');
+  assert.match(sw,/search194-interaction-unlock/,'Cachegeneration für den Interaktions-Hotfix fehlt.');
+  assert.match(sw,/search195-stability/,'Stabile Suchgeneration fehlt nach dem Interaktions-Hotfix.');
   mutationObserver.disconnect();dom.window.close();
-  console.log('Suchkarte bleibt nach mehrdeutiger Auswahl interaktiv und erzeugt keine Selbst-Render-Schleife.');
+  console.log('Suchkarte bleibt nach mehrdeutiger Auswahl interaktiv, stabil und erzeugt keine Selbst-Render-Schleife.');
 })().catch(error=>{console.error(error);process.exitCode=1});
