@@ -12,7 +12,8 @@ const goose={id:'bls-goose',name:'Gans Fleisch, ohne Haut, roh',amount:100,unit:
 const menemen={id:'ccmeal:menemen',name:'Menemen',aliases:['Türkisches Rührei'],amount:350,unit:'g',calories:430,protein:23,carbs:20,fat:28,source:'cutcoach',sourceLabel:'CutCoach Standardgericht · durchschnittlicher Richtwert'};
 const puddingOne={id:'pudding-1',name:'Protein Pudding',amount:200,unit:'g',calories:150,protein:20,carbs:12,fat:3,source:'bls'};
 const puddingTwo={id:'pudding-2',name:'Protein Pudding',amount:200,unit:'g',calories:180,protein:18,carbs:16,fat:4,source:'bls'};
-const catalog=[dish,goose,menemen,puddingOne,puddingTwo];
+const numeric={id:'numeric',name:'5 Korn Brot',amount:1,unit:'Stück',calories:120,protein:4,carbs:22,fat:2,source:'bls'};
+const catalog=[dish,goose,menemen,puddingOne,puddingTwo,numeric];
 
 const dom=new JSDOM('<!doctype html><body data-nutrition-meal-type="Abendessen"><section data-screen="food" class="active"><div class="nutrition-search-card"><input id="nutritionSearch"></div><div id="nutritionResults"></div></section></body>',{url:'https://example.test/cutcoach/',runScripts:'dangerously',pretendToBeVisual:true});
 const w=dom.window;
@@ -25,35 +26,31 @@ engine=w.CutCoachSearchExactWhole170.attach(engine);
 engine=w.CutCoachSearchConfidenceHardening151.attach(engine);
 engine=w.CutCoachPortionHardening153.attach(engine);
 const api=w.CutCoachIntelligentSearch128;
-assert.equal(api.exactWholeVersion,'1.7.0-alpha');
+assert.equal(api.exactWholeVersion,'1.7.1-alpha');assert.equal(api.exactWholeBuild,'1.7.1-stage5-edge-hardening');
 
 let rows=api.rowsFor('550 g Lachs mit Reis und Gemüse');
-assert.equal(rows.length,1);assert.equal(rows[0].item.id,dish.id);assert.equal(rows[0].status,'matched');assert.equal(rows[0].factor,1);assert.notEqual(rows[0].matchType,'fuzzy','Vollständiger Gerichtname wurde nur über Tippfehlerlogik gefunden.');
-rows=api.rowsFor('100 g Gans Fleisch, ohne Haut, roh');
-assert.equal(rows.length,1);assert.equal(rows[0].item.id,goose.id);assert.equal(rows[0].status,'matched');
-rows=api.rowsFor('100 g Protein Pudding');
-assert.equal(rows.length,1);assert.equal(rows[0].status,'ambiguous');assert.deepEqual(new Set(rows[0].choices.map(choice=>choice.item.id)),new Set([puddingOne.id,puddingTwo.id]));
-rows=api.rowsFor('500 ml Menemen');
-assert.equal(rows.length,1);assert.equal(rows[0].item.id,menemen.id);assert.equal(rows[0].status,'incompatible');
-rows=api.rowsFor('2 Portionen Menemen');
-assert.equal(rows.length,1);assert.equal(rows[0].item.id,menemen.id);assert.equal(rows[0].status,'matched');assert.equal(rows[0].factor,2);
-assert.equal(api.rowsFor('Lachs mit Reis und Gemüse').length,0,'Normale Einzelwort-/Gerichtesuche darf nicht durch die Mengenebene übernommen werden.');
-rows=api.rowsFor('Toast mit Quantenbrot');
-assert.equal(rows.length,2);assert.equal(rows[0].item.name,'Toastbrot');assert.equal(rows[1].status,'missing');
+assert.equal(rows.length,1);assert.equal(rows[0].item.id,dish.id);assert.equal(rows[0].status,'matched');assert.equal(rows[0].factor,1);assert.notEqual(rows[0].matchType,'fuzzy');
+rows=api.rowsFor('Ich hatte ca. 100 g Gans Fleisch, ohne Haut, roh gegessen.');assert.equal(rows.length,1);assert.equal(rows[0].item.id,goose.id);assert.equal(rows[0].status,'matched');
+rows=api.rowsFor('100 g Protein Pudding');assert.equal(rows.length,1);assert.equal(rows[0].status,'ambiguous');assert.deepEqual(new Set(rows[0].choices.map(choice=>choice.item.id)),new Set([puddingOne.id,puddingTwo.id]));
+rows=api.rowsFor('500 ml Menemen');assert.equal(rows.length,1);assert.equal(rows[0].item.id,menemen.id);assert.equal(rows[0].status,'incompatible');
+rows=api.rowsFor('2 Portionen Menemen');assert.equal(rows.length,1);assert.equal(rows[0].item.id,menemen.id);assert.equal(rows[0].status,'matched');assert.equal(rows[0].factor,2);
+rows=api.rowsFor('0 g Menemen');assert.equal(rows[0].status,'review');assert.equal(rows[0].invalidQuantity,true);assert.equal(rows[0].factor,0);
+rows=api.rowsFor('5 Korn Brot');assert.equal(rows.length,1);assert.equal(rows[0].item.id,numeric.id);assert.equal(rows[0].factor,1);assert.notEqual(rows[0].item.name,'Korn Brot','Führende Zahl wurde als Menge statt als Teil des Namens behandelt.');
+rows=api.rowsFor('2 Stück 5 Korn Brot');assert.equal(rows[0].item.id,numeric.id);assert.equal(rows[0].factor,2);
+assert.equal(api.rowsFor('Lachs mit Reis und Gemüse').length,0,'Normale Gerichtesuche darf nicht durch die Mengenebene übernommen werden.');
+rows=api.rowsFor('Toast mit Quantenbrot');assert.equal(rows.length,2);assert.equal(rows[0].item.name,'Toastbrot');assert.equal(rows[1].status,'missing');
 
 api.rowsFor('100 g Neue Schutzspeise');
-const newItem={id:'new-protected',name:'Neue Schutzspeise mit Reis',amount:100,unit:'g',calories:200,protein:10,carbs:25,fat:5,source:'user'};
-catalog.push(newItem);
+const newItem={id:'new-protected',name:'Neue Schutzspeise mit Reis',amount:100,unit:'g',calories:200,protein:10,carbs:25,fat:5,source:'user'};catalog.push(newItem);
 assert.equal(api.rowsFor('100 g Neue Schutzspeise mit Reis').some(row=>row.item?.id===newItem.id),false,'Index wurde ohne Ereignis unerwartet neu aufgebaut.');
-w.dispatchEvent(new w.CustomEvent('cutcoach:catalog-updated'));
-rows=api.rowsFor('100 g Neue Schutzspeise mit Reis');assert.equal(rows.length,1);assert.equal(rows[0].item.id,newItem.id);
+w.dispatchEvent(new w.CustomEvent('cutcoach:catalog-updated'));rows=api.rowsFor('100 g Neue Schutzspeise mit Reis');assert.equal(rows.length,1);assert.equal(rows[0].item.id,newItem.id);
 
 const loader=read('version-v7.js'),compatibility=read('nutrition-multisearch-120.js'),manifest=read('runtime-manifest.js'),sw=read('sw.js');
-assert.match(loader,/nutrition-search-exact-whole-v170\.js\?v=1\.7\.0-alpha/);
+assert.match(loader,/nutrition-search-exact-whole-v170\.js\?v=1\.7\.1-alpha/);
 assert.match(loader,/CutCoachSearchExactWhole170\?\.attach[\s\S]*CutCoachSearchConfidenceHardening151\?\.attach[\s\S]*CutCoachPortionHardening153\?\.attach/);
-assert.match(compatibility,/const VERSION='1\.7\.0-compat'/);assert.match(compatibility,/nutrition-search-exact-whole-v170\.js\?v=1\.7\.0-alpha/);
-assert.match(manifest,/nutrition-search-exact-whole-v170\.js\?v=1\.7\.0-alpha/);assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.7\.0-compat/);
-assert.match(sw,/search170-exact-whole/);
-inject(w,compatibility);assert.equal(w.CutCoachNutritionMultiSearch120.version,'1.7.0-compat');assert.equal(w.CutCoachNutritionMultiSearch120.resolve('550 g Lachs mit Reis und Gemüse').match.id,dish.id);
+assert.match(compatibility,/const VERSION='1\.7\.1-compat'/);assert.match(compatibility,/nutrition-search-exact-whole-v170\.js\?v=1\.7\.1-alpha/);
+assert.match(manifest,/nutrition-search-exact-whole-v170\.js\?v=1\.7\.1-alpha/);assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.7\.1-compat/);assert.match(manifest,/nutrition-search-confidence-v150\.css\?v=1\.7\.1-alpha/);
+assert.match(sw,/search170-exact-whole/);assert.match(sw,/search171-edge-hardening/);
+inject(w,compatibility);assert.equal(w.CutCoachNutritionMultiSearch120.version,'1.7.1-compat');assert.equal(w.CutCoachNutritionMultiSearch120.resolve('550 g Lachs mit Reis und Gemüse').match.id,dish.id);assert.equal(w.CutCoachNutritionMultiSearch120.resolve('0 g Menemen').invalidQuantity,true);
 
-dom.window.close();console.log('Stufe 5 Exact-Whole 1.7.0: Vollnamen, Kollisionen, Einheiten, Index und produktive Ladefolge geprüft.');
+dom.window.close();console.log('Stufe 5 Exact-Whole 1.7.1: Vollnamen, natürliche Sprache, Zahlenamen, Nullmengen, Kollisionen, Einheiten, Index und Ladefolge geprüft.');
