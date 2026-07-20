@@ -49,8 +49,9 @@ const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
   assert.equal(downstream,3,'Abgebrochene Suche wird dennoch ausgeführt.');
 
   assert.equal(window.CutCoachSearchInputPerformance193.version,'1.9.3-alpha');
-  assert.ok(loader.indexOf('nutrition-search-input-performance-v193.js?v=1.9.3-alpha')<loader.indexOf('nutrition-polish-v138.js?v=1.3.8-alpha'),'Performance-Schicht wird nicht vor dem Such-Polisher geladen.');
-  assert.ok(runtime.includes('nutrition-search-input-performance-v193.js?v=1.9.3-alpha'),'Performance-Schicht fehlt im Offline-Manifest.');
+  assert.match(loader,/script\.src='\.\/nutrition-search-input-performance-v193\.js\?v=1\.9\.3-alpha'[\s\S]*script\.onload=loadPolish/,'Performance-Schicht startet den Such-Polisher nicht erst nach erfolgreichem Laden.');
+  assert.match(loader,/script\.onerror=loadPolish/,'Such-Polisher besitzt keinen sicheren Fallback bei einem Ladefehler.');
+  assert.ok(runtime.indexOf('nutrition-search-input-performance-v193.js?v=1.9.3-alpha')<runtime.indexOf('nutrition-polish-v138.js?v=1.3.8-alpha'),'Offline-Manifest ordnet die Performance-Schicht nicht vor dem Such-Polisher ein.');
   assert.ok(sw.includes('search193-input-performance'),'Service-Worker-Cachegeneration wurde nicht erhöht.');
 
   dom.window.close();
