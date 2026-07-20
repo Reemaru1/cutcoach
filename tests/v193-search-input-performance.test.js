@@ -54,9 +54,10 @@ const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
   assert.ok(stats.lastDelay>=320&&stats.lastDelay<=540);
   assert.match(loader,/nutrition-search-input-performance-v193\.js[\s\S]*script\.onload=loadPolish/,'Performance-Schicht startet den Such-Polisher nicht erst nach erfolgreichem Laden.');
   assert.match(loader,/script\.onerror=loadPolish/,'Such-Polisher besitzt keinen sicheren Fallback bei einem Ladefehler.');
-  assert.ok(runtime.indexOf('nutrition-search-input-performance-v193.js?v=1.9.5-alpha')<runtime.indexOf('nutrition-polish-v138.js?v=1.3.10-alpha'),'Offline-Manifest ordnet die stabile Eingabeschicht nicht vor dem Such-Polisher ein.');
-  assert.ok(sw.includes('search195-stability'),'Service-Worker-Cachegeneration wurde nicht auf Suchstabilität erhöht.');
+  assert.ok(runtime.indexOf('nutrition-search-input-performance-v193.js?v=1.9.5-alpha')<runtime.indexOf('nutrition-polish-v138.js?v=1.3.11-alpha'),'Offline-Manifest ordnet die stabile Eingabeschicht nicht vor der finalen Suchdarstellung ein.');
+  assert.ok(sw.includes('search195-stability'),'Service-Worker-Cachegeneration enthält die Suchstabilität nicht.');
+  assert.ok(sw.includes('search196-article-sequence'),'Service-Worker-Cachegeneration enthält den Artikel-/Sequenzschutz nicht.');
 
   dom.window.close();
-  console.log('Suchfeld verarbeitet schnelle und langsame Tippserien nur einmal und bleibt bei Enter sowie internen Ereignissen korrekt.');
+  console.log('Suchfeld verarbeitet schnelle und langsame Tippserien nur einmal und bleibt mit Suchdarstellung 1.3.11 korrekt.');
 })().catch(error=>{console.error(error);process.exitCode=1});

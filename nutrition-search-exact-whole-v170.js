@@ -1,7 +1,7 @@
 'use strict';
 (function(global){
-  const VERSION='1.9.0-alpha';
-  const BUILD='1.9.0-search-integrity';
+  const VERSION='1.9.6-alpha';
+  const BUILD='1.9.6-article-sequence';
   const INDEX_TTL=30000;
   if(global.CutCoachSearchExactWhole170)return;
 
@@ -57,15 +57,21 @@
     const item=top.item,portion=portionFor(part,item),confidence=top.isName?100:97,baseType=part.literalName?'exact-literal':part.sequenceBare?'exact-sequence':'exact-whole',matchType=top.isName?`${baseType}-name`:`${baseType}-alias`,status=portion.incompatible?'incompatible':'matched';
     return[{...part,directItem:item,directMatch:{item,matchType,confidence,alternatives:choices.slice(1).map(choice=>choice.item.name)},item,status,matchType,confidence,confidenceLabel:confidence===100?'Exakt · 100%':`Sehr sicher · ${confidence}%`,corrected:'',alternatives:choices.slice(1).map(choice=>`${choice.label}: ${choice.item.name}`),choices:choices.slice(1),origin:top.origin,...portion}];
   }
+  function recognizedBaseRows(value,part=null){
+    const rows=Array.from(base?.rowsFor?.(value)||[]);if(rows.length!==1)return null;
+    const row=rows[0];if(!row?.item&&row?.status!=='ambiguous')return null;
+    if(!part)return rows;
+    return[{...row,raw:String(value||'').trim(),source:part.source,query:part.query,quantity:part.quantity,quantitySpecified:part.quantitySpecified,unitInfo:part.unitInfo,modifier:part.modifier||'',smart:true}];
+  }
   function protectedSingleRows(value){
     const literal=literalNameMatch(value);if(literal)return rowsFromCandidates(literal.part,literal.candidates);
     const invalid=invalidPart(value);if(invalid)return[invalidRow(invalid)];
-    const part=parseAmount(value);if(!part)return null;const candidates=exactCandidates(part.source);if(!candidates.length)return null;
-    return rowsFromCandidates(part,candidates);
+    const part=parseAmount(value);if(!part)return null;const candidates=exactCandidates(part.source);if(candidates.length)return rowsFromCandidates(part,candidates);
+    return recognizedBaseRows(value,part);
   }
   function bareSequenceRows(value){
     const raw=String(value||'').trim(),source=cleanNatural(raw),candidates=exactCandidates(source);if(candidates.length){const part={raw,source,query:normalize(source),quantity:1,quantitySpecified:false,unitInfo:null,modifier:'',smart:true,sequenceBare:true};return rowsFromCandidates(part,candidates)}
-    const probe=base?.rowsFor?.(`1 ${source}`)||[];if(probe.length!==1)return null;const row=probe[0];return[{...row,raw,quantity:1,quantitySpecified:false,unitInfo:null,factor:1,amountLabel:'',approximate:false,sequenceBare:true}];
+    const probe=recognizedBaseRows(`1 ${source}`);if(!probe)return null;const row=probe[0];return[{...row,raw,quantity:1,quantitySpecified:false,unitInfo:null,factor:1,amountLabel:'',approximate:false,sequenceBare:true}];
   }
   function sequenceSegmentRows(value){return protectedSingleRows(value)||bareSequenceRows(value)}
   function protectedSequenceRows(value){
