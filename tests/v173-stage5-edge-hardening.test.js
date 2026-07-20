@@ -39,7 +39,7 @@ const wait=()=>new Promise(resolve=>queueMicrotask(resolve));
   let rows=api.rowsFor('Ich hatte ca. 100 g Gans Fleisch, ohne Haut, roh gegessen.');
   assert.equal(rows.length,1);assert.equal(rows[0].item.id,gans.id);assert.equal(rows[0].status,'matched');assert.equal(rows[0].factor,1);
 
-  assert.equal(api.rowsFor('5 Korn Brot').length,0,'Ein Lebensmittelname mit führender Zahl wird als Menge missverstanden.');
+  rows=api.rowsFor('5 Korn Brot');assert.equal(rows.length,1);assert.equal(rows[0].item.id,numericFood.id);assert.equal(rows[0].factor,1);assert.notEqual(rows[0].item.id,misleadingFood.id,'Die führende Zahl wurde als Menge statt als Namensbestandteil interpretiert.');
   rows=api.rowsFor('1 5 Korn Brot');assert.equal(rows.length,1);assert.equal(rows[0].item.id,numericFood.id);assert.equal(rows[0].factor,1);
   rows=api.rowsFor('2 Stück 5 Korn Brot');assert.equal(rows[0].item.id,numericFood.id);assert.equal(rows[0].factor,2);
 
