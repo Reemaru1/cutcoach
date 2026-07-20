@@ -17,6 +17,7 @@ const manifest=fs.readFileSync(path.join(project,'runtime-manifest.js'),'utf8');
 const sw=fs.readFileSync(path.join(project,'sw.js'),'utf8');
 const update=fs.readFileSync(path.join(project,'update.html'),'utf8');
 assert.match(compatibility,/compatibility-facade/,'Kompatibilitätsfassade fehlt');
+assert.match(compatibility,/const VERSION='1\.9\.6-compat'/,'Aktuelle Kompatibilitätsversion fehlt');
 assert.match(compatibility,/engine\(\)/,'Fassade delegiert nicht an die zentrale Engine');
 assert.match(compatibility,/engine\(\)\?\.parse/,'Alte parse-API wird nicht delegiert');
 assert.match(compatibility,/engine\(\)\?\.rowsFor/,'Alte Ergebnis-API wird nicht delegiert');
@@ -27,6 +28,7 @@ assert.match(compatibility,/nutrition-portion-profiles-v153/,'Portionsprofile we
 assert.match(compatibility,/nutrition-portion-hardening-v153/,'Portions-Hardening wird nicht abgesichert');
 assert.match(compatibility,/nutrition-search-learning-v161/,'Lokales Lernen wird nicht abgesichert');
 assert.match(compatibility,/nutrition-search-exact-whole-v170/,'Vollnamenschutz wird nicht abgesichert');
+assert.match(compatibility,/nutrition-search-exact-whole-v170\.js\?v=1\.9\.6-alpha/,'Fassade lädt nicht den aktuellen Artikel-/Sequenzschutz');
 assert.match(compatibility,/confidence-hardening-v151/,'Generischer Resolver wird nicht nachgeladen');
 assert.doesNotMatch(compatibility,/addEventListener|setTimeout|requestIdleCallback|innerHTML|CutCoachLibrary/,'Kompatibilitätsbrücke enthält eigene Suchlogik');
 assert.match(learning,/stage4-hardening/,'Gehärtete Lernschicht fehlt');
@@ -70,7 +72,7 @@ assert.match(version,/nutrition-search-learning-v161\.js\?v=1\.6\.1-alpha/,'Geh�
 assert.match(version,/nutrition-search-exact-whole-v170\.js\?v=1\.9\.6-alpha/,'Artikel- und Sequenzschutz wird nicht geladen');
 assert.match(version,/nutrition-search-confidence-hardening-v151\.js\?v=1\.9\.0-alpha/,'A–Z-Vollkatalog-Resolver wird nicht geladen');
 assert.match(version,/nutrition-multisearch-canonical-128\.js\?v=1\.5\.0-alpha/,'Zentrale Suchlogik wird nicht geladen');
-assert.match(version,/nutrition-multisearch-120\.js\?v=1\.9\.0-compat/,'Produktiver Loaderpfad der Fassade fehlt');
+assert.match(version,/nutrition-multisearch-120\.js\?v=1\.9\.6-compat/,'Produktiver Loaderpfad der aktuellen Fassade fehlt');
 assert.match(version,/nutrition-search-confidence-v150\.css\?v=1\.7\.1-alpha/,'Gehärtetes Confidence-CSS wird nicht geladen');
 assert.match(manifest,/nutrition-portion-profiles-v153\.js\?v=1\.5\.3-alpha/,'Portionsprofile fehlen im Cache');
 assert.match(manifest,/nutrition-portion-hardening-v153\.js\?v=1\.9\.0-alpha/,'Portions- und Lernintegrität fehlt im Cache');
@@ -78,7 +80,7 @@ assert.match(manifest,/nutrition-search-learning-v161\.js\?v=1\.6\.1-alpha/,'Geh
 assert.match(manifest,/nutrition-search-exact-whole-v170\.js\?v=1\.9\.6-alpha/,'Artikel- und Sequenzschutz fehlt im Cache');
 assert.match(manifest,/nutrition-search-confidence-hardening-v151\.js\?v=1\.9\.0-alpha/,'A–Z-Resolver fehlt im Cache');
 assert.match(manifest,/nutrition-multisearch-canonical-128\.js\?v=1\.5\.0-alpha/,'Zentrale Suchlogik fehlt im Cache');
-assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.9\.0-compat/,'Produktive Kompatibilitäts-URL fehlt im Cache');
+assert.match(manifest,/nutrition-multisearch-120\.js\?v=1\.9\.6-compat/,'Aktuelle Kompatibilitäts-URL fehlt im Cache');
 assert.match(manifest,/nutrition-search-confidence-v150\.css\?v=1\.7\.1-alpha/,'Confidence-CSS fehlt im Cache');
 assert.match(sw,/search153-portions/,'Portions-Cachegeneration fehlt');
 assert.match(sw,/search161-hardening/,'Hardening-Cachegeneration fehlt');
