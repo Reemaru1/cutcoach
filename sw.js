@@ -1,5 +1,5 @@
 'use strict';
-importScripts('./runtime-manifest.js?v=1.2.6-alpha');
+importScripts('./runtime-manifest.js?v=1.2.7-alpha');
 const RUNTIME=self.CUTCOACH_RUNTIME;
 const CACHE_PREFIX='cutcoach-';
 const CACHE_BASE=`cutcoach-v${RUNTIME.version}-nav136-journal137-nutrition138-dishes140`;
@@ -15,8 +15,9 @@ const UI_CACHE=`${CATALOG_CACHE}-search192-ui-overhaul`;
 const INPUT_CACHE=`${UI_CACHE}-search193-input-performance`;
 const INTERACTION_CACHE=`${INPUT_CACHE}-search194-interaction-unlock`;
 const STABILITY_CACHE=`${INTERACTION_CACHE}-search195-stability`;
-const CACHE_NAME=`${STABILITY_CACHE}-energy143`;
-const APP_SHELL=['./','./index.html','./runtime-manifest.js?v=1.2.6-alpha',...RUNTIME.baseAssets,...RUNTIME.styles,...RUNTIME.scripts,'./update.html'];
+const ARTICLE_CACHE=`${STABILITY_CACHE}-search196-article-sequence`;
+const CACHE_NAME=`${ARTICLE_CACHE}-energy143`;
+const APP_SHELL=['./','./index.html','./runtime-manifest.js?v=1.2.7-alpha',...RUNTIME.baseAssets,...RUNTIME.styles,...RUNTIME.scripts,'./update.html'];
 const EXTERNAL_ASSETS=Object.freeze(['https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js']);
 const NAVIGATION_TIMEOUT_MS=4500,ASSET_TIMEOUT_MS=6500;
 function fetchWithTimeout(request,options={},timeout=ASSET_TIMEOUT_MS){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);return fetch(request,{...options,signal:controller.signal}).finally(()=>clearTimeout(timer))}
