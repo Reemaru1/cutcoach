@@ -54,7 +54,7 @@ const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
 
   assert.ok(loader.includes("journal-energy-live-v143.js?v=1.4.3-alpha"),'Der Versionsloader lädt den Live-Fix nicht.');
   assert.ok(runtime.includes("journal-energy-live-v143.js?v=1.4.3-alpha"),'Das Offline-Manifest enthält den Live-Fix nicht.');
-  assert.ok(sw.includes('`${ARTICLE_CACHE}-energy143`'),'Die Cachegeneration für Tageskurs und Artikel-/Sequenzsuche ist nicht verkettet.');
+  assert.ok(sw.includes('`${TYPING_CACHE}-energy143`'),'Die Cachegeneration für Tageskurs und Tipp-Performance ist nicht verkettet.');
   assert.ok(sw.includes('search170-exact-whole'),'Stufe-5-Vollnamen-Cachegeneration fehlt.');
   assert.ok(sw.includes('search171-edge-hardening'),'Stufe-5-Randfall-Cachegeneration fehlt.');
   assert.ok(sw.includes('stage6-production180'),'Stufe-6-Cachegeneration fehlt.');
@@ -64,8 +64,9 @@ const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
   assert.ok(sw.includes('search193-input-performance'),'Eingabe-Performance-Cachegeneration fehlt.');
   assert.ok(sw.includes('search194-interaction-unlock'),'Interaktions-Hotfix fehlt.');
   assert.ok(sw.includes('search195-stability'),'Suchstabilitätsgeneration fehlt.');
-  assert.ok(sw.includes('search196-article-sequence'),'Artikel- und Sequenzgeneration fehlt vor dem Tageskurs-Cache.');
+  assert.ok(sw.includes('search196-article-sequence'),'Artikel- und Sequenzgeneration fehlt.');
+  assert.ok(sw.includes('search197-typing-performance'),'Tipp-Performance-Generation fehlt vor dem Tageskurs-Cache.');
 
   dom.window.close();
-  console.log('Tageskurs, Suchstabilität und Artikel-/Sequenzschutz sind ohne Render-Schleifen korrekt verkettet.');
+  console.log('Tageskurs, Suchintegrität und Tipp-Performance sind ohne Render-Schleifen korrekt verkettet.');
 })().catch(error=>{console.error(error);process.exitCode=1});
