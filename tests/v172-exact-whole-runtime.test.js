@@ -7,9 +7,9 @@ const root=path.resolve(__dirname,'..');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const inject=(window,source)=>{const script=window.document.createElement('script');script.textContent=source;window.document.head.append(script)};
 
-const dish={id:'dish-lachs-reis',name:'Lachs mit Reis und Gemüse',aliases:['Lachs Reis Teller'],amount:550,unit:'g',calories:820,protein:48,carbs:79,fat:32,source:'cutcoach'};
+const dish={id:'dish-lachs-reis',name:'Lachs mit Reis und Gemüse',aliases:['Lachs Reis Teller'],amount:550,unit:'g',calories:820,protein:48,carbs:79,fat:32,source:'cutcoach',sourceLabel:'CutCoach Standardgericht · durchschnittlicher Richtwert'};
 const goose={id:'bls-goose',name:'Gans Fleisch, ohne Haut, roh',amount:100,unit:'g',calories:160,protein:22,carbs:0,fat:8,source:'bls'};
-const menemen={id:'ccmeal:menemen',name:'Menemen',aliases:['Türkisches Rührei'],amount:350,unit:'g',calories:430,protein:23,carbs:20,fat:28,source:'cutcoach'};
+const menemen={id:'ccmeal:menemen',name:'Menemen',aliases:['Türkisches Rührei'],amount:350,unit:'g',calories:430,protein:23,carbs:20,fat:28,source:'cutcoach',sourceLabel:'CutCoach Standardgericht · durchschnittlicher Richtwert'};
 const puddingOne={id:'pudding-1',name:'Protein Pudding',amount:200,unit:'g',calories:150,protein:20,carbs:12,fat:3,source:'bls'};
 const puddingTwo={id:'pudding-2',name:'Protein Pudding',amount:200,unit:'g',calories:180,protein:18,carbs:16,fat:4,source:'bls'};
 const catalog=[dish,goose,menemen,puddingOne,puddingTwo];
@@ -36,7 +36,7 @@ assert.equal(rows.length,1);assert.equal(rows[0].status,'ambiguous');assert.deep
 rows=api.rowsFor('500 ml Menemen');
 assert.equal(rows.length,1);assert.equal(rows[0].item.id,menemen.id);assert.equal(rows[0].status,'incompatible');
 rows=api.rowsFor('2 Portionen Menemen');
-assert.equal(rows.length,1);assert.equal(rows[0].item.id,menemen.id);assert.ok(['matched','review'].includes(rows[0].status));assert.equal(rows[0].factor,2);
+assert.equal(rows.length,1);assert.equal(rows[0].item.id,menemen.id);assert.equal(rows[0].status,'matched');assert.equal(rows[0].factor,2);
 assert.equal(api.rowsFor('Lachs mit Reis und Gemüse').length,0,'Normale Einzelwort-/Gerichtesuche darf nicht durch die Mengenebene übernommen werden.');
 rows=api.rowsFor('Toast mit Quantenbrot');
 assert.equal(rows.length,2);assert.equal(rows[0].item.name,'Toastbrot');assert.equal(rows[1].status,'missing');
