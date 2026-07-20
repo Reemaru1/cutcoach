@@ -1,0 +1,65 @@
+{
+  "version": "1.7.0-alpha",
+  "purpose": "Systematische Regression der produktiven Suchkette aus Parsing, Vollkatalog, Confidence, Portionsprofilen und lokalem Lernen.",
+  "classes": [
+    "correct",
+    "ambiguous",
+    "review",
+    "unknown",
+    "protected",
+    "incompatible"
+  ],
+  "cases": [
+    {"id":"quantity-skyr-banana","class":"correct","query":"250 g Skyr mit Banane","names":["Skyr Natur","Banane"],"statuses":["matched","matched"],"factors":[1,1]},
+    {"id":"decimal-liter-cola","class":"correct","query":"0,5 l Cola","names":["Cola"],"statuses":["matched"],"factors":[1.5151515152],"labels":["500 ml"]},
+    {"id":"natural-breakfast","class":"correct","query":"Zum Frühstück gab es heute 2 Eier und 1 Simit","names":["Ei","Simit"],"statuses":["matched","matched"],"factors":[2,1]},
+    {"id":"safe-typo-menemen","class":"correct","query":"Menemem","names":["Menemen"],"statuses":["matched"],"corrected":["Menemen"]},
+    {"id":"modifier-doner","class":"correct","query":"Döner ohne Soße","names":["Döner Kebab Kalb/Rind"],"statuses":["matched"],"modifiers":["Soße"]},
+    {"id":"incompatible-liquid-dish","class":"incompatible","query":"500 ml Menemen","names":["Menemen"],"statuses":["incompatible"]},
+
+    {"id":"slices-toast","class":"correct","query":"2 Scheiben Toast","names":["Toastbrot"],"statuses":["matched"],"factors":[2],"labelsRegex":["50 g"]},
+    {"id":"tablespoon-butter","class":"correct","query":"1 EL Butter","names":["Butter"],"statuses":["matched"],"factors":[1.5],"labelsRegex":["15 g"]},
+    {"id":"handful-oats","class":"correct","query":"1 Handvoll Haferflocken","names":["Haferflocken"],"statuses":["matched"],"factors":[0.6],"labelsRegex":["30 g"]},
+    {"id":"can-cola","class":"correct","query":"1 Dose Cola","names":["Cola"],"statuses":["matched"],"factors":[1],"labelsRegex":["330 ml"]},
+    {"id":"pieces-potato","class":"correct","query":"2 Stück Kartoffeln","names":["Kartoffel gegart"],"statuses":["matched"],"factors":[3],"labelsRegex":["300 g"]},
+    {"id":"portions-menemen","class":"correct","query":"2 Portionen Menemen","names":["Menemen"],"statuses":["matched"],"factors":[2],"labelsRegex":["700 g"]},
+    {"id":"unknown-glass-size","class":"review","query":"1 Glas Kombucha","names":["Kombucha"],"statuses":["review"],"factors":[2.5],"labelsRegex":["250 ml"]},
+    {"id":"unsafe-spoon-steak","class":"review","query":"1 EL Rindersteak","names":["Rindersteak, gegrillt"],"statuses":["review"],"labelsRegex":["Menge prüfen"]},
+    {"id":"item-household-measure","class":"correct","query":"1 EL Whey","names":["Whey Protein"],"statuses":["matched"],"factors":[0.4]},
+    {"id":"written-grams","class":"correct","query":"250 Gramm Skyr","names":["Skyr Natur"],"statuses":["matched"],"factors":[1]},
+    {"id":"written-milliliters","class":"correct","query":"500 Milliliter Cola","names":["Cola"],"statuses":["matched"],"factors":[1.5151515152]},
+    {"id":"kilogram-potatoes","class":"correct","query":"1 Kilogramm Kartoffeln","names":["Kartoffel gegart"],"statuses":["matched"],"factors":[10]},
+
+    {"id":"catalog-plural-compound","class":"correct","query":"200 g Kartoffeln und 100 g Lachs","names":["Kartoffel gegart","Lachsfilet gegart"],"statuses":["matched","matched"],"factors":[2,1]},
+    {"id":"ambiguous-steak-combination","class":"ambiguous","query":"250g Steak mit Eier","statuses":["ambiguous","matched"],"namesAt":[null,"Ei"]},
+    {"id":"tantuni-local-standard","class":"correct","query":"1 Tantuni","names":["Tantuni Dürüm"],"statuses":["matched"]},
+    {"id":"natural-toast-sucuk","class":"correct","query":"Hab 2 Scheiben Toast mit 50 g Sucuk gegessen","names":["Toastbrot","Sucuk"],"statuses":["matched","matched"],"factors":[2,1]},
+    {"id":"compound-sucuktoast","class":"correct","query":"Sucuktoast","names":["Sucuk","Toastbrot"],"statuses":["matched","matched"]},
+    {"id":"compound-cheesetoast","class":"correct","query":"Käsetoast","names":["Toastbrot","Käse"],"statuses":["matched","matched"]},
+    {"id":"compound-buttertoast","class":"correct","query":"Buttertoast","names":["Toastbrot","Butter"],"statuses":["matched","matched"]},
+    {"id":"connector-on","class":"correct","query":"Käse auf Toast","names":["Käse","Toastbrot"],"statuses":["matched","matched"]},
+    {"id":"connector-slash","class":"correct","query":"Naturjoghurt / Apfel","names":["Naturjoghurt","Apfel"],"statuses":["matched","matched"]},
+    {"id":"connector-and","class":"correct","query":"Milch und Haferflocken","names":["Milch 3,5 %","Haferflocken"],"statuses":["matched","matched"]},
+    {"id":"vegetable-pair","class":"correct","query":"Tomate und Gurke","names":["Tomate","Gurke"],"statuses":["matched","matched"]},
+    {"id":"cola-menemen","class":"correct","query":"Cola mit Menemen","names":["Cola","Menemen"],"statuses":["matched","matched"]},
+    {"id":"ayran-menemen","class":"correct","query":"Ayran mit Menemen","names":["Ayran","Menemen"],"statuses":["matched","matched"]},
+    {"id":"partial-unknown","class":"unknown","query":"Toast mit Quantenbrot","namesAt":["Toastbrot",null],"statuses":["matched","missing"]},
+
+    {"id":"protected-menemen-sucuk","class":"protected","query":"Menemen mit Sucuk","length":0},
+    {"id":"protected-pasta","class":"protected","query":"Nudeln mit Tomatensauce","length":0},
+    {"id":"protected-goezleme","class":"protected","query":"Gözleme mit Spinat und Käse","length":0},
+    {"id":"protected-cola-zero","class":"protected","query":"Cola ohne Zucker","length":0},
+
+    {"id":"unknown-single","class":"unknown","query":"Quantenbrot","length":0},
+    {"id":"unknown-nonsense","class":"unknown","query":"Xylophonauflauf","length":0},
+    {"id":"unknown-second-part","class":"unknown","query":"Banane und Xylophonauflauf","namesAt":["Banane",null],"statuses":["matched","missing"]},
+    {"id":"typo-review-oats","class":"review","query":"Haferflaken","names":["Haferflocken"],"statuses":["review"]},
+
+    {"id":"exact-milkrice-not-milk","class":"correct","query":"300 g Milchreis","ids":["dish-milchreis"],"statuses":["matched"],"factors":[1],"notIds":["milk"]},
+    {"id":"exact-butter-cookie-not-butter","class":"correct","query":"10 g Butterkeks","ids":["food-butterkeks"],"statuses":["matched"],"factors":[1],"notIds":["butter"]},
+    {"id":"exact-watermelon","class":"correct","query":"100 g Wassermelone","ids":["food-watermelon"],"statuses":["matched"],"factors":[1]},
+    {"id":"exact-honeydew","class":"correct","query":"100 g Honigmelone","ids":["food-honeydew"],"statuses":["matched"],"factors":[1]},
+    {"id":"personal-skyr-priority","class":"correct","query":"250 g Skyr","ids":["personal-skyr"],"statuses":["matched"],"factors":[0.5]},
+    {"id":"same-name-pudding","class":"ambiguous","query":"1 Protein Pudding","statuses":["ambiguous"]}
+  ]
+}

@@ -115,7 +115,7 @@ const inject=(window,source)=>{const script=window.document.createElement('scrip
   host.querySelector('[data-confidence-choice]').dispatchEvent(new c.MouseEvent('click',{bubbles:true}));await Promise.resolve();host=c.document.querySelector('#nutritionMultiSearch');assert.equal(host._canonicalRows[0].status,'matched','Eigene Auswahl springt durch den Lern-Refresh sofort zurück auf mehrdeutig.');
   choiceDom.window.close();
 
-  assert.match(loader,/nutrition-search-learning-v161\.js\?v=1\.6\.1-alpha/);assert.match(loader,/nutrition-search-confidence-hardening-v151\.js\?v=1\.6\.1-alpha/);assert.match(loader,/nutrition-multisearch-120\.js\?v=1\.6\.1-compat/);
-  assert.match(compatibility,/nutrition-search-learning-v161\.js\?v=1\.6\.1-alpha/);assert.match(manifest,/nutrition-search-learning-v161\.js\?v=1\.6\.1-alpha/);assert.doesNotMatch(manifest,/nutrition-search-learning-v160\.js/);assert.match(sw,/search160-learning/);assert.match(sw,/search161-hardening/);
-  console.log('Stufe 4 Hardening 1.6.1: Undo, Speicher, Modal, Reset, Tabs und Ranking geprüft.');
+  assert.match(loader,/nutrition-search-learning-v161\.js\?v=1\.6\.1-alpha/);assert.match(loader,/nutrition-search-exact-whole-v170\.js\?v=1\.7\.0-alpha/);assert.match(loader,/nutrition-search-confidence-hardening-v151\.js\?v=1\.6\.1-alpha/);assert.match(loader,/nutrition-multisearch-120\.js\?v=1\.7\.0-compat/);
+  assert.match(compatibility,/nutrition-search-learning-v161\.js\?v=1\.6\.1-alpha/);assert.match(compatibility,/nutrition-search-exact-whole-v170\.js\?v=1\.7\.0-alpha/);assert.match(manifest,/nutrition-search-learning-v161\.js\?v=1\.6\.1-alpha/);assert.match(manifest,/nutrition-search-exact-whole-v170\.js\?v=1\.7\.0-alpha/);assert.doesNotMatch(manifest,/nutrition-search-learning-v160\.js/);assert.match(sw,/search160-learning/);assert.match(sw,/search161-hardening/);assert.match(sw,/search170-exact-whole/);
+  console.log('Stufe 4 Hardening 1.6.1 bleibt unter Stufe-5-Vollnamenschutz 1.7.0 stabil.');
 })().catch(error=>{console.error(error);process.exitCode=1});
