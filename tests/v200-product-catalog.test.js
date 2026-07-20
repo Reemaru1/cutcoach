@@ -33,7 +33,7 @@ const products=catalog.items();
 assert.ok(products.every(item=>item.amount===100&&item.unit==='ml'),'Herstellerwerte verwenden nicht einheitlich die 100-ml-Basis.');
 assert.ok(products.every(item=>item.product&&item.verified&&!item.estimated&&item.source==='manufacturer'),'Produktmetadaten sind nicht eindeutig als verifiziert markiert.');
 assert.ok(products.every(item=>/^https:\/\//.test(item.sourceUrl)),'Mindestens einem Produkt fehlt die Herstellerquelle.');
-assert.ok(products.every(item=>!\/\b(?:250|330|500)\s*ml\b/i.test(item.name)),'Packungsgrößen wurden als unnötige Produktdubletten angelegt.');
+assert.ok(products.every(item=>!/(?:250|330|500)\s*ml/i.test(item.name)),'Packungsgrößen wurden als unnötige Produktdubletten angelegt.');
 
 const seen=new Map();
 for(const item of w.CutCoachFoodCatalog.items())for(const value of [item.name,...(item.aliases||[])]){
