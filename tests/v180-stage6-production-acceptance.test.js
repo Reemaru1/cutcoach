@@ -7,6 +7,8 @@ const root=path.resolve(__dirname,'..');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const inject=(window,source)=>{const script=window.document.createElement('script');script.textContent=source;window.document.head.append(script)};
 const tick=()=>new Promise(resolve=>queueMicrotask(resolve));
+const delay=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
+const ready=window=>window.document.readyState==='loading'?new Promise(resolve=>window.document.addEventListener('DOMContentLoaded',resolve,{once:true})):Promise.resolve();
 
 (async()=>{
   const stage6=read('nutrition-production-acceptance-v180.js');
@@ -55,7 +57,7 @@ const tick=()=>new Promise(resolve=>queueMicrotask(resolve));
   let voiceStops=0,scannerStops=0;
   w.CutCoachNutritionVoice111={stop:commit=>{assert.equal(commit,false);voiceStops++}};
   w.CutCoachScannerV2={stop:()=>{scannerStops++}};
-  inject(w,stage6);const api=w.CutCoachNutritionStage6;w.document.dispatchEvent(new w.Event('DOMContentLoaded'));inject(w,stage6);
+  inject(w,stage6);const api=w.CutCoachNutritionStage6;await ready(w);inject(w,stage6);
   assert.equal(w.CutCoachNutritionStage6,api,'Doppeltes Laden erzeugt eine zweite Stufe-6-Instanz.');
   assert.equal(api.version,'1.8.0-alpha');assert.equal(api.frozenArchitecture,true);assert.equal(input.maxLength,240);
 
@@ -70,7 +72,7 @@ const tick=()=>new Promise(resolve=>queueMicrotask(resolve));
   host.hidden=false;host.dataset.canonical='1';host.dataset.query='komposition';host.innerHTML='<b>Bleibt</b>';input.dispatchEvent(new w.CompositionEvent('compositionstart',{bubbles:true}));input.value='';input.dispatchEvent(new w.Event('input',{bubbles:true}));assert.match(host.innerHTML,/Bleibt/,'Während einer IME-Komposition wird die Oberfläche voreilig geleert.');input.dispatchEvent(new w.CompositionEvent('compositionend',{bubbles:true}));assert.equal(host.innerHTML,'');
 
   input.value='x'.repeat(400);input.dispatchEvent(new w.Event('input',{bubbles:true}));assert.equal(input.value.length,240,'Sehr lange Suchtexte werden nicht begrenzt.');
-  Object.defineProperty(w.document,'hidden',{configurable:true,value:true});w.document.dispatchEvent(new w.Event('visibilitychange'));assert.equal(voiceStops,1);assert.equal(scannerStops,1);
+  Object.defineProperty(w.document,'hidden',{configurable:true,value:true});w.document.dispatchEvent(new w.Event('visibilitychange'));assert.equal(voiceStops,1);assert.equal(scannerStops,1);await delay(120);
   dom.window.close();
 
   let recognitionInstance=null;
@@ -81,13 +83,13 @@ const tick=()=>new Promise(resolve=>queueMicrotask(resolve));
     abort(){this.onerror?.({error:'aborted'});this.onend?.()}
   }
   const voiceDom=new JSDOM('<!doctype html><body><button id="nutritionVoice"></button><input id="nutritionSearch" value="Alt"><div id="nutritionVoiceStatus"></div></body>',{url:'https://example.test/',runScripts:'dangerously',pretendToBeVisual:true});
-  const vw=voiceDom.window;vw.webkitSpeechRecognition=FakeRecognition;Object.defineProperty(vw.navigator,'onLine',{configurable:true,value:true});inject(vw,voice);const voiceApi=vw.CutCoachNutritionVoice111,voiceInput=vw.document.querySelector('#nutritionSearch');inject(vw,voice);assert.equal(vw.CutCoachNutritionVoice111,voiceApi);
+  const vw=voiceDom.window;vw.webkitSpeechRecognition=FakeRecognition;Object.defineProperty(vw.navigator,'onLine',{configurable:true,value:true});inject(vw,voice);await ready(vw);const voiceApi=vw.CutCoachNutritionVoice111,voiceInput=vw.document.querySelector('#nutritionSearch');inject(vw,voice);assert.equal(vw.CutCoachNutritionVoice111,voiceApi);
   assert.equal(voiceApi.start(),true);const interim=[{transcript:'Banane'}];interim.isFinal=false;recognitionInstance.onresult({resultIndex:0,results:[interim]});assert.equal(voiceInput.value,'Banane');assert.equal(voiceInput.dataset.voicePreview,'1');voiceApi.stop(false);assert.equal(voiceInput.value,'Alt','Abgebrochene Spracheingabe lässt den Vorschautext zurück.');assert.equal(voiceInput.dataset.voicePreview,undefined);
-  let committedInputs=0;voiceInput.addEventListener('input',()=>committedInputs++);assert.equal(voiceApi.start(),true);const final=[{transcript:'Skyr'}];final.isFinal=true;recognitionInstance.onresult({resultIndex:0,results:[final]});voiceApi.stop(true);assert.equal(voiceInput.value,'Skyr');assert.equal(committedInputs,1);
+  let committedInputs=0;voiceInput.addEventListener('input',()=>committedInputs++);assert.equal(voiceApi.start(),true);const final=[{transcript:'Skyr'}];final.isFinal=true;recognitionInstance.onresult({resultIndex:0,results:[final]});voiceApi.stop(true);assert.equal(voiceInput.value,'Skyr');assert.equal(committedInputs,1);await delay(2700);
   voiceDom.window.close();
 
   const scannerDom=new JSDOM('<!doctype html><body><button id="scanCode"></button><div id="scannerModal"></div><div class="scanner-frame"></div><div id="scannerStatus"></div><input id="manualCode"><button id="lookupManualCode"></button></body>',{url:'https://example.test/',runScripts:'dangerously',pretendToBeVisual:true});
-  const swindow=scannerDom.window;swindow.openModal=()=>{};Object.defineProperty(swindow.navigator,'onLine',{configurable:true,value:false});inject(swindow,scanner);const scannerApi=swindow.CutCoachScannerV2;inject(swindow,scanner);assert.equal(swindow.CutCoachScannerV2,scannerApi);const before=scannerApi.state().generation;await scannerApi.stop();assert.ok(scannerApi.state().generation>before);assert.equal(await scannerApi.start(),false);assert.match(swindow.document.querySelector('#scannerStatus').textContent,/offline gespeichert|Live-Kamera/);
+  const swindow=scannerDom.window;swindow.openModal=()=>{};Object.defineProperty(swindow.navigator,'onLine',{configurable:true,value:false});inject(swindow,scanner);await ready(swindow);const scannerApi=swindow.CutCoachScannerV2;inject(swindow,scanner);assert.equal(swindow.CutCoachScannerV2,scannerApi);const before=scannerApi.state().generation;await scannerApi.stop();assert.ok(scannerApi.state().generation>before);assert.equal(await scannerApi.start(),false);assert.match(swindow.document.querySelector('#scannerStatus').textContent,/offline gespeichert|Live-Kamera/);await delay(20);
   scannerDom.window.close();
 
   console.log('Stufe 6 Produktionsabnahme: Eingabe, Sprache, Scanner, Offline, Update und iPhone-Layout geprüft; Eintrags-/Undo-Punkt bewusst ausgeschlossen.');
