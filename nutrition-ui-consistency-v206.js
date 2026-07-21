@@ -39,12 +39,13 @@
     return count;
   }
 
+  function hideSourceNode(node){if(!node)return;node.classList.add('cc-bls-hidden-v206');node.setAttribute('aria-hidden','true')}
   function removeBlsPresentation(){
     const roots=[$('[data-screen="food"]'),$('#libraryScreen'),$('#nutritionDetailModal'),$('#libraryUseModal'),$('#recipeV7Modal')].filter(Boolean);
     for(const root of roots){
-      for(const badge of $$('.nutrition-source',root))if(/^\s*BLS(?:\s*4\.0)?\s*$/i.test(badge.textContent||''))badge.remove();
+      for(const badge of $$('.nutrition-source',root))if(/^\s*BLS(?:\s*4\.0)?\s*$/i.test(badge.textContent||''))hideSourceNode(badge);
       for(const node of $$('small',root)){const before=node.textContent||'',after=before.replace(/\s*·\s*BLS\s*4\.0/gi,'').replace(/BLS\s*4\.0\s*·\s*/gi,'').trim();if(after!==before.trim())node.textContent=after}
-      for(const node of $$('#recipeV7SearchResults button>span',root))if(/^\s*BLS\s*$/i.test(node.textContent||''))node.remove();
+      for(const node of $$('#recipeV7SearchResults button>span',root))if(/^\s*BLS\s*$/i.test(node.textContent||''))hideSourceNode(node);
     }
     const scope=$('#nutritionResultScope');if(scope&&/BLS/i.test(scope.textContent||''))scope.textContent='Bibliothek';
     const note=$('.nutrition-catalog-note');if(note&&!note.hidden){note.hidden=true;note.setAttribute('aria-hidden','true')}
@@ -59,7 +60,6 @@
   function updateAllCount(){const node=$('[data-filter-count="all"]');if(node){const value=fmt(uniqueAllCount());if(node.textContent!==value)node.textContent=value}}
   function currentHour(){const now=new Date();return now.getHours()+now.getMinutes()/60}
   function isTodayKey(key){try{return typeof todayKey==='function'&&key===todayKey()}catch{return false}}
-  function dayProgress(key){if(!isTodayKey(key))return 1;const hour=currentHour();if(hour<8)return .08;if(hour<11)return .18+(hour-8)*.06;if(hour<14)return .36+(hour-11)*.09;if(hour<18)return .63+(hour-14)*.065;if(hour<22)return .89+(hour-18)*.0275;return 1}
   function waterPace(key){if(!isTodayKey(key))return key&&typeof todayKey==='function'&&key<todayKey()?3000:0;return Math.round(clamp((currentHour()-7)/15,.08,1)*3000/250)*250}
   function recommendedMealType(){const hour=currentHour();return hour<10.5?'Frühstück':hour<15?'Mittagessen':hour<20.5?'Abendessen':'Snack'}
 
