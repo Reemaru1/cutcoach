@@ -42,7 +42,7 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const view=api.snapshot();assert.equal(view.total.protein,160);assert.equal(view.goals.protein,200);assert.equal(view.macro.protein.remaining,40);assert.equal(view.macro.protein.over,0);
   assert.equal(api.uniqueAllCount(),2,'Favorisieren oder zuletzt nutzen darf den Gesamtbestand nicht reduzieren.');
   assert.equal(w.document.querySelector('[data-filter-count="all"]').textContent,'2');
-  assert.equal(w.document.querySelector('.nutrition-source'),null,'Sichtbares BLS-Badge wurde nicht entfernt.');
+  const badge=w.document.querySelector('.nutrition-source');assert.ok(badge,'BLS-Badge soll intern bestehen bleiben, damit keine Render-Schleife entsteht.');assert.ok(badge.classList.contains('cc-bls-hidden-v206'));assert.equal(badge.getAttribute('aria-hidden'),'true');
   assert.equal(w.document.querySelector('#nutritionResultScope').textContent,'Bibliothek');
   assert.equal(w.document.querySelector('.nutrition-catalog-note').hidden,true);
   assert.equal(w.document.querySelector('#nutritionDetailSource').hidden,true);
@@ -58,7 +58,7 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   assert.match(w.document.querySelector('#coachV71FocusReason').textContent,/40 g bis zum Tagesziel/);
 
   const css=read('nutrition-ui-consistency-v206.css'),runtime=read('runtime-manifest.js'),sw=read('sw.js'),pkg=JSON.parse(read('package.json'));
-  assert.match(css,/\.cc-close-v206/);assert.match(css,/border-radius:50%/);assert.doesNotMatch(css,/linear-gradient/);
+  assert.match(css,/\.cc-close-v206/);assert.match(css,/border-radius:50%/);assert.match(css,/\.cc-bls-hidden-v206/);assert.doesNotMatch(css,/linear-gradient/);
   assert.ok(runtime.includes('nutrition-ui-consistency-v206.css?v=2.0.6-alpha'));assert.ok(runtime.includes('nutrition-ui-consistency-v206.js?v=2.0.6-alpha'));
   assert.ok(sw.includes('nutrition206-math-ui'));assert.match(pkg.scripts.test,/v206-nutrition-math-ui\.test\.js/);
   dom.window.close();console.log('Ernährungswerte 2.0.6: BLS-UI entfernt, Gesamtzähler stabil, Makrolücken zentral berechnet und Modalsteuerung vereinheitlicht.');
