@@ -59,7 +59,7 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
   const css=read('nutrition-ui-consistency-v206.css'),runtime=read('runtime-manifest.js'),sw=read('sw.js'),pkg=JSON.parse(read('package.json'));
   assert.match(css,/\.cc-close-v206/);assert.match(css,/border-radius:50%/);assert.match(css,/\.cc-bls-hidden-v206/);assert.doesNotMatch(css,/linear-gradient/);
-  assert.ok(runtime.includes('nutrition-ui-consistency-v206.css?v=2.0.6-alpha'));assert.ok(runtime.includes('nutrition-ui-consistency-v206.js?v=2.0.6-alpha'));
+  assert.ok(runtime.includes('nutrition-ui-consistency-v206.css?v=2.0.8-loader'));assert.ok(runtime.includes('nutrition-ui-consistency-v206.js?v=2.0.8-loader'));
   assert.ok(sw.includes('nutrition206-math-ui'));assert.match(pkg.scripts.test,/v206-nutrition-math-ui\.test\.js/);
-  dom.window.close();console.log('Ernährungswerte 2.0.6: BLS-UI entfernt, Gesamtzähler stabil, Makrolücken zentral berechnet und Modalsteuerung vereinheitlicht.');
-})().catch(error=>{console.error(error);process.exitCode=1});
+  dom.window.close();console.log('Ernährungswerte 2.0.8: BLS-UI entfernt, Gesamtzähler stabil, Makrolücken zentral berechnet, Modalsteuerung vereinheitlicht und produktiv geladen.');
+})().catch(error=>{console.error(error);process.exit(1)});

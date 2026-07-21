@@ -21,6 +21,7 @@ const dom=new JSDOM(`<!doctype html><body><nav aria-label="Hauptnavigation"><but
   pretendToBeVisual:true
 });
 const {window}=dom;
+window.CutCoachNutritionMath206=Object.freeze({version:'test-stub'});
 const script=window.document.createElement('script');
 script.textContent=glass;
 window.document.head.append(script);
@@ -62,11 +63,11 @@ assert.ok(loader.includes("glass-nav-v131.css?v=1.3.6-alpha"),'Versionsloader l�
 assert.match(loader,/link\.addEventListener\('load',load,[\s\S]*document\.head\.append\(link\)/,'Navigation wird nicht erst nach geladener CSS-Datei gestartet.');
 assert.ok(runtime.includes("version:'1.2.7-alpha'"),'Runtime-Manifest verwendet nicht die aktuelle Generation.');
 assert.ok(runtime.includes("journal-live-nav-v127.js?v=1.3.2-alpha"),'Runtime-Manifest enthält nicht die reparierte Live-Navigation.');
-assert.ok(runtime.includes("glass-nav-v131.js?v=1.3.2-alpha"),'Runtime-Manifest enthält nicht die reparierte Glasnavigation.');
+assert.ok(runtime.includes("glass-nav-v131.js?v=1.3.3-alpha"),'Runtime-Manifest enthält nicht den produktiven UI-Loader.');
 assert.ok(runtime.includes("glass-nav-v131.css?v=1.3.6-alpha"),'Runtime-Manifest enthält nicht das Instagram-Dock.');
 assert.ok(sw.includes("runtime-manifest.js?v=1.2.7-alpha"),'Service Worker lädt nicht das aktuelle Runtime-Manifest.');
 assert.ok(sw.includes('-nav136-journal137-nutrition138-dishes140`'),'Service Worker verwendet nicht die aktuelle Navigation-, Tagebuch-, Ernährungs- und Gerichte-Cachegeneration.');
 assert.ok(sw.includes('search196-article-sequence'),'Navigationstest sieht die aktuelle Such-Cachegeneration nicht.');
 
- dom.window.close();
-console.log('Flackerfreies Instagram-Dock mit grünem Plusbutton unter Runtime 1.2.7 geprüft.');
+dom.window.close();
+console.log('Flackerfreies Instagram-Dock mit grünem Plusbutton und produktivem UI-Loader unter Runtime 1.2.7 geprüft.');
