@@ -1,5 +1,5 @@
 'use strict';
-importScripts('./runtime-manifest.js?v=1.2.8-loader');
+importScripts('./runtime-manifest.js?v=1.2.7-alpha');
 const RUNTIME=self.CUTCOACH_RUNTIME;
 const CACHE_PREFIX='cutcoach-';
 const CACHE_BASE=`cutcoach-v${RUNTIME.version}-nav136-journal137-nutrition138-dishes140`;
@@ -24,7 +24,8 @@ const NUTRITION_CACHE=`${PRODUCT_CACHE}-nutrition201-stability`;
 const INTENT_CACHE=`${NUTRITION_CACHE}-search202-spoken-intent`;
 const VOICE_CACHE=`${INTENT_CACHE}-voice203-direct-permission-nutrition204-runtime-hardening-nutrition205-a-z-hardening-nutrition206-math-ui-ui207-liquid-glass`;
 const CACHE_NAME=`${VOICE_CACHE}-energy143-ui208-production-loader`;
-const APP_SHELL=['./','./index.html','./runtime-manifest.js?v=1.2.8-loader',...RUNTIME.baseAssets,...RUNTIME.styles,...RUNTIME.scripts,'./update.html'];
+const PRODUCTION_UI_ASSETS=Object.freeze(['./glass-nav-v131.js?v=1.3.3-alpha','./nutrition-ui-consistency-v206.css?v=2.0.8-loader','./nutrition-ui-consistency-v206.js?v=2.0.8-loader','./liquid-glass-ui-v207.css?v=2.0.8-loader']);
+const APP_SHELL=['./','./index.html','./runtime-manifest.js?v=1.2.7-alpha',...RUNTIME.baseAssets,...RUNTIME.styles,...RUNTIME.scripts,...PRODUCTION_UI_ASSETS,'./update.html'];
 const EXTERNAL_ASSETS=Object.freeze(['https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js']);
 const NAVIGATION_TIMEOUT_MS=4500,ASSET_TIMEOUT_MS=6500;
 function fetchWithTimeout(request,options={},timeout=ASSET_TIMEOUT_MS){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);return fetch(request,{...options,signal:controller.signal}).finally(()=>clearTimeout(timer))}
