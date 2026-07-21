@@ -1,9 +1,9 @@
 'use strict';
 (function(){
-  const VERSION='1.8.0-alpha';
+  const VERSION='1.8.1-alpha';
   const LIBRARY_WAIT_MS=5000;
   if(window.CutCoachScannerV2)return;
-  let scanner=null,scanning=false,starting=false,activeTrack=null,handled=false,generation=0,uiObserver=null;
+  let scanner=null,scanning=false,starting=false,activeTrack=null,handled=false,generation=0,uiObserver=null,libraryBridged=false;
   const $=selector=>document.querySelector(selector);
   const wait=milliseconds=>new Promise(resolve=>setTimeout(resolve,milliseconds));
   function setStatus(text,type='info'){const node=$('#scannerStatus');if(!node)return;node.textContent=text;node.dataset.state=type}
@@ -13,62 +13,41 @@
       .scanner-frame{min-height:280px;aspect-ratio:auto!important}.scanner-reader{width:100%;min-height:280px;overflow:hidden;background:#050810}.scanner-reader video{width:100%!important;height:100%!important;min-height:280px;object-fit:cover!important}.scanner-reader canvas{max-width:100%;max-height:100%}.scanner-reader>div{border:0!important}.scanner-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}.scanner-controls button{padding:10px!important;font-size:12px}.scanner-photo{display:block;text-align:center;margin-top:8px}.scanner-photo input{display:none}#scannerStatus[data-state="success"]{border-color:rgba(114,227,166,.55);background:rgba(114,227,166,.12);color:#a9f4ca}#scannerStatus[data-state="error"]{border-color:rgba(255,112,126,.45);background:rgba(255,112,126,.1)}.scanner-frame .scan-line{pointer-events:none;z-index:8}`;document.head.append(style)
   }
   function ensureFrame(){const frame=$('.scanner-frame');if(!frame)return null;frame.innerHTML='<div id="scannerReader" class="scanner-reader"></div><div class="scan-line"></div>';return frame}
-  function ensureControls(){
-    const status=$('#scannerStatus');if(!status||$('#scannerControls'))return Boolean(status);
-    status.insertAdjacentHTML('afterend','<div id="scannerControls" class="scanner-controls"><button id="scannerRetry" class="secondary" type="button">↻ Kamera neu starten</button><button id="scannerTorch" class="secondary" type="button" hidden>💡 Licht</button></div><label class="secondary scanner-photo">📷 Barcode fotografieren<input id="scanPhotoV2" type="file" accept="image/*" capture="environment"></label>');return true
-  }
-  function prepareUi(){const ready=Boolean($('#scanCode'));if(!ready)return false;injectStyles();ensureControls();return true}
-  async function waitForLibrary(token){
-    const started=Date.now();while(token===generation&&typeof window.Html5Qrcode!=='function'&&Date.now()-started<LIBRARY_WAIT_MS){if(navigator.onLine===false)break;await wait(100)}
-    if(token!==generation)throw new Error('cancelled');
-    if(typeof window.Html5Qrcode!=='function')throw new Error(navigator.onLine===false?'offline-library':'missing-library');
-  }
+  function ensureControls(){const status=$('#scannerStatus');if(!status||$('#scannerControls'))return Boolean(status);status.insertAdjacentHTML('afterend','<div id="scannerControls" class="scanner-controls"><button id="scannerRetry" class="secondary" type="button">↻ Kamera neu starten</button><button id="scannerTorch" class="secondary" type="button" hidden>💡 Licht</button></div><label class="secondary scanner-photo">📷 Barcode fotografieren<input id="scanPhotoV2" type="file" accept="image/*" capture="environment"></label>');return true}
+  function installLibraryBridge(){const library=window.CutCoachLibrary;if(!library)return false;if(library.startScanner!==startScanner)library.startScanner=startScanner;libraryBridged=true;return true}
+  function prepareUi(){installLibraryBridge();const ready=Boolean($('#scanCode'));if(!ready)return false;injectStyles();ensureControls();return true}
+  async function waitForLibrary(token){const started=Date.now();while(token===generation&&typeof window.Html5Qrcode!=='function'&&Date.now()-started<LIBRARY_WAIT_MS){if(navigator.onLine===false)break;await wait(100)}if(token!==generation)throw new Error('cancelled');if(typeof window.Html5Qrcode!=='function')throw new Error(navigator.onLine===false?'offline-library':'missing-library')}
   function supportedFormats(){const formats=window.Html5QrcodeSupportedFormats;if(typeof formats!=='object')return undefined;return[formats.QR_CODE,formats.EAN_13,formats.EAN_8,formats.UPC_A,formats.UPC_E,formats.CODE_128,formats.CODE_39].filter(Number.isFinite)}
   function newScanner(){return new window.Html5Qrcode('scannerReader',supportedFormats(),false)}
   async function chooseBackCamera(){const cameras=await window.Html5Qrcode.getCameras();if(!Array.isArray(cameras)||!cameras.length)throw new Error('no-camera');return cameras.find(camera=>/back|rear|environment|rück|hinten/i.test(camera.label))||cameras[cameras.length-1]}
-  async function releaseScanner(){
-    const current=scanner,track=activeTrack;scanner=null;activeTrack=null;scanning=false;starting=false;
-    if(current){try{await current.stop()}catch{}try{current.clear()}catch{}}
-    try{track?.stop?.()}catch{}
-    const torch=$('#scannerTorch');if(torch){torch.hidden=true;torch.dataset.on='false';torch.textContent='💡 Licht'}
-  }
+  async function releaseScanner(){const current=scanner,track=activeTrack;scanner=null;activeTrack=null;scanning=false;starting=false;if(current){try{await current.stop()}catch{}try{current.clear()}catch{}}try{track?.stop?.()}catch{}const torch=$('#scannerTorch');if(torch){torch.hidden=true;torch.dataset.on='false';torch.textContent='💡 Licht'}}
   async function stopScanner(){generation++;handled=false;await releaseScanner();return true}
   async function startScanner(){
-    window.openModal?.('scannerModal');prepareUi();ensureControls();const token=++generation;handled=false;starting=true;await releaseScanner();if(token!==generation)return false;ensureFrame();
+    window.openModal?.('scannerModal');prepareUi();ensureControls();const token=++generation;handled=false;await releaseScanner();if(token!==generation)return false;starting=true;ensureFrame();
     try{
       setStatus(navigator.onLine===false?'Offline-Scanner wird vorbereitet …':'Kamera wird vorbereitet …');
       await waitForLibrary(token);if(token!==generation)return false;
       scanner=newScanner();const camera=await chooseBackCamera();if(token!==generation){await releaseScanner();return false}
       const config={fps:18,qrbox:(width,height)=>({width:Math.floor(Math.min(width*.92,420)),height:Math.floor(Math.min(height*.46,190))}),aspectRatio:1.6,disableFlip:true,experimentalFeatures:{useBarCodeDetectorIfSupported:true}};
-      starting=false;scanning=true;await scanner.start(camera.id,config,text=>onDecoded(text,token),()=>{});if(token!==generation){await releaseScanner();return false}
-      activeTrack=$('#scannerReader video')?.srcObject?.getVideoTracks?.()[0]||null;configureCapabilities();setStatus('Live-Scan aktiv: Barcode quer, ruhig und gut beleuchtet in den Rahmen halten.');return true
-    }catch(error){
-      if(token!==generation||error?.message==='cancelled')return false;console.warn('Scanner 2.0 start failed',error);await releaseScanner();const message=error?.message==='offline-library'?'Scanner wurde auf diesem Gerät noch nicht offline gespeichert. Einmal mit Internet öffnen und danach erneut versuchen.':error?.message==='no-camera'?'Keine Kamera gefunden. Prüfe die Safari-Kamerafreigabe.':'Live-Kamera konnte nicht gestartet werden. Tippe auf „Kamera neu starten“ oder fotografiere den Barcode.';setStatus(message,'error');return false
-    }
+      await scanner.start(camera.id,config,text=>onDecoded(text,token),()=>{});if(token!==generation){await releaseScanner();return false}
+      starting=false;scanning=true;activeTrack=$('#scannerReader video')?.srcObject?.getVideoTracks?.()[0]||null;configureCapabilities();setStatus('Live-Scan aktiv: Barcode quer, ruhig und gut beleuchtet in den Rahmen halten.');return true
+    }catch(error){if(token!==generation||error?.message==='cancelled')return false;console.warn('Scanner 2.0 start failed',error);await releaseScanner();const message=error?.message==='offline-library'?'Scanner wurde auf diesem Gerät noch nicht offline gespeichert. Einmal mit Internet öffnen und danach erneut versuchen.':error?.message==='no-camera'?'Keine Kamera gefunden. Prüfe die Safari-Kamerafreigabe.':'Live-Kamera konnte nicht gestartet werden. Tippe auf „Kamera neu starten“ oder fotografiere den Barcode.';setStatus(message,'error');return false}
   }
   function configureCapabilities(){const button=$('#scannerTorch');if(!button)return;try{const capabilities=activeTrack?.getCapabilities?.()||{};button.hidden=!capabilities.torch;if(capabilities.zoom){const min=Number(capabilities.zoom.min)||1,max=Number(capabilities.zoom.max)||min,target=Math.min(max,Math.max(min,min+(max-min)*.35));activeTrack.applyConstraints({advanced:[{zoom:target}]}).catch(()=>{})}}catch{button.hidden=true}}
   async function toggleTorch(){if(!activeTrack)return false;const button=$('#scannerTorch'),enabled=button?.dataset.on==='true';try{await activeTrack.applyConstraints({advanced:[{torch:!enabled}]});button.dataset.on=String(!enabled);button.textContent=!enabled?'💡 Licht aus':'💡 Licht';return true}catch{setStatus('Die Taschenlampe wird von dieser Kamera nicht freigegeben.','error');return false}}
   async function onDecoded(decodedText,token=generation){if(token!==generation||handled)return;const code=String(decodedText||'').trim();if(!code)return;handled=true;setStatus(`Erkannt: ${code}`,'success');try{navigator.vibrate?.([70,40,70])}catch{}await releaseScanner();if(token!==generation)return;const input=$('#manualCode');if(input)input.value=code;setTimeout(()=>{if(token===generation)$('#lookupManualCode')?.click()},250)}
   async function scanPhoto(input){
     const file=input?.files?.[0];if(input)input.value='';if(!file)return false;const token=++generation;handled=false;await releaseScanner();ensureFrame();
-    try{
-      setStatus('Foto wird vorbereitet …');await waitForLibrary(token);const variants=[file,...await makeImageVariants(file)];
-      for(let index=0;index<variants.length&&token===generation;index++){
-        ensureFrame();scanner=newScanner();try{setStatus(`Foto wird geprüft (${index+1}/${variants.length}) …`);const result=await scanner.scanFile(variants[index],false);await onDecoded(result,token);return true}catch{}finally{try{scanner?.clear()}catch{}scanner=null}
-      }
-      if(token===generation)setStatus('Kein Barcode erkannt. Barcode möglichst formatfüllend, gerade und ohne Spiegelung fotografieren.','error');return false
-    }catch(error){if(token!==generation)return false;console.warn('Photo scan failed',error);setStatus(error?.message==='offline-library'?'Scanner wurde auf diesem Gerät noch nicht offline gespeichert.':'Foto konnte nicht verarbeitet werden. Bitte erneut aufnehmen oder Code manuell eingeben.','error');return false}
+    try{setStatus('Foto wird vorbereitet …');await waitForLibrary(token);const variants=[file,...await makeImageVariants(file)];for(let index=0;index<variants.length&&token===generation;index++){ensureFrame();scanner=newScanner();try{setStatus(`Foto wird geprüft (${index+1}/${variants.length}) …`);const result=await scanner.scanFile(variants[index],false);await onDecoded(result,token);return true}catch{}finally{try{scanner?.clear()}catch{}scanner=null}}if(token===generation)setStatus('Kein Barcode erkannt. Barcode möglichst formatfüllend, gerade und ohne Spiegelung fotografieren.','error');return false}catch(error){if(token!==generation)return false;console.warn('Photo scan failed',error);setStatus(error?.message==='offline-library'?'Scanner wurde auf diesem Gerät noch nicht offline gespeichert.':'Foto konnte nicht verarbeitet werden. Bitte erneut aufnehmen oder Code manuell eingeben.','error');return false}
   }
-  async function makeImageVariants(file){
-    if(typeof createImageBitmap!=='function')return[];const bitmap=await createImageBitmap(file);try{const maxSide=1800,scale=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height)),width=Math.max(1,Math.round(bitmap.width*scale)),height=Math.max(1,Math.round(bitmap.height*scale)),variants=[];variants.push(await canvasVariant(bitmap,width,height,0,0,bitmap.width,bitmap.height,false));variants.push(await canvasVariant(bitmap,width,height,0,0,bitmap.width,bitmap.height,true));const cropX=bitmap.width*.08,cropY=bitmap.height*.18,cropW=bitmap.width*.84,cropH=bitmap.height*.64;variants.push(await canvasVariant(bitmap,Math.round(width*.84),Math.round(height*.64),cropX,cropY,cropW,cropH,true));return variants}finally{bitmap.close?.()}
-  }
+  async function makeImageVariants(file){if(typeof createImageBitmap!=='function')return[];const bitmap=await createImageBitmap(file);try{const maxSide=1800,scale=Math.min(1,maxSide/Math.max(bitmap.width,bitmap.height)),width=Math.max(1,Math.round(bitmap.width*scale)),height=Math.max(1,Math.round(bitmap.height*scale)),variants=[];variants.push(await canvasVariant(bitmap,width,height,0,0,bitmap.width,bitmap.height,false));variants.push(await canvasVariant(bitmap,width,height,0,0,bitmap.width,bitmap.height,true));const cropX=bitmap.width*.08,cropY=bitmap.height*.18,cropW=bitmap.width*.84,cropH=bitmap.height*.64;variants.push(await canvasVariant(bitmap,Math.round(width*.84),Math.round(height*.64),cropX,cropY,cropW,cropH,true));return variants}finally{bitmap.close?.()}}
   function canvasVariant(bitmap,width,height,sx,sy,sw,sh,enhance){return new Promise((resolve,reject)=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const context=canvas.getContext('2d',{willReadFrequently:enhance});if(!context){reject(new Error('canvas-context'));return}context.drawImage(bitmap,sx,sy,sw,sh,0,0,width,height);if(enhance){const image=context.getImageData(0,0,width,height),data=image.data;for(let index=0;index<data.length;index+=4){const gray=.299*data[index]+.587*data[index+1]+.114*data[index+2],value=gray>145?255:gray<90?0:Math.max(0,Math.min(255,(gray-117)*2.2+128));data[index]=data[index+1]=data[index+2]=value}context.putImageData(image,0,0)}canvas.toBlob(blob=>blob?resolve(new File([blob],`barcode-${Date.now()}.jpg`,{type:'image/jpeg'})):reject(new Error('canvas-blob')),'image/jpeg',.96)})}
-  function init(){if(prepareUi())return;if(uiObserver)return;uiObserver=new MutationObserver(()=>{if(prepareUi()){uiObserver.disconnect();uiObserver=null}});uiObserver.observe(document.body||document.documentElement,{childList:true,subtree:true})}
-  document.addEventListener('click',event=>{const target=event.target.closest?.('#scanCode,#scannerRetry,#scannerTorch,[data-library-close]');if(!target)return;if(target.matches('#scanCode,#scannerRetry')){event.preventDefault();startScanner()}else if(target.id==='scannerTorch'){event.preventDefault();toggleTorch()}else stopScanner()},true);
+  function init(){installLibraryBridge();if(prepareUi())return;if(uiObserver)return;uiObserver=new MutationObserver(()=>{installLibraryBridge();if(prepareUi()){uiObserver.disconnect();uiObserver=null}});uiObserver.observe(document.body||document.documentElement,{childList:true,subtree:true})}
+  document.addEventListener('click',event=>{const target=event.target.closest?.('#scanCode,#scannerRetry,#scannerTorch,[data-library-close]');if(!target)return;if(target.matches('#scanCode,#scannerRetry')){event.preventDefault();event.stopImmediatePropagation();startScanner()}else if(target.id==='scannerTorch'){event.preventDefault();event.stopImmediatePropagation();toggleTorch()}else stopScanner()},true);
   document.addEventListener('click',event=>{if(event.target?.id==='scannerModal')stopScanner()},true);
   document.addEventListener('change',event=>{if(event.target?.id==='scanPhotoV2')scanPhoto(event.target)},true);
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')stopScanner()});
   window.addEventListener('pagehide',()=>stopScanner());
-  window.CutCoachScannerV2=Object.freeze({version:VERSION,start:startScanner,stop:stopScanner,state:()=>Object.freeze({scanning,starting,generation})});
+  window.CutCoachScannerV2=Object.freeze({version:VERSION,start:startScanner,stop:stopScanner,state:()=>Object.freeze({scanning,starting,generation,libraryBridged})});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
