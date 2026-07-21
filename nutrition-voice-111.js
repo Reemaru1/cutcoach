@@ -20,7 +20,7 @@
   }
   function updatePreview(text){const {input}=nodes(),value=normalize(text);if(!input||!value)return false;clearStaleResults();input.value=value;input.dataset.voicePreview='1';return true}
   function dispatchSearch(text){const {input}=nodes(),value=normalize(text);if(!input||!value)return false;input.value=value;delete input.dataset.voicePreview;let event;try{event=new InputEvent('input',{bubbles:true,inputType:'insertFromDictation',data:value})}catch{event=new Event('input',{bubbles:true})}input.dispatchEvent(event);input.dispatchEvent(new Event('change',{bubbles:true}));return true}
-  function restoreInitial(){const {input}=nodes();if(!input||(!sessionActive&&input.dataset.voicePreview!=='1'))return false;const value=initialValue;input.value=value;delete input.dataset.voicePreview;clearStaleResults();input.dataset.v192Bypass='1';input.dispatchEvent(new Event('input',{bubbles:true}));queueMicrotask(()=>delete input.dataset.v192Bypass);return true}
+  function restoreInitial(){const {input}=nodes();if(!input||(!sessionActive&&input.dataset.voicePreview!=='1'))return false;input.value=initialValue;delete input.dataset.voicePreview;clearStaleResults();try{window.CutCoachNutritionStability201?.refresh?.()}catch{}return true}
   function cleanup(next='idle'){clearTimer();recognition=null;commitOnEnd=true;sessionActive=false;finalText='';interimText='';initialValue='';setButton(next)}
   function fallback(message='Nutze die Diktierfunktion der iPhone-Tastatur.'){cleanup();const {input}=nodes();setStatus(message,'fallback');input?.focus({preventScroll:true});try{input?.setSelectionRange(input.value.length,input.value.length)}catch{}}
   function stop(commit=true){
