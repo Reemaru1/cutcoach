@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='1.9.3-alpha';
+  const VERSION='1.9.2-alpha';
   const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
   const MAX_TRANSCRIPT=240;
   if(window.CutCoachNutritionVoice111)return;
@@ -35,7 +35,7 @@
     instance.onend=()=>{if(token!==session)return;const shouldCommit=commitOnEnd,result=normalize(finalText||interimText);if(!shouldCommit){restoreInitial();cleanup();return}if(result){cleanup();dispatchSearch(result);setStatus(`Intelligente Suche nach „${result}“`,'success');input.focus({preventScroll:true});setTimeout(()=>{const status=$('#nutritionVoiceStatus');if(status?.dataset.voiceState==='success')status.hidden=true},2600)}else{restoreInitial();const elapsed=Date.now()-startedAt;cleanup();if(elapsed>400)setStatus('Keine Sprache erkannt. Tippe erneut oder nutze die Tastatur.','error')}};
     try{instance.start();return true}catch(error){console.warn('CutCoach voice start failed',error);restoreInitial();fallback('Spracheingabe ist gerade belegt. Kurz warten oder die iPhone-Diktierfunktion nutzen.');return false}
   }
-  function prepareButton(){const button=$('#nutritionVoice');if(!button||button.dataset.voice193)return false;button.dataset.voice193='1';button.setAttribute('aria-pressed','false');button.setAttribute('aria-busy','false');button.title='Lebensmittel per Sprache suchen';return true}
+  function prepareButton(){const button=$('#nutritionVoice');if(!button||button.dataset.voice192)return false;button.dataset.voice192='1';button.setAttribute('aria-pressed','false');button.setAttribute('aria-busy','false');button.title='Lebensmittel per Sprache suchen';return true}
   document.addEventListener('click',event=>{const button=event.target.closest?.('#nutritionVoice');if(!button)return;event.preventDefault();event.stopImmediatePropagation();begin()},true);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stop(false)});
   document.addEventListener('click',event=>{if(event.target.closest?.('#nutritionBack,#nutritionDone,nav [data-tab]'))stop(false)},true);
