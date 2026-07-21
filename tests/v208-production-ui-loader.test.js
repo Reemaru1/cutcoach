@@ -39,7 +39,7 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   assert.ok(legacy.compareDocumentPosition(liquid)&window.Node.DOCUMENT_POSITION_FOLLOWING,'Die Liquid-Glass-Regeln müssen nach dem alten Navigationsstil geladen werden.');
 
   const runtime=read('runtime-manifest.js'),sw=read('sw.js'),css=read('liquid-glass-ui-v207.css');
-  assert.match(runtime,/version:'1\.2\.8-alpha'/);
+  assert.match(runtime,/version:'1\.2\.7-alpha'/);
   assert.match(runtime,/glass-nav-v131\.js\?v=1\.3\.3-alpha/);
   assert.match(runtime,/liquid-glass-ui-v207\.css\?v=2\.0\.8-loader/);
   assert.match(runtime,/nutrition-ui-consistency-v206\.js\?v=2\.0\.8-loader/);
