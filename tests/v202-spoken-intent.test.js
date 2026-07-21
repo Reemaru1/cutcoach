@@ -33,23 +33,22 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   }
   {
     const dom=new JSDOM('<!doctype html><body><button id="nutritionVoice"></button><input id="nutritionSearch"><div id="nutritionVoiceStatus"></div></body>',{url:'https://reemaru1.github.io/cutcoach/',runScripts:'dangerously',pretendToBeVisual:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15'});
-    const w=dom.window;Object.defineProperty(w.navigator,'onLine',{configurable:true,value:true});Object.defineProperty(w.navigator,'permissions',{configurable:true,value:{query:async()=>({state:'prompt'})}});Object.defineProperty(w.navigator,'userAgent',{configurable:true,value:'Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X)'});
+    const w=dom.window;Object.defineProperty(w.navigator,'onLine',{configurable:true,value:true});let permissionQueries=0;Object.defineProperty(w.navigator,'permissions',{configurable:true,value:{query:async()=>{permissionQueries++;return{state:'prompt'}}}});
     let starts=0;class Recognition{start(){starts++;this.onstart?.()}stop(){this.onend?.()}abort(){}}
     w.webkitSpeechRecognition=Recognition;w.localStorage.setItem('cutcoach_voice_permission_granted_v1','1');inject(w,'nutrition-voice-111.js');
     assert.equal(w.CutCoachNutritionVoice111.version,'1.9.2-alpha');assert.equal(w.CutCoachNutritionVoice111.start(),true);await wait(20);
-    assert.equal(starts,0,'Wiederholte iOS-Browserabfrage wird trotz bekanntem Prompt-Zustand gestartet.');assert.match(w.document.querySelector('#nutritionVoiceStatus').textContent,/Website-Einstellungen/);assert.equal(w.document.activeElement.id,'nutritionSearch');
+    assert.equal(starts,1,'Der Mikrofonbutton startet die Browser-Spracherkennung nicht direkt.');assert.equal(permissionQueries,0,'CutCoach prüft weiterhin vorab die Safari-Berechtigung.');assert.equal(w.CutCoachNutritionVoice111.state(),'listening');assert.doesNotMatch(w.document.querySelector('#nutritionVoiceStatus').textContent,/Website-Einstellungen/);w.CutCoachNutritionVoice111.stop(false);
     dom.window.close();
   }
   {
     const dom=new JSDOM('<!doctype html><body><button id="nutritionVoice"></button><input id="nutritionSearch"><div id="nutritionVoiceStatus"></div></body>',{url:'https://reemaru1.github.io/cutcoach/',runScripts:'dangerously',pretendToBeVisual:true});
-    const w=dom.window;Object.defineProperty(w.navigator,'onLine',{configurable:true,value:true});Object.defineProperty(w.navigator,'permissions',{configurable:true,value:{query:async()=>({state:'granted'})}});Object.defineProperty(w.navigator,'userAgent',{configurable:true,value:'Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X)'});
-    let starts=0;class Recognition{start(){starts++;this.onstart?.()}stop(){this.onend?.()}abort(){}}
-    w.webkitSpeechRecognition=Recognition;w.localStorage.setItem('cutcoach_voice_permission_granted_v1','1');inject(w,'nutrition-voice-111.js');w.CutCoachNutritionVoice111.start();await wait(20);assert.equal(starts,1,'Dauerhaft erteilte Mikrofonfreigabe startet die Spracheingabe nicht.');assert.equal(w.CutCoachNutritionVoice111.state(),'listening');w.CutCoachNutritionVoice111.stop(false);dom.window.close();
+    const w=dom.window;Object.defineProperty(w.navigator,'onLine',{configurable:true,value:true});let starts=0;class Recognition{start(){starts++;this.onerror?.({error:'not-allowed'})}stop(){this.onend?.()}abort(){}}
+    w.webkitSpeechRecognition=Recognition;inject(w,'nutrition-voice-111.js');w.CutCoachNutritionVoice111.start();await wait(20);assert.equal(starts,1);assert.match(w.document.querySelector('#nutritionVoiceStatus').textContent,/nicht erlaubt/,'Abgelehnte iOS-Freigabe wird nicht verständlich gemeldet.');dom.window.close();
   }
   const loader=read('version-v7.js'),runtime=read('runtime-manifest.js'),sw=read('sw.js'),packageJson=JSON.parse(read('package.json'));
   assert.match(loader,/nutrition-voice-111\.js\?v=1\.9\.2-alpha/);assert.match(loader,/nutrition-spoken-intent-v202\.js\?v=2\.0\.2-alpha/);assert.match(loader,/CutCoachSpokenIntent202\?\.attach/);
   assert.ok(runtime.indexOf('nutrition-search-exact-whole-v170.js?v=1.9.6-alpha')<runtime.indexOf('nutrition-spoken-intent-v202.js?v=2.0.2-alpha'));
   assert.ok(runtime.indexOf('nutrition-spoken-intent-v202.js?v=2.0.2-alpha')<runtime.indexOf('nutrition-search-confidence-hardening-v151.js?v=1.9.0-alpha'));
-  assert.match(sw,/search202-spoken-intent/);assert.match(sw,/`\$\{INTENT_CACHE\}-energy143`/);assert.match(packageJson.scripts.test,/v202-spoken-intent\.test\.js/);
-  console.log('Sprachintention 2.0.2: Vierer-Satz, Semmel/Käse, Mengen und wiederholte iOS-Mikrofonabfrage geprüft.');
+  assert.match(sw,/search202-spoken-intent/);assert.match(sw,/voice203-direct-permission/);assert.match(sw,/`\$\{VOICE_CACHE\}-energy143`/);assert.match(packageJson.scripts.test,/v202-spoken-intent\.test\.js/);
+  console.log('Sprachintention 2.0.2: Vierer-Satz, Semmel/Käse, Mengen und direkte iOS-Mikrofonabfrage geprüft.');
 })().catch(error=>{console.error(error);process.exitCode=1});
