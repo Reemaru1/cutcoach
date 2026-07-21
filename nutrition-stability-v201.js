@@ -1,8 +1,9 @@
 'use strict';
 (function(global){
-  const VERSION='2.0.1-alpha';
+  const VERSION='2.0.4-alpha';
   const META_KEY='cutcoach_catalog_meta_v201';
   const ZERO_SENTINEL=.01;
+  const DUPLICATE_ADD_MS=700;
   if(global.CutCoachNutritionStability201)return;
   const $=(selector,scope=document)=>scope.querySelector(selector);
   const $$=(selector,scope=document)=>[...scope.querySelectorAll(selector)];
@@ -12,12 +13,15 @@
   const clone=value=>{try{return JSON.parse(JSON.stringify(value))}catch{return value}};
   const setText=(node,value)=>{const next=String(value??'');if(node&&node.textContent!==next){node.textContent=next;return true}return false};
   const setHtml=(node,value,signature='')=>{if(!node)return false;const key=signature||String(value);if(node.dataset.v201Signature===key)return false;node.dataset.v201Signature=key;node.innerHTML=value;return true};
-  const metrics={syncs:0,aliasRows:0,sourceDecorations:0,bulkBlocks:0,libraryPatches:0,zeroItems:0};
-  let root=null,rootObserver=null,bootstrapObserver=null,modalObserver=null,frame=0,libraryPatched=false,activeDetailId='',activeUseId='',catalogCache=null,catalogSignature='';
+  const metrics={syncs:0,aliasRows:0,sourceDecorations:0,bulkBlocks:0,duplicateBlocks:0,libraryPatches:0,zeroItems:0,metaWrites:0,rootRebinds:0};
+  const patchedLibraries=new WeakSet(),addLocks=new WeakMap();
+  let root=null,rootObserver=null,bootstrapObserver=null,modalObserver=null,detailNode=null,useNode=null,frame=0,patchedLibrary=null,activeDetailId='',activeUseId='',catalogCache=null,catalogSignature='',metaWriteQueued=false;
   let storedMeta=readMeta();
 
   function readMeta(){try{const value=JSON.parse(localStorage.getItem(META_KEY)||'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{}}catch{return{}}}
-  function persistMeta(){try{localStorage.setItem(META_KEY,JSON.stringify(storedMeta))}catch{}}
+  function flushMeta(){if(!metaWriteQueued)return;metaWriteQueued=false;try{localStorage.setItem(META_KEY,JSON.stringify(storedMeta));metrics.metaWrites++}catch{}}
+  function scheduleMetaPersist(){if(metaWriteQueued)return;metaWriteQueued=true;queueMicrotask(flushMeta)}
+  function sameMeta(left,right){if(!left||!right)return false;for(const key of ['id','source','sourceId','sourceVersion','sourceLabel','sourceUrl','brand','market','verifiedAt','product','derived','estimated','verified','zeroCalories'])if(left[key]!==right[key])return false;const a=Array.isArray(left.aliases)?left.aliases:[],b=Array.isArray(right.aliases)?right.aliases:[];return a.length===b.length&&a.every((value,index)=>value===b[index])}
   function catalogItems(){try{const items=global.CutCoachFoodCatalog?.items?.();return Array.isArray(items)?items:[]}catch{return[]}}
   function sourceKey(item){return item?.sourceId?`${item.source||'user'}:${item.sourceId}`:''}
   function isExplicitZero(item){return item&&item.calories!==''&&item.calories!==null&&item.calories!==undefined&&Number(item.calories)===0}
@@ -25,7 +29,7 @@
   function captureMeta(item){
     if(!item?.id)return;const zeroCalories=Boolean(item.zeroCalories||isExplicitZero(item)),source=item.source||'user';if(source==='user'&&!zeroCalories)return;
     const metadata={id:String(item.id),source,sourceId:item.sourceId||'',sourceVersion:item.sourceVersion||'',sourceLabel:item.sourceLabel||'',sourceUrl:item.sourceUrl||'',brand:item.brand||'',market:item.market||'',verifiedAt:item.verifiedAt||'',product:Boolean(item.product),derived:Boolean(item.derived),estimated:Boolean(item.estimated),verified:Boolean(item.verified),zeroCalories,aliases:Array.isArray(item.aliases)?item.aliases.slice(0,40):[]};
-    const previous=storedMeta[metadata.id];storedMeta[metadata.id]={...(previous||{}),...metadata};if(zeroCalories&&!previous?.zeroCalories)metrics.zeroItems++;persistMeta();
+    const previous=storedMeta[metadata.id],next={...(previous||{}),...metadata};if(sameMeta(previous,next))return;storedMeta[metadata.id]=next;if(zeroCalories&&!previous?.zeroCalories)metrics.zeroItems++;scheduleMetaPersist();
   }
   function buildCatalogIndex(){
     const items=catalogItems(),signature=`${items.length}:${global.CutCoachFoodCatalog?.meta?.productVersion||''}:${global.CutCoachFoodCatalog?.meta?.catalogExpansionVersion||''}:${global.CutCoachFoodCatalog?.meta?.everydayVersion||''}`;
@@ -48,7 +52,7 @@
   function resolveItem(id){return personalItems().find(item=>String(item.id)===String(id))||buildCatalogIndex().byId.get(String(id))||null}
 
   function patchLibrary(){
-    const library=global.CutCoachLibrary;if(!library||libraryPatched)return Boolean(libraryPatched);libraryPatched=true;metrics.libraryPatches++;
+    const library=global.CutCoachLibrary;if(!library)return false;if(library===patchedLibrary||patchedLibraries.has(library)){patchedLibrary=library;return true}patchedLibraries.add(library);patchedLibrary=library;metrics.libraryPatches++;
     const originalExport=library.exportData?.bind(library),originalImport=library.importData?.bind(library),originalAddCatalog=library.addCatalogItemToDay?.bind(library),originalOpenCatalog=library.openCatalogUse?.bind(library),originalOpenUse=library.openUse?.bind(library),originalRender=library.render?.bind(library);
     if(originalExport)library.exportData=()=>{const data=originalExport();return data&&Array.isArray(data.items)?{...data,items:data.items.map(hydrateItem)}:data};
     if(originalImport)library.importData=raw=>{const prepared=clone(raw);if(Array.isArray(prepared?.items))prepared.items=prepared.items.map(item=>{captureMeta(item);return prepareForLegacyLibrary(item)});const result=originalImport(prepared);queue();return result};
@@ -73,15 +77,18 @@
   function decorateDetail(){const modal=$('#nutritionDetailModal');if(!modal?.classList.contains('open')&&!modal?.classList.contains('active'))return;const item=resolveItem(activeDetailId);if(!item||item.source==='user')return;const node=$('#nutritionDetailSource');if(!node)return;const coverage=['fiber','sugar','saturatedFat','salt'].filter(key=>item[key]!==null&&item[key]!==undefined).length,html=`<span>${escapeHtml(sourceLabel(item))}</span><small>Basis ${fmt(item.amount,Number(item.amount)%1?1:0)} ${escapeHtml(item.unit||'g')} · ${coverage}/4 Zusatzwerte vorhanden${item.modified?' · lokal angepasst':''}</small>`;node.dataset.source=item.source;setHtml(node,html,`${item.id}|${item.amount}|${item.unit}|${coverage}|${item.modified}|${sourceLabel(item)}`)}
   function decorateUse(){const item=resolveItem(activeUseId);if(!item||item.source==='user')return;const summary=$('#libraryUseSummary small'),text=`Basis: ${fmt(item.amount,Number(item.amount)%1?1:0)} ${item.unit||'g'} · ${sourceLabel(item)}${item.modified?' · angepasst':''}`;setText(summary,text)}
   function decorateLibrary(){for(const button of $$('#libraryList [data-use-lib]')){const item=resolveItem(button.dataset.useLib);if(!item)continue;const iconNode=button.querySelector('.library-icon'),nextIcon=icon(item);if(iconNode&&iconNode.textContent!==nextIcon)iconNode.textContent=nextIcon;const small=button.querySelector('small'),label=sourceLabel(item);if(small&&item.source!=='user'&&!small.textContent.includes(label))small.textContent=`${small.textContent.replace(/ · (?:BLS 4\.0|Open Food Facts|Herstellerangabe|CutCoach Standard[^·]*)$/,'')} · ${label}`}}
-  function sync(){frame=0;patchLibrary();metrics.syncs++;if(root?.isConnected){syncAliasRows();decorateResultRows();decorateCounts()}decorateDetail();decorateUse();decorateLibrary()}
+  function sync(){frame=0;ensureRoot();patchLibrary();metrics.syncs++;if(root?.isConnected){syncAliasRows();decorateResultRows();decorateCounts()}decorateDetail();decorateUse();decorateLibrary()}
   function queue(){if(frame)return;frame=requestAnimationFrame(sync)}
-  function startRoot(node){root=node;rootObserver?.disconnect();rootObserver=new MutationObserver(records=>{if(records.some(record=>record.addedNodes.length||record.removedNodes.length))queue()});rootObserver.observe(root,{childList:true,subtree:true});queue()}
-  function watchModals(){const detail=$('#nutritionDetailModal'),use=$('#libraryUseModal');if(!detail&&!use)return false;modalObserver?.disconnect();modalObserver=new MutationObserver(queue);if(detail)modalObserver.observe(detail,{childList:true,subtree:true,attributes:true,attributeFilter:['class','aria-hidden']});if(use)modalObserver.observe(use,{childList:true,subtree:true,attributes:true,attributeFilter:['class','aria-hidden']});return true}
-  function boot(){patchLibrary();const node=document.querySelector('[data-screen="food"]');if(node)startRoot(node);if(!node||!watchModals()){bootstrapObserver=new MutationObserver(()=>{const found=document.querySelector('[data-screen="food"]');if(found&&!root)startRoot(found);if(found&&watchModals()){bootstrapObserver.disconnect();bootstrapObserver=null}});bootstrapObserver.observe(document.body||document.documentElement,{childList:true,subtree:true})}queue()}
+  function startRoot(node){if(!node||node===root&&rootObserver)return false;rootObserver?.disconnect();root=node;rootObserver=new MutationObserver(records=>{if(records.some(record=>record.addedNodes.length||record.removedNodes.length))queue()});rootObserver.observe(root,{childList:true,subtree:true});metrics.rootRebinds++;queue();return true}
+  function ensureRoot(){const found=document.querySelector('[data-screen="food"]');if(found&&found!==root)startRoot(found);else if(!found&&root&&!root.isConnected){rootObserver?.disconnect();rootObserver=null;root=null}return root}
+  function watchModals(){const detail=$('#nutritionDetailModal'),use=$('#libraryUseModal');if(detail===detailNode&&use===useNode&&modalObserver)return Boolean(detail||use);detailNode=detail;useNode=use;modalObserver?.disconnect();modalObserver=null;if(!detail&&!use)return false;modalObserver=new MutationObserver(queue);if(detail)modalObserver.observe(detail,{childList:true,subtree:true,attributes:true,attributeFilter:['class','aria-hidden']});if(use)modalObserver.observe(use,{childList:true,subtree:true,attributes:true,attributeFilter:['class','aria-hidden']});return true}
+  function observeShell(){if(bootstrapObserver)return;bootstrapObserver=new MutationObserver(()=>{ensureRoot();watchModals();queue()});bootstrapObserver.observe(document.body||document.documentElement,{childList:true,subtree:true})}
+  function boot(){patchLibrary();ensureRoot();watchModals();observeShell();queue()}
+  function blockDuplicateAdd(target,event){if(!target)return false;const at=performance.now?.()||Date.now(),last=addLocks.get(target)||0;if(target.disabled||target.getAttribute('aria-busy')==='true'||at-last<DUPLICATE_ADD_MS){event.preventDefault();event.stopImmediatePropagation();metrics.duplicateBlocks++;return true}addLocks.set(target,at);return false}
 
-  document.addEventListener('click',event=>{const detail=event.target.closest?.('[data-nutrition-open]');if(detail){activeDetailId=String(detail.dataset.nutritionOpen||'');queue()}const bulk=event.target.closest?.('[data-v192-all]');if(!bulk)return;const node=bulk.closest('#nutritionMultiSearch'),rows=(node?._v192Rows||[]).filter(row=>row?.status==='matched'&&row.item&&!row.incompatible),capacity=typeof global.mealCapacity==='function'?global.mealCapacity():rows.length;if(rows.length&&capacity<rows.length){event.preventDefault();event.stopImmediatePropagation();metrics.bulkBlocks++;global.toast?.(`Nicht genügend Platz: Noch ${fmt(capacity)} Einträge frei.`)}},true);
+  document.addEventListener('click',event=>{const target=event.target?.closest?.('[data-nutrition-open],[data-nutrition-add],[data-v192-add],[data-v192-all]');const detail=target?.matches?.('[data-nutrition-open]')?target:null;if(detail){activeDetailId=String(detail.dataset.nutritionOpen||'');queue()}const bulk=target?.matches?.('[data-v192-all]')?target:null;if(bulk){const node=bulk.closest('#nutritionMultiSearch'),rows=(node?._v192Rows||[]).filter(row=>row?.status==='matched'&&row.item&&!row.incompatible),capacity=typeof global.mealCapacity==='function'?global.mealCapacity():rows.length;if(rows.length&&capacity<rows.length){event.preventDefault();event.stopImmediatePropagation();metrics.bulkBlocks++;global.toast?.(`Nicht genügend Platz: Noch ${fmt(capacity)} Einträge frei.`);return}}const add=target?.matches?.('[data-nutrition-add],[data-v192-add],[data-v192-all]')?target:null;blockDuplicateAdd(add,event)},true);
   document.addEventListener('input',event=>{if(event.target?.id==='nutritionSearch'||event.target?.id==='nutritionDetailAmount'||event.target?.id==='libraryExactAmount')queue()},true);
-  window.addEventListener('cutcoach:librarychange',queue);window.addEventListener('cutcoach:catalog-updated',()=>{catalogCache=null;catalogSignature='';queue()});window.addEventListener('pageshow',queue);
+  window.addEventListener('cutcoach:librarychange',queue);window.addEventListener('cutcoach:catalog-updated',()=>{catalogCache=null;catalogSignature='';queue()});window.addEventListener('pageshow',()=>{ensureRoot();watchModals();queue()});window.addEventListener('pagehide',flushMeta);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
-  global.CutCoachNutritionStability201=Object.freeze({version:VERSION,zeroSentinel:ZERO_SENTINEL,refresh:queue,hydrateItem,aliasMatches,sourceLabel,snapshot:()=>Object.freeze({...metrics,libraryPatched,catalogSize:buildCatalogIndex().items.length})});
+  global.CutCoachNutritionStability201=Object.freeze({version:VERSION,zeroSentinel:ZERO_SENTINEL,duplicateAddMs:DUPLICATE_ADD_MS,refresh:queue,hydrateItem,aliasMatches,sourceLabel,snapshot:()=>Object.freeze({...metrics,libraryPatched:Boolean(patchedLibrary),catalogSize:buildCatalogIndex().items.length,rootConnected:Boolean(root?.isConnected),metaWriteQueued})});
 })(window);
