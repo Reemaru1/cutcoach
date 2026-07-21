@@ -1,8 +1,8 @@
 'use strict';
 (function(){
-  const VERSION='1.0.4 Alpha';
+  const VERSION='1.0.5 Alpha';
   const KEY='cutcoach_nutrition_analysis_collapsed_v1';
-  let scheduled=false,root=null,observer=null,bootstrapObserver=null,syncCount=0;
+  let scheduled=false,root=null,observer=null,bootstrapObserver=null,syncCount=0,rootRebinds=0;
   const $=(selector,scope=document)=>scope.querySelector(selector);
   const fmt=(value,digits=0)=>new Intl.NumberFormat('de-DE',{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(Math.max(0,Number(value)||0));
   const setText=(selector,value)=>{const node=$(selector,root),next=String(value??'');if(node&&node.textContent!==next)node.textContent=next};
@@ -19,10 +19,11 @@
   function enhanceAnalysis(){const analysis=ensureAnalysisShell(),head=analysis?.querySelector('.nutrition-v7-analysis-head');if(!analysis||!head)return;head.setAttribute('role','button');head.setAttribute('tabindex','0');let button=analysis.querySelector('.nutrition-v7-analysis-toggle');if(!button){button=document.createElement('span');button.className='nutrition-v7-analysis-toggle';button.setAttribute('aria-hidden','true');head.append(button);head.addEventListener('click',()=>toggle(analysis,head));head.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle(analysis,head)}})}analysis.classList.toggle('is-collapsed',stored());syncState(analysis,head);refreshFallbackValues()}
   function toggle(analysis,head){const collapsed=!analysis.classList.contains('is-collapsed');analysis.classList.toggle('is-collapsed',collapsed);persist(collapsed);syncState(analysis,head)}
   function syncState(analysis,head){const collapsed=analysis.classList.contains('is-collapsed'),expanded=String(!collapsed),label=collapsed?'Zusatzwerte anzeigen':'Zusatzwerte ausblenden';if(head.getAttribute('aria-expanded')!==expanded)head.setAttribute('aria-expanded',expanded);if(head.getAttribute('aria-label')!==label)head.setAttribute('aria-label',label)}
-  function sync(){scheduled=false;if(!root?.isConnected||!document.body.classList.contains('nutrition-mode'))return;syncCount++;removeRedundantText();normalizeMacroLabels();enhanceAnalysis()}
+  function sync(){scheduled=false;ensureRoot();if(!root?.isConnected||!document.body.classList.contains('nutrition-mode'))return;syncCount++;removeRedundantText();normalizeMacroLabels();enhanceAnalysis()}
   function queue(){if(scheduled)return;scheduled=true;requestAnimationFrame(sync)}
-  function start(node){root=node;observer?.disconnect();observer=new MutationObserver(records=>{if(records.some(record=>record.addedNodes.length||record.removedNodes.length))queue()});observer.observe(root,{childList:true,subtree:true});root.addEventListener('click',queue,{passive:true});queue()}
-  function boot(){const node=document.querySelector('[data-screen="food"]');if(node){start(node);return}bootstrapObserver=new MutationObserver(()=>{const found=document.querySelector('[data-screen="food"]');if(!found)return;bootstrapObserver.disconnect();bootstrapObserver=null;start(found)});bootstrapObserver.observe(document.body||document.documentElement,{childList:true,subtree:true})}
+  function start(node){if(!node||node===root&&observer)return false;observer?.disconnect();root=node;observer=new MutationObserver(records=>{if(records.some(record=>record.addedNodes.length||record.removedNodes.length))queue()});observer.observe(root,{childList:true,subtree:true});root.addEventListener('click',queue,{passive:true});rootRebinds++;queue();return true}
+  function ensureRoot(){const found=document.querySelector('[data-screen="food"]');if(found&&found!==root)start(found);else if(!found&&root&&!root.isConnected){observer?.disconnect();observer=null;root=null}return root}
+  function boot(){ensureRoot();if(!bootstrapObserver){bootstrapObserver=new MutationObserver(()=>{ensureRoot();queue()});bootstrapObserver.observe(document.body||document.documentElement,{childList:true,subtree:true})}queue()}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
-  window.CutCoachNutritionCleanup101=Object.freeze({version:VERSION,refresh:queue,snapshot:()=>Object.freeze({syncCount,scoped:Boolean(root),pending:scheduled})});
+  window.CutCoachNutritionCleanup101=Object.freeze({version:VERSION,refresh:queue,snapshot:()=>Object.freeze({syncCount,rootRebinds,scoped:Boolean(root),rootConnected:Boolean(root?.isConnected),pending:scheduled})});
 })();
