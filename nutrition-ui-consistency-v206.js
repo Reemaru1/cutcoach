@@ -49,7 +49,7 @@
     }
     const scope=$('#nutritionResultScope');if(scope&&/BLS/i.test(scope.textContent||''))scope.textContent='Bibliothek';
     const note=$('.nutrition-catalog-note');if(note&&!note.hidden){note.hidden=true;note.setAttribute('aria-hidden','true')}
-    const detail=$('#nutritionDetailSource');if(detail){const bls=/\bBLS(?:\s*4\.0)?\b/i.test(detail.textContent||'');if(detail.hidden!==bls)detail.hidden=bls;if(bls&&detail.textContent)detail.textContent=''}
+    const detail=$('#nutritionDetailSource');if(detail){const text=detail.textContent||'',bls=/\bBLS(?:\s*4\.0)?\b/i.test(text);if(bls){detail.dataset.v206Bls='1';detail.hidden=true;if(text)detail.textContent=''}else if(text.trim()){delete detail.dataset.v206Bls;detail.hidden=false}else if(detail.dataset.v206Bls==='1')detail.hidden=true}
   }
 
   function decorateCloseButtons(){
