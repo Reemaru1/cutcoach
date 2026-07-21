@@ -1,0 +1,260 @@
+/* CutCoach 2.0.7 – iOS-inspirierte Liquid-Glass-Navigation und ruhige Sheet-Steuerung */
+
+/* Die konkreten Modal-Buttons direkt überschreiben, damit die globale Primärbutton-Regel nicht mehr greift. */
+#journalMacroClose,
+#journalSummaryClose,
+#nutritionDetailModal .sheet-head > button[aria-label="Schließen"],
+#libraryUseModal .sheet-head > button[aria-label="Schließen"],
+#recipeV7Modal .sheet-head > button[aria-label="Schließen"],
+#mealModal .sheet-head > button[aria-label="Schließen"],
+#weightModal .sheet-head > button[aria-label="Schließen"],
+.modal .sheet-head > button[data-close],
+.modal .sheet-head > button[data-library-close],
+.modal .sheet-head > button[data-recipe-v7-close],
+.modal .sheet-head > button[data-detail-close],
+.modal .sheet-head > button[aria-label="Schließen"]{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  position:relative!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  flex:0 0 40px!important;
+  width:40px!important;
+  min-width:40px!important;
+  max-width:40px!important;
+  height:40px!important;
+  min-height:40px!important;
+  max-height:40px!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border:1px solid rgba(204,220,246,.2)!important;
+  border-radius:999px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.025))!important;
+  background-color:rgba(13,20,33,.64)!important;
+  color:transparent!important;
+  font-size:0!important;
+  line-height:0!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 8px 22px rgba(0,0,0,.2)!important;
+  backdrop-filter:blur(18px) saturate(150%)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(150%)!important;
+  transform:none!important;
+  transition:transform .16s ease,background-color .16s ease,border-color .16s ease!important;
+}
+#journalMacroClose::before,
+#journalSummaryClose::before,
+#nutritionDetailModal .sheet-head > button[aria-label="Schließen"]::before,
+#libraryUseModal .sheet-head > button[aria-label="Schließen"]::before,
+#recipeV7Modal .sheet-head > button[aria-label="Schließen"]::before,
+#mealModal .sheet-head > button[aria-label="Schließen"]::before,
+#weightModal .sheet-head > button[aria-label="Schließen"]::before,
+.modal .sheet-head > button[data-close]::before,
+.modal .sheet-head > button[data-library-close]::before,
+.modal .sheet-head > button[data-recipe-v7-close]::before,
+.modal .sheet-head > button[data-detail-close]::before,
+.modal .sheet-head > button[aria-label="Schließen"]::before{
+  content:""!important;
+  position:absolute!important;
+  left:50%!important;
+  top:46%!important;
+  width:10px!important;
+  height:10px!important;
+  border:0!important;
+  border-right:2px solid rgba(238,245,255,.92)!important;
+  border-bottom:2px solid rgba(238,245,255,.92)!important;
+  border-radius:1px!important;
+  background:none!important;
+  box-shadow:none!important;
+  transform:translate(-50%,-50%) rotate(45deg)!important;
+}
+#journalMacroClose::after,
+#journalSummaryClose::after,
+#nutritionDetailModal .sheet-head > button[aria-label="Schließen"]::after,
+#libraryUseModal .sheet-head > button[aria-label="Schließen"]::after,
+#recipeV7Modal .sheet-head > button[aria-label="Schließen"]::after,
+#mealModal .sheet-head > button[aria-label="Schließen"]::after,
+#weightModal .sheet-head > button[aria-label="Schließen"]::after,
+.modal .sheet-head > button[data-close]::after,
+.modal .sheet-head > button[data-library-close]::after,
+.modal .sheet-head > button[data-recipe-v7-close]::after,
+.modal .sheet-head > button[data-detail-close]::after,
+.modal .sheet-head > button[aria-label="Schließen"]::after{
+  content:none!important;
+  display:none!important;
+}
+#journalMacroClose:active,
+#journalSummaryClose:active,
+.modal .sheet-head > button[aria-label="Schließen"]:active,
+.modal .sheet-head > button[data-close]:active,
+.modal .sheet-head > button[data-library-close]:active,
+.modal .sheet-head > button[data-recipe-v7-close]:active,
+.modal .sheet-head > button[data-detail-close]:active{
+  transform:scale(.92)!important;
+  background-color:rgba(29,40,59,.78)!important;
+  border-color:rgba(214,228,250,.34)!important;
+}
+
+/* Schwebende iPhone-Liquid-Glass-Navigation. */
+html body > nav[aria-label="Hauptnavigation"].cc-glass-nav-v131{
+  bottom:max(8px,calc(env(safe-area-inset-bottom) - 8px))!important;
+  width:min(376px,calc(100% - 26px))!important;
+  max-width:376px!important;
+  min-width:286px!important;
+  height:62px!important;
+  min-height:62px!important;
+  max-height:62px!important;
+  padding:5px!important;
+  gap:4px!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) 48px minmax(0,1fr)!important;
+  overflow:visible!important;
+  isolation:isolate!important;
+  border:1px solid rgba(224,233,255,.22)!important;
+  border-radius:31px!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.018)),
+    rgba(16,21,33,.46)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 0 -1px 0 rgba(255,255,255,.035),
+    0 18px 42px rgba(0,0,0,.38),
+    0 2px 8px rgba(0,0,0,.24)!important;
+  backdrop-filter:blur(34px) saturate(185%) contrast(105%)!important;
+  -webkit-backdrop-filter:blur(34px) saturate(185%) contrast(105%)!important;
+}
+html body > nav[aria-label="Hauptnavigation"].cc-glass-nav-v131::before{
+  content:""!important;
+  position:absolute!important;
+  inset:1px!important;
+  z-index:-1!important;
+  border-radius:30px!important;
+  pointer-events:none!important;
+  background:
+    radial-gradient(110% 90% at 18% 0%,rgba(151,206,255,.14),transparent 48%),
+    radial-gradient(90% 120% at 88% 100%,rgba(115,240,174,.09),transparent 54%),
+    linear-gradient(125deg,rgba(255,255,255,.055),transparent 42%,rgba(255,255,255,.018))!important;
+}
+html body > nav[aria-label="Hauptnavigation"].cc-glass-nav-v131::after{
+  content:""!important;
+  position:absolute!important;
+  inset:4px!important;
+  z-index:-1!important;
+  border:1px solid rgba(255,255,255,.045)!important;
+  border-radius:27px!important;
+  pointer-events:none!important;
+  background:none!important;
+}
+html body > nav.cc-glass-nav-v131 button{
+  height:50px!important;
+  min-height:50px!important;
+  max-height:50px!important;
+  padding:4px 3px!important;
+  gap:2px!important;
+  border-radius:25px!important;
+  color:rgba(221,228,241,.76)!important;
+  text-shadow:0 1px 8px rgba(0,0,0,.28)!important;
+  transition:transform .16s ease,background .2s ease,color .2s ease,box-shadow .2s ease!important;
+}
+html body > nav.cc-glass-nav-v131 button.active:not([data-tab="food"]),
+html body > nav.cc-glass-nav-v131 button[aria-current="page"]:not([data-tab="food"]){
+  color:#f7fbff!important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.19),rgba(255,255,255,.07)),
+    rgba(154,174,221,.1)!important;
+  border:1px solid rgba(237,243,255,.12)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.2),
+    inset 0 -1px 0 rgba(255,255,255,.035),
+    0 7px 18px rgba(0,0,0,.16)!important;
+}
+html body > nav.cc-glass-nav-v131 .cc-nav-icon{
+  width:21px!important;
+  height:21px!important;
+  filter:drop-shadow(0 1px 5px rgba(0,0,0,.22))!important;
+}
+html body > nav.cc-glass-nav-v131 .cc-nav-icon svg{
+  width:21px!important;
+  height:21px!important;
+  stroke-width:1.85!important;
+}
+html body > nav.cc-glass-nav-v131 .cc-nav-label{
+  font-size:10.25px!important;
+  font-weight:680!important;
+  line-height:11px!important;
+  letter-spacing:-.01em!important;
+}
+html body > nav.cc-glass-nav-v131 button[data-tab="food"]{
+  width:46px!important;
+  min-width:46px!important;
+  max-width:46px!important;
+  height:46px!important;
+  min-height:46px!important;
+  max-height:46px!important;
+  border:1px solid rgba(230,255,238,.54)!important;
+  background:
+    radial-gradient(circle at 34% 23%,rgba(216,255,228,.98) 0,rgba(124,247,163,.94) 26%,rgba(55,222,108,.92) 64%,rgba(31,177,78,.94) 100%)!important;
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.62),
+    inset 0 -4px 9px rgba(0,83,32,.2),
+    0 0 0 4px rgba(78,230,128,.07),
+    0 10px 26px rgba(54,224,111,.28),
+    0 3px 8px rgba(0,0,0,.3)!important;
+}
+html body > nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-icon,
+html body > nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-icon svg{
+  width:24px!important;
+  height:24px!important;
+}
+body.cc-glass-nav-active{
+  padding-bottom:calc(76px + env(safe-area-inset-bottom))!important;
+}
+
+@media(max-width:390px){
+  #journalMacroClose,
+  #journalSummaryClose,
+  .modal .sheet-head > button[aria-label="Schließen"]{
+    flex-basis:38px!important;
+    width:38px!important;
+    min-width:38px!important;
+    max-width:38px!important;
+    height:38px!important;
+    min-height:38px!important;
+    max-height:38px!important;
+  }
+  html body > nav[aria-label="Hauptnavigation"].cc-glass-nav-v131{
+    width:min(354px,calc(100% - 20px))!important;
+    min-width:278px!important;
+    height:60px!important;
+    min-height:60px!important;
+    max-height:60px!important;
+    padding:5px!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) 46px minmax(0,1fr)!important;
+    border-radius:30px!important;
+  }
+  html body > nav.cc-glass-nav-v131 button{
+    height:48px!important;
+    min-height:48px!important;
+    max-height:48px!important;
+    border-radius:24px!important;
+  }
+  html body > nav.cc-glass-nav-v131 button[data-tab="food"]{
+    width:44px!important;
+    min-width:44px!important;
+    max-width:44px!important;
+    height:44px!important;
+    min-height:44px!important;
+    max-height:44px!important;
+  }
+  html body > nav.cc-glass-nav-v131 .cc-nav-label{font-size:9.7px!important;line-height:10px!important}
+  body.cc-glass-nav-active{padding-bottom:calc(73px + env(safe-area-inset-bottom))!important}
+}
+
+@media(prefers-reduced-transparency:reduce){
+  html body > nav[aria-label="Hauptnavigation"].cc-glass-nav-v131{background:rgba(16,21,33,.92)!important}
+  #journalMacroClose,#journalSummaryClose,.modal .sheet-head > button[aria-label="Schließen"]{background-color:rgba(20,28,42,.96)!important}
+}
+@media(prefers-reduced-motion:reduce){
+  html body > nav.cc-glass-nav-v131 button,
+  #journalMacroClose,
+  #journalSummaryClose,
+  .modal .sheet-head > button[aria-label="Schließen"]{transition:none!important}
+}
