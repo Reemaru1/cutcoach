@@ -18,7 +18,7 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   }
   {
     const dom=new JSDOM('<!doctype html><body class="canonical-multisearch-active"><button id="nutritionVoice"></button><input id="nutritionSearch" value="Cola"><div id="nutritionVoiceStatus"></div><section id="normal" hidden data-v192-suppressed="1" data-v192-was-hidden="0"></section><div id="nutritionMultiSearch" data-canonical="1" data-presentation-v192="1" data-query="alt"><b>Alt</b></div></body>',{url:'https://example.test/',runScripts:'dangerously',pretendToBeVisual:true});
-    const w=dom.window;inject(w,'nutrition-voice-111.js');await wait(10);const api=w.CutCoachNutritionVoice111;assert.equal(api.version,'1.9.1-alpha');api.clearStaleResults();
+    const w=dom.window;inject(w,'nutrition-voice-111.js');await wait(10);const api=w.CutCoachNutritionVoice111;assert.equal(api.version,'1.9.2-alpha');api.clearStaleResults();
     assert.equal(w.document.body.classList.contains('canonical-multisearch-active'),false);assert.equal(w.document.querySelector('#normal').hidden,false,'Normale Treffer bleiben nach Sprachabbruch ausgeblendet.');assert.equal(w.document.querySelector('#nutritionMultiSearch').children.length,0);assert.equal(w.document.querySelector('#nutritionMultiSearch').hasAttribute('data-presentation-v192'),false);dom.window.close();
   }
   {
@@ -36,5 +36,5 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
     assert.equal(w.CutCoachScannerV2.version,'1.8.1-alpha');assert.equal(w.CutCoachLibrary.startScanner,w.CutCoachScannerV2.start,'Bibliotheks-Shortcut umgeht weiterhin Scanner V2.');
     button.dispatchEvent(new w.MouseEvent('click',{bubbles:true,cancelable:true}));await wait(30);assert.equal(legacyStarts,0,'Legacy- und V2-Scanner starten weiterhin gleichzeitig.');assert.equal(w.CutCoachScannerV2.state().libraryBridged,true);dom.window.close();
   }
-  console.log('Ernährungsperipherie 2.0.1: Cleanup-Ruhe, Sprache, Open Food Facts und Scanner stabil.');
+  console.log('Ernährungsperipherie 2.0.1: Cleanup-Ruhe, Sprache 1.9.2, Open Food Facts und Scanner stabil.');
 })().catch(error=>{console.error(error);process.exitCode=1});
