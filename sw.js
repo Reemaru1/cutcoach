@@ -22,8 +22,8 @@ const KEYBOARD_CACHE=`${IDLE_CACHE}-search199-ios-keyboard`;
 const PRODUCT_CACHE=`${KEYBOARD_CACHE}-catalog200-products`;
 const NUTRITION_CACHE=`${PRODUCT_CACHE}-nutrition201-stability`;
 const INTENT_CACHE=`${NUTRITION_CACHE}-search202-spoken-intent`;
-const VOICE_CACHE=`${INTENT_CACHE}-voice203-direct-permission-nutrition204-runtime-hardening-nutrition205-a-z-hardening-nutrition206-math-ui-ui207-liquid-glass`;
-const CACHE_NAME=`${VOICE_CACHE}-energy143-ui208-production-loader`;
+const VOICE_CACHE=`${INTENT_CACHE}-voice203-direct-permission-nutrition204-runtime-hardening-nutrition205-a-z-hardening-nutrition206-math-ui-ui207-liquid-glass-ui208-production-loader`;
+const CACHE_NAME=`${VOICE_CACHE}-energy143`;
 const PRODUCTION_UI_ASSETS=Object.freeze(['./glass-nav-v131.js?v=1.3.3-alpha','./nutrition-ui-consistency-v206.css?v=2.0.8-loader','./nutrition-ui-consistency-v206.js?v=2.0.8-loader','./liquid-glass-ui-v207.css?v=2.0.8-loader']);
 const APP_SHELL=['./','./index.html','./runtime-manifest.js?v=1.2.7-alpha',...RUNTIME.baseAssets,...RUNTIME.styles,...RUNTIME.scripts,...PRODUCTION_UI_ASSETS,'./update.html'];
 const EXTERNAL_ASSETS=Object.freeze(['https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js']);
@@ -37,4 +37,4 @@ function externalResponse(event,request){const network=fetchWithTimeout(request,
 self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(CACHE_NAME);await cache.addAll([...new Set(APP_SHELL)]);await Promise.allSettled(EXTERNAL_ASSETS.map(asset=>cache.add(asset)))})()));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith(CACHE_PREFIX)&&key!==CACHE_NAME).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 self.addEventListener('message',event=>{if(event.data?.type==='SKIP_WAITING')self.skipWaiting();if(event.data?.type==='GET_CACHE_VERSION')event.source?.postMessage?.({type:'CACHE_VERSION',cache:CACHE_NAME})});
-self.addEventListener('fetch',event=>{const request=event.request;if(request.method!=='GET'||request.headers.has('range'))return;const url=new URL(request.url);if(EXTERNAL_ASSETS.includes(url.href)){event.respondWith(externalResponse(event,request));return}if(url.origin!==self.location.origin)return;if(request.mode==='navigate'){event.respondWith(navigationResponse(request));return}event.respondWith(assetResponse(request))});
+self.addEventListener('fetch',event=>{const request=event.request;if(request.method!=='GET'||request.headers.has('range'))return;const url=new URL(request.url);if(EXTERNAL_ASSETS.includes(url.href)){event.respondWith(externalResponse(event,request));return}if(url.origin!==self.location.origin)return;if(request.mode==='navigate'){event.respondWith(navigationResponse(event.request));return}event.respondWith(assetResponse(request))});
