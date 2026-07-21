@@ -57,7 +57,8 @@
   function recoverZeroCalorieItems(){
     if(!patchedLibrary?.exportData||!patchedLibrary?.importData||recoveredLibraries.has(patchedLibrary))return false;recoveredLibraries.add(patchedLibrary);let raw;try{raw=JSON.parse(localStorage.getItem(LIBRARY_KEY)||'null')}catch{return false}if(!Array.isArray(raw?.items))return false;
     const current=patchedLibrary.exportData(),known=new Set((current.items||[]).flatMap(identityKeys)),missing=raw.items.filter(item=>isExplicitZero(item)&&identityKeys(item).every(key=>!known.has(key)));if(!missing.length)return false;
-    for(const item of missing)captureMeta(item);const ok=patchedLibrary.importData({...current,items:[...(current.items||[]),...missing]});if(ok){metrics.zeroRecovered+=missing.length;invalidatePersonal();return true}return false;
+    const persistedById=new Map(raw.items.map(item=>[String(item?.id||''),item])),stableCurrent=(current.items||[]).map(item=>{const persisted=persistedById.get(String(item?.id||''));return persisted?{...item,modified:Boolean(persisted.modified)}:item});
+    for(const item of missing)captureMeta(item);const ok=patchedLibrary.importData({...current,items:[...stableCurrent,...missing]});if(ok){metrics.zeroRecovered+=missing.length;invalidatePersonal();return true}return false;
   }
   function refreshCatalogItem(raw,originalExport,importer){
     if(!raw||typeof originalExport!=='function'||typeof importer!=='function')return false;const data=originalExport();if(!Array.isArray(data?.items))return false;const index=data.items.findIndex(item=>String(item.id)===String(raw.id)||(raw.sourceId&&String(item.sourceId)===String(raw.sourceId)));if(index<0)return false;const existing=data.items[index],meta=storedMeta[String(existing.id)]||{},actualSource=meta.source||existing.source||'user';if(existing.modified||actualSource==='user')return false;
