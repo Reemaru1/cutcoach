@@ -17,8 +17,9 @@
     if(script)return script;
     script=document.createElement('script');script.src=src;script.async=false;script.dataset[key.replace(/-([a-z])/g,(_,char)=>char.toUpperCase())]='1';document.head.append(script);return script;
   }
+  function isDomTest(){return location.hostname==='example.test'||(typeof navigator==='object'&&/jsdom/i.test(navigator.userAgent||''))}
   function ensureProductionUi(){
-    if(typeof navigator==='object'&&/jsdom/i.test(navigator.userAgent||''))return;
+    if(isDomTest())return;
     addStyle('nutrition-ui-consistency-v206','./nutrition-ui-consistency-v206.css?v=2.0.8-loader');
     addStyle('liquid-glass-ui-v207','./liquid-glass-ui-v207.css?v=2.0.8-loader');
     if(!window.CutCoachNutritionMath206)addScript('nutrition-ui-consistency-v206','./nutrition-ui-consistency-v206.js?v=2.0.8-loader');
