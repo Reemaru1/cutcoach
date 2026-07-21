@@ -40,14 +40,20 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const exported=w.CutCoachLibrary.exportData().items[0];
   assert.equal(exported.calories,0,'0 kcal werden nach außen nicht exakt rekonstruiert.');
   assert.equal(exported.source,'off','Produktquelle geht beim Speichern verloren.');
+  assert.equal(exported.modified,false,'Technischer Nullkalorienwert wird fälschlich als lokale Änderung markiert.');
 
   w.CutCoachLibrary.importData({version:3,items:[{...cola,source:'manufacturer'}]});
   const restored=w.CutCoachLibrary.exportData().items[0];
   assert.equal(restored.source,'manufacturer');assert.equal(restored.brand,'Coca-Cola');assert.equal(restored.sourceLabel,cola.sourceLabel);
 
-  const input=w.document.querySelector('#nutritionSearch');input.value='Coke Zero';input.dispatchEvent(new w.Event('input',{bubbles:true}));await wait(35);
+  const input=w.document.querySelector('#nutritionSearch');input.value='Coke Zero';input.dispatchEvent(new w.Event('input',{bubbles:true}));await wait(60);
   const aliasRow=w.document.querySelector('.v201-alias-row [data-nutrition-open="ccp:coca-cola-zero"]');assert.ok(aliasRow,'Alias-Treffer wurde nicht in die normale Trefferliste ergänzt.');
   assert.match(aliasRow.closest('article').textContent,/Produkt/);assert.match(aliasRow.closest('article').textContent,/0 kcal/);
+  const settled=api.snapshot().syncs;await wait(100);assert.equal(api.snapshot().syncs,settled,'Alias-Treffer lösen nach der Darstellung weitere Renderzyklen aus.');
+
+  aliasRow.dispatchEvent(new w.MouseEvent('click',{bubbles:true,cancelable:true}));w.document.querySelector('#nutritionDetailModal').classList.add('open');await wait(60);
+  const detailSettled=api.snapshot().syncs;await wait(100);assert.equal(api.snapshot().syncs,detailSettled,'Geöffnete Produktdetails laufen in einer Mutation-/Render-Schleife.');
+  assert.match(w.document.querySelector('#nutritionDetailSource').textContent,/Herstellerangabe/);
 
   const multi=w.document.querySelector('#nutritionMultiSearch');multi._v192Rows=[{status:'matched',item:cola},{status:'matched',item:water}];let downstream=0;w.document.addEventListener('click',()=>{downstream++});
   multi.querySelector('[data-v192-all]').dispatchEvent(new w.MouseEvent('click',{bubbles:true,cancelable:true}));
@@ -58,5 +64,5 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   assert.ok(runtime.indexOf('nutrition-stability-v201.js?v=2.0.1-alpha')<runtime.indexOf('nutrition-polish-v138.js?v=1.3.11-alpha'));
   for(const asset of ['scanner-v2.js?v=1.8.1-alpha','off-lookup.js?v=1.8.1-alpha','nutrition-voice-111.js?v=1.9.1-alpha','nutrition-cleanup-101.js?v=1.0.4-alpha'])assert.ok(runtime.includes(asset),`${asset} fehlt im Offline-Manifest.`);
   assert.match(sw,/nutrition201-stability/);assert.match(packageJson.scripts.test,/v201-nutrition-stability\.test\.js/);
-  dom.window.close();console.log('Ernährungsstabilität 2.0.1: Aliase, Quellen, Nullkalorien und atomische Mehrfachaktion geprüft.');
+  dom.window.close();console.log('Ernährungsstabilität 2.0.1: Aliase, Quellen, Nullkalorien, atomische Mehrfachaktion und Render-Ruhe geprüft.');
 })().catch(error=>{console.error(error);process.exitCode=1});
