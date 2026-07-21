@@ -44,5 +44,5 @@
 .cc-close-v206:focus-visible{outline:2px solid rgba(111,224,169,.78)!important;outline-offset:3px!important}
 .modal .sheet-head{align-items:center!important;gap:14px!important}
 .modal .sheet-head>h2{min-width:0!important;overflow-wrap:anywhere!important}
-.nutrition-catalog-note[hidden],#nutritionDetailSource[hidden]{display:none!important}
+.cc-bls-hidden-v206,.nutrition-catalog-note[hidden],#nutritionDetailSource[hidden]{display:none!important}
 @media(max-width:390px){.cc-close-v206{flex-basis:38px!important;width:38px!important;min-width:38px!important;max-width:38px!important;height:38px!important;min-height:38px!important}.cc-close-v206::before,.cc-close-v206::after{width:13px!important}}
