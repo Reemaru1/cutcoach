@@ -1,0 +1,48 @@
+/* CutCoach 2.0.6 – ruhige, einheitliche Modalsteuerung */
+.cc-close-v206{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  position:relative!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  flex:0 0 42px!important;
+  width:42px!important;
+  min-width:42px!important;
+  max-width:42px!important;
+  height:42px!important;
+  min-height:42px!important;
+  padding:0!important;
+  margin:0!important;
+  border:1px solid rgba(157,181,220,.2)!important;
+  border-radius:50%!important;
+  background:rgba(255,255,255,.055)!important;
+  background-image:none!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 8px 22px rgba(0,0,0,.2)!important;
+  color:transparent!important;
+  font-size:0!important;
+  line-height:0!important;
+  overflow:hidden!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+  transition:transform .16s ease,background .16s ease,border-color .16s ease!important;
+}
+.cc-close-v206::before,.cc-close-v206::after{
+  content:""!important;
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:15px!important;
+  height:2px!important;
+  border-radius:999px!important;
+  background:rgba(235,242,252,.9)!important;
+  box-shadow:none!important;
+  transform-origin:center!important;
+}
+.cc-close-v206::before{transform:translate(-50%,-50%) rotate(45deg)!important}
+.cc-close-v206::after{transform:translate(-50%,-50%) rotate(-45deg)!important}
+.cc-close-v206:active{transform:scale(.92)!important;background:rgba(255,255,255,.1)!important;border-color:rgba(157,181,220,.35)!important}
+.cc-close-v206:focus-visible{outline:2px solid rgba(111,224,169,.78)!important;outline-offset:3px!important}
+.modal .sheet-head{align-items:center!important;gap:14px!important}
+.modal .sheet-head>h2{min-width:0!important;overflow-wrap:anywhere!important}
+.cc-bls-hidden-v206,.nutrition-catalog-note[hidden],#nutritionDetailSource[hidden]{display:none!important}
+@media(max-width:390px){.cc-close-v206{flex-basis:38px!important;width:38px!important;min-width:38px!important;max-width:38px!important;height:38px!important;min-height:38px!important}.cc-close-v206::before,.cc-close-v206::after{width:13px!important}}
