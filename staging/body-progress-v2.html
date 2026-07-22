@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#05090e">
+  <meta name="robots" content="noindex,nofollow">
+  <title>CutCoach · Body Progress V2</title>
+  <link rel="stylesheet" href="body-progress-v2.css?v=1">
+  <script src="body-progress-v2.js?v=1" defer></script>
+</head>
+<body>
+  <main class="bpv2-app" data-mode="body">
+    <header class="bpv2-topbar">
+      <button class="bpv2-icon-button" type="button" aria-label="Menü"><span></span><span></span><span></span></button>
+      <div class="bpv2-brand" aria-label="CutCoach"><b>Cut</b><strong>Coach</strong></div>
+      <button class="bpv2-bell" type="button" aria-label="Benachrichtigungen"><span></span></button>
+    </header>
+
+    <section class="bpv2-heading">
+      <div>
+        <p class="bpv2-eyebrow">CUTCOACH BODY INTELLIGENCE</p>
+        <h1>BODY <span>PROGRESS</span></h1>
+        <p id="bpv2Subtitle">Dein Körper verändert sich. Daten, Analyse und Ergebnisse in einem System.</p>
+      </div>
+      <label class="bpv2-period">
+        <span class="sr-only">Zeitraum</span>
+        <select id="bpv2Period">
+          <option value="7">7 Tage</option>
+          <option value="14">14 Tage</option>
+          <option value="30">30 Tage</option>
+        </select>
+      </label>
+    </section>
+
+    <div class="bpv2-mode-switch" role="tablist" aria-label="Fortschrittsmodus">
+      <button type="button" role="tab" data-mode="body" aria-selected="true">Körper</button>
+      <button type="button" role="tab" data-mode="training" aria-selected="false">Training</button>
+    </div>
+
+    <section class="bpv2-hero" aria-label="Body Progress Übersicht">
+      <div class="bpv2-column bpv2-column-left">
+        <article class="bpv2-card bpv2-card-status">
+          <p class="bpv2-label" id="leftCard1Label">KÖRPERSTATUS</p>
+          <div class="bpv2-card-icon" aria-hidden="true">✦</div>
+          <h2 id="leftCard1Value">Daten aufbauen</h2>
+          <p id="leftCard1Text">Mehr Einträge machen deinen Trend genauer.</p>
+          <svg class="bpv2-spark" viewBox="0 0 120 42" aria-hidden="true"><path id="leftSpark1" d="M2 34 L24 26 L45 29 L69 18 L92 20 L118 8"/></svg>
+        </article>
+
+        <article class="bpv2-card">
+          <p class="bpv2-label" id="leftCard2Label">GEWICHTSTREND</p>
+          <h2 id="leftCard2Value">–</h2>
+          <strong id="leftCard2Delta">Noch keine Daten</strong>
+          <p id="leftCard2Text">im gewählten Zeitraum</p>
+          <svg class="bpv2-spark" viewBox="0 0 120 42" aria-hidden="true"><path id="leftSpark2" d="M2 9 L24 12 L45 18 L69 16 L92 28 L118 33"/></svg>
+        </article>
+
+        <article class="bpv2-card bpv2-card-compact">
+          <p class="bpv2-label" id="leftCard3Label">KALORIENDEFIZIT</p>
+          <h2 id="leftCard3Value">–</h2>
+          <p id="leftCard3Text">Ø täglich</p>
+          <div class="bpv2-meter"><span id="leftCard3Meter"></span></div>
+        </article>
+      </div>
+
+      <div class="bpv2-figure-stage">
+        <div class="bpv2-aura" aria-hidden="true"></div>
+        <img id="bpv2BodyFigure" src="body-male-v2.svg" alt="Anatomische Körperdarstellung mit hervorgehobenem Bauch- und Taillenbereich">
+        <img id="bpv2TrainingFigure" src="training-male-v2.svg" alt="Anatomische Körperdarstellung mit hervorgehobenen Trainingsbereichen" hidden>
+        <div class="bpv2-floor" aria-hidden="true"></div>
+      </div>
+
+      <div class="bpv2-column bpv2-column-right">
+        <article class="bpv2-card bpv2-card-ring">
+          <p class="bpv2-label" id="rightCard1Label">ZIELFORTSCHRITT</p>
+          <div class="bpv2-ring" id="rightRing"><span id="rightCard1Value">0%</span></div>
+          <p id="rightCard1Text">seit Beginn</p>
+          <div class="bpv2-status-chip"><i></i><span id="rightCard1Status">Daten werden aufgebaut</span></div>
+        </article>
+
+        <article class="bpv2-card">
+          <p class="bpv2-label" id="rightCard2Label">ZIELKURS</p>
+          <div class="bpv2-target-icon" aria-hidden="true">◎</div>
+          <h2 id="rightCard2Value">–</h2>
+          <p id="rightCard2Text">Zielgewicht</p>
+          <div class="bpv2-meter"><span id="rightCard2Meter"></span></div>
+          <strong id="rightCard2Delta">Ziel noch festlegen</strong>
+        </article>
+
+        <article class="bpv2-card bpv2-card-training-only" hidden>
+          <p class="bpv2-label">GYM-RHYTHMUS</p>
+          <h2 id="rightCard3Value">0 Einheiten</h2>
+          <p id="rightCard3Text">im gewählten Zeitraum</p>
+          <svg class="bpv2-spark" viewBox="0 0 120 42" aria-hidden="true"><path d="M2 34 L24 31 L45 24 L69 27 L92 15 L118 9"/></svg>
+        </article>
+      </div>
+    </section>
+
+    <section class="bpv2-insight">
+      <div class="bpv2-insight-icon" aria-hidden="true">✦</div>
+      <div>
+        <p class="bpv2-label" id="insightLabel">KÖRPER INSIGHT</p>
+        <h2 id="insightTitle">Deine Datenbasis entsteht</h2>
+        <p id="insightText">Trage Gewicht, Ernährung, Schritte und Training regelmäßig ein. CutCoach verbindet die Werte zu einem belastbaren Gesamttrend.</p>
+      </div>
+      <div class="bpv2-insight-delta"><strong id="insightDelta">0%</strong><span id="insightDeltaText">Datenqualität</span></div>
+    </section>
+
+    <section class="bpv2-summary">
+      <header>
+        <div><p class="bpv2-eyebrow">VERLAUF</p><h2>Deine Entwicklung</h2></div>
+        <span id="bpv2DataSource">Live-Daten dieses Geräts</span>
+      </header>
+      <div class="bpv2-summary-grid">
+        <article><span>Ø Kalorien</span><strong id="summaryCalories">–</strong><small id="summaryCaloriesSub">keine protokollierten Tage</small></article>
+        <article><span>Ø Eiweiß</span><strong id="summaryProtein">–</strong><small id="summaryProteinSub">Zieltreue 0%</small></article>
+        <article><span>Ø Schritte</span><strong id="summarySteps">–</strong><small id="summaryStepsSub">Zieltreue 0%</small></article>
+        <article><span>Gym</span><strong id="summaryGym">0</strong><small id="summaryGymSub">Einheiten im Zeitraum</small></article>
+      </div>
+      <div class="bpv2-weight-list" id="bpv2WeightList"></div>
+    </section>
+
+    <p class="bpv2-disclaimer">Diese Vorschau visualisiert protokollierte Trends. Sie misst weder lokales Körperfett noch medizinische Regeneration.</p>
+  </main>
+
+  <nav class="bpv2-bottom-nav" aria-label="Vorschau-Navigation">
+    <button type="button"><span>▣</span><small>Tagebuch</small></button>
+    <button type="button" class="active"><span>▥</span><small>Fortschritt</small></button>
+    <button type="button" class="bpv2-add" aria-label="Ernährung hinzufügen"><span>＋</span></button>
+    <button type="button"><span>⚙</span><small>Einstellungen</small></button>
+  </nav>
+</body>
+</html>
