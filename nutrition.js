@@ -210,18 +210,18 @@
   function itemNutrition(item,factor=1){return{calories:(Number(item.calories)||0)*factor,protein:(Number(item.protein)||0)*factor,carbs:(Number(item.carbs)||0)*factor,fat:(Number(item.fat)||0)*factor}}
   function itemFit(item,context,intent=null){
     const portion=portionForItem(item,intent||undefined),factor=portion&&item.amount>0?portion.amount/item.amount:1,n=itemNutrition(item,factor),density=n.calories>0?n.protein*4/n.calories:0;let score=50;
-    if(context.rawRemaining>0){const ratio=n.calories/context.rawRemaining;score+=ratio<=.7?18:ratio<=1?8:ratio>1.25?-24:-8}else score-=n.calories>250?20:5;
-    if(context.proteinGap>20)score+=Math.min(25,n.protein/context.proteinGap*38)+Math.min(12,density*24);
-    if(context.fatGap<8&&n.fat>context.fatGap+5)score-=12;if(context.carbsGap<15&&n.carbs>context.carbsGap+20)score-=8;
+    if(context.rawRemaining>0){const ratio=n.calories/context.rawRemaining;score+=ratio<=.7?18:ratio<=1?8:ratio>1.25?-34:-10}else score-=n.calories>500?72:n.calories>250?42:10;
+    if(context.proteinGap>20)score+=Math.min(34,n.protein/context.proteinGap*48)+Math.min(18,density*34);
+    if(context.fatGap<8&&n.fat>context.fatGap+5)score-=Math.min(34,12+(n.fat-context.fatGap)*.8);if(context.carbsGap<15&&n.carbs>context.carbsGap+20)score-=Math.min(30,10+(n.carbs-context.carbsGap)*.25);
     score=Math.round(Math.min(99,Math.max(1,score)));
-    const label=context.proteinGap>25&&n.protein>=15&&density>=.25?'Eiweiß-Fit':context.rawRemaining>0&&n.calories<=context.rawRemaining&&score>=78?'Budget-Fit':null;
+    const label=context.proteinGap>25&&n.protein>=15&&density>=.25?'Eiweiß-Fit':context.rawRemaining<=0&&n.calories<=180&&score>=55?'Leichte Wahl':context.rawRemaining>0&&n.calories<=context.rawRemaining&&score>=78?'Budget-Fit':null;
     return{score,label,n,portion};
   }
   function foodIcon(item){
     if(item.kind==='recipe')return'🍽️';const name=normalized(item.name);
     if(/kaffee|espresso|cappuccino|latte|tee\b/.test(name))return'☕';if(/(^|\s)(ei|eier|huhnerei)(\s|$)/.test(name))return'🥚';if(/hahn|huhn|pute|geflugel/.test(name))return'🍗';if(/lachs|thunfisch|fisch/.test(name))return'🐟';if(/milch|joghurt|skyr|quark|kase/.test(name))return'🥛';if(/brot|toast|brotchen/.test(name))return'🍞';if(/reis|nudel|teigware/.test(name))return'🍚';if(/banane|apfel|beere|obst/.test(name))return'🍎';if(/kartoffel/.test(name))return'🥔';if(/fleisch|rind|schwein|hack/.test(name))return'🥩';if(/gemuse|salat|tomate|gurke|broccoli|karotte/.test(name))return'🥗';return item.source==='off'?'🥫':'🥣';
   }
-  function contextScore(item,routines,context,intent){const routine=routines.get(normalized(item.name))?.score||0,rank=featuredRank(item);return routine*12+Number(Boolean(item.favorite))*80+Math.min(100,Number(item.uses)||0)+(item.catalog?(rank?220-rank*6:0):260)+itemFit(item,context,intent).score}
+  function contextScore(item,routines,context,intent){const routine=routines.get(normalized(item.name))?.score||0,rank=featuredRank(item),fit=itemFit(item,context,intent);return routine*7+Number(Boolean(item.favorite))*90+Math.min(80,Number(item.uses)||0)+(item.catalog?(rank?130-rank*4:0):130)+fit.score*12}
   function filteredItems(){
     const intent=parseSearchIntent(document.querySelector('#nutritionSearch')?.value),query=intent.query,personal=readLibrary(),catalog=readCatalog(),routines=mealRoutineMap(),context=nutritionContext();let items=[...personal];
     if(activeFilter==='favorite')items=items.filter(item=>item.favorite);else if(activeFilter==='recent')items=items.filter(item=>item.lastUsedAt);else if(activeFilter==='recipe')items=items.filter(item=>item.kind==='recipe');
@@ -240,7 +240,7 @@
     const renderStartedAt=Date.now(),host=document.querySelector('#nutritionResults');if(!host)return;
     const {items,query,intent,personal,routines,context,catalogTotal}=filteredItems(),title=document.querySelector('#nutritionResultTitle'),scope=document.querySelector('#nutritionResultScope'),count=document.querySelector('#nutritionResultCount'),more=document.querySelector('#nutritionShowMore'),intentNode=document.querySelector('#nutritionSearchIntent');renderFilters(personal,catalogTotal);
     if(intentNode){intentNode.hidden=!intent.amount;intentNode.textContent=intent.amount?`Mengenmodus: ${fmt(intent.amount,intent.amount%1?1:0)} ${intent.unit} werden bei passenden Treffern direkt übernommen.`:''}
-    const hasRoutine=personal.some(item=>(routines.get(normalized(item.name))?.days||0)>=2);scope.textContent=query?'Bibliothek & BLS 4.0':activeFilter==='all'?'Für dich':'Deine Bibliothek';title.textContent=query?`Treffer für „${intent.displayQuery}“`:activeFilter==='favorite'?'Deine Favoriten':activeFilter==='recent'?'Zuletzt verwendet':activeFilter==='recipe'?'Deine Rezepte':hasRoutine?`Passend für ${mealType}`:`Empfohlen für ${mealType}`;
+    const hasRoutine=personal.some(item=>(routines.get(normalized(item.name))?.days||0)>=2),needsProtein=context.proteinGap>20;scope.textContent=query?'Lebensmitteldatenbank':activeFilter==='all'?'Jetzt passend':'Deine Bibliothek';title.textContent=query?`Treffer für „${intent.displayQuery}“`:activeFilter==='favorite'?'Deine Favoriten':activeFilter==='recent'?'Zuletzt verwendet':activeFilter==='recipe'?'Deine Rezepte':context.rawRemaining<0&&needsProtein?'Eiweiß sinnvoll ergänzen':context.rawRemaining<0?'Für morgen vormerken':needsProtein?'Eiweißziel unterstützen':hasRoutine?`Passend für ${mealType}`:`Empfohlen für ${mealType}`;
     count.textContent=`${fmt(items.length)} Treffer`;
     window.dispatchEvent(new CustomEvent('cutcoach:nutrition-search-rendered',{detail:{hasQuery:Boolean(query),resultCount:items.length,queryLengthBucket:query.length<4?'short':query.length<10?'medium':'long',latencyMs:Date.now()-renderStartedAt}}));
     if(!items.length){
@@ -276,7 +276,7 @@
     const screen=ensureStructure();if(!screen)return;
     screen.querySelector('#nutritionTitle').textContent=mealType;screen.querySelector('#nutritionMealSelect').value=mealType;screen.querySelector('#nutritionDate').textContent=dateCaption();screen.querySelector('#nutritionSearch').placeholder=`Was hattest du ${mealPrompt()}?`;document.body.dataset.nutritionMealType=mealType;renderCurrent();renderResults();renderFeedback();const version=document.querySelector('#appVersion');if(version)version.textContent=`Version ${VERSION}`;
   }
-  function cleanNavigation(){document.querySelector('nav [data-tab="food"]')?.remove();document.querySelector('nav [data-tab="library"]')?.remove();document.querySelectorAll('.journal-section-title button,.journal-section-title a').forEach(node=>{if(node.textContent.trim().toLocaleLowerCase('de').includes('alle anzeigen'))node.remove()});document.querySelectorAll('nav [data-tab]').forEach(button=>{if(button.dataset.nutritionWatch)return;button.dataset.nutritionWatch='1';button.addEventListener('click',()=>{if(button.dataset.tab!=='food')leaveNutrition()})})}
+  function cleanNavigation(){document.querySelector('nav [data-tab="library"]')?.remove();document.querySelectorAll('.journal-section-title button,.journal-section-title a').forEach(node=>{if(node.textContent.trim().toLocaleLowerCase('de').includes('alle anzeigen'))node.remove()});document.querySelectorAll('nav [data-tab]').forEach(button=>{if(button.dataset.nutritionWatch)return;button.dataset.nutritionWatch='1';button.addEventListener('click',()=>{if(button.dataset.tab!=='food')leaveNutrition()})});window.CutCoachGlassNavV131?.enhance?.()}
   document.addEventListener('click',event=>{const add=event.target.closest('[data-add-journal-meal]');if(add){event.preventDefault();event.stopImmediatePropagation();openFoodScreen(add.dataset.addJournalMeal);return}if(event.target.closest('#journalQuickAdd')){event.preventDefault();event.stopImmediatePropagation();const hour=new Date().getHours();openFoodScreen(hour<11?'Frühstück':hour<16?'Mittagessen':hour<21?'Abendessen':'Snack')}},true);
   window.addEventListener('cutcoach:librarychange',()=>{if(document.querySelector('[data-screen="food"]')?.classList.contains('active'))renderResults()});
   const baseRender=window.render;window.render=function(){baseRender();cleanNavigation();if(document.querySelector('[data-screen="food"]')?.classList.contains('active'))renderNutrition()};document.addEventListener('DOMContentLoaded',()=>{ensureStructure();cleanNavigation()},{once:true});

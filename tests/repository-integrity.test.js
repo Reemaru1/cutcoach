@@ -52,7 +52,7 @@ for(const match of index.matchAll(/(?:src|href)="([^"#]+)"/g)){
   assert.ok(manifestUrls.includes(url.replace(/^\.\//,'')),`Index-Asset ist nicht unter derselben URL offline verfügbar: ${url}`);
 }
 
-for(const url of ['glass-nav-v131.js?v=1.3.3-alpha','scrollbar-cleanup-v209.css?v=2.0.9-alpha']){
+for(const url of ['glass-nav-v131.js?v=1.3.7-alpha','scrollbar-cleanup-v209.css?v=2.0.9-alpha']){
   assert.ok(loader.includes(url)||read('glass-nav-v131.js').includes(url),`Produktionsloader fordert ${url} nicht an.`);
   assert.ok(manifestUrls.includes(url),`Runtime-Manifest cached ${url} nicht.`);
 }
