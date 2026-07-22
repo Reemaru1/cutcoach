@@ -28,8 +28,7 @@
     const nav=q('nav[aria-label="Hauptnavigation"]');if(!nav)return;
     const training=q('[data-bp211-training-nav]',nav);if(training)training.hidden=true;
     nav.classList.remove('bp211-reference-nav','bp212-progress-nav');
-    const today=q('[data-tab="today"]',nav),food=q('[data-tab="food"]',nav),progress=q('[data-tab="progress"]',nav),settings=q('[data-tab="settings"]',nav);
-    if(today&&food&&progress&&settings)nav.append(today,food,progress,settings, ...(training?[training]:[]));
+    const progress=q('[data-tab="progress"]',nav);
     qa('button',nav).forEach(button=>{button.classList.remove('bp212-active');if(button!==progress)button.classList.remove('active')});
     const active=Boolean(q('[data-screen="progress"]')?.classList.contains('active'));
     if(progress){progress.classList.toggle('bp213-progress-active',active);progress.classList.toggle('active',active);progress.setAttribute('aria-current',active?'page':'false')}
