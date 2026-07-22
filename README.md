@@ -13,7 +13,7 @@ CutCoach ist eine mobile, offlinefähige Ernährungs- und Fitness-PWA. Das Produ
 
 ## Aktueller Stand
 
-- App-Release: **2.2.1 Alpha**
+- App-Release: **2.3.0 Alpha**
 - Produktiver Einstieg: `index.html`
 - Offline-App-Shell: `runtime-manifest.js` und `sw.js`
 - Produktive Bereiche: Tagebuch, Ernährung, Bibliothek, Scanner, Body Progress und Einstellungen

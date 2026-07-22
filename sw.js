@@ -1,8 +1,8 @@
 'use strict';
-importScripts('./runtime-manifest.js?v=2.2.1-alpha');
+importScripts('./runtime-manifest.js?v=2.3.0-alpha');
 const RUNTIME=self.CUTCOACH_RUNTIME;
 const CACHE_PREFIX='cutcoach-';
-const CACHE_BASE=`cutcoach-v${RUNTIME.version}-nav136-journal137-nutrition138-dishes140`;
+const CACHE_BASE=`cutcoach-v${RUNTIME.version}-nav136-journal137-nutrition138-dishes140-dashboard800`;
 const PORTION_CACHE=`${CACHE_BASE}-search153-portions`;
 const LEARNING_CACHE=`${PORTION_CACHE}-search160-learning`;
 const SEARCH_CACHE=`${LEARNING_CACHE}-search161-hardening`;
@@ -24,7 +24,7 @@ const NUTRITION_CACHE=`${PRODUCT_CACHE}-nutrition201-stability`;
 const INTENT_CACHE=`${NUTRITION_CACHE}-search202-spoken-intent`;
 const VOICE_CACHE=`${INTENT_CACHE}-voice203-direct-permission-nutrition204-runtime-hardening-nutrition205-a-z-hardening-nutrition206-math-ui-ui207-liquid-glass-ui208-production-loader-ui209-hidden-scrollbars-body214-rollback-body221-production-audit`;
 const CACHE_NAME=`${VOICE_CACHE}-energy143`;
-const APP_SHELL=['./','./index.html','./runtime-manifest.js?v=2.2.1-alpha',...RUNTIME.baseAssets,...RUNTIME.styles,...RUNTIME.scripts,'./update.html'];
+const APP_SHELL=['./','./index.html','./runtime-manifest.js?v=2.3.0-alpha',...RUNTIME.baseAssets,...RUNTIME.styles,...RUNTIME.scripts,'./update.html'];
 const EXTERNAL_ASSETS=Object.freeze(['https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js']);
 const NAVIGATION_TIMEOUT_MS=4500,ASSET_TIMEOUT_MS=6500;
 function fetchWithTimeout(request,options={},timeout=ASSET_TIMEOUT_MS){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);return fetch(request,{...options,signal:controller.signal}).finally(()=>clearTimeout(timer))}

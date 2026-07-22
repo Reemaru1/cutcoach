@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'2.2.1-alpha';
+  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'2.3.0-alpha';
   const LIB='cutcoach_library_v1';
   const OVR='cutcoach_library_overrides_v1';
   const WATER='cutcoach_water_v1';

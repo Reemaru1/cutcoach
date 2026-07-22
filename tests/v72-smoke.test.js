@@ -46,8 +46,8 @@ const click=selector=>{const target=node(selector);target.dispatchEvent(new wind
 
 (async()=>{
   await wait(650);
-  assert.equal(node('#appVersion').textContent,'Version 2.2.1 Alpha','Sichtbare Releaseversion ist nicht 2.2.1 Alpha');
-  assert.equal(window.CUTCOACH_RELEASE,'2.2.1 Alpha','Zentrale Releasekonstante ist nicht 2.2.1 Alpha');
+  assert.equal(node('#appVersion').textContent,'Version 2.3.0 Alpha','Sichtbare Releaseversion ist nicht 2.3.0 Alpha');
+  assert.equal(window.CUTCOACH_RELEASE,'2.3.0 Alpha','Zentrale Releasekonstante ist nicht 2.3.0 Alpha');
   assert.ok(window.CutCoachJournalV72,'7.2-Journalmodul wurde nicht gestartet');
   assert.ok(node('#journalEnergyStatus'),'Kalorienstatus fehlt');
   assert.match(node('#journalEnergyStatusLabel').textContent,/Spielraum|Zielkorridor|Tagesziel/,'Kalorienstatus ist nicht verständlich');

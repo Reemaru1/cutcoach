@@ -1,6 +1,6 @@
 'use strict';
 self.CUTCOACH_RUNTIME=Object.freeze({
-  version:'2.2.1-alpha',
+  version:'2.3.0-alpha',
   baseAssets:Object.freeze([
     './style.css?v=2.3.0','./core.js?v=7.0.0','./render.js?v=7.0.0','./actions.js?v=7.0.0','./app.js?v=7.0.0',
     './manifest.webmanifest?v=2.3.0','./icon.svg','./apple-touch-icon.png?v=2.3.0','./icon-192.png?v=2.3.0','./library.css?v=7.0.0',
@@ -17,7 +17,8 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './nutrition-search-confidence-v150.css?v=1.7.1-alpha','./nutrition-production-acceptance-v180.css?v=1.8.0-alpha',
     './glass-nav-v131.css?v=1.3.6-alpha','./journal-polish-v137.css?v=1.3.7-alpha','./nutrition-polish-v138.css?v=1.3.8-alpha',
     './nutrition-ui-consistency-v206.css?v=2.0.8-loader','./liquid-glass-ui-v207.css?v=2.0.8-loader','./scrollbar-cleanup-v209.css?v=2.0.9-alpha',
-    './body-progress-v220.css?v=2.2.1-production'
+    './body-progress-v220.css?v=2.2.1-production','./src/shared/design-system-v800.css?v=8.0.0-alpha',
+    './src/features/journal/dashboard-v800.css?v=8.0.0-alpha'
   ]),
   scripts:Object.freeze([
     './src/shared/module-registry.js?v=1.0.0-alpha','./src/shared/product-insights.js?v=1.0.0-alpha','./src/shared/ui.js?v=1.0.0-alpha',
@@ -33,8 +34,9 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './nutrition-search-exact-whole-v170.js?v=1.9.6-alpha','./nutrition-spoken-intent-v202.js?v=2.0.2-alpha',
     './nutrition-search-confidence-hardening-v151.js?v=1.9.0-alpha','./nutrition-multisearch-canonical-128.js?v=1.5.0-alpha',
     './nutrition-multisearch-120.js?v=1.9.6-compat','./nutrition-production-acceptance-v180.js?v=1.8.0-alpha',
-    './glass-nav-v131.js?v=1.3.3-alpha','./nutrition-stability-v201.js?v=2.0.1-alpha','./version-v7.js?v=2.2.1-alpha',
+    './glass-nav-v131.js?v=1.3.3-alpha','./nutrition-stability-v201.js?v=2.0.1-alpha','./version-v7.js?v=2.3.0-alpha',
     './journal-polish-v137.js?v=1.3.7-alpha','./nutrition-search-input-performance-v193.js?v=1.9.9-alpha',
-    './nutrition-polish-v138.js?v=1.3.11-alpha','./nutrition-ui-consistency-v206.js?v=2.0.8-loader','./body-progress-v220.js?v=2.2.1-production'
+    './nutrition-polish-v138.js?v=1.3.11-alpha','./nutrition-ui-consistency-v206.js?v=2.0.8-loader','./body-progress-v220.js?v=2.2.1-production',
+    './src/features/journal/dashboard-v800.js?v=8.0.0-alpha'
   ])
 });

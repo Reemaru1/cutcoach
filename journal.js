@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'2.2.1-alpha';
+  const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'2.3.0-alpha';
   const WATER_KEY='cutcoach_water_v1';
   const WATER_RECOVERY_KEY='cutcoach_water_recovery_raw_v1';
   const WATER_UNDO_KEY='cutcoach_water_undo_v10';
@@ -61,7 +61,7 @@
   function greeting(){
     if(selectedDate!==todayKey())return 'Tagesrückblick';
     const hour=new Date().getHours();
-    return hour<11?'Guten Morgen! 👋':hour<17?'Guten Tag! 👋':'Guten Abend! 👋';
+    return hour<11?'Guten Morgen!':hour<17?'Guten Tag!':'Guten Abend!';
   }
   function activityEstimate(data){
     const steps=data.steps===null?0:Number(data.steps)||0;
@@ -356,7 +356,7 @@
     host.querySelectorAll('[data-journal-water]').forEach(button=>button.addEventListener('click',()=>writeWater(waterFor()+Number(button.dataset.journalWater))));
     host.querySelector('#journalWaterUndo').addEventListener('click',undoWater);
     host.querySelector('#journalWaterInfo').addEventListener('click',()=>toast?.('Das Tagesziel liegt bei 3 Litern. Der aktuelle Trinkplan berücksichtigt bei heute auch die Tageszeit.'));
-    host.querySelector('#journalWeightButton').addEventListener('click',()=>{const data=day(selectedDate,false),weight=document.querySelector('#weightInput'),remove=document.querySelector('#clearWeight');if(weight)weight.value=data.weight??'';if(remove)remove.hidden=data.weight===null;openModal?.('weightModal')});
+    host.querySelector('#journalWeightButton').addEventListener('click',()=>{if(window.CutCoachBodyProgress220?.openMeasurement){window.CutCoachBodyProgress220.openMeasurement(selectedDate);return}const data=day(selectedDate,false),weight=document.querySelector('#weightInput'),remove=document.querySelector('#clearWeight');if(weight)weight.value=data.weight??'';if(remove)remove.hidden=data.weight===null;openModal?.('weightModal')});
     host.querySelectorAll('[data-journal-gym]').forEach(button=>button.addEventListener('click',()=>toggleCheck('gym',button.dataset.journalGym==='true')));
     host.querySelectorAll('[data-journal-alcohol]').forEach(button=>button.addEventListener('click',()=>toggleCheck('alcohol',button.dataset.journalAlcohol==='true')));
     let touchStart=0;
@@ -391,7 +391,7 @@
     host.querySelector('#journalGreeting').textContent=greeting();host.querySelector('#journalHeadline').textContent=isToday?'Dein Tagesüberblick':'Dein Tagesrückblick';
     host.querySelector('#journalNextDay').disabled=selectedDate>=todayKey();
     const scoreNode=host.querySelector('#journalScore'),scoreLabel=score===null?'Tagesnote noch offen':`Tagesnote ${fmt1(score)} von 10`;
-    scoreNode.textContent=score===null?'Offen':fmt1(score);scoreNode.closest('.journal-status-item').setAttribute('aria-label',scoreLabel);scoreNode.closest('.journal-status-item').title=scoreLabel;
+    scoreNode.textContent=score===null?'Offen':fmt0(score);scoreNode.closest('.journal-status-item').setAttribute('aria-label',scoreLabel);scoreNode.closest('.journal-status-item').title=scoreLabel;
     const streakNode=host.querySelector('#journalGym'),streakItem=streakNode.closest('.journal-status-item');streakNode.textContent=String(streak.count);
     const streakLabel=streak.pending?`${streak.count} Tage in Folge – heute fehlt noch ein Tagebucheintrag`:`${streak.count} Tage in Folge mit mindestens einem Tagebucheintrag`;
     streakItem.classList.toggle('pending',streak.pending);streakItem.setAttribute('aria-label',streakLabel);streakItem.title=streakLabel;
@@ -400,7 +400,7 @@
     const ring=host.querySelector('#journalCalorieRing');ring.style.setProperty('--journal-calories',`${clampValue(rawCaloriePct,0,100)*3.6}deg`);ring.classList.toggle('over',remaining<0);ring.classList.toggle('near',remaining>=0&&remaining<=200);ring.classList.toggle('empty',total.calories===0);ring.setAttribute('aria-label',`${fmt0(total.calories)} von ${fmt0(settings.calories)} Kilokalorien gegessen`);
     [['protein',total.protein,settings.protein],['carbs',total.carbs,settings.carbs],['fat',total.fat,settings.fat]].forEach(([key,value,goal])=>{const raw=goal>0?value/goal*100:(value>0?100:0),shown=Math.round(raw),article=host.querySelector(`#${key}JournalText`).closest('article');host.querySelector(`#${key}JournalText`).textContent=`${fmt0(value)} / ${fmt0(goal)} g`;host.querySelector(`#${key}JournalBar`).style.width=`${clampValue(raw,0,100)}%`;host.querySelector(`#${key}JournalPct`).textContent=goal===0?(value===0?'–':`${fmt0(value)} g`):`${shown} %`;article.classList.toggle('complete',goal>0&&raw>=90&&raw<=110);article.classList.toggle('over',goal>0&&raw>110)});
     renderMeals(data,settings);
-    const mealCount=data.meals.length;host.querySelector('#journalMealSummary').textContent=mealCount?`${mealCount} ${mealCount===1?'Eintrag':'Einträge'} · ${fmt0(total.calories)} kcal`:'Noch leer';
+    const mealCount=data.meals.length;host.querySelector('#journalMealSummary').textContent=mealCount?`${mealCount} Lebensmittel · ${fmt0(total.calories)} kcal`:'Noch leer';
     host.querySelectorAll('.journal-meal-row').forEach((row,index)=>{const type=MEAL_TYPES[index],current=data.meals.filter(item=>item.type===type).reduce((sum,item)=>sum+(Number(item.calories)||0),0),goal=Math.round(settings.calories*(mealRatios[type]||.25));row.classList.toggle('filled',current>0);row.classList.toggle('complete',goal>0&&current>=goal*.85&&current<=goal*1.15);row.classList.toggle('over',goal>0&&current>goal*1.15)});
     const steps=data.steps===null?null:Number(data.steps)||0,stepGoal=Number(settings.steps)||0,stepPercent=stepGoal>0?Math.round(percent(steps||0,stepGoal)):0;
     host.querySelector('#journalSteps').textContent=steps===null?'– Schritte':`${fmt0(steps)} Schritte`;host.querySelector('#journalStepGoal').textContent=stepGoal>0?fmt0(stepGoal):'–';host.querySelector('#journalStepBar').style.width=`${stepPercent}%`;host.querySelector('#journalStepPct').textContent=stepGoal>0?`${stepPercent}%`:'Kein Ziel';host.querySelector('.journal-steps-card').classList.toggle('goal-reached',steps!==null&&stepGoal>0&&steps>=stepGoal);
@@ -412,9 +412,9 @@
     const waterHint=host.querySelector('#journalWaterHint');waterHint.textContent=water>=WATER_TARGET?(water>WATER_TARGET?`${fmt0(water-WATER_TARGET)} ml über dem Tagesziel.`:'Tagesziel erreicht – stark!'):isToday&&water>=pace?`Im Trinkplan · noch ${fmt0(WATER_TARGET-water)} ml bis zum Tagesziel.`:isToday&&water>0?`Noch ${fmt0(Math.max(0,pace-water))} ml bis zum aktuellen Soll.`:water>0?`Noch ${fmt0(WATER_TARGET-water)} ml bis zum Tagesziel.`:'Starte mit dem ersten Glas.';
     const undo=host.querySelector('#journalWaterUndo');undo.disabled=water<=0;undo.textContent=water>0?`↶ −${fmt0(undoAmount)} ml`:'↶ Rückgängig';undo.setAttribute('aria-label',water>0?`${fmt0(undoAmount)} Milliliter Wasser entfernen`:'Keine Wasseränderung zum Rückgängigmachen');
     const allWeights=weightEntries(selectedDate),previous=allWeights.filter(([key])=>key<selectedDate).at(-1);host.querySelector('#journalWeight').textContent=data.weight===null?'– kg':`${fmt1(data.weight)} kg`;host.querySelector('#journalWeightMeta').textContent=data.weight!==null?'Für diesen Tag':previous?`Zuletzt ${dateFromKey(previous[0]).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})}: ${fmt1(previous[1].weight)} kg`:'Noch kein Messwert';host.querySelector('#journalWeightButton').textContent=data.weight===null?'Eintragen':'Ändern';
-    const completed=[data.weight!==null,data.gym!==null,data.alcohol!==null].filter(Boolean).length,check=host.querySelector('#journalCheckStatus'),checkCard=host.querySelector('.journal-check-card');check.textContent=completed===3?'Vollständig':`${completed}/3 Angaben`;check.classList.toggle('complete',completed===3);check.classList.toggle('partial',completed>0&&completed<3);checkCard.classList.toggle('complete',completed===3);
+    const completed=[data.weight!==null,data.gym!==null,data.alcohol!==null].filter(Boolean).length,check=host.querySelector('#journalCheckStatus'),checkCard=host.querySelector('.journal-check-card');check.textContent=`Basischeck ${completed}/3`;check.classList.toggle('complete',completed===3);check.classList.toggle('partial',completed>0&&completed<3);checkCard.classList.toggle('complete',completed===3);
     host.querySelectorAll('[data-journal-gym]').forEach(button=>{const active=String(data.gym)===button.dataset.journalGym;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});host.querySelectorAll('[data-journal-alcohol]').forEach(button=>{const active=String(data.alcohol)===button.dataset.journalAlcohol;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});
-    host.querySelector('#journalCoachText').textContent=feedbackJournal();host.querySelector('#journalCoachTitle').textContent=isToday?(total.calories?'Dein nächster sinnvoller Schritt':'Bereit für deinen Tag'):(total.calories?'Rückblick auf diesen Tag':'Noch keine Einträge');host.querySelector('#journalScoreLarge').textContent=score===null?'–':fmt1(score);host.querySelector('.journal-coach-card').classList.toggle('strong',score!==null&&score>=8);host.querySelector('.journal-coach-card').classList.toggle('attention',score!==null&&score<6);
+    host.querySelector('#journalCoachText').textContent=feedbackJournal();host.querySelector('#journalCoachTitle').textContent=isToday?(total.calories?'Dein nächster sinnvoller Schritt':'Bereit für deinen Tag'):(total.calories?'Rückblick auf diesen Tag':'Noch keine Einträge');host.querySelector('#journalScoreLarge').textContent=score===null?'–':fmt0(score);host.querySelector('.journal-coach-card').classList.toggle('strong',score!==null&&score>=8);host.querySelector('.journal-coach-card').classList.toggle('attention',score!==null&&score<6);
     const version=document.querySelector('#appVersion');if(version)version.textContent=`Version ${VERSION}`;
   }
 

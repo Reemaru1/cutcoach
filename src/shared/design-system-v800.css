@@ -1,0 +1,43 @@
+:root{
+  color-scheme:dark;
+  --cc-bg:#03080c;
+  --cc-bg-raised:#071017;
+  --cc-surface:rgba(13,22,29,.9);
+  --cc-surface-strong:#0d171f;
+  --cc-surface-soft:rgba(255,255,255,.035);
+  --cc-line:rgba(171,205,220,.17);
+  --cc-line-strong:rgba(171,205,220,.27);
+  --cc-text:#f5f8f9;
+  --cc-text-soft:#c3cdd2;
+  --cc-muted:#8f9ca3;
+  --cc-mint:#75e5bd;
+  --cc-mint-bright:#9af4d2;
+  --cc-blue:#71bfff;
+  --cc-amber:#ffbd69;
+  --cc-coral:#ff7b72;
+  --cc-training:#ff8a68;
+  --cc-radius-xl:24px;
+  --cc-radius-lg:19px;
+  --cc-radius-md:14px;
+  --cc-shadow:0 16px 40px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.035);
+  --cc-focus:0 0 0 3px rgba(113,191,255,.3);
+  --bp220-mint:var(--cc-mint);
+  --bp220-mint-bright:var(--cc-mint-bright);
+  --bp220-orange:var(--cc-training);
+  --bp220-orange-soft:#ffa27f;
+  --bp220-bg:var(--cc-bg);
+  --bp220-card:var(--cc-surface);
+  --bp220-line:var(--cc-line);
+}
+
+.cc-symbol{display:inline-grid;place-items:center;flex:0 0 auto;color:currentColor}
+.cc-symbol svg{display:block;width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.85;stroke-linecap:round;stroke-linejoin:round}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--cc-blue)!important;outline-offset:3px!important}
+
+@media(prefers-reduced-motion:reduce){
+  html:focus-within{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
+@media(prefers-reduced-transparency:reduce){
+  :root{--cc-surface:#0d161d;--cc-surface-soft:#111c24}
+}

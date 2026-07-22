@@ -38,6 +38,7 @@ const settle=()=>new Promise(resolve=>dom.window.setTimeout(resolve,0));
 
   dom.window.CutCoachInsights.track('onboarding_shown');
   dom.window.CutCoachInsights.track('onboarding_completed');
+  dom.window.CutCoachInsights.track('journal_feedback',{value:'helpful'});
   dom.window.dispatchEvent(new dom.window.CustomEvent('cutcoach:nutrition-search-rendered',{detail:{hasQuery:true,resultCount:8,queryLengthBucket:'medium',latencyMs:180,query:'dieser Suchtext ist privat'}}));
   dom.window.document.querySelector('[data-tab="food"]').click();
   await settle();
@@ -56,6 +57,7 @@ const settle=()=>new Promise(resolve=>dom.window.setTimeout(resolve,0));
   assert.equal(snapshot.features.nutrition,1);
   assert.equal(snapshot.features.progress,1);
   assert.equal(snapshot.actions.progress_measurement_open,1);
+  assert.equal(snapshot.feedback.journal.helpful,1);
   assert.doesNotMatch(dom.window.localStorage.getItem(dom.window.CutCoachInsights.storageKey),/dieser Suchtext ist privat/);
 
   dom.window.document.getElementById('customerFeedbackText').value='Die Erklärung darf kürzer sein.';
