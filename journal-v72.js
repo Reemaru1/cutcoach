@@ -181,7 +181,7 @@
   function strongestComponent(components){return [...components].sort((a,b)=>b.value-a.value||b.weight-a.weight)[0]||null}
   function renderSummary(total,data,settings,water,score){
     ensureSummaryDepth();const components=scoreComponents();if(!components.length)return;
-    setText($('#journalScoreLarge'),score===null?'–':fmt(score,1));setText($('#journalScore'),score===null?'Offen':fmt(score,1));
+    setText($('#journalScoreLarge'),score===null?'–':fmt(score,0));setText($('#journalScore'),score===null?'Offen':fmt(score,0));
     const drivers=$('#journalScoreDrivers');if(drivers)drivers.innerHTML=components.map(item=>`<div class="${item.value>=.85?'good':item.value<.55?'attention':''}"><span>${escapeHtml(item.label)} <small>${Math.round(item.weight)} %</small></span><b>${fmt(item.value*item.weight,1)} / ${fmt(item.weight)} Punkte</b><em>${escapeHtml(item.detail)}</em></div>`).join('');
     const weakest=weakestComponent(components),strongest=strongestComponent(components),verdict=score>=8.5?'Sehr starker, ausgewogener Tag':score>=7?'Solider Tag mit klarem Potenzial':score>=5.5?'Mehrere Grundlagen sind vorhanden':'Heute fehlen noch wichtige Grundlagen';
     setText($('#journalSummaryVerdictTitle'),verdict);setText($('#journalSummaryVerdictText'),strongest&&weakest?`Stärkster Bereich: ${strongest.label}. Größter Hebel: ${weakest.label}. Die Note bewertet Verhalten und Zielnähe – nicht deinen persönlichen Wert.`:'Die Tagesnote wird aufgebaut, sobald genügend Daten vorliegen.');

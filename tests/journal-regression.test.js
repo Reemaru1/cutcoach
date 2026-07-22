@@ -88,7 +88,7 @@ const input=(selector,value)=>{
   assert.equal(window.document.querySelector('#journalQuickAdd'),null,'Doppeltes Schnell-Plus ist zurückgekehrt');
   assert.equal(window.document.querySelectorAll('.journal-meal-add').length,4,'Mahlzeiten-Plus fehlt');
   assert.deepEqual([...window.document.querySelectorAll('[data-journal-alcohol]')].map(node=>node.textContent.trim()),['Ja','Nein'],'Alkohol-Reihenfolge ist falsch');
-  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 2.2.1-alpha');
+  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 2.3.0-alpha');
   assert.equal(window.CutCoachFoodCatalog.meta.count,7064,'BLS-Katalog ist unvollständig');
   assert.equal(window.CutCoachFoodCatalog.meta.license,'CC BY 4.0','BLS-Lizenzhinweis fehlt');
   assert.equal(window.CutCoachLibrary.exportData().version,3,'Bibliothek wurde nicht auf das neue Datenmodell migriert');
@@ -360,7 +360,7 @@ const input=(selector,value)=>{
   assert.notEqual(window.document.querySelector('#journalScore').textContent,'Offen','Tagesnote bleibt trotz Mahlzeit offen');
   click('#journalWeightButton');input('#weightInput','97.2');click('#saveWeight');
   assert.equal(test.day(previousDate,false).weight,97.2,'Gewicht wurde nicht gespeichert');
-  assert.equal(window.document.querySelector('#journalCheckStatus').textContent,'Vollständig','Tagescheck erkennt vollständige Angaben nicht');
+  assert.equal(window.document.querySelector('#journalCheckStatus').textContent,'Basischeck 3/3','Tagescheck erkennt vollständige Basisangaben nicht');
 
   input('#setSteps',0);input('#setGymGoal',0);test.saveSettings();
   assert.equal(window.document.querySelector('#journalStepPct').textContent,'Kein Ziel','Deaktiviertes Schrittziel wird als 0 % dargestellt');
@@ -372,7 +372,7 @@ const input=(selector,value)=>{
   assert.equal(errors.length,0,`Unerwartete Browserfehler: ${errors.map(error=>error.message).join(' | ')}`);
 
   const manifest=fs.readFileSync(path.join(project,'runtime-manifest.js'),'utf8');
-  assert.match(manifest,/version:'2\.2\.1-alpha'/,'Offline-Cache hat falsche Version');
+  assert.match(manifest,/version:'2\.3\.0-alpha'/,'Offline-Cache hat falsche Version');
   for(const match of manifest.matchAll(/'\.\/([^'?]+)(?:\?[^']*)?'/g)){
     const asset=match[1];
     if(asset==='')continue;

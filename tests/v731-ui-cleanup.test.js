@@ -24,13 +24,13 @@ assert.ok(cleanupCss.includes('letter-spacing:-.035em'),'Kohlenhydrate wurde nic
 assert.match(journalLive,/CutCoachJournalV72\?\.render/,'Live-Journal wird nach Datenänderungen nicht neu berechnet');
 assert.match(journalLive,/Schnell anlegen/,'Manueller Eintrag wurde nicht verständlicher benannt');
 assert.match(journalLive,/Noch nicht eingetragen/,'Doppelte Schritte-Anzeige wird nicht korrigiert');
-assert.ok(version.includes("const RELEASE='2.2.1 Alpha'"),'Releaseversion ist nicht 2.2.1 Alpha');
-assert.ok(manifest.includes("version:'2.2.1-alpha'"),'Cacheversion ist nicht 2.2.1 Alpha');
+assert.ok(version.includes("const RELEASE='2.3.0 Alpha'"),'Releaseversion ist nicht 2.3.0 Alpha');
+assert.ok(manifest.includes("version:'2.3.0-alpha'"),'Cacheversion ist nicht 2.3.0 Alpha');
 assert.ok(manifest.includes('journal-live-nav-v127.js?v=1.3.2-alpha'),'Repariertes Live-Journal-Modul fehlt im Cache');
 assert.ok(manifest.includes('nutrition-v73.js?v=7.3.2'),'Nutrition-QA-Modul fehlt im Cache');
 assert.ok(manifest.includes('ui-cleanup-v732.css?v=7.3.3'),'Cleanup-CSS fehlt im Cache');
 assert.ok(manifest.includes('nutrition-search-exact-whole-v170.js?v=1.9.6-alpha'),'Artikel- und Sequenzschutz fehlt im Cache');
-assert.ok(sw.includes('runtime-manifest.js?v=2.2.1-alpha'),'Service Worker lädt falsches Manifest');
+assert.ok(sw.includes('runtime-manifest.js?v=2.3.0-alpha'),'Service Worker lädt falsches Manifest');
 assert.ok(sw.includes('search196-article-sequence'),'Service Worker enthält die Artikel- und Sequenzgeneration nicht');
-assert.ok(update.includes('sw.js?v=2.2.1-alpha'),'Update-Seite installiert nicht 2.2.1 Alpha');
-console.log('CutCoach 2.2.1 Alpha UI and fixed live journal patch: ok');
+assert.ok(update.includes('sw.js?v=2.3.0-alpha'),'Update-Seite installiert nicht 2.3.0 Alpha');
+console.log('CutCoach 2.3.0 Alpha UI and fixed live journal patch: ok');

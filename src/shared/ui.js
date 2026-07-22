@@ -2,6 +2,7 @@
 
 (function(root){
   const FEEDBACK_KEY='cutcoach_customer_feedback_v1';
+  const JOURNAL_FEEDBACK_KEY='cutcoach_journal_feedback_v800';
   const CATEGORIES=new Set(['clarity','helpfulness','accessibility','nutrition-search','other']);
   const byId=id=>document.getElementById(id);
   function feedbackEntries(){try{const parsed=JSON.parse(localStorage.getItem(FEEDBACK_KEY)||'[]');return Array.isArray(parsed)?parsed.slice(-100):[]}catch{return[]}}
@@ -21,14 +22,15 @@
   function renderSummary(){
     const node=byId('qualityMetricsSummary');if(!node)return;const data=root.CutCoachInsights?.snapshot();if(!data){node.textContent='Lokale Qualitätsmessung ist nicht verfügbar.';return}
     const success=data.search.attempts?Math.round(data.search.withResults/data.search.attempts*100):null;
-    node.textContent=`Onboarding: ${data.onboarding.completed}/${data.onboarding.shown} abgeschlossen · Suche: ${success===null?'noch keine Daten':`${success} % mit Treffer`} · Auswahl nach Suche: ${data.search.selections} · Barrierefreiheitsprüfungen: ${data.accessibility.audits}`;
+    const journalVotes=Object.values(data.feedback?.journal||{}).reduce((sum,value)=>sum+(Number(value)||0),0),journalHelpful=journalVotes?Math.round((Number(data.feedback.journal.helpful)||0)/journalVotes*100):null;
+    node.textContent=`Onboarding: ${data.onboarding.completed}/${data.onboarding.shown} abgeschlossen · Suche: ${success===null?'noch keine Daten':`${success} % mit Treffer`} · Tagebuch hilfreich: ${journalHelpful===null?'noch keine Daten':`${journalHelpful} %`} · Auswahl nach Suche: ${data.search.selections} · Barrierefreiheitsprüfungen: ${data.accessibility.audits}`;
   }
   function mount(){
     const enabled=byId('qualityMetricsEnabled'),status=byId('customerFeedbackStatus');if(!enabled)return;
     enabled.checked=Boolean(root.CutCoachInsights?.isEnabled());renderSummary();
     enabled.addEventListener('change',()=>{root.CutCoachInsights?.setEnabled(enabled.checked);renderSummary();if(status)status.textContent=enabled.checked?'Lokale Qualitätsmessung aktiviert.':'Qualitätsdaten wurden gelöscht und die Messung deaktiviert.'});
     byId('qualityMetricsExport')?.addEventListener('click',()=>download(`cutcoach-qualitaet-${new Date().toISOString().slice(0,10)}.json`,{exportedAt:new Date().toISOString(),insights:root.CutCoachInsights?.snapshot()||null,feedback:feedbackEntries()}));
-    byId('qualityMetricsClear')?.addEventListener('click',()=>{if(!confirm('Lokale Qualitätsmessung und Feedback wirklich löschen?'))return;root.CutCoachInsights?.reset();clearFeedback();renderSummary();if(status)status.textContent='Lokale Qualitätsdaten und Feedback wurden gelöscht.'});
+    byId('qualityMetricsClear')?.addEventListener('click',()=>{if(!confirm('Lokale Qualitätsmessung und Feedback wirklich löschen?'))return;root.CutCoachInsights?.reset();clearFeedback();try{localStorage.removeItem(JOURNAL_FEEDBACK_KEY)}catch{}renderSummary();if(status)status.textContent='Lokale Qualitätsdaten und Feedback wurden gelöscht.'});
     byId('customerFeedbackSave')?.addEventListener('click',()=>{
       const category=byId('customerFeedbackCategory')?.value,score=Number(byId('customerFeedbackScore')?.value),note=String(byId('customerFeedbackText')?.value||'').replace(/[\u0000-\u001F\u007F]/g,' ').replace(/\s+/g,' ').trim().slice(0,600);
       if(!CATEGORIES.has(category)||!Number.isInteger(score)||score<1||score>5){if(status)status.textContent='Bitte Kategorie und Bewertung auswählen.';return}

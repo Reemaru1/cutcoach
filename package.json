@@ -1,6 +1,6 @@
 {
   "name": "cutcoach",
-  "version": "2.2.1-alpha",
+  "version": "2.3.0-alpha",
   "private": true,
   "scripts": {
     "test": "node tests/run-suite.js",

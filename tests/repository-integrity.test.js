@@ -17,7 +17,7 @@ const update=read('update.html');
 const loader=read('version-v7.js');
 const core=read('core.js');
 
-assert.equal(release,'2.2.1-alpha');
+assert.equal(release,'2.3.0-alpha');
 assert.ok(core.includes(`const APP_VERSION = '${release}'`),'Kernversion weicht von package.json ab.');
 assert.ok(loader.includes(`const RELEASE='${releaseLabel}'`),'Sichtbare Version weicht von package.json ab.');
 assert.ok(manifest.includes(`version:'${release}'`),'Runtime-Version weicht von package.json ab.');

@@ -62,7 +62,9 @@ Neue produktübergreifende Logik beginnt unter `src/`, ohne die stabile Laufzeit
 - `src/shared/module-registry.js` – gemeinsamer Lebenszyklus und Navigation für Feature-Adapter
 - `src/shared/product-insights.js` – ausschließlich lokale, aggregierte Qualitätsmessung ohne Suchtexte oder Gesundheitswerte
 - `src/shared/ui.js` – gemeinsame Qualitäts-, Export-, Feedback- und Barrierefreiheitsoberfläche
-- `src/features/journal/` – Adapter und künftige Tagebuchmodule
+- `src/shared/design-system-v800.css` – gemeinsame Farb-, Kontrast-, Fokus- und Bewegungsregeln für Tagebuch und Fortschritt
+- `src/features/journal/dashboard-v800.js` und `dashboard-v800.css` – produktive Dashboard-Komposition, Schnellzugriffe, SVG-Symbole und responsive Tagebuchoberfläche
+- `src/features/journal/` – Adapter und produktive Tagebuchmodule
 - `src/features/nutrition/` – Adapter und künftige Ernährungsmodule
 - `src/features/progress/` – Adapter und künftige Fortschrittsmodule
 
@@ -70,4 +72,4 @@ Bestehende Root-Dateien werden erst dann in diese Bereiche verschoben, wenn ihr 
 
 ## Kundenorientierte Qualitätsmessung
 
-CutCoach misst lokal Onboarding-Abschluss und -Abbruch, Feature-Aufrufe, Suchtreffer, Auswahl nach Suche und automatische Barrierefreiheitsindikatoren. Suchbegriffe, Mahlzeiten, Gewichte und andere Gesundheitsdaten werden nicht in den Qualitätszählern gespeichert. Freitext-Feedback bleibt getrennt auf dem Gerät und wird nur durch einen ausdrücklichen Export des Nutzers geteilt. Eine spätere zentrale Auswertung benötigt vorab Datenschutztext, Einwilligung, Löschkonzept und einen freigegebenen Backend-Endpunkt.
+CutCoach misst lokal Onboarding-Abschluss und -Abbruch, Feature-Aufrufe, Suchtreffer, Auswahl nach Suche, genutzte Tagebuch-Schnellzugriffe, eine dreistufige Hilfreichkeitsbewertung und automatische Barrierefreiheitsindikatoren. Suchbegriffe, Mahlzeiten, Gewichte und andere Gesundheitsdaten werden nicht in den Qualitätszählern gespeichert. Freitext-Feedback bleibt getrennt auf dem Gerät und wird nur durch einen ausdrücklichen Export des Nutzers geteilt. Eine spätere zentrale Auswertung benötigt vorab Datenschutztext, Einwilligung, Löschkonzept und einen freigegebenen Backend-Endpunkt.
