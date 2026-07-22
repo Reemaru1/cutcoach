@@ -2,7 +2,7 @@
 importScripts('./runtime-manifest.js?v=2.3.0-alpha');
 const RUNTIME=self.CUTCOACH_RUNTIME;
 const CACHE_PREFIX='cutcoach-';
-const CACHE_BASE=`cutcoach-v${RUNTIME.version}-nav136-journal137-nutrition138-dishes140-dashboard800`;
+const CACHE_BASE=`cutcoach-v${RUNTIME.version}-nav136-journal137-nutrition138-dishes140-dashboard801`;
 const PORTION_CACHE=`${CACHE_BASE}-search153-portions`;
 const LEARNING_CACHE=`${PORTION_CACHE}-search160-learning`;
 const SEARCH_CACHE=`${LEARNING_CACHE}-search161-hardening`;
