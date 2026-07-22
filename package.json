@@ -3,9 +3,11 @@
   "version": "2.3.0-alpha",
   "private": true,
   "scripts": {
+    "build:search-index": "node tools/build-nutrition-search-index.js",
+    "check:search-index": "node tools/build-nutrition-search-index.js --check",
     "test": "node tests/run-suite.js",
     "check:syntax": "node tests/check-syntax.js",
-    "check": "npm run check:syntax && npm test"
+    "check": "npm run check:search-index && npm run check:syntax && npm test"
   },
   "devDependencies": {
     "jsdom": "24.1.3"

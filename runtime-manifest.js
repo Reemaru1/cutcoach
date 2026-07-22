@@ -4,7 +4,8 @@ self.CUTCOACH_RUNTIME=Object.freeze({
   baseAssets:Object.freeze([
     './style.css?v=2.3.0','./core.js?v=7.0.0','./render.js?v=7.0.0','./actions.js?v=7.0.0','./app.js?v=7.0.0',
     './manifest.webmanifest?v=2.3.0','./icon.svg','./apple-touch-icon.png?v=2.3.0','./icon-192.png?v=2.3.0','./library.css?v=7.0.0',
-    './assets/body-progress-body-v3.png?v=2.2.0','./assets/body-progress-training-v3.png?v=2.2.0','./assets/body-progress-neutral-v3.png?v=2.2.0'
+    './assets/body-progress-body-v3.png?v=2.2.0','./assets/body-progress-training-v3.png?v=2.2.0','./assets/body-progress-neutral-v3.png?v=2.2.0',
+    './nutrition-search-worker.js?v=1.0.0','./assets/nutrition-search-index-v1.json?v=1.0.0'
   ]),
   styles:Object.freeze([
     './upgrade-360.css?v=4.2.0','./upgrade-420.css?v=4.2.0','./upgrade-430.css?v=4.3.0','./upgrade-560.css?v=5.6.0',
@@ -26,7 +27,7 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './food-catalog.js?v=7.0.0','./everyday-catalog-v73.js?v=7.3.0','./local-dishes-v140.js?v=1.4.0-alpha',
     './catalog-expansion-v191.js?v=1.9.1-alpha','./product-catalog-v200.js?v=2.0.0-alpha','./library.js?v=7.0.0',
     './library-init.js?v=7.0.0','./scanner-v2.js?v=1.8.1-alpha','./off-lookup.js?v=1.8.1-alpha','./upgrade-340.js?v=7.0.0',
-    './nutrition.js?v=7.1.0','./journal.js?v=7.0.0','./water-animation.js?v=6.8.5','./nutrition-v7.js?v=7.0.0',
+    './nutrition.js?v=7.2.0','./journal.js?v=7.0.0','./water-animation.js?v=6.8.5','./nutrition-v7.js?v=7.0.0',
     './nutrition-v73.js?v=7.3.2','./ui-effects-v7.js?v=7.1.0','./journal-v72.js?v=7.2.1','./journal-energy-live-v143.js?v=1.4.3-alpha',
     './journal-smart-v740.js?v=1.0.1-alpha','./journal-live-nav-v127.js?v=1.3.3-alpha','./nutrition-cleanup-101.js?v=1.0.4-alpha',
     './nutrition-v110.js?v=1.1.2-alpha','./nutrition-voice-111.js?v=1.9.2-alpha','./nutrition-portion-profiles-v153.js?v=1.5.3-alpha',
