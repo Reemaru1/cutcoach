@@ -1,7 +1,7 @@
 'use strict';
 
 (function(root){
-  const VERSION='2.1.1-alpha';
+  const VERSION='2.2.1-alpha';
   const $=(selector,scope=document)=>scope?.querySelector?.(selector)||null;
   const $$=(selector,scope=document)=>[...(scope?.querySelectorAll?.(selector)||[])];
   const ICONS=Object.freeze({
@@ -23,6 +23,13 @@
   });
   let scheduled=false,observer=null,bound=false;
 
+  function ensureStyleOrder(){
+    const href='src/features/nutrition/nutrition-v210.css?v=2.2.1-alpha';
+    let link=[...document.querySelectorAll('link[rel="stylesheet"]')].find(item=>(item.getAttribute('href')||'').includes('nutrition-v210.css'));
+    if(!link){link=document.createElement('link');link.rel='stylesheet';link.href=href;link.dataset.nutritionV210='1';document.head.append(link);return}
+    const styles=[...document.querySelectorAll('link[rel="stylesheet"]')];if(styles.at(-1)!==link)document.head.append(link);
+  }
+
   function icon(name){return `<span class="nutrition-v210-icon" aria-hidden="true">${ICONS[name]||ICONS.food}</span>`}
   function setIcon(node,name){if(!node||node.dataset.nutritionV210Icon===name)return;node.dataset.nutritionV210Icon=name;node.innerHTML=ICONS[name]||ICONS.food;node.classList.add('nutrition-v210-icon');node.setAttribute('aria-hidden','true')}
   function setText(node,value){if(node&&node.textContent!==value)node.textContent=value}
@@ -43,7 +50,7 @@
 
   function enhanceAnalysis(screen){
     const analysis=$('#nutritionV7Analysis',screen),head=$('.nutrition-v7-analysis-head',analysis);if(!analysis||!head||analysis.dataset.nutritionV211Toggle==='1')return;
-    analysis.dataset.nutritionV211Toggle='1';analysis.classList.add('is-collapsed');head.tabIndex=0;head.setAttribute('role','button');head.setAttribute('aria-expanded','false');head.setAttribute('aria-label','Zusatzwerte anzeigen');
+    analysis.dataset.nutritionV211Toggle='1';analysis.classList.add('is-collapsed');head.id=head.id||'nutritionV210AnalysisToggle';const grid=$('.nutrition-v7-analysis-grid',analysis);if(grid){grid.id=grid.id||'nutritionV210AnalysisDetails';grid.setAttribute('aria-labelledby',head.id);head.setAttribute('aria-controls',grid.id)}head.tabIndex=0;head.setAttribute('role','button');head.setAttribute('aria-expanded','false');head.setAttribute('aria-label','Zusatzwerte anzeigen');
     const toggle=()=>{const collapsed=analysis.classList.toggle('is-collapsed');head.setAttribute('aria-expanded',String(!collapsed));head.setAttribute('aria-label',collapsed?'Zusatzwerte anzeigen':'Zusatzwerte ausblenden')};
     head.addEventListener('click',toggle);head.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle()}});
   }
@@ -105,7 +112,7 @@
   }
 
   function observe(){observer?.observe(document.body||document.documentElement,{childList:true,subtree:true})}
-  function sync(){scheduled=false;observer?.disconnect();try{const screen=$('[data-screen="food"]');if(screen?.dataset.nutritionReady==='1')polishMain(screen);polishForms();polishScanner();root.CutCoachGlassNavV131?.enhance?.()}finally{observe()}}
+  function sync(){scheduled=false;observer?.disconnect();try{ensureStyleOrder();const screen=$('[data-screen="food"]');if(screen?.dataset.nutritionReady==='1')polishMain(screen);polishForms();polishScanner();root.CutCoachGlassNavV131?.enhance?.()}finally{observe()}}
   function queue(){if(scheduled)return;scheduled=true;(root.requestAnimationFrame||setTimeout)(sync)}
   function bind(){
     if(bound)return;bound=true;

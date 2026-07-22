@@ -1,7 +1,7 @@
 'use strict';
 
 (function(root){
-  const VERSION='8.1.0-alpha';
+  const VERSION='8.2.1-alpha';
   const FEEDBACK_KEY='cutcoach_journal_feedback_v800';
   const $=(selector,scope=document)=>scope.querySelector(selector);
   const ICONS=Object.freeze({
@@ -37,7 +37,7 @@
     node.dataset.ccIcon=name;node.innerHTML=ICONS[name]||ICONS.target;node.classList.add('cc-symbol');node.setAttribute('aria-hidden','true');
   }
   function ensureStyleOrder(){
-    const href='src/features/journal/dashboard-v800.css?v=8.1.0-alpha';
+    const href='src/features/journal/dashboard-v800.css?v=8.2.1-alpha';
     let link=[...document.querySelectorAll('link[rel="stylesheet"]')].find(item=>(item.getAttribute('href')||'').includes('dashboard-v800.css'));
     if(!link){link=document.createElement('link');link.rel='stylesheet';link.href=href;link.dataset.dashboardV800='1';document.head.append(link);return}
     const styles=[...document.querySelectorAll('link[rel="stylesheet"]')];if(styles.at(-1)!==link)document.head.append(link);

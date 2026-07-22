@@ -1,10 +1,10 @@
 'use strict';
 (function(){
-  const VERSION='1.0.0 Alpha';
+  const VERSION='1.0.1 Alpha';
   const COLLAPSE_KEY='cutcoach_coach_compact_v2';
   const $=selector=>document.querySelector(selector);
   const mealOrder=['Frühstück','Mittagessen','Abendessen','Snack'];
-  let frame=0,rootObserver=null,bootstrapObserver=null,lastMeal='';
+  let frame=0,rootObserver=null,bootstrapObserver=null,lastMeal='',mealTimer=0;
 
   function loadLive127(){
     const stale=document.querySelector('link[data-journal-live-nav-v127]');if(stale)stale.remove();
@@ -24,11 +24,11 @@
   function compactOverview(){document.body.classList.add('journal-v740','cutcoach-alpha')}
   function sync(){frame=0;loadLive127();compactOverview();enhanceCoach();prioritizeMeals();directCoachAction();const version=$('#appVersion');if(version)version.textContent='Version 1.0.0 Alpha'}
   function queue(){if(frame)return;frame=requestAnimationFrame(sync)}
+  function scheduleMealRefresh(){clearTimeout(mealTimer);mealTimer=0;if(document.hidden)return;const delay=Math.max(1000,60050-(Date.now()%60000));mealTimer=window.setTimeout(()=>{if(preferredMeal()!==lastMeal)queue();scheduleMealRefresh()},delay)}
   function observeJournal(){const root=$('#today560');if(!root)return false;bootstrapObserver?.disconnect();bootstrapObserver=null;rootObserver?.disconnect();rootObserver=new MutationObserver(records=>{if(records.some(record=>record.addedNodes.length||record.removedNodes.length))queue()});rootObserver.observe(root,{childList:true,subtree:true});queue();return true}
-  function bootstrap(){loadLive127();if(observeJournal())return;bootstrapObserver=new MutationObserver(()=>observeJournal());bootstrapObserver.observe(document.body||document.documentElement,{childList:true,subtree:true})}
+  function bootstrap(){loadLive127();scheduleMealRefresh();if(observeJournal())return;bootstrapObserver=new MutationObserver(()=>observeJournal());bootstrapObserver.observe(document.body||document.documentElement,{childList:true,subtree:true})}
   document.addEventListener('click',event=>{if(event.target.closest?.('#today560 button,#today560 [role="button"]'))queue()},true);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)queue()});
-  window.setInterval(()=>{if(preferredMeal()!==lastMeal)queue()},60000);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){clearTimeout(mealTimer);mealTimer=0;return}queue();scheduleMealRefresh()});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootstrap,{once:true});else bootstrap();
   window.CutCoachJournalV740=Object.freeze({version:VERSION,refresh:queue,preferredMeal});
 })();

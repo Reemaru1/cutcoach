@@ -7,7 +7,7 @@ const {JSDOM}=require('jsdom');
 
 const root=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
-const dom=new JSDOM(`<!doctype html><html><head><link rel="stylesheet" href="src/features/journal/dashboard-v800.css?v=8.1.0-alpha"></head><body class="journal-mode cc-glass-nav-active"><div class="app"><main><section class="screen active" data-screen="today"><div id="today560">
+const dom=new JSDOM(`<!doctype html><html><head><link rel="stylesheet" href="src/features/journal/dashboard-v800.css?v=8.2.1-alpha"></head><body class="journal-mode cc-glass-nav-active"><div class="app"><main><section class="screen active" data-screen="today"><div id="today560">
   <section class="journal-topbar"><span id="journalWeekday">Heute</span><div class="journal-score-status"><i class="journal-status-icon">💎</i></div><div class="journal-streak-status"><i class="journal-status-icon">🔥</i></div></section>
   <section class="journal-heading"><small>Guten Abend</small><h1>Dein Tagesüberblick</h1></section>
   <section class="journal-energy-card"><div class="journal-energy-stats"><article><span class="stat-icon">🍴</span></article><article><span class="stat-icon">◎</span></article><article><span class="stat-icon">♨</span><div><small>Aktivität</small><strong id="journalBurned">280 kcal</strong></div></article></div><div class="journal-macros"><article><div class="journal-macro-title"><span>💪</span></div></article><article><div class="journal-macro-title"><span>🌾</span></div></article><article><div class="journal-macro-title"><span>💧</span></div></article></div></section>
@@ -68,6 +68,7 @@ setTimeout(()=>{
   assert.match(shared,/prefers-reduced-motion/,'Reduzierte Bewegung wird nicht berücksichtigt.');
   assert.match(progress,/grid-template-areas:"figure figure" "left right"/,'Fortschrittsdaten werden mobil weiterhin miniaturisiert.');
   assert.match(progress,/\.bp220-column p\{font-size:12px/,'Fortschrittstexte bleiben auf iPhones zu klein.');
-  for(const asset of ['src/shared/design-system-v800.css?v=8.0.1-alpha','src/features/journal/dashboard-v800.css?v=8.1.0-alpha','src/features/journal/dashboard-v800.js?v=8.1.0-alpha']){assert.ok(index.includes(asset));assert.ok(manifest.includes(asset))}
+  assert.match(css,/8\.2: lesbare Metadaten/,'Kleine Dashboard-Texte wurden nicht systematisch lesbarer gemacht.');
+  for(const asset of ['src/shared/design-system-v800.css?v=8.0.1-alpha','src/features/journal/dashboard-v800.css?v=8.2.1-alpha','src/features/journal/dashboard-v800.js?v=8.2.1-alpha']){assert.ok(index.includes(asset));assert.ok(manifest.includes(asset))}
   console.log('Dashboard 8.1: fokussiertes Coaching, gemeinsame Untermenüs, SVG-Symbole, Schnellzugriffe, Feedback und mobile Lesbarkeit geprüft.');
 },40);

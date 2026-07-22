@@ -348,3 +348,34 @@ body.journal-v800 .journal-calendar-days button.selected{background:linear-gradi
   body.journal-v800 .cc-journal-sheet,
   body.journal-v800 .journal-calendar-sheet.cc-journal-sheet{max-height:96dvh!important}
 }
+
+/* 8.2: lesbare Metadaten, kompakter Dank-Zustand und erhöhter Kontrast. */
+body.journal-v800 #today560 .journal-status-item small,
+body.journal-v800 #today560 .journal-activity-note,
+body.journal-v800 #today560 .meal-v74-badge{font-size:10px!important;line-height:1.2!important}
+body.journal-v800 #today560 .journal-macro-title small,
+body.journal-v800 #today560 .macro-v7-gap,
+body.journal-v800 #today560 .coach-v71-heading span,
+body.journal-v800 #today560 .coach-v71-focus small,
+body.journal-v800 #today560 .journal-achievements span,
+body.journal-v800 #today560 .journal-step-target>small,
+body.journal-v800 #today560 .journal-water-ring .water-v7-glasses,
+body.journal-v800 #today560 .journal-check-grid article>small.journal-weight-meta{font-size:10px!important;line-height:1.25!important}
+body.journal-v800 #today560 .coach-v71-focus p,
+body.journal-v800 #today560 .journal-feedback-card p{font-size:11px!important}
+body.journal-v800 #today560 .journal-feedback-card.is-complete{min-height:0!important;padding:10px 14px!important;gap:0!important}
+body.journal-v800 #today560 .journal-feedback-card.is-complete p{margin-top:2px!important}
+body.journal-v800 #today560 .journal-score :is(span,small){font-size:10px!important;line-height:1.2!important}
+body.journal-v800 #journalMacroModal .journal-macro-hero small,
+body.journal-v800 #journalMacroModal .journal-macro-explain small,
+body.journal-v800 #journalSummaryModal .cc-score-details>summary small,
+body.journal-v800 #journalSummaryModal #journalScoreDrivers em{font-size:10px!important;line-height:1.3!important}
+@media(max-width:430px){
+  body.journal-v800 #today560 .journal-energy-stats small,
+  body.journal-v800 #today560 .journal-macro-title small,
+  body.journal-v800 #today560 .journal-quick-actions button{font-size:10px!important}
+}
+@media(prefers-contrast:more){
+  body.journal-v800 #today560 :is(.journal-energy-card,.journal-coach-card,.journal-meals-card,.journal-steps-card,.journal-water-card,.journal-check-card,.journal-feedback-card){border-color:rgba(220,238,246,.42)!important}
+  body.journal-v800 #today560 :is(.journal-energy-stats small,.journal-macro-title small,.journal-meal-copy small,.journal-card-head small,.journal-feedback-card p){color:#c8d4d9!important}
+}

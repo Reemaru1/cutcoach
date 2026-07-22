@@ -43,6 +43,7 @@ setTimeout(()=>{
   const analysis=document.querySelector('#nutritionV7Analysis'),analysisHead=analysis.querySelector('.nutrition-v7-analysis-head');
   assert.ok(analysis.classList.contains('is-collapsed'),'Zusatzwerte starten weiterhin unnötig aufgeklappt.');
   assert.equal(analysisHead.getAttribute('aria-expanded'),'false');
+  assert.equal(analysisHead.getAttribute('aria-controls'),'nutritionV210AnalysisDetails');
   analysisHead.click();
   assert.equal(analysisHead.getAttribute('aria-expanded'),'true');
 
@@ -74,8 +75,11 @@ setTimeout(()=>{
   assert.match(css,/\.nutrition-v210-sheet \.recipe-v7-summary\{position:static!important/,'Die Rezeptbilanz kann den Zutatenbereich weiterhin überlagern.');
   assert.match(nutritionSource,/fit\.n\.protein<5\?-180/,'Die Eiweißempfehlungen priorisieren weiterhin kalorienarme Nullsignale vor echten Proteinquellen.');
   assert.match(dashboard,/padding-bottom:calc\(68px \+ env\(safe-area-inset-bottom\)\)/,'Der übergroße Leerraum unter dem Tagebuch bleibt bestehen.');
-  for(const asset of ['src/features/nutrition/nutrition-v210.css?v=2.1.1-alpha','src/features/nutrition/nutrition-v210.js?v=2.1.1-alpha']){assert.ok(index.includes(asset));assert.ok(manifest.includes(asset));}
-  assert.match(sw,/nutrition211-nav137-dashboard811-faststart/,'Der Offline-Cache wurde für die stabilisierte Oberfläche nicht invalidiert.');
+  assert.match(nutritionSource,/cutcoach:search-input-released/,'Released search input is not handled by the canonical renderer.');
+  assert.match(nutritionSource,/searchRevision/,'Search attempts have no stable privacy-safe revision.');
+  assert.match(css,/nutrition-empty-actions/,'Empty search state has no clear follow-up actions.');
+  for(const asset of ['src/features/nutrition/nutrition-v210.css?v=2.2.1-alpha','src/features/nutrition/nutrition-v210.js?v=2.2.1-alpha']){assert.ok(index.includes(asset));assert.ok(manifest.includes(asset));}
+  assert.match(sw,/nutrition220-nav137-dashboard820-searchmetrics110-faststart/,'Der Offline-Cache wurde für die stabilisierte Oberfläche nicht invalidiert.');
   assert.match(sw,/navigationResponse\(event,request\)/);
   assert.match(sw,/if\(cached\)\{event\.waitUntil\(network\.then/,'Navigation und Assets nutzen den warmen Cache nicht sofort.');
   assert.ok(index.includes('id="appBootSplash"'),'Der Start zeigt weiterhin nur eine schwarze Fläche.');

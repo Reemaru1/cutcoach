@@ -133,3 +133,47 @@ body.nutrition-mode .nutrition-v210-sources .nutrition-catalog-note{margin:0 0 8
 }
 @media(max-width:350px){body.nutrition-mode .nutrition-v210 .nutrition-result-energy{display:none!important}.nutrition-v210-sheet .two,.nutrition-v210-sheet .recipe-v7-basics{grid-template-columns:1fr!important}}
 @media(prefers-reduced-motion:reduce){.nutrition-v210-modal *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* 2.2: bessere Lesbarkeit, zugängliche Leerzustände und klare Zustandskommunikation. */
+body.nutrition-mode .nutrition-v210 .nutrition-header-copy p,
+body.nutrition-mode .nutrition-v210 .nutrition-shortcuts button b,
+body.nutrition-mode .nutrition-v210-section-head small,
+body.nutrition-mode #nutritionV210DayStatus,
+body.nutrition-mode .nutrition-v210-day-card .nutrition-macro-compass span,
+body.nutrition-mode .nutrition-v210-meal-card .nutrition-meal-copy small,
+body.nutrition-mode .nutrition-v210-meal-card .nutrition-meal-actions button,
+body.nutrition-mode .nutrition-v210 .nutrition-tabs button,
+body.nutrition-mode .nutrition-v210 .nutrition-browse-head small,
+body.nutrition-mode .nutrition-v210 .nutrition-browse-head>span,
+body.nutrition-mode .nutrition-v210 .nutrition-result-copy small,
+body.nutrition-mode .nutrition-v210 .nutrition-result-energy b,
+body.nutrition-mode .nutrition-v210-sources,
+.nutrition-v210-sheet .recipe-v7-search-hint,
+.nutrition-v210-sheet #scannerStatus,
+.nutrition-v210-sheet .scanner-controls button,
+.nutrition-v210-sheet .scanner-photo{font-size:11px!important;line-height:1.3!important}
+body.nutrition-mode .nutrition-v210 .nutrition-result-copy b>span:first-child{font-size:13px!important}
+body.nutrition-mode .nutrition-v210 .nutrition-result-energy i,
+body.nutrition-mode .nutrition-v210 .nutrition-source{font-size:10px!important;line-height:1.2!important}
+body.nutrition-mode .nutrition-v210-sources .nutrition-catalog-note{font-size:10px!important;line-height:1.45!important}
+body.nutrition-mode .nutrition-v210 .nutrition-empty{grid-template-columns:40px minmax(0,1fr)!important}
+body.nutrition-mode .nutrition-v210 .nutrition-empty-actions{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
+body.nutrition-mode .nutrition-v210 .nutrition-empty-actions button{min-height:44px!important;padding:8px 10px!important;border:1px solid var(--cc-line)!important;border-radius:13px!important;background:rgba(117,229,189,.07)!important;color:var(--cc-text-soft)!important;font-size:11px!important;font-weight:750!important;box-shadow:none!important}
+body.nutrition-mode .nutrition-v210 .nutrition-results[aria-busy="true"]{opacity:.72;transition:opacity .12s ease}
+html body.nutrition-mode .nutrition-v210 .nutrition-tabs button,
+html body.nutrition-mode .nutrition-v210 .nutrition-show-more,
+html body.nutrition-mode .nutrition-v210-day-card #nutritionV7Analysis .nutrition-v7-analysis-head,
+html body.nutrition-mode .nutrition-v210 .confidence-choice-list button{min-height:44px!important}
+body.nutrition-mode .nutrition-v210 .nutrition-done{font-size:11px!important}
+body.nutrition-mode .nutrition-v210 .confidence-choice-list small,
+body.nutrition-mode .nutrition-v210 #nutritionDayBudgetLabel,
+body.nutrition-mode .nutrition-v210 #nutritionDayBudgetMeta,
+body.nutrition-mode .nutrition-v210 .nutrition-v7-analysis-head small,
+body.nutrition-mode .nutrition-v210 .nutrition-tabs button span,
+body.nutrition-mode .nutrition-v210 .nutrition-show-more{font-size:10px!important;line-height:1.3!important}
+@media(max-width:430px){body.nutrition-mode #nutritionV210DayStatus{font-size:10px!important}}
+@media(max-width:350px){body.nutrition-mode .nutrition-v210 .nutrition-empty-actions{grid-template-columns:1fr}}
+@media(prefers-contrast:more){
+  body.nutrition-mode .nutrition-v210 :is(.nutrition-header,.nutrition-search-card,.nutrition-v210-day-card,.nutrition-v210-meal-card,.nutrition-results),.nutrition-v210-sheet{border-color:rgba(220,238,246,.42)!important}
+  body.nutrition-mode .nutrition-v210 :is(.nutrition-result-copy small,.nutrition-browse-head>span,.nutrition-catalog-note),.nutrition-v210-sheet :is(.nutrition-v210-intro,label,.recipe-v7-search-hint){color:#c8d4d9!important}
+}

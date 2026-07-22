@@ -2,15 +2,20 @@
 
 (function(root){
   let searchActive=false;
+  let activeSearchRevision=0;
+  let selectedSearchRevision=0;
   root.CutCoachModules?.register({
     id:'nutrition',tab:'food',screenSelector:'[data-screen="food"]',
     onEnter:()=>root.CutCoachInsights?.track('feature_view',{feature:'nutrition'})
   });
   root.addEventListener('cutcoach:nutrition-search-rendered',event=>{
     searchActive=Boolean(event.detail?.hasQuery);
+    activeSearchRevision=Math.max(0,Math.round(Number(event.detail?.searchRevision)||0));
     root.CutCoachInsights?.track('search_rendered',event.detail||{});
   });
   document.addEventListener('click',event=>{
-    if(searchActive&&event.target.closest?.('[data-nutrition-add],[data-nutrition-open]'))root.CutCoachInsights?.track('search_selected');
+    if(searchActive&&event.target.closest?.('[data-nutrition-add],[data-nutrition-open]')&&(!activeSearchRevision||activeSearchRevision!==selectedSearchRevision)){
+      root.CutCoachInsights?.track('search_selected');selectedSearchRevision=activeSearchRevision;
+    }
   },true);
 })(window);

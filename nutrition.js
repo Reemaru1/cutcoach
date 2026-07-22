@@ -14,6 +14,11 @@
   let lastQuickAdd=null;
   let feedbackTimer=null;
   let resultsScheduled=false;
+  let searchRevision=0;
+  let lastSearchQuery='';
+  let searchRequestedAt=0;
+
+  function clock(){return typeof performance==='object'&&typeof performance.now==='function'?performance.now():Date.now()}
 
   function readLibrary(){
     try{const data=window.CutCoachLibrary?.exportData?.();if(Array.isArray(data?.items))return data.items;}catch{}
@@ -60,6 +65,7 @@
   }
   function resetBrowse(){
     activeFilter='all';visibleLimit=RESULT_PAGE_SIZE;currentExpanded=false;lastQuickAdd=null;clearTimeout(feedbackTimer);feedbackTimer=null;
+    lastSearchQuery='';searchRequestedAt=0;
     const input=document.querySelector('#nutritionSearch');if(input)input.value='';
   }
   function switchMealType(value){
@@ -110,27 +116,34 @@
         <div id="nutritionCurrentMeals" class="nutrition-current-list" hidden></div>
       </section>
       <section class="nutrition-tabs" role="tablist" aria-label="Lebensmittelauswahl">
-        <button class="active" data-nutrition-filter="all" role="tab" aria-selected="true" type="button">Alle <span data-filter-count="all">0</span></button>
-        <button data-nutrition-filter="favorite" role="tab" aria-selected="false" type="button">Favoriten <span data-filter-count="favorite">0</span></button>
-        <button data-nutrition-filter="recent" role="tab" aria-selected="false" type="button">Zuletzt <span data-filter-count="recent">0</span></button>
-        <button data-nutrition-filter="recipe" role="tab" aria-selected="false" type="button">Rezepte <span data-filter-count="recipe">0</span></button>
+        <button class="active" data-nutrition-filter="all" role="tab" aria-controls="nutritionResults" aria-selected="true" type="button">Alle <span data-filter-count="all">0</span></button>
+        <button data-nutrition-filter="favorite" role="tab" aria-controls="nutritionResults" aria-selected="false" type="button">Favoriten <span data-filter-count="favorite">0</span></button>
+        <button data-nutrition-filter="recent" role="tab" aria-controls="nutritionResults" aria-selected="false" type="button">Zuletzt <span data-filter-count="recent">0</span></button>
+        <button data-nutrition-filter="recipe" role="tab" aria-controls="nutritionResults" aria-selected="false" type="button">Rezepte <span data-filter-count="recipe">0</span></button>
       </section>
-      <section class="nutrition-browse-head"><div><small id="nutritionResultScope">Bibliothek &amp; BLS 4.0</small><h2 id="nutritionResultTitle">Schnelle Auswahl</h2></div><span id="nutritionResultCount">0 Treffer</span></section>
-      <div id="nutritionResults" class="nutrition-results"></div>
+      <section class="nutrition-browse-head"><div><small id="nutritionResultScope">Bibliothek &amp; BLS 4.0</small><h2 id="nutritionResultTitle">Schnelle Auswahl</h2></div><span id="nutritionResultCount" role="status" aria-live="polite" aria-atomic="true">0 Treffer</span></section>
+      <div id="nutritionResults" class="nutrition-results" aria-labelledby="nutritionResultTitle"></div>
       <button id="nutritionShowMore" class="nutrition-show-more" type="button" hidden></button>
       <p class="nutrition-catalog-note">Nährwerte: <a href="https://www.blsdb.de/" target="_blank" rel="noopener">BLS 4.0 · Max Rubner-Institut</a> · <a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank" rel="noopener">CC BY 4.0</a></p>
     </div>`;
     screen.querySelector('#nutritionBack').onclick=goBack;screen.querySelector('#nutritionDone').onclick=goBack;screen.querySelector('#nutritionMealSelect').onchange=event=>switchMealType(event.target.value);screen.querySelector('#nutritionManual').onclick=openManual;screen.querySelector('#nutritionNewFood').onclick=()=>openLibraryEditor('food');screen.querySelector('#nutritionRecipe').onclick=()=>openLibraryEditor('recipe');screen.querySelector('#nutritionBarcode').onclick=openScanner;screen.querySelector('#nutritionCopyPrevious').onclick=copyPreviousMealType;screen.querySelector('#nutritionUndoAdd').onclick=undoQuickAdd;
     screen.querySelector('#nutritionCurrentToggle').onclick=()=>{currentExpanded=!currentExpanded;renderCurrent()};
-    const search=screen.querySelector('#nutritionSearch');search.addEventListener('input',()=>{visibleLimit=RESULT_PAGE_SIZE;if(normalized(search.value)&&activeFilter!=='all')activeFilter='all';if(!recognition)screen.querySelector('#nutritionVoiceStatus').hidden=true;renderFilters();scheduleResults()});search.addEventListener('search',()=>{visibleLimit=RESULT_PAGE_SIZE;scheduleResults()});
+    const search=screen.querySelector('#nutritionSearch');search.addEventListener('input',()=>requestResults(search));search.addEventListener('search',()=>requestResults(search));
     screen.querySelector('#nutritionVoice').onclick=startVoice;
     screen.querySelectorAll('[data-nutrition-filter]').forEach(button=>button.onclick=()=>{activeFilter=button.dataset.nutritionFilter;visibleLimit=RESULT_PAGE_SIZE;renderFilters();renderResults()});
+    screen.querySelector('.nutrition-tabs').addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;const tabs=[...screen.querySelectorAll('[data-nutrition-filter]')],current=tabs.indexOf(event.target.closest('[data-nutrition-filter]'));if(current<0)return;event.preventDefault();const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(current+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;tabs[next].focus();tabs[next].click()});
     screen.querySelector('#nutritionShowMore').onclick=()=>{visibleLimit+=RESULT_PAGE_SIZE;renderResults()};
     screen.querySelector('#nutritionResults').onclick=event=>{const add=event.target.closest('[data-nutrition-add]');if(add){quickAdd(add.dataset.nutritionAdd,add);return}const open=event.target.closest('[data-nutrition-open]');if(open)openLibraryItem(open.dataset.nutritionOpen)};
     screen.querySelector('#nutritionCurrentMeals').onclick=event=>{const edit=event.target.closest('[data-nutrition-edit]');if(edit){openMeal(edit.dataset.nutritionEdit);return}const copy=event.target.closest('[data-nutrition-copy]');if(copy){duplicateMeal(copy.dataset.nutritionCopy);return}const remove=event.target.closest('[data-nutrition-delete]');if(remove)deleteMeal(remove.dataset.nutritionDelete)};
+    window.addEventListener('cutcoach:search-input-released',event=>{if(event.detail?.value===search.value)requestResults(search)});
     return screen;
   }
 
+  function requestResults(search=document.querySelector('#nutritionSearch')){
+    if(!search)return;visibleLimit=RESULT_PAGE_SIZE;const query=normalized(search.value);if(query&&activeFilter!=='all')activeFilter='all';if(!recognition){const status=document.querySelector('#nutritionVoiceStatus');if(status)status.hidden=true}
+    if(query!==lastSearchQuery){lastSearchQuery=query;searchRevision++;searchRequestedAt=clock()}
+    document.querySelector('#nutritionResults')?.setAttribute('aria-busy','true');renderFilters();scheduleResults();
+  }
   function scheduleResults(){if(resultsScheduled)return;resultsScheduled=true;Promise.resolve().then(()=>{resultsScheduled=false;renderResults()})}
   function openManual(){
     if(typeof mealCapacity==='function'&&mealCapacity()<1){toast?.(`Maximal ${fmt(MAX_MEALS_PER_DAY)} Mahlzeiten pro Tag möglich.`);return}
@@ -237,14 +250,15 @@
     document.querySelectorAll('[data-nutrition-filter]').forEach(button=>{const on=button.dataset.nutritionFilter===activeFilter;button.classList.toggle('active',on);button.setAttribute('aria-selected',String(on));const count=button.querySelector('[data-filter-count]');if(count)count.textContent=fmt(counts[button.dataset.nutritionFilter])});
   }
   function renderResults(){
-    const renderStartedAt=Date.now(),host=document.querySelector('#nutritionResults');if(!host)return;
+    const renderStartedAt=clock(),host=document.querySelector('#nutritionResults');if(!host)return;
     const {items,query,intent,personal,routines,context,catalogTotal}=filteredItems(),title=document.querySelector('#nutritionResultTitle'),scope=document.querySelector('#nutritionResultScope'),count=document.querySelector('#nutritionResultCount'),more=document.querySelector('#nutritionShowMore'),intentNode=document.querySelector('#nutritionSearchIntent');renderFilters(personal,catalogTotal);
     if(intentNode){intentNode.hidden=!intent.amount;intentNode.textContent=intent.amount?`Mengenmodus: ${fmt(intent.amount,intent.amount%1?1:0)} ${intent.unit} werden bei passenden Treffern direkt übernommen.`:''}
     const hasRoutine=personal.some(item=>(routines.get(normalized(item.name))?.days||0)>=2),needsProtein=context.proteinGap>20;scope.textContent=query?'Lebensmitteldatenbank':activeFilter==='all'?'Jetzt passend':'Deine Bibliothek';title.textContent=query?`Treffer für „${intent.displayQuery}“`:activeFilter==='favorite'?'Deine Favoriten':activeFilter==='recent'?'Zuletzt verwendet':activeFilter==='recipe'?'Deine Rezepte':context.rawRemaining<0&&needsProtein?'Eiweiß sinnvoll ergänzen':context.rawRemaining<0?'Für morgen vormerken':needsProtein?'Eiweißziel unterstützen':hasRoutine?`Passend für ${mealType}`:`Empfohlen für ${mealType}`;
     count.textContent=`${fmt(items.length)} Treffer`;
-    window.dispatchEvent(new CustomEvent('cutcoach:nutrition-search-rendered',{detail:{hasQuery:Boolean(query),resultCount:items.length,queryLengthBucket:query.length<4?'short':query.length<10?'medium':'long',latencyMs:Date.now()-renderStartedAt}}));
+    host.setAttribute('aria-busy','false');const latencyMs=Math.max(0,Math.round(query&&searchRequestedAt?clock()-searchRequestedAt:clock()-renderStartedAt));if(query)searchRequestedAt=0;
+    window.dispatchEvent(new CustomEvent('cutcoach:nutrition-search-rendered',{detail:{hasQuery:Boolean(query),resultCount:items.length,queryLengthBucket:query.length<4?'short':query.length<10?'medium':'long',latencyMs,searchRevision}}));
     if(!items.length){
-      host.classList.add('is-empty');host.innerHTML=`<article class="nutrition-empty"><span aria-hidden="true">${query?'⌕':'🥣'}</span><div><b>${query?'Nichts Passendes gefunden':'Hier gibt es noch keine Einträge'}</b><p>${query?'Scanne den Barcode oder lege das Lebensmittel einmalig selbst an.':'Speichere häufige Lebensmittel und Rezepte für den schnellen Zugriff.'}</p></div><button type="button" data-nutrition-empty-add>＋ Anlegen</button></article>`;host.querySelector('[data-nutrition-empty-add]').onclick=()=>openLibraryEditor(activeFilter==='recipe'?'recipe':'food',query?intent.displayQuery:'');more.hidden=true;return;
+      host.classList.add('is-empty');host.innerHTML=`<article class="nutrition-empty"><span aria-hidden="true">${query?'⌕':'🥣'}</span><div><b>${query?'Nichts Passendes gefunden':'Hier gibt es noch keine Einträge'}</b><p>${query?'Prüfe die Schreibweise, scanne den Barcode oder lege das Lebensmittel einmalig selbst an.':'Speichere häufige Lebensmittel und Rezepte für den schnellen Zugriff.'}</p></div><div class="nutrition-empty-actions">${query?'<button type="button" data-nutrition-empty-scan>Barcode scannen</button>':''}<button type="button" data-nutrition-empty-add>Lebensmittel anlegen</button></div></article>`;host.querySelector('[data-nutrition-empty-scan]')?.addEventListener('click',openScanner);host.querySelector('[data-nutrition-empty-add]').onclick=()=>openLibraryEditor(activeFilter==='recipe'?'recipe':'food',query?intent.displayQuery:'');more.hidden=true;return;
     }
     host.classList.remove('is-empty');const capacity=typeof mealCapacity==='function'?mealCapacity():1;
     host.innerHTML=items.slice(0,visibleLimit).map(item=>{const routine=routines.get(normalized(item.name)),source=item.source==='bls'?'<i class="nutrition-source" aria-label="Quelle Bundeslebensmittelschlüssel 4.0">BLS</i>':item.source==='off'?'<i class="nutrition-source product" aria-label="Quelle Open Food Facts">Produkt</i>':'',fit=itemFit(item,context,intent),portion=fit.portion,shown=portion||{amount:item.amount,unit:item.unit||'g'},energy=fit.n.calories,quickPortion=`${fmt(shown.amount,shown.amount%1?1:0)} ${shown.unit}`;return `<article class="nutrition-result-row"><button class="nutrition-result-main" type="button" data-nutrition-open="${escapeHtml(item.id)}" aria-label="${escapeHtml(item.name)}, Portion auswählen"><span class="nutrition-result-icon" aria-hidden="true">${foodIcon(item)}</span><span class="nutrition-result-copy"><b><span title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>${item.favorite?'<i class="nutrition-favorite" aria-label="Favorit">★</i>':''}${routine?.days>=2?`<i class="nutrition-routine" aria-label="Häufig zu ${escapeHtml(mealType)} gewählt">Routine</i>`:''}${source}</b><small>${quickPortion} · E ${fmt(fit.n.protein,1)} · KH ${fmt(fit.n.carbs,1)} · F ${fmt(fit.n.fat,1)}</small></span></button><span class="nutrition-result-energy"><b>${fmt(energy)} kcal</b>${fit.label?`<i>${fit.label}</i>`:''}</span><button class="nutrition-result-add" type="button" data-nutrition-add="${escapeHtml(item.id)}" aria-label="${escapeHtml(item.name)}, ${quickPortion}, direkt zu ${escapeHtml(mealType)} hinzufügen" ${capacity<1?'disabled':''}>＋</button></article>`}).join('');
