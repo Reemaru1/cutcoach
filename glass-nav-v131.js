@@ -23,7 +23,9 @@
     addStyle('nutrition-ui-consistency-v206','./nutrition-ui-consistency-v206.css?v=2.0.8-loader');
     addStyle('liquid-glass-ui-v207','./liquid-glass-ui-v207.css?v=2.0.8-loader');
     addStyle('scrollbar-cleanup-v209','./scrollbar-cleanup-v209.css?v=2.0.9-alpha');
+    addStyle('body-progress-v210','./body-progress-v210.css?v=2.1.0-alpha');
     if(!window.CutCoachNutritionMath206)addScript('nutrition-ui-consistency-v206','./nutrition-ui-consistency-v206.js?v=2.0.8-loader');
+    if(!window.CutCoachBodyProgress210)addScript('body-progress-v210','./body-progress-v210.js?v=2.1.0-alpha');
   }
   function replaceHash(hash){
     try{const url=new URL(location.href);url.hash=hash;history.replaceState(null,'',`${url.pathname}${url.search}${url.hash}`)}catch{history.replaceState(null,'',hash)}
