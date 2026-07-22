@@ -4,6 +4,7 @@
   const FEEDBACK_KEY='cutcoach_customer_feedback_v1';
   const JOURNAL_FEEDBACK_KEY='cutcoach_journal_feedback_v800';
   const CATEGORIES=new Set(['clarity','helpfulness','accessibility','nutrition-search','other']);
+  let accessibilityAuditTimer=0;
   const byId=id=>document.getElementById(id);
   function feedbackEntries(){try{const parsed=JSON.parse(localStorage.getItem(FEEDBACK_KEY)||'[]');return Array.isArray(parsed)?parsed.slice(-100):[]}catch{return[]}}
   function saveFeedback(entry){try{const entries=feedbackEntries();entries.push(entry);localStorage.setItem(FEEDBACK_KEY,JSON.stringify(entries.slice(-100)));return true}catch{return false}}
@@ -12,11 +13,11 @@
   function visible(element){const style=getComputedStyle(element),rect=element.getBoundingClientRect();return style.display!=='none'&&style.visibility!=='hidden'&&rect.width>0&&rect.height>0}
   function auditAccessibility(){
     const ids=new Map();document.querySelectorAll('[id]').forEach(element=>ids.set(element.id,(ids.get(element.id)||0)+1));
-    const missingNames=[...document.querySelectorAll('button,a[href]')].filter(element=>visible(element)&&!(element.getAttribute('aria-label')||element.textContent.trim())).length;
+    const missingNames=[...document.querySelectorAll('button,a[href],[role="button"],[role="tab"]')].filter(element=>visible(element)&&!(element.getAttribute('aria-label')||element.getAttribute('aria-labelledby')||element.textContent.trim())).length;
     const labels=[...document.querySelectorAll('label[for]')],missingLabels=[...document.querySelectorAll('input,select,textarea')].filter(element=>{if(!visible(element)||element.type==='hidden')return false;const id=element.id;return!(element.getAttribute('aria-label')||element.closest('label')||(id&&labels.some(label=>label.htmlFor===id)))}).length;
     const missingAlt=[...document.images].filter(image=>!image.hasAttribute('alt')).length;
     const duplicateIds=[...ids.values()].filter(count=>count>1).length;
-    const smallTargets=[...document.querySelectorAll('button,a[href],input,select,textarea')].filter(element=>{if(!visible(element))return false;const rect=element.getBoundingClientRect();return rect.width<44||rect.height<44}).length;
+    const smallTargets=[...document.querySelectorAll('button,a[href],input,select,textarea,[role="button"],[role="tab"]')].filter(element=>{if(!visible(element))return false;const rect=element.getBoundingClientRect();return rect.width<44||rect.height<44}).length;
     const result={missingNames,missingLabels,missingAlt,duplicateIds,smallTargets};root.CutCoachInsights?.track('accessibility_audit',result);return result;
   }
   function renderSummary(){
@@ -39,8 +40,10 @@
       byId('customerFeedbackText').value='';if(status)status.textContent='Danke. Dein Feedback wurde nur auf diesem Gerät gespeichert und nicht übertragen.';renderSummary();root.dispatchEvent(new CustomEvent('cutcoach:feedback-saved',{detail:{category,score}}));
     });
     root.addEventListener('cutcoach:insights-updated',renderSummary);
-    setTimeout(auditAccessibility,0);
+    scheduleAccessibilityAudit(800);
   }
+  function scheduleAccessibilityAudit(delay=500){clearTimeout(accessibilityAuditTimer);accessibilityAuditTimer=window.setTimeout(auditAccessibility,delay)}
+  root.addEventListener('cutcoach:module-enter',()=>scheduleAccessibilityAudit());
   root.CutCoachModules?.register({id:'settings',tab:'settings',screenSelector:'[data-screen="settings"]',onEnter:()=>root.CutCoachInsights?.track('feature_view',{feature:'settings'})});
   root.CutCoachUI=Object.freeze({auditAccessibility,renderQualitySummary:renderSummary});
   root.CutCoachFeedback=Object.freeze({entries:()=>JSON.parse(JSON.stringify(feedbackEntries())),clear:clearFeedback,storageKey:FEEDBACK_KEY});
