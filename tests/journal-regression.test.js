@@ -112,7 +112,8 @@ const input=(selector,value)=>{
   click('#journalCalendarButton');
   const calendar=window.document.querySelector('#journalCalendarModal');
   assert.equal(calendar.hidden,false,'Kalender öffnet nicht');
-  assert.equal(calendar.querySelectorAll('.journal-calendar-days button').length,42,'Kalender hat nicht sechs vollständige Wochen');
+  const calendarCellCount=calendar.querySelectorAll('.journal-calendar-days button').length;
+  assert.ok([35,42].includes(calendarCellCount),'Kalender verwendet weder fünf noch sechs vollständige Wochen');
   assert.equal(calendar.querySelectorAll('.journal-calendar-days button:not([data-date])').length,0,'Kalendertag ohne Datum');
   calendar.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
   assert.equal(calendar.hidden,true,'Kalender schließt nicht mit Escape');

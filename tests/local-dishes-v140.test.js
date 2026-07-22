@@ -53,7 +53,7 @@ assert.ok(!loader.includes('nutrition-product-search-v139'),'Versionsloader läd
 assert.ok(!runtime.includes('nutrition-product-search-v139'),'Runtime-Manifest enthält weiterhin die unerwünschte Markenproduktsuche.');
 assert.equal(fs.existsSync(path.join(root,'nutrition-product-search-v139.js')),false,'JavaScript der Markenproduktsuche wurde nicht entfernt.');
 assert.equal(fs.existsSync(path.join(root,'nutrition-product-search-v139.css')),false,'CSS der Markenproduktsuche wurde nicht entfernt.');
-assert.match(sw,/-nav136-journal137-nutrition138-dishes140-dashboard801`/,'Service Worker verwendet nicht die aktuelle Dashboard-Cachegeneration.');
+assert.match(sw,/-nav136-journal137-nutrition138-dishes140-dashboard810`/,'Service Worker verwendet nicht die aktuelle Dashboard-Cachegeneration.');
 assert.match(attribution,/Eine allgemeine Online-Markenproduktsuche ist nicht Bestandteil der App/,'Datenquellenhinweis beschreibt weiterhin eine entfernte Produktsuche.');
 
 dom.window.close();

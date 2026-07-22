@@ -62,6 +62,13 @@ const click=selector=>{const target=node(selector);target.dispatchEvent(new wind
   assert.equal(window.document.querySelectorAll('[data-macro-search]').length,4,'Lebensmittelvorschläge fehlen');
   click('#journalMacroClose');
 
+  window.eval(`state.days['${todayKey}'].meals[0].fat=130;render()`);await wait(20);
+  click('[data-v72-macro="fat"]');await wait(20);
+  assert.equal(node('#journalMacroModal').dataset.zone,'high','Deutlich überschrittenes Fettziel wird nicht als hoch erkannt.');
+  assert.equal(node('#journalMacroSuggestionTitle').textContent,'Leichtere Alternativen','Ein überschrittenes Makro empfiehlt weiterhin zusätzliche Quellen.');
+  assert.equal([...window.document.querySelectorAll('[data-macro-search]')].some(button=>/Avocado|Olivenöl/.test(button.textContent)),false,'Fettüberschreitung empfiehlt weiterhin fettreiche Lebensmittel.');
+  click('#journalMacroClose');
+
   const score=window.CutCoachJournalV72.score();
   assert.equal(typeof score,'number','Erweiterte Tagesnote wird nicht berechnet');
   assert.ok(score>=0&&score<=10,'Tagesnote liegt außerhalb 0 bis 10');
@@ -73,6 +80,7 @@ const click=selector=>{const target=node(selector);target.dispatchEvent(new wind
   assert.ok(node('#journalSummaryVerdictTitle').textContent,'Tagesfazit fehlt');
   assert.ok(node('#journalSummaryNextTitle').textContent,'Nächster Fokus fehlt');
   assert.equal(window.document.querySelectorAll('#journalScoreDrivers>div').length,9,'Gewichtete Notenerklärung ist unvollständig');
+  assert.match(node('#journalScoreDrivers').textContent,/Soll bis jetzt|Tagesziel/,'Zeitabhängige Zwischenziele werden nicht verständlich bezeichnet.');
   click('#journalSummaryClose');
 
   window.localStorage.setItem('cutcoach_water_v1',JSON.stringify({[todayKey]:3000}));

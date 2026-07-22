@@ -66,7 +66,7 @@ assert.ok(runtime.includes("journal-live-nav-v127.js?v=1.3.2-alpha"),'Runtime-Ma
 assert.ok(runtime.includes("glass-nav-v131.js?v=1.3.3-alpha"),'Runtime-Manifest enthält nicht den produktiven UI-Loader.');
 assert.ok(runtime.includes("glass-nav-v131.css?v=1.3.6-alpha"),'Runtime-Manifest enthält nicht das Instagram-Dock.');
 assert.ok(sw.includes("runtime-manifest.js?v=2.3.0-alpha"),'Service Worker lädt nicht das aktuelle Runtime-Manifest.');
-assert.ok(sw.includes('-nav136-journal137-nutrition138-dishes140-dashboard801`'),'Service Worker verwendet nicht die aktuelle Navigation-, Tagebuch-, Ernährungs- und Dashboard-Cachegeneration.');
+assert.ok(sw.includes('-nav136-journal137-nutrition138-dishes140-dashboard810`'),'Service Worker verwendet nicht die aktuelle Navigation-, Tagebuch-, Ernährungs- und Dashboard-Cachegeneration.');
 assert.ok(sw.includes('search196-article-sequence'),'Navigationstest sieht die aktuelle Such-Cachegeneration nicht.');
 
 dom.window.close();

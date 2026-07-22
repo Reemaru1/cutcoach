@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='7.2.0';
+  const VERSION='7.2.1';
   const WATER_KEY='cutcoach_water_v1';
   const WATER_TARGET=3000;
   const $=selector=>document.querySelector(selector);
@@ -13,9 +13,9 @@
   let initialized=false;
 
   const macroDefinitions={
-    protein:{label:'Eiweiß',icon:'💪',purpose:'Muskelerhalt, Regeneration und Sättigung',range:'90–110 % des Tagesziels',suggestions:['Skyr','Magerquark','Hähnchenbrust','Thunfisch']},
-    carbs:{label:'Kohlenhydrate',icon:'🌾',purpose:'Energie für Training, Schritte und Alltag',range:'80–115 % des Tagesziels',suggestions:['Haferflocken','Reis','Kartoffeln','Banane']},
-    fat:{label:'Fett',icon:'💧',purpose:'Hormone, Zellfunktion und Sättigung',range:'80–120 % des Tagesziels',suggestions:['Eier','Lachs','Avocado','Olivenöl']}
+    protein:{label:'Eiweiß',purpose:'Muskelerhalt, Regeneration und Sättigung',range:'90–110 % des Tagesziels',low:['Skyr','Magerquark','Hähnchenbrust','Thunfisch'],balanced:['Skyr','Magerquark','Hähnchenbrust','Gemüse'],high:['Gemüse','Salat','Beeren','Apfel']},
+    carbs:{label:'Kohlenhydrate',purpose:'Energie für Training, Schritte und Alltag',range:'80–115 % des Tagesziels',low:['Haferflocken','Reis','Kartoffeln','Banane'],balanced:['Kartoffeln','Haferflocken','Obst','Vollkornbrot'],high:['Skyr','Magerquark','Hähnchenbrust','Gemüse']},
+    fat:{label:'Fett',purpose:'Hormone, Zellfunktion und Sättigung',range:'80–120 % des Tagesziels',low:['Eier','Lachs','Avocado','Olivenöl'],balanced:['Lachs','Eier','Nüsse','Avocado'],high:['Skyr','Magerquark','Hähnchenbrust','Thunfisch']}
   };
 
   function waterMap(){
@@ -68,18 +68,19 @@
     const targetCalories=Math.max(180,settings.calories*progress),targetProtein=Math.max(20,settings.protein*progress),targetFat=Math.max(8,settings.fat*progress),targetCarbs=Math.max(20,settings.carbs*progress);
     const components=[];
     const add=(key,label,weight,value,detail)=>components.push({key,label,weight,value:clamp(value),detail});
-    add('calories','Kalorien',28,calorieQuality(total.calories,targetCalories),`${fmt(total.calories)} / ${fmt(targetCalories)} kcal im ${isFinalDay()?'Tagesziel':'aktuellen Tageskurs'}`);
-    add('protein','Eiweiß',20,Math.min(1,Math.max(0,total.protein/targetProtein)),`${fmt(total.protein)} / ${fmt(targetProtein)} g`);
-    add('fat','Fett',7,qualityFromRatio(total.fat/targetFat,{low:.78,high:1.22,softLow:.45,softHigh:1.55}),`${fmt(total.fat)} / ${fmt(targetFat)} g`);
-    add('carbs','Kohlenhydrate',5,qualityFromRatio(total.carbs/targetCarbs,{low:.65,high:1.3,softLow:.3,softHigh:1.7}),`${fmt(total.carbs)} / ${fmt(targetCarbs)} g`);
+    const targetLabel=isFinalDay()?'Tagesziel':'Soll bis jetzt';
+    add('calories','Kalorien',28,calorieQuality(total.calories,targetCalories),`${fmt(total.calories)} kcal · ${targetLabel} ${fmt(targetCalories)} kcal`);
+    add('protein','Eiweiß',20,Math.min(1,Math.max(0,total.protein/targetProtein)),`${fmt(total.protein)} g · ${targetLabel} ${fmt(targetProtein)} g`);
+    add('fat','Fett',7,qualityFromRatio(total.fat/targetFat,{low:.78,high:1.22,softLow:.45,softHigh:1.55}),`${fmt(total.fat)} g · ${targetLabel} ${fmt(targetFat)} g`);
+    add('carbs','Kohlenhydrate',5,qualityFromRatio(total.carbs/targetCarbs,{low:.65,high:1.3,softLow:.3,softHigh:1.7}),`${fmt(total.carbs)} g · ${targetLabel} ${fmt(targetCarbs)} g`);
     if(Number(settings.steps)===0)add('steps','Schritte',13,1,'Kein Schrittziel gesetzt');
-    else if(data.steps!==null)add('steps','Schritte',13,Math.min(1,(Number(data.steps)||0)/Math.max(500,settings.steps*progress)),`${fmt(data.steps)} / ${fmt(Math.max(500,settings.steps*progress))}`);
+    else if(data.steps!==null)add('steps','Schritte',13,Math.min(1,(Number(data.steps)||0)/Math.max(500,settings.steps*progress)),`${fmt(data.steps)} · ${targetLabel} ${fmt(Math.max(500,settings.steps*progress))}`);
     else if(isFinalDay())add('steps','Schritte',13,.35,'Nicht eingetragen');
     if(data.gym!==null){const weekly=weekGymCount(),onTrack=weekly>=Number(settings.gymGoal||0);add('gym','Training',10,data.gym===true?1:onTrack?1:.78,data.gym===true?'Training absolviert':onTrack?'Regenerationstag – Wochenziel im Soll':'Regenerationstag – Wochenziel noch offen')}
     else if(isFinalDay())add('gym','Training',10,.5,'Nicht angegeben');
     if(data.alcohol!==null)add('alcohol','Regeneration',7,data.alcohol===false?1:.2,data.alcohol===false?'Alkoholfrei':'Alkohol eingetragen');
     else if(isFinalDay())add('alcohol','Regeneration',7,.5,'Nicht angegeben');
-    add('water','Wasser',8,Math.min(1,water/Math.max(250,isFinalDay()?WATER_TARGET:waterPace())),`${fmt(water)} / ${fmt(Math.max(250,isFinalDay()?WATER_TARGET:waterPace()))} ml`);
+    add('water','Wasser',8,Math.min(1,water/Math.max(250,isFinalDay()?WATER_TARGET:waterPace())),`${fmt(water)} ml · ${targetLabel} ${fmt(Math.max(250,isFinalDay()?WATER_TARGET:waterPace()))} ml`);
     if(data.weight!==null)add('weight','Tracking',2,1,`${fmt(data.weight,1)} kg erfasst`);
     else if(isFinalDay())add('weight','Tracking',2,.6,'Gewicht nicht erfasst');
     return components;
@@ -112,7 +113,7 @@
   }
   function ensureMacroModal(){
     if($('#journalMacroModal'))return;
-    document.body.insertAdjacentHTML('beforeend',`<div class="modal" id="journalMacroModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="journalMacroTitle"><div class="sheet journal-macro-sheet"><div class="sheet-head"><h2 id="journalMacroTitle">Makro</h2><button id="journalMacroClose" type="button" aria-label="Schließen">×</button></div><div id="journalMacroHero" class="journal-macro-hero"></div><section class="journal-macro-explain"><strong id="journalMacroPurpose"></strong><p id="journalMacroStatus"></p><small id="journalMacroRange"></small></section><section class="journal-macro-suggestions"><strong>Passende Lebensmittel</strong><div id="journalMacroSuggestions"></div></section></div></div>`);
+    document.body.insertAdjacentHTML('beforeend',`<div class="modal" id="journalMacroModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="journalMacroTitle"><div class="sheet journal-macro-sheet"><div class="sheet-head"><h2 id="journalMacroTitle">Makrodetails</h2><button id="journalMacroClose" type="button" aria-label="Schließen">×</button></div><div id="journalMacroHero" class="journal-macro-hero"></div><section class="journal-macro-explain"><strong id="journalMacroPurpose"></strong><p id="journalMacroStatus"></p><small id="journalMacroRange"></small></section><section class="journal-macro-suggestions"><strong id="journalMacroSuggestionTitle">Jetzt passend</strong><div id="journalMacroSuggestions"></div></section><p class="journal-macro-note">Tagesziele dienen als Orientierung und ersetzen keine individuelle medizinische Empfehlung.</p></div></div>`);
     $('#journalMacroClose').addEventListener('click',()=>closeModal?.($('#journalMacroModal')));
     $('#journalMacroModal').addEventListener('click',event=>{if(event.target.id==='journalMacroModal')closeModal?.(event.currentTarget)});
   }
@@ -137,12 +138,15 @@
   function openMacro(key){
     const definition=macroDefinitions[key];if(!definition)return;
     const total=totals(selectedDate),goal=Number(state.settings[key])||0,value=Number(total[key])||0,gap=goal-value,ratio=goal>0?value/goal:0;
-    setText($('#journalMacroTitle'),`${definition.icon} ${definition.label}`);
+    const zone=goal<=0?'unset':ratio<.8?'low':ratio<=1.2?'target':'high',modal=$('#journalMacroModal');modal.dataset.macro=key;modal.dataset.zone=zone;
+    setText($('#journalMacroTitle'),definition.label);
     $('#journalMacroHero').innerHTML=`<div><small>Heute</small><strong>${fmt(value)} g</strong></div><div><small>Ziel</small><strong>${fmt(goal)} g</strong></div><div><small>Status</small><strong>${goal<=0?'Kein Ziel':gap>0?`${fmt(gap)} g offen`:`${fmt(-gap)} g darüber`}</strong></div>`;
     setText($('#journalMacroPurpose'),definition.purpose);
     const status=goal<=0?'Für dieses Makro ist kein Tagesziel gesetzt.':ratio<.8?'Der Wert liegt noch deutlich unter deinem Zielbereich.':ratio<=1.2?'Du befindest dich in einem sinnvollen Zielbereich.':'Du liegst über dem üblichen Zielbereich. Einzelne Tage sind dabei unproblematisch.';
     setText($('#journalMacroStatus'),status);setText($('#journalMacroRange'),`Orientierung: ${definition.range}`);
-    $('#journalMacroSuggestions').innerHTML=definition.suggestions.map(item=>`<button type="button" data-macro-search="${escapeHtml(item)}">${escapeHtml(item)}</button>`).join('');
+    const suggestions=zone==='low'?definition.low:zone==='high'?definition.high:definition.balanced;
+    setText($('#journalMacroSuggestionTitle'),zone==='high'?'Leichtere Alternativen':zone==='low'?'Zum Ausgleichen':zone==='target'?'Optional passende Auswahl':'Allgemeine Orientierung');
+    $('#journalMacroSuggestions').innerHTML=suggestions.map(item=>`<button type="button" data-macro-search="${escapeHtml(item)}">${escapeHtml(item)}</button>`).join('');
     openModal?.('journalMacroModal');
   }
   function openMacroSearch(query){
@@ -181,7 +185,7 @@
   function strongestComponent(components){return [...components].sort((a,b)=>b.value-a.value||b.weight-a.weight)[0]||null}
   function renderSummary(total,data,settings,water,score){
     ensureSummaryDepth();const components=scoreComponents();if(!components.length)return;
-    setText($('#journalScoreLarge'),score===null?'–':fmt(score,0));setText($('#journalScore'),score===null?'Offen':fmt(score,0));
+    setText($('#journalScoreLarge'),score===null?'–':fmt(score,1));setText($('#journalScore'),score===null?'Offen':fmt(score,1));
     const drivers=$('#journalScoreDrivers');if(drivers)drivers.innerHTML=components.map(item=>`<div class="${item.value>=.85?'good':item.value<.55?'attention':''}"><span>${escapeHtml(item.label)} <small>${Math.round(item.weight)} %</small></span><b>${fmt(item.value*item.weight,1)} / ${fmt(item.weight)} Punkte</b><em>${escapeHtml(item.detail)}</em></div>`).join('');
     const weakest=weakestComponent(components),strongest=strongestComponent(components),verdict=score>=8.5?'Sehr starker, ausgewogener Tag':score>=7?'Solider Tag mit klarem Potenzial':score>=5.5?'Mehrere Grundlagen sind vorhanden':'Heute fehlen noch wichtige Grundlagen';
     setText($('#journalSummaryVerdictTitle'),verdict);setText($('#journalSummaryVerdictText'),strongest&&weakest?`Stärkster Bereich: ${strongest.label}. Größter Hebel: ${weakest.label}. Die Note bewertet Verhalten und Zielnähe – nicht deinen persönlichen Wert.`:'Die Tagesnote wird aufgebaut, sobald genügend Daten vorliegen.');
