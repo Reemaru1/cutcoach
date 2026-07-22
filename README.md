@@ -36,5 +36,7 @@ npm run check
 - `tests/`: automatisch erkannte Regressionstests
 - `tools/`: reproduzierbare Daten-/Katalogwerkzeuge
 - `docs/`: Architektur, Quellenhinweise und fachliche Regeln
+- `src/shared/`: Modulregister, gemeinsame UI und lokale Qualitätsmessung
+- `src/features/`: schrittweise Adapter für Tagebuch, Ernährung und Fortschritt
 
 Weitere Details stehen in [docs/architecture.md](docs/architecture.md).
