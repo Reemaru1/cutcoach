@@ -19,8 +19,8 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   input.focus();
   for(const value of ['h','ha','hae','haeh','haehn','haehnc','haehnch','haehnche','haehnchen']){input.value=value;input.dispatchEvent(new window.Event('input',{bubbles:true}));await wait(35);assert.equal(downstream,0,'Teure Folgesuche läuft während der Tippserie.');}
   assert.equal(mutations,0,'Der Suchcontroller verändert während des Tippens das DOM.');
-  assert.equal(window.CutCoachSearchInputPerformance193.stats().pending,true,'Die 230-ms-Ruhephase wird nicht abgewartet.');observer.disconnect();
-  await wait(260);assert.equal(downstream,1);assert.equal(lastValue,'haehnchen');assert.equal(window.document.activeElement,input,'Automatische Suche schließt die Tastatur unerwartet.');
+  assert.equal(window.CutCoachSearchInputPerformance193.stats().pending,true,'Die 320-ms-Ruhephase wird nicht abgewartet.');observer.disconnect();
+  await wait(350);assert.equal(downstream,1);assert.equal(lastValue,'haehnchen');assert.equal(window.document.activeElement,input,'Automatische Suche schließt die Tastatur unerwartet.');
 
   input.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Enter',keyCode:13,bubbles:true,cancelable:true}));
   assert.equal(downstream,1,'Die Tastaturlupe startet nach bereits fertiger Autosuche einen doppelten Suchlauf.');
@@ -42,10 +42,10 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   input.value='Steak';input.dispatchEvent(new window.Event('input',{bubbles:true}));window.CutCoachSearchInputPerformance193.cancel();await wait(260);assert.equal(downstream,5);
 
   const api=window.CutCoachSearchInputPerformance193,stats=api.stats();
-  assert.equal(api.version,'1.9.9-alpha');assert.equal(api.idleMs,230);assert.equal(api.pasteMs,110);assert.deepEqual({...api.debounceRange},{min:230,max:230});assert.equal(api.shortQueryLength,2);
+  assert.equal(api.version,'2.0.0-alpha');assert.equal(api.idleMs,320);assert.equal(api.pasteMs,90);assert.deepEqual({...api.debounceRange},{min:320,max:320});assert.equal(api.shortQueryLength,2);
   assert.ok(stats.commitCount>=3,'Suchbestätigungen werden nicht erfasst.');assert.ok(stats.keyboardDismissCount>=3,'Die Tastatur wurde bei Suchbestätigungen nicht geschlossen.');assert.equal(stats.typing,false);assert.equal(stats.noticeCount,0);
-  assert.match(loader,/nutrition-search-input-performance-v193\.js\?v=1\.9\.9-alpha/);assert.ok(runtime.indexOf('nutrition-search-input-performance-v193.js?v=1.9.9-alpha')<runtime.indexOf('nutrition-polish-v138.js?v=1.3.11-alpha'));
+  assert.match(loader,/nutrition-search-input-performance-v193\.js\?v=2\.0\.0-alpha/);assert.ok(runtime.indexOf('nutrition-search-input-performance-v193.js?v=2.0.0-alpha')<runtime.indexOf('nutrition-polish-v138.js?v=1.3.11-alpha'));
   assert.ok(sw.includes('search198-idle-live'));assert.ok(sw.includes('search199-ios-keyboard'));
-  dom.window.close();console.log('230-ms-Autosuche und iOS-Tastaturlupe funktionieren ohne Doppelsuche; die Tastatur schließt zuverlässig.');
+  dom.window.close();console.log('320-ms-Autosuche und iOS-Tastaturlupe funktionieren ohne Doppelsuche; die Tastatur schließt zuverlässig.');
   setImmediate(()=>process.exit(0));
 })().catch(error=>{console.error(error);setImmediate(()=>process.exit(1))});

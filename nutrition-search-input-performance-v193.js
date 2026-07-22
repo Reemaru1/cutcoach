@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-const VERSION='1.9.9-alpha',IDLE_MS=230,PASTE_MS=110,MIN_QUERY_LENGTH=2,COMMIT_DEDUP_MS=500;
+const VERSION='2.0.0-alpha',IDLE_MS=320,PASTE_MS=90,MIN_QUERY_LENGTH=2,COMMIT_DEDUP_MS=500;
 let timer=0,token=0,pendingInput=null,nativeInputCount=0,releaseCount=0,lastReason='',lastDelay=IDLE_MS,typingBursts=0,composing=false,lastReleasedValue='',lastCommitValue='',lastCommitAt=0,commitCount=0,keyboardDismissCount=0;
 const isSearch=input=>input?.id==='nutritionSearch';
 const queryLength=input=>Array.from(String(input?.value||'').trim()).length;
@@ -25,6 +25,7 @@ try{window.dispatchEvent(new CustomEvent('cutcoach:search-keyboard-committed',{d
 return true}
 function schedule(input,event){
 clearTimeout(timer);timer=0;pendingInput=input;const current=++token;nativeInputCount++;typingBursts++;const length=queryLength(input);
+try{window.dispatchEvent(new CustomEvent('cutcoach:search-input-pending',{detail:{length,reason:event?.inputType||'typing'}}))}catch{}
 if(!length){queueMicrotask(()=>{if(current===token&&input.isConnected)release(input,'clear')});return}if(length<MIN_QUERY_LENGTH)return;
 lastDelay=event?.inputType==='insertFromPaste'||event?.inputType==='insertFromDrop'?PASTE_MS:IDLE_MS;
 timer=setTimeout(()=>{timer=0;if(current!==token||!input.isConnected)return;release(input,lastDelay===PASTE_MS?'paste':'idle')},lastDelay)}

@@ -1,8 +1,10 @@
 'use strict';
 (function(){
   const VERSION=typeof APP_VERSION==='string'?APP_VERSION:'2.3.0-alpha';
+  const SEARCH_ENGINE_VERSION='7.1.0';
   const LIBRARY_KEY='cutcoach_library_v1';
   const RESULT_PAGE_SIZE=18;
+  const FUZZY_FALLBACK_TARGET=3;
   const NUTRITION_MEAL_TYPES=['Frühstück','Mittagessen','Abendessen','Snack'];
   const MEAL_ICONS={'Frühstück':'☕','Mittagessen':'🥗','Abendessen':'🍽️','Snack':'🍎'};
   const SEARCH_META=new WeakMap();
@@ -13,10 +15,14 @@
   let currentExpanded=false;
   let lastQuickAdd=null;
   let feedbackTimer=null;
-  let resultsScheduled=false;
+  let resultsFrame=0;
+  let resultsTimer=0;
+  let resultsRequestToken=0;
   let searchRevision=0;
   let lastSearchQuery='';
   let searchRequestedAt=0;
+  let routineCache=null;
+  let searchPerformance={candidateCount:0,directMatches:0,fuzzyMatches:0,fuzzyPass:false,scanMs:0,renderMs:0};
 
   function clock(){return typeof performance==='object'&&typeof performance.now==='function'?performance.now():Date.now()}
 
@@ -57,6 +63,12 @@
     }
     return routines;
   }
+  function cachedMealRoutineMap(){
+    const key=`${selectedDate}|${mealType}`;
+    if(routineCache?.key===key)return routineCache.value;
+    const value=mealRoutineMap();routineCache={key,value};return value;
+  }
+  function invalidateSearchContext(){routineCache=null}
 
   function activateScreen(name){
     const activeTab=name==='food'?'today':name;
@@ -65,18 +77,19 @@
   }
   function resetBrowse(){
     activeFilter='all';visibleLimit=RESULT_PAGE_SIZE;currentExpanded=false;lastQuickAdd=null;clearTimeout(feedbackTimer);feedbackTimer=null;
+    cancelScheduledResults();invalidateSearchContext();
     lastSearchQuery='';searchRequestedAt=0;
     const input=document.querySelector('#nutritionSearch');if(input)input.value='';
   }
   function switchMealType(value){
     const next=validMealType(value);if(next===mealType)return;
-    mealType=next;currentExpanded=false;visibleLimit=RESULT_PAGE_SIZE;document.body.dataset.nutritionMealType=mealType;renderNutrition();
+    mealType=next;currentExpanded=false;visibleLimit=RESULT_PAGE_SIZE;invalidateSearchContext();document.body.dataset.nutritionMealType=mealType;renderNutrition();
   }
   function openFoodScreen(type=mealType){
     mealType=validMealType(type);document.body.dataset.nutritionMealType=mealType;activateScreen('food');document.body.classList.remove('journal-mode');document.body.classList.add('nutrition-mode');
     ensureStructure();resetBrowse();window.scrollTo({top:0,behavior:'auto'});renderNutrition();
   }
-  function leaveNutrition(){document.body.classList.remove('nutrition-mode');delete document.body.dataset.nutritionMealType;stopVoice();clearTimeout(feedbackTimer);feedbackTimer=null;lastQuickAdd=null;}
+  function leaveNutrition(){document.body.classList.remove('nutrition-mode');delete document.body.dataset.nutritionMealType;stopVoice();cancelScheduledResults();clearTimeout(feedbackTimer);feedbackTimer=null;lastQuickAdd=null;}
   function goBack(){activateScreen('today');leaveNutrition();document.body.classList.add('journal-mode');syncSelectedDateUrl?.('#today');window.scrollTo({top:0,behavior:'auto'});window.render?.()}
 
   function ensureStructure(){
@@ -142,9 +155,16 @@
   function requestResults(search=document.querySelector('#nutritionSearch')){
     if(!search)return;visibleLimit=RESULT_PAGE_SIZE;const query=normalized(search.value);if(query&&activeFilter!=='all')activeFilter='all';if(!recognition){const status=document.querySelector('#nutritionVoiceStatus');if(status)status.hidden=true}
     if(query!==lastSearchQuery){lastSearchQuery=query;searchRevision++;searchRequestedAt=clock()}
-    document.querySelector('#nutritionResults')?.setAttribute('aria-busy','true');renderFilters();scheduleResults();
+    document.querySelector('#nutritionResults')?.setAttribute('aria-busy','true');scheduleResults();
   }
-  function scheduleResults(){if(resultsScheduled)return;resultsScheduled=true;Promise.resolve().then(()=>{resultsScheduled=false;renderResults()})}
+  function cancelScheduledResults(){
+    if(resultsFrame&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(resultsFrame);if(resultsTimer)clearTimeout(resultsTimer);resultsFrame=0;resultsTimer=0;resultsRequestToken++;
+  }
+  function scheduleResults(){
+    const token=++resultsRequestToken;if(resultsFrame&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(resultsFrame);if(resultsTimer)clearTimeout(resultsTimer);
+    const run=()=>{resultsFrame=0;resultsTimer=setTimeout(()=>{resultsTimer=0;if(token!==resultsRequestToken)return;renderResults()},0)};
+    if(typeof requestAnimationFrame==='function')resultsFrame=requestAnimationFrame(run);else run();
+  }
   function openManual(){
     if(typeof mealCapacity==='function'&&mealCapacity()<1){toast?.(`Maximal ${fmt(MAX_MEALS_PER_DAY)} Mahlzeiten pro Tag möglich.`);return}
     if(typeof openMeal==='function')openMeal();else{if(typeof editingMealId!=='undefined')editingMealId=null;for(const id of ['mealName','mealCalories','mealProtein','mealCarbs','mealFat']){const input=document.querySelector(`#${id}`);if(input)input.value=''}openModal?.('mealModal')}
@@ -193,8 +213,9 @@
   }
   function searchMeta(item){
     if(SEARCH_META.has(item))return SEARCH_META.get(item);
-    const name=normalized(item.name),meta={name,compact:compactNormalized(item.name),words:name.split(/\s+/).filter(Boolean),barcode:normalized(item.barcode)};SEARCH_META.set(item,meta);return meta;
+    const name=normalized(item.name),aliases=(Array.isArray(item.aliases)?item.aliases:[]).map(normalized).filter(Boolean),compact=compactNormalized(item.name),compactAliases=aliases.map(value=>value.replace(/\s+/g,'')),searchable=[name,...aliases].join(' '),words=[name,...aliases].flatMap(value=>value.split(/\s+/)).filter(Boolean),meta={name,aliases,compact,compactAliases,searchable,searchableCompact:[compact,...compactAliases].join(' '),words,barcode:normalized(item.barcode)};SEARCH_META.set(item,meta);return meta;
   }
+  function searchPlan(query){return{query,compact:compactNormalized(query),tokens:query.split(/\s+/).filter(Boolean).map(value=>({value,compact:value.replace(/\s+/g,'')}))}}
   function editDistanceWithin(left,right,limit){
     if(left===right)return 0;if(Math.abs(left.length-right.length)>limit)return limit+1;
     let previous=Array.from({length:right.length+1},(_,index)=>index);
@@ -209,11 +230,11 @@
     if(token.length<4)return false;const limit=token.length>=8?2:1,candidates=[meta.compact,...meta.words].filter(word=>Math.abs(word.length-token.length)<=limit);
     return candidates.some(word=>editDistanceWithin(token,word,limit)<=limit);
   }
-  function searchScore(item,query,routine={score:0}){
-    const meta=searchMeta(item),compactQuery=compactNormalized(query),tokens=query.split(/\s+/).filter(Boolean);
-    if(!tokens.every(token=>meta.name.includes(token)||meta.compact.includes(compactNormalized(token))||meta.barcode.includes(token)||fuzzyMatch(compactNormalized(token),meta)))return null;
-    let score=0;if(meta.name===query||meta.compact===compactQuery)score+=1000;else if(meta.name.startsWith(query)||meta.compact.startsWith(compactQuery))score+=600;else if(meta.words.some(word=>word.startsWith(query)))score+=350;
-    for(const token of tokens){if(meta.words.some(word=>word.startsWith(token)))score+=80;if(meta.barcode===token)score+=900;if(!meta.name.includes(token)&&!meta.compact.includes(compactNormalized(token))&&fuzzyMatch(compactNormalized(token),meta))score+=35}
+  function searchScore(item,plan,routine={score:0},allowFuzzy=false){
+    const meta=searchMeta(item);let fuzzyHits=0;
+    for(const token of plan.tokens){const direct=meta.searchable.includes(token.value)||meta.searchableCompact.includes(token.compact)||meta.barcode.includes(token.value);if(direct)continue;if(!allowFuzzy||!fuzzyMatch(token.compact,meta))return null;fuzzyHits++}
+    let score=0;if(meta.name===plan.query||meta.compact===plan.compact||meta.aliases.includes(plan.query)||meta.compactAliases.includes(plan.compact))score+=1000;else if(meta.name.startsWith(plan.query)||meta.compact.startsWith(plan.compact)||meta.aliases.some(value=>value.startsWith(plan.query))||meta.compactAliases.some(value=>value.startsWith(plan.compact)))score+=600;else if(meta.words.some(word=>word.startsWith(plan.query)))score+=350;
+    for(const token of plan.tokens){if(meta.words.some(word=>word.startsWith(token.value)))score+=80;if(meta.barcode===token.value)score+=900}score+=fuzzyHits*35;
     const rank=featuredRank(item);return score+Number(Boolean(item.favorite))*60+Math.min(100,Number(item.uses)||0)+Math.min(220,routine.score*3)+(rank?Math.max(20,180-rank*5):0)+Number(!item.catalog)*25;
   }
   function nutritionContext(){
@@ -236,18 +257,27 @@
   }
   function contextScore(item,routines,context,intent){const routine=routines.get(normalized(item.name))?.score||0,rank=featuredRank(item),fit=itemFit(item,context,intent),proteinSignal=context.proteinGap>20&&fit.n.protein<5?-180:0;return routine*7+Number(Boolean(item.favorite))*90+Math.min(80,Number(item.uses)||0)+(item.catalog?(rank?130-rank*4:0):130)+fit.score*12+proteinSignal}
   function filteredItems(){
-    const intent=parseSearchIntent(document.querySelector('#nutritionSearch')?.value),query=intent.query,personal=readLibrary(),catalog=readCatalog(),routines=mealRoutineMap(),context=nutritionContext();let items=[...personal];
+    const startedAt=clock(),intent=parseSearchIntent(document.querySelector('#nutritionSearch')?.value),query=intent.query,personal=readLibrary(),catalog=readCatalog(),routines=cachedMealRoutineMap(),context=nutritionContext();let items=[...personal];
     if(activeFilter==='favorite')items=items.filter(item=>item.favorite);else if(activeFilter==='recent')items=items.filter(item=>item.lastUsedAt);else if(activeFilter==='recipe')items=items.filter(item=>item.kind==='recipe');
     if(query&&activeFilter==='all')items.push(...availableCatalog(personal,catalog));
     else if(!query&&activeFilter==='all')items.push(...availableCatalog(personal,catalogSuggestions()));
-    if(query){items=items.map(item=>{const score=searchScore(item,query,routines.get(normalized(item.name)));return{item,score:score===null?null:score+itemFit(item,context,intent).score*.2}}).filter(entry=>entry.score!==null).sort((a,b)=>b.score-a.score||String(a.item.name).localeCompare(String(b.item.name),'de')).map(entry=>entry.item);}
+    if(query){
+      const plan=searchPlan(query),direct=[],misses=[];for(const item of items){const meta=searchMeta(item),score=searchScore(item,plan,routines.get(meta.name),false);if(score===null)misses.push(item);else direct.push({item,score:score+itemFit(item,context,intent).score*.2})}
+      const fuzzyPass=direct.length<FUZZY_FALLBACK_TARGET&&plan.tokens.some(token=>token.compact.length>=4),fuzzy=[];if(fuzzyPass)for(const item of misses){const meta=searchMeta(item),score=searchScore(item,plan,routines.get(meta.name),true);if(score!==null)fuzzy.push({item,score:score+itemFit(item,context,intent).score*.2})}
+      const matches=[...direct,...fuzzy];matches.sort((a,b)=>b.score-a.score||String(a.item.name).localeCompare(String(b.item.name),'de'));items=matches.map(entry=>entry.item);searchPerformance={...searchPerformance,candidateCount:direct.length+misses.length,directMatches:direct.length,fuzzyMatches:fuzzy.length,fuzzyPass,scanMs:Math.max(0,Math.round((clock()-startedAt)*10)/10)};
+    }
     else if(activeFilter==='recent')items=[...items].sort((a,b)=>String(b.lastUsedAt).localeCompare(String(a.lastUsedAt)));
     else items=[...items].sort((a,b)=>contextScore(b,routines,context,intent)-contextScore(a,routines,context,intent)||String(a.name).localeCompare(String(b.name),'de'));
+    if(!query)searchPerformance={...searchPerformance,candidateCount:items.length,directMatches:0,fuzzyMatches:0,fuzzyPass:false,scanMs:Math.max(0,Math.round((clock()-startedAt)*10)/10)};
     return {items,query,intent,personal,routines,context,catalogTotal:catalog.length};
   }
   function renderFilters(personal=readLibrary(),catalogTotal=readCatalog().length){
     const imported=personal.filter(item=>item.source==='bls'&&item.sourceId).length,counts={all:Math.max(0,catalogTotal-imported)+personal.length,favorite:personal.filter(item=>item.favorite).length,recent:personal.filter(item=>item.lastUsedAt).length,recipe:personal.filter(item=>item.kind==='recipe').length};
     document.querySelectorAll('[data-nutrition-filter]').forEach(button=>{const on=button.dataset.nutritionFilter===activeFilter;button.classList.toggle('active',on);button.setAttribute('aria-selected',String(on));const count=button.querySelector('[data-filter-count]');if(count)count.textContent=fmt(counts[button.dataset.nutritionFilter])});
+  }
+  function finishResultsRender(host,query,resultCount,renderStartedAt){
+    const completedAt=clock(),latencyMs=Math.max(0,Math.round(query&&searchRequestedAt?completedAt-searchRequestedAt:completedAt-renderStartedAt));searchPerformance={...searchPerformance,renderMs:Math.max(0,Math.round((completedAt-renderStartedAt)*10)/10)};host.setAttribute('aria-busy','false');if(query)searchRequestedAt=0;
+    window.dispatchEvent(new CustomEvent('cutcoach:nutrition-search-rendered',{detail:{hasQuery:Boolean(query),resultCount,queryLengthBucket:query.length<4?'short':query.length<10?'medium':'long',latencyMs,searchRevision,scanMs:searchPerformance.scanMs,fuzzyPass:searchPerformance.fuzzyPass}}));
   }
   function renderResults(){
     const renderStartedAt=clock(),host=document.querySelector('#nutritionResults');if(!host)return;
@@ -255,14 +285,12 @@
     if(intentNode){intentNode.hidden=!intent.amount;intentNode.textContent=intent.amount?`Mengenmodus: ${fmt(intent.amount,intent.amount%1?1:0)} ${intent.unit} werden bei passenden Treffern direkt übernommen.`:''}
     const hasRoutine=personal.some(item=>(routines.get(normalized(item.name))?.days||0)>=2),needsProtein=context.proteinGap>20;scope.textContent=query?'Lebensmitteldatenbank':activeFilter==='all'?'Jetzt passend':'Deine Bibliothek';title.textContent=query?`Treffer für „${intent.displayQuery}“`:activeFilter==='favorite'?'Deine Favoriten':activeFilter==='recent'?'Zuletzt verwendet':activeFilter==='recipe'?'Deine Rezepte':context.rawRemaining<0&&needsProtein?'Eiweiß sinnvoll ergänzen':context.rawRemaining<0?'Für morgen vormerken':needsProtein?'Eiweißziel unterstützen':hasRoutine?`Passend für ${mealType}`:`Empfohlen für ${mealType}`;
     count.textContent=`${fmt(items.length)} Treffer`;
-    host.setAttribute('aria-busy','false');const latencyMs=Math.max(0,Math.round(query&&searchRequestedAt?clock()-searchRequestedAt:clock()-renderStartedAt));if(query)searchRequestedAt=0;
-    window.dispatchEvent(new CustomEvent('cutcoach:nutrition-search-rendered',{detail:{hasQuery:Boolean(query),resultCount:items.length,queryLengthBucket:query.length<4?'short':query.length<10?'medium':'long',latencyMs,searchRevision}}));
     if(!items.length){
-      host.classList.add('is-empty');host.innerHTML=`<article class="nutrition-empty"><span aria-hidden="true">${query?'⌕':'🥣'}</span><div><b>${query?'Nichts Passendes gefunden':'Hier gibt es noch keine Einträge'}</b><p>${query?'Prüfe die Schreibweise, scanne den Barcode oder lege das Lebensmittel einmalig selbst an.':'Speichere häufige Lebensmittel und Rezepte für den schnellen Zugriff.'}</p></div><div class="nutrition-empty-actions">${query?'<button type="button" data-nutrition-empty-scan>Barcode scannen</button>':''}<button type="button" data-nutrition-empty-add>Lebensmittel anlegen</button></div></article>`;host.querySelector('[data-nutrition-empty-scan]')?.addEventListener('click',openScanner);host.querySelector('[data-nutrition-empty-add]').onclick=()=>openLibraryEditor(activeFilter==='recipe'?'recipe':'food',query?intent.displayQuery:'');more.hidden=true;return;
+      host.classList.add('is-empty');host.innerHTML=`<article class="nutrition-empty"><span aria-hidden="true">${query?'⌕':'🥣'}</span><div><b>${query?'Nichts Passendes gefunden':'Hier gibt es noch keine Einträge'}</b><p>${query?'Prüfe die Schreibweise, scanne den Barcode oder lege das Lebensmittel einmalig selbst an.':'Speichere häufige Lebensmittel und Rezepte für den schnellen Zugriff.'}</p></div><div class="nutrition-empty-actions">${query?'<button type="button" data-nutrition-empty-scan>Barcode scannen</button>':''}<button type="button" data-nutrition-empty-add>Lebensmittel anlegen</button></div></article>`;host.querySelector('[data-nutrition-empty-scan]')?.addEventListener('click',openScanner);host.querySelector('[data-nutrition-empty-add]').onclick=()=>openLibraryEditor(activeFilter==='recipe'?'recipe':'food',query?intent.displayQuery:'');more.hidden=true;finishResultsRender(host,query,0,renderStartedAt);return;
     }
     host.classList.remove('is-empty');const capacity=typeof mealCapacity==='function'?mealCapacity():1;
     host.innerHTML=items.slice(0,visibleLimit).map(item=>{const routine=routines.get(normalized(item.name)),source=item.source==='bls'?'<i class="nutrition-source" aria-label="Quelle Bundeslebensmittelschlüssel 4.0">BLS</i>':item.source==='off'?'<i class="nutrition-source product" aria-label="Quelle Open Food Facts">Produkt</i>':'',fit=itemFit(item,context,intent),portion=fit.portion,shown=portion||{amount:item.amount,unit:item.unit||'g'},energy=fit.n.calories,quickPortion=`${fmt(shown.amount,shown.amount%1?1:0)} ${shown.unit}`;return `<article class="nutrition-result-row"><button class="nutrition-result-main" type="button" data-nutrition-open="${escapeHtml(item.id)}" aria-label="${escapeHtml(item.name)}, Portion auswählen"><span class="nutrition-result-icon" aria-hidden="true">${foodIcon(item)}</span><span class="nutrition-result-copy"><b><span title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>${item.favorite?'<i class="nutrition-favorite" aria-label="Favorit">★</i>':''}${routine?.days>=2?`<i class="nutrition-routine" aria-label="Häufig zu ${escapeHtml(mealType)} gewählt">Routine</i>`:''}${source}</b><small>${quickPortion} · E ${fmt(fit.n.protein,1)} · KH ${fmt(fit.n.carbs,1)} · F ${fmt(fit.n.fat,1)}</small></span></button><span class="nutrition-result-energy"><b>${fmt(energy)} kcal</b>${fit.label?`<i>${fit.label}</i>`:''}</span><button class="nutrition-result-add" type="button" data-nutrition-add="${escapeHtml(item.id)}" aria-label="${escapeHtml(item.name)}, ${quickPortion}, direkt zu ${escapeHtml(mealType)} hinzufügen" ${capacity<1?'disabled':''}>＋</button></article>`}).join('');
-    const remaining=Math.max(0,items.length-visibleLimit);more.hidden=remaining===0;more.textContent=remaining?`Weitere ${fmt(Math.min(RESULT_PAGE_SIZE,remaining))} anzeigen`:'';
+    const remaining=Math.max(0,items.length-visibleLimit);more.hidden=remaining===0;more.textContent=remaining?`Weitere ${fmt(Math.min(RESULT_PAGE_SIZE,remaining))} anzeigen`:'';finishResultsRender(host,query,items.length,renderStartedAt);
   }
 
   function copyPreviousMealType(){
@@ -292,6 +320,7 @@
   }
   function cleanNavigation(){document.querySelector('nav [data-tab="library"]')?.remove();document.querySelectorAll('.journal-section-title button,.journal-section-title a').forEach(node=>{if(node.textContent.trim().toLocaleLowerCase('de').includes('alle anzeigen'))node.remove()});document.querySelectorAll('nav [data-tab]').forEach(button=>{if(button.dataset.nutritionWatch)return;button.dataset.nutritionWatch='1';button.addEventListener('click',()=>{if(button.dataset.tab!=='food')leaveNutrition()})});window.CutCoachGlassNavV131?.enhance?.()}
   document.addEventListener('click',event=>{const add=event.target.closest('[data-add-journal-meal]');if(add){event.preventDefault();event.stopImmediatePropagation();openFoodScreen(add.dataset.addJournalMeal);return}if(event.target.closest('#journalQuickAdd')){event.preventDefault();event.stopImmediatePropagation();const hour=new Date().getHours();openFoodScreen(hour<11?'Frühstück':hour<16?'Mittagessen':hour<21?'Abendessen':'Snack')}},true);
-  window.addEventListener('cutcoach:librarychange',()=>{if(document.querySelector('[data-screen="food"]')?.classList.contains('active'))renderResults()});
-  const baseRender=window.render;window.render=function(){baseRender();cleanNavigation();if(document.querySelector('[data-screen="food"]')?.classList.contains('active'))renderNutrition()};document.addEventListener('DOMContentLoaded',()=>{ensureStructure();cleanNavigation()},{once:true});
+  window.addEventListener('cutcoach:librarychange',()=>{invalidateSearchContext();if(document.querySelector('[data-screen="food"]')?.classList.contains('active'))renderResults()});
+  window.CutCoachNutritionSearch710=Object.freeze({version:SEARCH_ENGINE_VERSION,performance:()=>Object.freeze({...searchPerformance}),cancel:cancelScheduledResults});
+  const baseRender=window.render;window.render=function(){invalidateSearchContext();baseRender();cleanNavigation();if(document.querySelector('[data-screen="food"]')?.classList.contains('active'))renderNutrition()};document.addEventListener('DOMContentLoaded',()=>{ensureStructure();cleanNavigation()},{once:true});
 })();

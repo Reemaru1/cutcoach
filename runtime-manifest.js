@@ -26,7 +26,7 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './food-catalog.js?v=7.0.0','./everyday-catalog-v73.js?v=7.3.0','./local-dishes-v140.js?v=1.4.0-alpha',
     './catalog-expansion-v191.js?v=1.9.1-alpha','./product-catalog-v200.js?v=2.0.0-alpha','./library.js?v=7.0.0',
     './library-init.js?v=7.0.0','./scanner-v2.js?v=1.8.1-alpha','./off-lookup.js?v=1.8.1-alpha','./upgrade-340.js?v=7.0.0',
-    './nutrition.js?v=7.0.1','./journal.js?v=7.0.0','./water-animation.js?v=6.8.5','./nutrition-v7.js?v=7.0.0',
+    './nutrition.js?v=7.1.0','./journal.js?v=7.0.0','./water-animation.js?v=6.8.5','./nutrition-v7.js?v=7.0.0',
     './nutrition-v73.js?v=7.3.2','./ui-effects-v7.js?v=7.1.0','./journal-v72.js?v=7.2.1','./journal-energy-live-v143.js?v=1.4.3-alpha',
     './journal-smart-v740.js?v=1.0.1-alpha','./journal-live-nav-v127.js?v=1.3.3-alpha','./nutrition-cleanup-101.js?v=1.0.4-alpha',
     './nutrition-v110.js?v=1.1.2-alpha','./nutrition-voice-111.js?v=1.9.2-alpha','./nutrition-portion-profiles-v153.js?v=1.5.3-alpha',
@@ -35,7 +35,7 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './nutrition-search-confidence-hardening-v151.js?v=1.9.0-alpha','./nutrition-multisearch-canonical-128.js?v=1.5.0-alpha',
     './nutrition-multisearch-120.js?v=1.9.6-compat','./nutrition-production-acceptance-v180.js?v=1.8.0-alpha',
     './glass-nav-v131.js?v=1.3.7-alpha','./nutrition-stability-v201.js?v=2.0.1-alpha','./version-v7.js?v=2.3.0-alpha',
-    './journal-polish-v137.js?v=1.3.7-alpha','./nutrition-search-input-performance-v193.js?v=1.9.9-alpha',
+    './journal-polish-v137.js?v=1.3.7-alpha','./nutrition-search-input-performance-v193.js?v=2.0.0-alpha',
     './nutrition-polish-v138.js?v=1.3.11-alpha','./nutrition-ui-consistency-v206.js?v=2.0.8-loader','./body-progress-v220.js?v=2.2.2-production',
     './src/features/journal/dashboard-v800.js?v=8.2.1-alpha','./src/features/nutrition/nutrition-v210.js?v=2.2.1-alpha'
   ])
