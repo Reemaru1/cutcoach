@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const nav=fs.readFileSync(path.join(root,'glass-nav-v131.js'),'utf8');
+assert.match(nav,/function exposeRuntimeState\(\)/);
+assert.match(nav,/Object\.defineProperty\(window,'state'/);
+assert.match(nav,/get:\(\)=>state/);
+assert.match(nav,/Object\.defineProperty\(window,'selectedDate'/);
+assert.match(nav,/get:\(\)=>selectedDate/);
+assert.match(nav,/function ensureProductionUi\(\)\{\s*exposeRuntimeState\(\);/);
+console.log('Body Progress 2.1.0: Live-State und ausgewähltes Datum werden lesend in den Produktionspfad überführt.');
