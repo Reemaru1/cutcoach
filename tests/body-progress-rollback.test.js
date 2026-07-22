@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const read=name=>fs.readFileSync(path.join(root,name),'utf8');
+const loader=read('glass-nav-v131.js');
+const sw=read('sw.js');
+assert.doesNotMatch(loader,/body-progress-v21[0-9]/,'Der Produktionsloader darf keine Body-Progress-Experimentdatei mehr laden.');
+assert.doesNotMatch(sw,/body-progress-v21[0-9]/,'Der Service Worker darf keine Body-Progress-Experimentdatei mehr cachen.');
+assert.match(sw,/body214-rollback/,'Der Rollback benötigt eine neue Cachegeneration für bereits installierte PWAs.');
+assert.match(loader,/nutrition-ui-consistency-v206/);
+assert.match(loader,/liquid-glass-ui-v207/);
+console.log('Body Progress Rollback: Produktionsloader und Offline-Cache sind frei von Experimentdateien.');
