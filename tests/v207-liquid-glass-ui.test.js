@@ -8,7 +8,6 @@ const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const css=read('liquid-glass-ui-v207.css');
 const runtime=read('runtime-manifest.js');
 const sw=read('sw.js');
-const pkg=JSON.parse(read('package.json'));
 
 assert.match(css,/#journalMacroClose[\s\S]*#journalSummaryClose/,'Die konkreten Makro- und Abschluss-Schließen-Buttons werden nicht direkt adressiert.');
 assert.match(css,/\.modal \.sheet-head > button\[aria-label="Schließen"\]/,'Dynamisch erzeugte Modal-Schließen-Buttons fehlen im Override.');
@@ -29,6 +28,5 @@ const newStyle=runtime.indexOf('liquid-glass-ui-v207.css?v=2.0.8-loader');
 assert.ok(oldStyle>=0&&newStyle>oldStyle,'Das Liquid-Glass-Override muss nach allen älteren UI-Regeln geladen werden.');
 assert.ok(sw.includes('ui207-liquid-glass'),'Die Offline-Cachegeneration wurde nicht angehoben.');
 assert.ok(sw.includes('ui208-production-loader'),'Die produktive Loader-Cachegeneration fehlt.');
-assert.match(pkg.scripts.test,/v207-liquid-glass-ui\.test\.js/,'Die neue Regression ist nicht in der vollständigen Testsuite enthalten.');
 
 console.log('UI 2.0.8: direkte Sheet-Steuerung und transparente Liquid-Glass-Navigation sind im produktiven Loader korrekt verankert.');

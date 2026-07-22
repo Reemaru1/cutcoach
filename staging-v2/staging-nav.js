@@ -28,9 +28,13 @@
     if(!today||!progress||!settings)return false;
     nav.classList.add('cc-staging-nav');
     document.body.classList.add('cc-staging-nav-active');
-    today.innerHTML=ICONS.today;today.setAttribute('aria-label','Tagebuch öffnen');
-    progress.innerHTML=ICONS.progress;progress.setAttribute('aria-label','Fortschritt öffnen');
-    settings.innerHTML=ICONS.settings;settings.setAttribute('aria-label','Einstellungen öffnen');
+    const decorate=(button,icon,label)=>{
+      if(!button.querySelector('.cc-nav-icon'))button.innerHTML=icon;
+      if(button.getAttribute('aria-label')!==label)button.setAttribute('aria-label',label);
+    };
+    decorate(today,ICONS.today,'Tagebuch öffnen');
+    decorate(progress,ICONS.progress,'Fortschritt öffnen');
+    decorate(settings,ICONS.settings,'Einstellungen öffnen');
     let plus=nav.querySelector('.cc-staging-plus');
     if(!plus){
       plus=document.createElement('button');plus.type='button';plus.className='cc-staging-plus';plus.setAttribute('aria-label','Ernährungsbereich öffnen');plus.innerHTML=ICONS.plus;plus.addEventListener('click',activateFood);nav.appendChild(plus);
@@ -43,6 +47,7 @@
     observer=new MutationObserver(()=>apply());
     observer.observe(document.body,{childList:true,subtree:true});
     window.addEventListener('pageshow',apply);
+    window.addEventListener('pagehide',()=>observer?.disconnect(),{once:true});
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)apply()});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();

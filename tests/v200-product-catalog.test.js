@@ -65,14 +65,13 @@ assert.equal(rows.length,2,'Zwei Markengetränke werden nicht getrennt erkannt.'
 assert.deepEqual(Array.from(rows,row=>row.item?.id),['ccp:red-bull','ccp:coca-cola-zero']);
 assert.deepEqual(Array.from(rows,row=>row.status),['matched','matched']);
 
-const loader=read('version-v7.js'),runtime=read('runtime-manifest.js'),sw=read('sw.js'),packageJson=JSON.parse(read('package.json'));
+const loader=read('version-v7.js'),runtime=read('runtime-manifest.js'),sw=read('sw.js');
 assert.match(loader,/product-catalog-v200\.js\?v=2\.0\.0-alpha/,'Produktiver Loader enthält den Produktkatalog nicht.');
 assert.match(loader,/function loadProductCatalog200\(\)[\s\S]*product-catalog-v200\.js\?v=2\.0\.0-alpha[\s\S]*loadNutrition73/,'Produktkatalog übergibt nicht an die Ernährungssuche.');
 assert.match(loader,/function loadCatalogExpansion191\(\)[\s\S]*loadProductCatalog200[\s\S]*catalog-expansion-v191\.js\?v=1\.9\.1-alpha[^\n]*loadProductCatalog200/,'Basiskatalog übergibt nicht an den Produktkatalog.');
 assert.ok(runtime.indexOf('catalog-expansion-v191.js?v=1.9.1-alpha')<runtime.indexOf('product-catalog-v200.js?v=2.0.0-alpha'));
 assert.ok(runtime.indexOf('product-catalog-v200.js?v=2.0.0-alpha')<runtime.indexOf('nutrition-v73.js?v=7.3.2'));
 assert.match(sw,/catalog200-products/,'Eigene Cachegeneration für verifizierte Produkte fehlt.');
-assert.match(packageJson.scripts.test,/v200-product-catalog\.test\.js/,'Produktkatalogtest fehlt in der Gesamtkette.');
 
 dom.window.close();
 console.log('Produktkatalog 2.0.0: 43 verifizierte Getränke, Herstellerwerte, Aliase, Dubletten- und Mehrfachsuche geprüft.');

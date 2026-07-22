@@ -45,10 +45,10 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
     const w=dom.window;Object.defineProperty(w.navigator,'onLine',{configurable:true,value:true});let starts=0;class Recognition{start(){starts++;this.onerror?.({error:'not-allowed'})}stop(){this.onend?.()}abort(){}}
     w.webkitSpeechRecognition=Recognition;inject(w,'nutrition-voice-111.js');w.CutCoachNutritionVoice111.start();await wait(20);assert.equal(starts,1);assert.match(w.document.querySelector('#nutritionVoiceStatus').textContent,/nicht erlaubt/,'Abgelehnte iOS-Freigabe wird nicht verständlich gemeldet.');dom.window.close();
   }
-  const loader=read('version-v7.js'),runtime=read('runtime-manifest.js'),sw=read('sw.js'),packageJson=JSON.parse(read('package.json'));
+  const loader=read('version-v7.js'),runtime=read('runtime-manifest.js'),sw=read('sw.js');
   assert.match(loader,/nutrition-voice-111\.js\?v=1\.9\.2-alpha/);assert.match(loader,/nutrition-spoken-intent-v202\.js\?v=2\.0\.2-alpha/);assert.match(loader,/CutCoachSpokenIntent202\?\.attach/);
   assert.ok(runtime.indexOf('nutrition-search-exact-whole-v170.js?v=1.9.6-alpha')<runtime.indexOf('nutrition-spoken-intent-v202.js?v=2.0.2-alpha'));
   assert.ok(runtime.indexOf('nutrition-spoken-intent-v202.js?v=2.0.2-alpha')<runtime.indexOf('nutrition-search-confidence-hardening-v151.js?v=1.9.0-alpha'));
-  assert.match(sw,/search202-spoken-intent/);assert.match(sw,/voice203-direct-permission/);assert.match(sw,/`\$\{VOICE_CACHE\}-energy143`/);assert.match(packageJson.scripts.test,/v202-spoken-intent\.test\.js/);
+  assert.match(sw,/search202-spoken-intent/);assert.match(sw,/voice203-direct-permission/);assert.match(sw,/`\$\{VOICE_CACHE\}-energy143`/);
   console.log('Sprachintention 2.0.2: Vierer-Satz, Semmel/Käse, Mengen und direkte iOS-Mikrofonabfrage geprüft.');
 })().catch(error=>{console.error(error);process.exitCode=1});

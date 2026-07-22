@@ -1,1 +1,0 @@
-CutCoach 6.0.0 UI rollback marker before nutrition header and navigation alignment fixes.

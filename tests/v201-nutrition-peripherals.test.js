@@ -10,9 +10,9 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
 (async()=>{
   {
-    const dom=new JSDOM('<!doctype html><body class="nutrition-mode"><section data-screen="food"><div class="nutrition-macro-compass"></div></section><span id="appVersion">Version 1.2.2 Alpha</span></body>',{url:'https://example.test/',runScripts:'dangerously',pretendToBeVisual:true});
+    const dom=new JSDOM('<!doctype html><body class="nutrition-mode"><section data-screen="food"><div class="nutrition-macro-compass"></div></section><span id="appVersion">Version 2.2.1 Alpha</span></body>',{url:'https://example.test/',runScripts:'dangerously',pretendToBeVisual:true});
     const w=dom.window;inject(w,'nutrition-cleanup-101.js');await wait(80);
-    assert.equal(w.CutCoachNutritionCleanup101.version,'1.0.5 Alpha');assert.equal(w.document.querySelector('#appVersion').textContent,'Version 1.2.2 Alpha','Cleanup überschreibt wieder die zentrale App-Version.');
+    assert.equal(w.CutCoachNutritionCleanup101.version,'1.0.5 Alpha');assert.equal(w.document.querySelector('#appVersion').textContent,'Version 2.2.1 Alpha','Cleanup überschreibt wieder die zentrale App-Version.');
     const first=w.CutCoachNutritionCleanup101.snapshot();assert.equal(first.scoped,true);await wait(100);const second=w.CutCoachNutritionCleanup101.snapshot();assert.equal(second.syncCount,first.syncCount,'Cleanup läuft nach der Darstellung in einer Mutationsschleife.');assert.equal(second.pending,false);
     assert.doesNotMatch(read('nutrition-cleanup-101.js'),/appVersion|Version \$\{VERSION\}/,'Cleanup enthält erneut eine konkurrierende Versionsanzeige.');dom.window.close();
   }

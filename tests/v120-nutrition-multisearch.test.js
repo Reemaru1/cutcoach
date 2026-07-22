@@ -89,5 +89,5 @@ assert.match(sw,/search171-edge-hardening/,'Stufe-5-Randfall-Cachegeneration feh
 assert.match(sw,/stage6-production180/,'Stufe-6-Cachegeneration fehlt');
 assert.match(sw,/search190-integrity/,'A–Z-Integritäts-Cachegeneration fehlt');
 assert.match(sw,/search196-article-sequence/,'Artikel- und Sequenz-Cachegeneration fehlt');
-assert.match(update,/sw\.js\?v=1\.2\.7-alpha-force-search196/,'Update-Seite installiert nicht 1.2.7 Alpha');
+assert.match(update,/sw\.js\?v=2\.2\.1-alpha/,'Update-Seite installiert nicht 2.2.1 Alpha');
 console.log('CutCoach Sucharchitektur Stufe 1–6 und Artikel-/Sequenzintegrität 1.9.6 QA: ok');

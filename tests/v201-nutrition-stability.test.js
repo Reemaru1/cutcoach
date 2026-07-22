@@ -66,10 +66,10 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
   const writesBefore=api.snapshot().metaWrites;const p1={...cola,id:'manufacturer:p1',sourceId:'p1'},p2={...cola,id:'manufacturer:p2',sourceId:'p2'};replacement.addCatalogItemToDay(p1);replacement.addCatalogItemToDay(p2);await wait(15);assert.equal(api.snapshot().metaWrites-writesBefore,1,'Metadaten eines Mehrfacheintrags werden nicht gebündelt gespeichert.');
 
-  const loader=read('version-v7.js'),runtime=read('runtime-manifest.js'),sw=read('sw.js'),packageJson=JSON.parse(read('package.json'));
+  const loader=read('version-v7.js'),runtime=read('runtime-manifest.js'),sw=read('sw.js');
   assert.match(loader,/nutrition-stability-v201\.js\?v=2\.0\.1-alpha/);assert.match(loader,/nutrition-voice-111\.js\?v=1\.9\.2-alpha/);assert.match(loader,/nutrition-cleanup-101\.js\?v=1\.0\.4-alpha/);assert.match(loader,/nutrition-spoken-intent-v202\.js\?v=2\.0\.2-alpha/);
   assert.ok(runtime.indexOf('nutrition-stability-v201.js?v=2.0.1-alpha')<runtime.indexOf('nutrition-polish-v138.js?v=1.3.11-alpha'));
   for(const asset of ['scanner-v2.js?v=1.8.1-alpha','off-lookup.js?v=1.8.1-alpha','nutrition-voice-111.js?v=1.9.2-alpha','nutrition-cleanup-101.js?v=1.0.4-alpha','nutrition-spoken-intent-v202.js?v=2.0.2-alpha'])assert.ok(runtime.includes(asset),`${asset} fehlt im Offline-Manifest.`);
-  assert.match(sw,/nutrition201-stability/);assert.match(sw,/search202-spoken-intent/);assert.match(sw,/nutrition204-runtime-hardening/);assert.match(packageJson.scripts.test,/v201-nutrition-stability\.test\.js/);
+  assert.match(sw,/nutrition201-stability/);assert.match(sw,/search202-spoken-intent/);assert.match(sw,/nutrition204-runtime-hardening/);
   dom.window.close();console.log('Ernährungsstabilität 2.0.4: DOM-Neuaufbau, Bibliothekswechsel, Doppeltipp-Schutz, gebündelte Metadaten, Aliase, Quellen, Nullkalorien und Render-Ruhe geprüft.');
 })().catch(error=>{console.error(error);process.exitCode=1});

@@ -127,8 +127,6 @@
     if(key){const item=itemForKey(key);if(item)return{item,matchType:normalize(item.name)===normalize(query)?'exact-name':'exact-alias',confidence:normalize(item.name)===normalize(query)?100:99,matchedName:normalize(query),alternatives:[]}}
     return strictCatalogMatchInfo(query);
   }
-  function exactMatch(query){return exactMatchInfo(query)?.item||null}
-
   function distanceWithin(left,right,limit){if(left===right)return 0;if(Math.abs(left.length-right.length)>limit)return limit+1;let previous=Array.from({length:right.length+1},(_,index)=>index);for(let row=1;row<=left.length;row++){const current=[row];let best=row;for(let column=1;column<=right.length;column++){const value=Math.min(current[column-1]+1,previous[column]+1,previous[column-1]+Number(left[row-1]!==right[column-1]));current[column]=value;best=Math.min(best,value)}if(best>limit)return limit+1;previous=current}return previous[right.length]}
   function safeFuzzyMatchInfo(query){
     buildExactIndex();const q=compact(query);if(q.length<4||q.length>36)return null;

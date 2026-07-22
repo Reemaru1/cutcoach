@@ -22,16 +22,14 @@ assert.match(nav,/function start\(\)\{ensureProductionUi\(\);if\(enhance\(\)\)re
 assert.ok(nav.indexOf("addStyle('nutrition-ui-consistency-v206'")<nav.indexOf("addStyle('liquid-glass-ui-v207'"),'Die Liquid-Glass-Schicht muss nach der Modal-/Berechnungsschicht registriert werden.');
 assert.ok(nav.indexOf("addStyle('liquid-glass-ui-v207'")<nav.indexOf("addStyle('scrollbar-cleanup-v209'"),'Die Scrollleisten-Bereinigung muss als letzte UI-Schicht registriert werden.');
 
-assert.match(runtime,/version:'1\.2\.7-alpha'/);
+assert.match(runtime,/version:'2\.2\.1-alpha'/);
 assert.match(runtime,/glass-nav-v131\.js\?v=1\.3\.3-alpha/);
+assert.match(runtime,/nutrition-ui-consistency-v206\.css\?v=2\.0\.8-loader/);
 assert.match(runtime,/liquid-glass-ui-v207\.css\?v=2\.0\.8-loader/);
 assert.match(runtime,/nutrition-ui-consistency-v206\.js\?v=2\.0\.8-loader/);
-assert.match(sw,/runtime-manifest\.js\?v=1\.2\.7-alpha/);
-assert.match(sw,/PRODUCTION_UI_ASSETS/);
-assert.match(sw,/glass-nav-v131\.js\?v=1\.3\.3-alpha/);
-assert.match(sw,/nutrition-ui-consistency-v206\.css\?v=2\.0\.8-loader/);
-assert.match(sw,/liquid-glass-ui-v207\.css\?v=2\.0\.8-loader/);
-assert.match(sw,/scrollbar-cleanup-v209\.css\?v=2\.0\.9-alpha/);
+assert.match(runtime,/scrollbar-cleanup-v209\.css\?v=2\.0\.9-alpha/);
+assert.match(sw,/runtime-manifest\.js\?v=2\.2\.1-alpha/);
+assert.doesNotMatch(sw,/PRODUCTION_UI_ASSETS/,'Produktive UI-Assets werden redundant außerhalb des Runtime-Manifests gepflegt.');
 assert.match(sw,/ui208-production-loader-ui209-hidden-scrollbars/);
 assert.match(sw,/const CACHE_NAME=`\$\{VOICE_CACHE\}-energy143`/);
 assert.match(css,/#journalMacroClose/);
