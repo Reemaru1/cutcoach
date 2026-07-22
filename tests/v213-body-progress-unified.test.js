@@ -1,0 +1,28 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {JSDOM}=require('jsdom');
+const root=path.resolve(__dirname,'..');
+const read=name=>fs.readFileSync(path.join(root,name),'utf8');
+const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+(async()=>{
+  const dom=new JSDOM(`<!doctype html><html><head></head><body><main class="app"><section class="screen active" data-screen="progress"><div class="bp211-shell" data-mode="body"><section class="bp211-heading"><div><h1>BODY<br><span>PROGRESS</span></h1><p></p></div></section><section class="bp211-hero"><aside class="bp211-column"></aside><div class="bp211-figure"><img id="bp211Figure"></div><aside class="bp211-column"><img data-bp211-mini></aside></section></div></section></main><nav aria-label="Hauptnavigation" class="cc-glass-nav-v131 bp212-progress-nav"><button data-tab="today"></button><button data-tab="food"></button><button data-tab="progress"></button><button data-bp211-training-nav="1"></button><button data-tab="settings"></button></nav></body></html>`,{url:'https://example.test/cutcoach/#progress',runScripts:'dangerously',pretendToBeVisual:true});
+  const w=dom.window;let selected='body';w.CutCoachBodyProgress211={setMode(next){selected=next;w.document.querySelector('.bp211-shell').dataset.mode=next}};
+  const script=w.document.createElement('script');script.textContent=read('body-progress-v213-unified.js');w.document.head.append(script);if(w.document.readyState==='loading')w.document.dispatchEvent(new w.Event('DOMContentLoaded'));await wait(30);
+  const nav=w.document.querySelector('nav'),switcher=w.document.querySelector('.bp213-mode-switch');
+  assert.ok(switcher,'Körper/Training muss als interner Switch im Fortschrittsbereich existieren.');
+  assert.equal([...nav.querySelectorAll(':scope > button')].filter(button=>!button.hidden).length,4,'Die sichtbare Hauptnavigation muss vier Bereiche besitzen.');
+  assert.equal(nav.querySelector('[data-bp211-training-nav]').hidden,true,'Training darf kein eigener sichtbarer Haupttab sein.');
+  assert.ok(nav.querySelector('[data-tab="progress"]').classList.contains('bp213-progress-active'),'Fortschritt bleibt in beiden internen Modi der aktive Hauptbereich.');
+  switcher.querySelector('[data-bp213-mode="training"]').click();await wait(25);
+  assert.equal(selected,'training');assert.equal(w.document.querySelector('.bp211-shell').dataset.mode,'training');
+  assert.equal(switcher.querySelector('[data-bp213-mode="training"]').getAttribute('aria-selected'),'true');
+  const css=read('body-progress-v213-unified.css'),loader=read('glass-nav-v131.js'),sw=read('sw.js'),pkg=JSON.parse(read('package.json'));
+  assert.match(css,/mix-blend-mode:screen/,'Der eingebrannte dunkle Figurenhintergrund muss visuell ausgeblendet werden.');
+  assert.match(css,/grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/,'Die Hauptnavigation muss vier sichtbare Spalten behalten.');
+  assert.match(css,/bp213-mode-switch/);assert.match(css,/max-height:526px/);
+  assert.match(loader,/body-progress-v213-unified\.css\?v=2\.1\.3-unified-premium/);assert.match(loader,/body-progress-v213-unified\.js\?v=2\.1\.3-unified-premium/);
+  assert.match(sw,/body213-unified-premium/);assert.match(pkg.scripts.test,/v213-body-progress-unified\.test\.js/);
+  dom.window.close();console.log('Body Progress 2.1.3: interner Körper/Training-Switch, vierteilige Navigation und Figurenintegration geprüft.');
+})().catch(error=>{console.error(error);process.exitCode=1});
