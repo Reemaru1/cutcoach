@@ -1,0 +1,1 @@
+Body Progress V2 mobile fix marker: single figure, null-goal protection, browser-safe navigation.
