@@ -188,7 +188,7 @@
 
   if(!storageReadOnly)saveState();
   $('#datePicker').max=todayKey();
-  setupEvents();switchTab(tabFromHash(),false);updateInstallButton();render();registerServiceWorker();updateStorageStatus();scheduleDayRollover();
+  setupEvents();switchTab(tabFromHash(),false);updateInstallButton();render();completeAppBoot();registerServiceWorker();updateStorageStatus();scheduleDayRollover();
   if(state.onboarded)requestPersistentStorage();
   if(startupWarning)setTimeout(()=>toast(startupWarning),300);
   if(!state.onboarded)setTimeout(showOnboarding,120);

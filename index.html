@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-  <meta name="theme-color" content="#090d18">
+  <meta name="theme-color" content="#03080c">
   <meta name="color-scheme" content="dark">
   <meta name="format-detection" content="telephone=no">
   <meta name="application-name" content="CutCoach">
@@ -13,6 +13,7 @@
   <meta name="description" content="Persönliches Ernährungs-, Gewichts- und Trainingsjournal">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.openfoodfacts.org https://static.openfoodfacts.org; connect-src 'self' https://world.openfoodfacts.org; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <title>CutCoach</title>
+  <style id="criticalBootStyle">html,body{background:#03080c}#appBootSplash{position:fixed;z-index:10000;inset:0;display:grid;place-content:center;justify-items:center;gap:14px;padding:24px;background:radial-gradient(circle at 50% 38%,rgba(113,191,255,.14),transparent 30%),#03080c;color:#f6fbff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;transition:opacity .18s ease,visibility .18s ease}#appBootSplash img{width:72px;height:72px;border-radius:22px;box-shadow:0 14px 38px rgba(0,0,0,.34)}#appBootSplash strong{font-size:25px;letter-spacing:-.03em}#appBootSplash span{color:#91a2aa;font-size:13px}#appBootSplash i{width:96px;height:4px;overflow:hidden;border-radius:99px;background:#1a2830}#appBootSplash i::after{content:"";display:block;width:42%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#71bfff,#75e5bd);animation:ccBoot 1s ease-in-out infinite alternate}.cc-app-ready #appBootSplash{opacity:0;visibility:hidden}@keyframes ccBoot{from{transform:translateX(0)}to{transform:translateX(140%)}}@media(prefers-reduced-motion:reduce){#appBootSplash i::after{animation:none;width:100%}}</style>
   <link rel="manifest" href="manifest.webmanifest?v=2.3.0">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=2.3.0">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -37,7 +38,7 @@
   <link rel="stylesheet" href="body-progress-v220.css?v=2.2.1-production">
   <link rel="stylesheet" href="src/shared/design-system-v800.css?v=8.0.1-alpha">
   <link rel="stylesheet" href="src/features/journal/dashboard-v800.css?v=8.1.0-alpha">
-  <link rel="stylesheet" href="src/features/nutrition/nutrition-v210.css?v=2.1.0-alpha">
+  <link rel="stylesheet" href="src/features/nutrition/nutrition-v210.css?v=2.1.1-alpha">
   <script src="core.js?v=7.0.0" defer></script>
   <script src="src/shared/module-registry.js?v=1.0.0-alpha" defer></script>
   <script src="src/shared/product-insights.js?v=1.0.0-alpha" defer></script>
@@ -62,10 +63,11 @@
   <script src="version-v7.js?v=2.3.0-alpha" defer></script>
   <script src="body-progress-v220.js?v=2.2.2-production" defer></script>
   <script src="src/features/journal/dashboard-v800.js?v=8.1.0-alpha" defer></script>
-  <script src="src/features/nutrition/nutrition-v210.js?v=2.1.0-alpha" defer></script>
+  <script src="src/features/nutrition/nutrition-v210.js?v=2.1.1-alpha" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" async></script>
 </head>
 <body>
+<div id="appBootSplash" role="status" aria-live="polite"><img src="icon.svg" alt=""><strong>CutCoach</strong><span>Dein Tag wird vorbereitet</span><i aria-hidden="true"></i></div>
 <noscript><div class="noscript">CutCoach benötigt JavaScript. Bitte aktiviere JavaScript in Safari.</div></noscript>
 <div class="app">
   <header class="app-header">

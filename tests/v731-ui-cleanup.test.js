@@ -26,7 +26,7 @@ assert.match(journalLive,/Schnell anlegen/,'Manueller Eintrag wurde nicht verst√
 assert.match(journalLive,/Noch nicht eingetragen/,'Doppelte Schritte-Anzeige wird nicht korrigiert');
 assert.ok(version.includes("const RELEASE='2.3.0 Alpha'"),'Releaseversion ist nicht 2.3.0 Alpha');
 assert.ok(manifest.includes("version:'2.3.0-alpha'"),'Cacheversion ist nicht 2.3.0 Alpha');
-assert.ok(manifest.includes('journal-live-nav-v127.js?v=1.3.2-alpha'),'Repariertes Live-Journal-Modul fehlt im Cache');
+assert.ok(manifest.includes('journal-live-nav-v127.js?v=1.3.3-alpha'),'Repariertes Live-Journal-Modul fehlt im Cache');
 assert.ok(manifest.includes('nutrition-v73.js?v=7.3.2'),'Nutrition-QA-Modul fehlt im Cache');
 assert.ok(manifest.includes('ui-cleanup-v732.css?v=7.3.3'),'Cleanup-CSS fehlt im Cache');
 assert.ok(manifest.includes('nutrition-search-exact-whole-v170.js?v=1.9.6-alpha'),'Artikel- und Sequenzschutz fehlt im Cache');

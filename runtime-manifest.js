@@ -18,7 +18,7 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './glass-nav-v131.css?v=1.3.7-alpha','./journal-polish-v137.css?v=1.3.7-alpha','./nutrition-polish-v138.css?v=1.3.8-alpha',
     './nutrition-ui-consistency-v206.css?v=2.0.8-loader','./liquid-glass-ui-v207.css?v=2.0.8-loader','./scrollbar-cleanup-v209.css?v=2.0.9-alpha',
     './body-progress-v220.css?v=2.2.1-production','./src/shared/design-system-v800.css?v=8.0.1-alpha',
-    './src/features/journal/dashboard-v800.css?v=8.1.0-alpha','./src/features/nutrition/nutrition-v210.css?v=2.1.0-alpha'
+    './src/features/journal/dashboard-v800.css?v=8.1.0-alpha','./src/features/nutrition/nutrition-v210.css?v=2.1.1-alpha'
   ]),
   scripts:Object.freeze([
     './src/shared/module-registry.js?v=1.0.0-alpha','./src/shared/product-insights.js?v=1.0.0-alpha','./src/shared/ui.js?v=1.0.0-alpha',
@@ -28,7 +28,7 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './library-init.js?v=7.0.0','./scanner-v2.js?v=1.8.1-alpha','./off-lookup.js?v=1.8.1-alpha','./upgrade-340.js?v=7.0.0',
     './nutrition.js?v=7.0.0','./journal.js?v=7.0.0','./water-animation.js?v=6.8.5','./nutrition-v7.js?v=7.0.0',
     './nutrition-v73.js?v=7.3.2','./ui-effects-v7.js?v=7.1.0','./journal-v72.js?v=7.2.1','./journal-energy-live-v143.js?v=1.4.3-alpha',
-    './journal-smart-v740.js?v=1.0.0-alpha','./journal-live-nav-v127.js?v=1.3.2-alpha','./nutrition-cleanup-101.js?v=1.0.4-alpha',
+    './journal-smart-v740.js?v=1.0.0-alpha','./journal-live-nav-v127.js?v=1.3.3-alpha','./nutrition-cleanup-101.js?v=1.0.4-alpha',
     './nutrition-v110.js?v=1.1.2-alpha','./nutrition-voice-111.js?v=1.9.2-alpha','./nutrition-portion-profiles-v153.js?v=1.5.3-alpha',
     './nutrition-portion-hardening-v153.js?v=1.9.0-alpha','./nutrition-search-learning-v161.js?v=1.6.1-alpha',
     './nutrition-search-exact-whole-v170.js?v=1.9.6-alpha','./nutrition-spoken-intent-v202.js?v=2.0.2-alpha',
@@ -37,6 +37,6 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './glass-nav-v131.js?v=1.3.7-alpha','./nutrition-stability-v201.js?v=2.0.1-alpha','./version-v7.js?v=2.3.0-alpha',
     './journal-polish-v137.js?v=1.3.7-alpha','./nutrition-search-input-performance-v193.js?v=1.9.9-alpha',
     './nutrition-polish-v138.js?v=1.3.11-alpha','./nutrition-ui-consistency-v206.js?v=2.0.8-loader','./body-progress-v220.js?v=2.2.2-production',
-    './src/features/journal/dashboard-v800.js?v=8.1.0-alpha','./src/features/nutrition/nutrition-v210.js?v=2.1.0-alpha'
+    './src/features/journal/dashboard-v800.js?v=8.1.0-alpha','./src/features/nutrition/nutrition-v210.js?v=2.1.1-alpha'
   ])
 });

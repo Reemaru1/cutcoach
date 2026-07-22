@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='1.2.8-alpha';
+  const VERSION='1.3.3-alpha';
   const $=selector=>document.querySelector(selector);
   let refreshTimer=0,renderWrapped=false,libraryWrapped=false,observer=null;
   const navLabels={today:'Tagebuch',food:'Ernährung',progress:'Fortschritt',settings:'Einstellungen'};
@@ -67,7 +67,7 @@
     for(const button of root.querySelectorAll('button')){
       const text=(button.textContent||'').trim();
       if(text==='Manuell'){button.lastChild.textContent='Schnell anlegen';button.setAttribute('aria-label','Lebensmittel mit eigenen Nährwerten schnell anlegen')}
-      else if(text==='Lebensmittel'){button.lastChild.textContent='Suchen';button.setAttribute('aria-label','Einzelnes Lebensmittel in der Datenbank suchen')}
+      else if(text==='Lebensmittel')button.setAttribute('aria-label','Eigenes Lebensmittel in der Bibliothek anlegen');
       else if(text==='Rezept')button.setAttribute('aria-label','Rezept aus mehreren Zutaten erstellen oder auswählen');
       else if(text==='Barcode')button.setAttribute('aria-label','Produkt über den Barcode suchen');
     }

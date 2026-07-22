@@ -211,7 +211,7 @@
   function itemFit(item,context,intent=null){
     const portion=portionForItem(item,intent||undefined),factor=portion&&item.amount>0?portion.amount/item.amount:1,n=itemNutrition(item,factor),density=n.calories>0?n.protein*4/n.calories:0;let score=50;
     if(context.rawRemaining>0){const ratio=n.calories/context.rawRemaining;score+=ratio<=.7?18:ratio<=1?8:ratio>1.25?-34:-10}else score-=n.calories>500?72:n.calories>250?42:10;
-    if(context.proteinGap>20)score+=Math.min(34,n.protein/context.proteinGap*48)+Math.min(18,density*34);
+    if(context.proteinGap>20){const densityBonus=n.protein>=10?Math.min(18,density*34):n.protein>=5?Math.min(7,density*14):0;score+=Math.min(34,n.protein/context.proteinGap*48)+densityBonus;if(n.protein<5)score-=22}
     if(context.fatGap<8&&n.fat>context.fatGap+5)score-=Math.min(34,12+(n.fat-context.fatGap)*.8);if(context.carbsGap<15&&n.carbs>context.carbsGap+20)score-=Math.min(30,10+(n.carbs-context.carbsGap)*.25);
     score=Math.round(Math.min(99,Math.max(1,score)));
     const label=context.proteinGap>25&&n.protein>=15&&density>=.25?'Eiweiß-Fit':context.rawRemaining<=0&&n.calories<=180&&score>=55?'Leichte Wahl':context.rawRemaining>0&&n.calories<=context.rawRemaining&&score>=78?'Budget-Fit':null;
@@ -221,7 +221,7 @@
     if(item.kind==='recipe')return'🍽️';const name=normalized(item.name);
     if(/kaffee|espresso|cappuccino|latte|tee\b/.test(name))return'☕';if(/(^|\s)(ei|eier|huhnerei)(\s|$)/.test(name))return'🥚';if(/hahn|huhn|pute|geflugel/.test(name))return'🍗';if(/lachs|thunfisch|fisch/.test(name))return'🐟';if(/milch|joghurt|skyr|quark|kase/.test(name))return'🥛';if(/brot|toast|brotchen/.test(name))return'🍞';if(/reis|nudel|teigware/.test(name))return'🍚';if(/banane|apfel|beere|obst/.test(name))return'🍎';if(/kartoffel/.test(name))return'🥔';if(/fleisch|rind|schwein|hack/.test(name))return'🥩';if(/gemuse|salat|tomate|gurke|broccoli|karotte/.test(name))return'🥗';return item.source==='off'?'🥫':'🥣';
   }
-  function contextScore(item,routines,context,intent){const routine=routines.get(normalized(item.name))?.score||0,rank=featuredRank(item),fit=itemFit(item,context,intent);return routine*7+Number(Boolean(item.favorite))*90+Math.min(80,Number(item.uses)||0)+(item.catalog?(rank?130-rank*4:0):130)+fit.score*12}
+  function contextScore(item,routines,context,intent){const routine=routines.get(normalized(item.name))?.score||0,rank=featuredRank(item),fit=itemFit(item,context,intent),proteinSignal=context.proteinGap>20&&fit.n.protein<5?-180:0;return routine*7+Number(Boolean(item.favorite))*90+Math.min(80,Number(item.uses)||0)+(item.catalog?(rank?130-rank*4:0):130)+fit.score*12+proteinSignal}
   function filteredItems(){
     const intent=parseSearchIntent(document.querySelector('#nutritionSearch')?.value),query=intent.query,personal=readLibrary(),catalog=readCatalog(),routines=mealRoutineMap(),context=nutritionContext();let items=[...personal];
     if(activeFilter==='favorite')items=items.filter(item=>item.favorite);else if(activeFilter==='recent')items=items.filter(item=>item.lastUsedAt);else if(activeFilter==='recipe')items=items.filter(item=>item.kind==='recipe');
