@@ -9,6 +9,7 @@
   let mode='body';
 
   function number(value,fallback=0){const parsed=Number(value);return Number.isFinite(parsed)?parsed:fallback}
+  function hasNumber(value){return value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value))}
   function clamp(value,min,max){return Math.max(min,Math.min(max,value))}
   function keyFromDate(date){return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`}
   function dateFromKey(key){const [year,month,day]=String(key).split('-').map(Number);return new Date(year,month-1,day,12)}
@@ -16,6 +17,7 @@
   function formatOne(value){return number(value).toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})}
   function formatDate(key){return dateFromKey(key).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'})}
   function escapeText(value){return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}
+  function dayHasData(day){return Boolean(day&&(hasNumber(day.weight)||hasNumber(day.steps)||typeof day.gym==='boolean'||(Array.isArray(day.meals)&&day.meals.some(meal=>number(meal?.calories)>0))))}
 
   function readState(){
     try{
@@ -23,14 +25,16 @@
       if(!raw)return null;
       const parsed=JSON.parse(raw);
       if(!parsed||typeof parsed!=='object')return null;
-      return {settings:{...DEFAULT_SETTINGS,...(parsed.settings||{})},days:parsed.days&&typeof parsed.days==='object'?parsed.days:{}};
+      const days=parsed.days&&typeof parsed.days==='object'?parsed.days:{};
+      if(!Object.values(days).some(dayHasData))return null;
+      return {settings:{...DEFAULT_SETTINGS,...(parsed.settings||{})},days};
     }catch(error){console.warn('Body Progress Vorschau konnte Live-Daten nicht lesen:',error);return null}
   }
 
   function demoState(){
     const today=new Date();
     const days={};
-    const weights=[97.4,97.1,97.0,96.8,96.9,96.5,96.3,96.1];
+    const weights=[96.1,96.3,96.5,96.9,96.8,97.0,97.1,97.4];
     for(let index=0;index<14;index++){
       const date=new Date(today);date.setDate(today.getDate()-index);
       const key=keyFromDate(date);
@@ -54,10 +58,13 @@
     const periodRows=[];
     for(let index=period-1;index>=0;index--){
       const date=new Date(now);date.setDate(now.getDate()-index);
-      const key=keyFromDate(date),day=state.days[key]||{};const totals=mealTotals(day);
+      const key=keyFromDate(date),day=state.days[key]||{},totals=mealTotals(day);
       periodRows.push({key,day,totals});
     }
-    const allWeightRows=Object.entries(state.days).filter(([key,day])=>/^\d{4}-\d{2}-\d{2}$/.test(key)&&Number.isFinite(Number(day?.weight))).sort(([a],[b])=>a.localeCompare(b)).map(([key,day])=>({key,weight:number(day.weight)}));
+    const allWeightRows=Object.entries(state.days)
+      .filter(([key,day])=>/^\d{4}-\d{2}-\d{2}$/.test(key)&&hasNumber(day?.weight))
+      .sort(([a],[b])=>a.localeCompare(b))
+      .map(([key,day])=>({key,weight:number(day.weight)}));
     const periodWeightRows=allWeightRows.filter(row=>dateFromKey(row.key)>=start&&dateFromKey(row.key)<=now);
     const latestWeight=allWeightRows.at(-1)?.weight??null;
     const firstWeight=allWeightRows[0]?.weight??null;
@@ -66,7 +73,7 @@
     const daySpan=periodWeightRows.length>1?Math.max(1,(dateFromKey(periodWeightRows.at(-1).key)-dateFromKey(periodWeightRows[0].key))/86400000):0;
     const weeklyTrend=daySpan&&firstPeriodWeight!==null&&lastPeriodWeight!==null?(lastPeriodWeight-firstPeriodWeight)/daySpan*7:null;
     const mealRows=periodRows.filter(row=>row.totals.calories>0);
-    const stepRows=periodRows.filter(row=>Number.isFinite(Number(row.day.steps)));
+    const stepRows=periodRows.filter(row=>hasNumber(row.day.steps));
     const gymCount=periodRows.filter(row=>row.day.gym===true).length;
     const avgCalories=mealRows.length?mealRows.reduce((sum,row)=>sum+row.totals.calories,0)/mealRows.length:0;
     const avgProtein=mealRows.length?mealRows.reduce((sum,row)=>sum+row.totals.protein,0)/mealRows.length:0;
@@ -80,13 +87,13 @@
     const expectedGym=Math.max(1,settings.gymGoal*period/7);
     const gymAdherence=clamp(gymCount/expectedGym*100,0,100);
     const deficit=mealRows.length?settings.maintenance-avgCalories:0;
-    const documented=periodRows.filter(row=>row.totals.calories>0||Number.isFinite(Number(row.day.steps))||typeof row.day.gym==='boolean'||Number.isFinite(Number(row.day.weight))).length;
+    const documented=periodRows.filter(row=>row.totals.calories>0||hasNumber(row.day.steps)||typeof row.day.gym==='boolean'||hasNumber(row.day.weight)).length;
     const dataQuality=clamp(documented/period*100,0,100);
+    const hasGoal=hasNumber(settings.goalWeight)&&number(settings.goalWeight)>0;
     let goalProgress=0;
-    if(firstWeight!==null&&latestWeight!==null&&Number.isFinite(Number(settings.goalWeight))&&firstWeight!==number(settings.goalWeight))goalProgress=clamp((firstWeight-latestWeight)/(firstWeight-number(settings.goalWeight))*100,0,100);
-    const routineScore=clamp(calorieAdherence*.28+proteinAdherence*.32+stepAdherence*.18+gymAdherence*.22,0,100);
+    if(firstWeight!==null&&latestWeight!==null&&hasGoal&&firstWeight!==number(settings.goalWeight))goalProgress=clamp((firstWeight-latestWeight)/(firstWeight-number(settings.goalWeight))*100,0,100);
     const recoveryScore=clamp(proteinAdherence*.55+stepAdherence*.15+gymAdherence*.3,0,100);
-    return {state,settings,periodRows,allWeightRows,periodWeightRows,latestWeight,firstWeight,weeklyTrend,avgCalories,avgProtein,avgSteps,gymCount,calorieAdherence,proteinAdherence,stepAdherence,gymAdherence,deficit,dataQuality,goalProgress,routineScore,recoveryScore};
+    return {state,settings,hasGoal,periodRows,allWeightRows,periodWeightRows,latestWeight,firstWeight,weeklyTrend,avgCalories,avgProtein,avgSteps,gymCount,calorieAdherence,proteinAdherence,stepAdherence,gymAdherence,deficit,dataQuality,goalProgress,recoveryScore};
   }
 
   function sparkPath(values){
@@ -111,7 +118,7 @@
     setText('#leftCard2Text',`${metrics.periodWeightRows.length} Messungen`);$('#leftSpark2').setAttribute('d',sparkPath(metrics.periodWeightRows.map(row=>row.weight)));
     setText('#leftCard3Label','KALORIENDEFIZIT');setText('#leftCard3Value',metrics.avgCalories?`${formatInt(metrics.deficit)} kcal`:'–');setText('#leftCard3Text',metrics.avgCalories?'Ø täglich aus protokollierten Tagen':'noch keine Ernährungstage');setMeter('#leftCard3Meter',metrics.avgCalories?clamp(metrics.deficit/800*100,0,100):0);
     setText('#rightCard1Label','ZIELFORTSCHRITT');setText('#rightCard1Value',`${Math.round(metrics.goalProgress)}%`);setText('#rightCard1Text','seit Beginn');setText('#rightCard1Status',metrics.goalProgress>0?'Gesamttrend Richtung Ziel':'Ziel und Gewicht aufbauen');setRing(metrics.goalProgress);
-    setText('#rightCard2Label','ZIELKURS');setText('#rightCard2Value',Number.isFinite(Number(metrics.settings.goalWeight))?`${formatOne(metrics.settings.goalWeight)} kg`:'–');setText('#rightCard2Text','Zielgewicht');setMeter('#rightCard2Meter',metrics.goalProgress);setText('#rightCard2Delta',Number.isFinite(Number(metrics.settings.goalWeight))?`${Math.round(metrics.goalProgress)}% erreicht`:'Ziel noch festlegen');
+    setText('#rightCard2Label','ZIELKURS');setText('#rightCard2Value',metrics.hasGoal?`${formatOne(metrics.settings.goalWeight)} kg`:'–');setText('#rightCard2Text','Zielgewicht');setMeter('#rightCard2Meter',metrics.goalProgress);setText('#rightCard2Delta',metrics.hasGoal?`${Math.round(metrics.goalProgress)}% erreicht`:'Ziel noch festlegen');
     $('.bpv2-card-training-only').hidden=true;
     setText('#insightLabel','KÖRPER INSIGHT');
     const title=metrics.dataQuality<30?'Deine Datenbasis entsteht':metrics.weeklyTrend!==null&&metrics.weeklyTrend<-.15?'Dein Gesamttrend bewegt sich Richtung Ziel':metrics.weeklyTrend!==null&&metrics.weeklyTrend>.25?'Gewichtstrend aktuell beobachten':'Routine stabilisieren und weiter messen';
@@ -126,11 +133,11 @@
     setText('#rightCard1Label','REGENERATION');setText('#rightCard1Value',`${(metrics.recoveryScore/10).toLocaleString('de-DE',{maximumFractionDigits:1})}/10`);setText('#rightCard1Text','Schätzung aus Routinewerten');setText('#rightCard1Status',metrics.recoveryScore>=75?'Routine unterstützt Erholung':'Mehr Daten verbessern die Schätzung');setRing(metrics.recoveryScore);
     setText('#rightCard2Label','MUSKELMAPPING');setText('#rightCard2Value','Gym-Modul');setText('#rightCard2Text','detaillierte Muskelgruppen folgen');setMeter('#rightCard2Meter',metrics.gymAdherence);setText('#rightCard2Delta','Vektor-Layer vorbereitet');
     $('.bpv2-card-training-only').hidden=false;setText('#rightCard3Value',`${metrics.gymCount} Einheiten`);setText('#rightCard3Text',`Konstanz ${Math.round(metrics.gymAdherence)}%`);
-    setText('#insightLabel','TRAININGS INSIGHT');setText('#insightTitle',metrics.gymCount?'Dein Trainingsrhythmus ist sichtbar':'Trainingseinheiten protokollieren');setText('#insightText','Die Vorschau zeigt bereits Muskel-Overlays. Exakte Haupt- und Sekundärmuskeln werden später aus Übungen, Sätzen und Volumen berechnet.');setText('#insightDelta',`${Math.round(metrics.gymAdherence)}%`);setText('#insightDeltaText','Trainingsziel');
+    setText('#insightLabel','TRAININGS INSIGHT');setText('#insightTitle',metrics.gymCount?'Dein Trainingsrhythmus ist sichtbar':'Trainingseinheiten protokollieren');setText('#insightText','Die Vorschau zeigt Muskel-Overlays. Exakte Haupt- und Sekundärmuskeln werden später aus Übungen, Sätzen und Volumen berechnet.');setText('#insightDelta',`${Math.round(metrics.gymAdherence)}%`);setText('#insightDeltaText','Trainingsziel');
   }
 
   function renderSummary(metrics){
-    setText('#bpv2DataSource',metrics.state.demo?'Design-Demo · keine Live-Daten gefunden':'Live-Daten dieses Geräts');
+    setText('#bpv2DataSource',metrics.state.demo?'Design-Demo':'Live-Daten dieses Geräts');
     setText('#summaryCalories',metrics.avgCalories?`${formatInt(metrics.avgCalories)} kcal`:'–');setText('#summaryCaloriesSub',metrics.avgCalories?`Zieltreue ${Math.round(metrics.calorieAdherence)}%`:'keine protokollierten Tage');
     setText('#summaryProtein',metrics.avgProtein?`${formatInt(metrics.avgProtein)} g`:'–');setText('#summaryProteinSub',`Zieltreue ${Math.round(metrics.proteinAdherence)}%`);
     setText('#summarySteps',metrics.avgSteps?formatInt(metrics.avgSteps):'–');setText('#summaryStepsSub',`Zieltreue ${Math.round(metrics.stepAdherence)}%`);
@@ -140,19 +147,30 @@
     list.innerHTML=rows.length?rows.map((row,index)=>{const next=rows[index+1];const delta=next?row.weight-next.weight:null;return `<div class="bpv2-weight-row"><div><strong>${escapeText(formatDate(row.key))}</strong><span>${delta===null?'Start':`${delta>0?'+':''}${formatOne(delta)} kg`}</span></div><b>${formatOne(row.weight)} kg</b></div>`}).join(''):'<div class="bpv2-empty">Noch keine Gewichtseinträge vorhanden.</div>';
   }
 
+  function syncFigures(){
+    const bodyFigure=$('#bpv2BodyFigure'),trainingFigure=$('#bpv2TrainingFigure');
+    const bodyActive=mode==='body';
+    bodyFigure.hidden=!bodyActive;trainingFigure.hidden=bodyActive;
+    bodyFigure.style.display=bodyActive?'block':'none';trainingFigure.style.display=bodyActive?'none':'block';
+    bodyFigure.setAttribute('aria-hidden',String(!bodyActive));trainingFigure.setAttribute('aria-hidden',String(bodyActive));
+  }
+
   function render(){
-    const metrics=buildMetrics();app.dataset.mode=mode;
-    $('#bpv2BodyFigure').hidden=mode!=='body';$('#bpv2TrainingFigure').hidden=mode!=='training';
+    const metrics=buildMetrics();app.dataset.mode=mode;syncFigures();
     $$('[data-mode]').forEach(button=>button.setAttribute('aria-selected',String(button.dataset.mode===mode)));
-    if(mode==='body')renderBody(metrics);else renderTraining(metrics);renderSummary(metrics);
+    if(mode==='body')renderBody(metrics);else renderTraining(metrics);
+    renderSummary(metrics);
   }
 
   function install(){
+    if('scrollRestoration' in history)history.scrollRestoration='manual';
     $('#bpv2Period').value=String(period);
     $('#bpv2Period').addEventListener('change',event=>{period=Number(event.target.value)||7;render()});
     $('.bpv2-mode-switch').addEventListener('click',event=>{const button=event.target.closest('[data-mode]');if(!button)return;mode=button.dataset.mode==='training'?'training':'body';render()});
     window.addEventListener('storage',event=>{if(event.key===STORAGE_KEY)render()});
     render();
+    requestAnimationFrame(()=>window.scrollTo(0,0));
+    document.documentElement.dataset.bpv2Ready='true';
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();

@@ -1,0 +1,61 @@
+/* Body Progress V2 – mobile production-quality staging fix */
+[hidden]{display:none!important}
+.bpv2-figure-stage img[hidden],.bpv2-card[hidden]{display:none!important}
+
+.bpv2-app{padding-top:calc(max(22px,env(safe-area-inset-top)) + 16px)}
+.bpv2-figure-stage{isolation:isolate;overflow:visible}
+.bpv2-figure-stage img{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(214px,100%);height:590px;object-fit:contain;object-position:center bottom}
+.bpv2-figure-stage img:not([hidden]){display:block!important}
+
+.bpv2-bottom-nav button svg{width:22px;height:22px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bpv2-bottom-nav .bpv2-add svg{width:30px;height:30px;stroke-width:1.6}
+.bpv2-bottom-nav small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+
+@media (display-mode:browser){
+  .bpv2-app{padding-bottom:24px}
+  .bpv2-bottom-nav{position:sticky;left:auto;bottom:10px;transform:none;margin:28px auto 10px;width:min(410px,calc(100% - 4px))}
+}
+
+@media (max-width:430px){
+  .bpv2-app{padding-left:12px;padding-right:12px}
+  .bpv2-heading h1{font-size:43px;letter-spacing:-2.8px}
+  .bpv2-heading>div>p:last-child{max-width:245px;font-size:13px}
+  .bpv2-period select{height:44px;padding-left:14px;padding-right:34px;font-size:12px}
+  .bpv2-hero{grid-template-columns:88px minmax(0,1fr) 88px;gap:5px;min-height:570px;margin-left:0;margin-right:0}
+  .bpv2-column{gap:8px}
+  .bpv2-card{padding:10px 8px;border-radius:17px}
+  .bpv2-card h2{font-size:15px;line-height:1.1}
+  .bpv2-card p{font-size:8.5px}
+  .bpv2-label{font-size:7.8px}
+  .bpv2-card-icon,.bpv2-target-icon{width:32px;height:32px}
+  .bpv2-ring{width:68px}
+  .bpv2-status-chip{padding:7px 6px}
+  .bpv2-figure-stage{height:560px}
+  .bpv2-figure-stage img{max-width:184px;height:548px}
+  .bpv2-insight{grid-template-columns:46px 1fr auto;gap:11px;padding:15px}
+  .bpv2-insight-icon{width:44px;height:44px;border-radius:15px}
+  .bpv2-insight h2{font-size:16px}
+  .bpv2-insight-delta{min-width:66px;padding:10px 7px}
+}
+
+@media (max-width:380px){
+  .bpv2-topbar{grid-template-columns:44px 1fr 44px}
+  .bpv2-brand{font-size:24px}
+  .bpv2-heading{grid-template-columns:1fr;gap:8px}
+  .bpv2-period{margin-top:0;width:100%}
+  .bpv2-period select{width:100%}
+  .bpv2-heading h1{font-size:40px}
+  .bpv2-hero{grid-template-columns:82px minmax(0,1fr) 82px;min-height:548px;gap:4px}
+  .bpv2-card{padding:9px 7px}
+  .bpv2-card h2{font-size:14px}
+  .bpv2-card strong{font-size:10px}
+  .bpv2-card p{font-size:8px}
+  .bpv2-figure-stage{height:540px}
+  .bpv2-figure-stage img{max-width:168px;height:528px}
+  .bpv2-insight{grid-template-columns:42px 1fr;gap:10px}
+  .bpv2-insight-delta{grid-column:2;justify-self:start;display:flex;align-items:baseline;gap:6px;min-width:0;padding:8px 10px}
+  .bpv2-insight-delta strong{font-size:17px}
+  .bpv2-summary-grid{grid-template-columns:1fr}
+  .bpv2-bottom-nav{grid-template-columns:1fr 1fr 64px 1fr;height:72px}
+  .bpv2-bottom-nav button{font-size:9px}
+}
