@@ -94,9 +94,12 @@ body.journal-v800 #today560 .journal-quick-actions button:nth-child(3) .cc-symbo
 body.journal-v800 #today560 .journal-quick-actions button:nth-child(4) .cc-symbol{color:var(--cc-training)}
 
 body.journal-v800 #today560 .journal-meals-card{padding:16px!important}
+body.journal-v800 #today560 .journal-section-title>div{min-width:0!important}
+body.journal-v800 #today560 .journal-meals-card .journal-section-title>div{display:grid!important;grid-template-columns:38px minmax(0,1fr)!important;column-gap:10px!important;row-gap:3px!important;flex:1 1 auto!important}
+body.journal-v800 #today560 .journal-meals-card .journal-section-title>div>span{grid-row:1/3!important}
 body.journal-v800 #today560 .journal-section-title>div>span{width:38px!important;height:38px!important;display:grid!important;place-items:center!important;border-radius:13px!important;background:rgba(117,229,189,.08)!important;color:var(--cc-mint)!important;font-size:21px!important}
 body.journal-v800 #today560 .journal-section-title h2{font-size:20px!important;letter-spacing:-.025em!important}
-body.journal-v800 #today560 .journal-meal-summary{font-size:10px!important;color:var(--cc-muted)!important}
+body.journal-v800 #today560 .journal-meal-summary{grid-column:2!important;display:block!important;min-width:0!important;max-width:100%!important;margin:0!important;overflow:hidden!important;color:var(--cc-muted)!important;font-size:10px!important;text-overflow:ellipsis!important;white-space:nowrap!important}
 body.journal-v800 #today560 .journal-meals{gap:9px!important}
 body.journal-v800 #today560 .journal-meal-row{min-height:64px!important;grid-template-columns:minmax(0,1fr) 48px!important;border-color:var(--cc-line)!important;border-radius:16px!important;background:rgba(255,255,255,.022)!important;box-shadow:none!important}
 body.journal-v800 #today560 .journal-meal-row.over{border-color:rgba(255,123,114,.3)!important;background:rgba(255,123,114,.025)!important}
@@ -222,8 +225,8 @@ html body.journal-v800>nav.cc-glass-nav-v131 .cc-nav-label{font-size:9.25px!impo
   body.journal-v800 #today560 .journal-training-details{grid-column:2!important;width:100%!important}
   body.journal-v800 #today560 .journal-feedback-card{grid-template-columns:1fr}
   body.journal-v800 #today560 .journal-feedback-actions{display:grid;grid-template-columns:repeat(3,1fr)}
-  html body.journal-v800>nav[aria-label="Hauptnavigation"].cc-glass-nav-v131{height:54px!important;min-height:54px!important;max-height:54px!important}
-  html body.journal-v800>nav.cc-glass-nav-v131 button:not([data-tab="food"]){height:42px!important;min-height:42px!important;max-height:42px!important}
+  html body.journal-v800>nav[aria-label="Hauptnavigation"].cc-glass-nav-v131{height:56px!important;min-height:56px!important;max-height:56px!important}
+  html body.journal-v800>nav.cc-glass-nav-v131 button:not([data-tab="food"]){height:44px!important;min-height:44px!important;max-height:44px!important}
 }
 
 @media(max-width:350px){
@@ -233,4 +236,115 @@ html body.journal-v800>nav.cc-glass-nav-v131 .cc-nav-label{font-size:9.25px!impo
   body.journal-v800 #today560 .journal-energy-stats{grid-template-columns:repeat(3,1fr)!important}
   body.journal-v800 #today560 .journal-energy-stats article{display:grid!important;grid-template-columns:1fr!important;justify-items:center!important;text-align:center!important}
   body.journal-v800 #today560 .journal-quick-actions{grid-template-columns:repeat(2,1fr)}
+}
+
+/* 8.1: fokussiertes Coaching statt wiederholter Kennzahlen. */
+body.journal-v800 #today560 .coach-v810-focused .coach-v74-toggle,
+body.journal-v800 #today560 .coach-v810-focused .coach-v71-pillars,
+body.journal-v800 #today560 .coach-v810-focused #coachV71Coverage{display:none!important}
+body.journal-v800 #today560 .coach-v810-focused.coach-v74-collapsed .coach-v71-focus{display:grid!important}
+body.journal-v800 #today560 .coach-v810-focused.coach-v74-collapsed .coach-v71-footer{display:flex!important;margin-top:10px!important}
+body.journal-v800 #today560 .coach-v810-focused .coach-v71-footer:has(.journal-achievements:empty){display:none!important}
+body.journal-v800 #today560 .coach-v810-focused .journal-achievements{margin-left:0!important}
+body.journal-v800 #today560 .coach-v810-focused .journal-achievements span{border-color:rgba(117,229,189,.24)!important;background:rgba(117,229,189,.07)!important;color:var(--cc-mint)!important}
+
+/* Gemeinsame, sichere Bottom-Sheet-Sprache für alle Tagebuch-Untermenüs. */
+body.journal-v800 .cc-journal-modal{z-index:360!important;background:rgba(1,5,8,.78)!important;backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;overscroll-behavior:contain}
+body.journal-v800 .cc-journal-sheet,
+body.journal-v800 .journal-calendar-sheet.cc-journal-sheet{position:relative!important;width:min(560px,100%)!important;max-height:min(88dvh,780px)!important;margin:0!important;padding:15px 18px calc(22px + env(safe-area-inset-bottom))!important;gap:13px!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;border:1px solid var(--cc-line-strong)!important;border-radius:28px 28px 0 0!important;background:radial-gradient(circle at 12% 0,rgba(113,191,255,.09),transparent 30%),linear-gradient(180deg,#101a22,#081016)!important;color:var(--cc-text)!important;box-shadow:0 -20px 70px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.05)!important;scrollbar-width:none}
+body.journal-v800 .cc-journal-sheet::-webkit-scrollbar{display:none}
+body.journal-v800 .cc-sheet-handle{display:block!important;width:42px;height:4px;margin:0 auto 2px;border-radius:999px;background:rgba(195,218,228,.28)}
+body.journal-v800 .cc-sheet-head{display:grid!important;grid-template-columns:38px minmax(0,1fr) 44px!important;align-items:center!important;gap:10px!important;min-height:48px!important}
+body.journal-v800 .cc-sheet-title-icon{display:grid!important;place-items:center!important;width:38px!important;height:38px!important;border-radius:13px!important;background:rgba(117,229,189,.09)!important;color:var(--cc-mint)!important;font-size:21px!important}
+body.journal-v800 .cc-sheet-head h2{min-width:0!important;margin:0!important;color:var(--cc-text)!important;font-size:23px!important;line-height:1.1!important;letter-spacing:-.025em!important}
+body.journal-v800 .cc-sheet-close{position:relative!important;width:44px!important;min-width:44px!important;height:44px!important;min-height:44px!important;padding:0!important;border:1px solid var(--cc-line)!important;border-radius:14px!important;background:var(--cc-surface-soft)!important;color:transparent!important;font-size:0!important;box-shadow:none!important}
+body.journal-v800 .cc-sheet-close::before{content:"";position:absolute;left:50%;top:47%;width:12px;height:12px;border-right:2px solid var(--cc-text-soft);border-bottom:2px solid var(--cc-text-soft);transform:translate(-50%,-58%) rotate(45deg)}
+body.journal-v800 .cc-sheet-intro{margin:-2px 0 2px!important;color:var(--cc-muted)!important;font-size:11px!important;line-height:1.45!important}
+body.journal-v800 .cc-journal-sheet label{color:var(--cc-text-soft)!important;font-size:11px!important;font-weight:650!important}
+body.journal-v800 .cc-journal-sheet input,
+body.journal-v800 .cc-journal-sheet select,
+body.journal-v800 .cc-journal-sheet textarea{min-width:0!important;min-height:50px!important;border:1px solid var(--cc-line)!important;border-radius:14px!important;background:#080f16!important;color:var(--cc-text)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;font-size:16px!important}
+body.journal-v800 .cc-journal-sheet input::placeholder{color:#697880!important;opacity:1}
+body.journal-v800 .cc-journal-sheet .button-row{gap:9px!important;margin-top:3px!important}
+body.journal-v800 .cc-journal-sheet .button-row>button,
+body.journal-v800 .cc-journal-sheet>button{min-height:50px!important;border-radius:14px!important;font-size:13px!important;box-shadow:none!important}
+body.journal-v800 .cc-journal-sheet .button-row>button:first-child,
+body.journal-v800 .cc-journal-sheet>#saveMeal{border:0!important;background:linear-gradient(135deg,var(--cc-blue),var(--cc-mint))!important;color:#06110f!important;font-weight:850!important}
+body.journal-v800 .cc-journal-sheet button:disabled{opacity:.38!important;filter:saturate(.55)!important;cursor:not-allowed!important}
+body.journal-v800 .cc-journal-sheet .danger-secondary{border-color:rgba(255,123,114,.34)!important;background:rgba(255,123,114,.045)!important;color:#ff8f88!important}
+body.journal-v800 .bp220-form-hint,
+body.journal-v800 .cc-sheet-note,
+body.journal-v800 .journal-macro-note{margin:0!important;padding:10px 12px!important;border-left:2px solid rgba(113,191,255,.4)!important;border-radius:0 12px 12px 0!important;background:rgba(113,191,255,.045)!important;color:var(--cc-muted)!important;font-size:10px!important;line-height:1.45!important}
+
+/* Makrodetails: Status führt die Empfehlungen und verhindert widersprüchliche Tipps. */
+body.journal-v800 #journalMacroModal .journal-macro-hero{gap:8px!important}
+body.journal-v800 #journalMacroModal .journal-macro-hero>div{min-width:0!important;padding:11px!important;border-color:var(--cc-line)!important;border-radius:14px!important;background:var(--cc-surface-soft)!important}
+body.journal-v800 #journalMacroModal .journal-macro-hero small{color:var(--cc-muted)!important;font-size:9px!important}
+body.journal-v800 #journalMacroModal .journal-macro-hero strong{overflow-wrap:anywhere;color:var(--cc-text)!important;font-size:15px!important}
+body.journal-v800 #journalMacroModal .journal-macro-explain,
+body.journal-v800 #journalMacroModal .journal-macro-suggestions{margin:0!important;padding:14px!important;border-color:var(--cc-line)!important;border-radius:17px!important;background:rgba(3,9,14,.48)!important}
+body.journal-v800 #journalMacroModal .journal-macro-explain>strong,
+body.journal-v800 #journalMacroModal .journal-macro-suggestions>strong{color:var(--cc-text)!important;font-size:14px!important}
+body.journal-v800 #journalMacroModal .journal-macro-explain p{color:var(--cc-text-soft)!important;font-size:11px!important;line-height:1.5!important}
+body.journal-v800 #journalMacroModal .journal-macro-explain small{color:var(--cc-muted)!important;font-size:9px!important}
+body.journal-v800 #journalMacroModal .journal-macro-suggestions>div{gap:8px!important}
+body.journal-v800 #journalMacroModal .journal-macro-suggestions button{min-height:44px!important;padding:0 13px!important;border-color:rgba(113,191,255,.28)!important;border-radius:13px!important;background:rgba(113,191,255,.07)!important;color:#c7e5fb!important;font-size:11px!important}
+body.journal-v800 #journalMacroModal[data-zone="low"] .cc-sheet-title-icon{color:var(--cc-amber)!important;background:rgba(255,189,105,.09)!important}
+body.journal-v800 #journalMacroModal[data-zone="target"] .cc-sheet-title-icon{color:var(--cc-mint)!important}
+body.journal-v800 #journalMacroModal[data-zone="high"] .cc-sheet-title-icon{color:var(--cc-coral)!important;background:rgba(255,123,114,.09)!important}
+body.journal-v800 #journalMacroModal[data-zone="high"] .journal-macro-suggestions{border-color:rgba(117,229,189,.22)!important;background:rgba(117,229,189,.035)!important}
+
+/* Tagesabschluss: erst Fazit und nächste Handlung, Berechnung bei Bedarf. */
+body.journal-v800 #journalSummaryModal .journal-summary-hero{margin:0!important;padding:15px!important;border-color:rgba(117,229,189,.28)!important;border-radius:18px!important;background:linear-gradient(135deg,rgba(113,191,255,.1),rgba(117,229,189,.08))!important}
+body.journal-v800 #journalSummaryModal .journal-summary-hero>span{width:74px!important;height:74px!important;border-color:rgba(117,229,189,.36)!important;font-size:28px!important}
+body.journal-v800 #journalSummaryModal .journal-summary-verdict,
+body.journal-v800 #journalSummaryModal .journal-summary-next{margin:0!important;padding:14px!important;border-color:var(--cc-line)!important;border-radius:17px!important;background:rgba(3,9,14,.48)!important}
+body.journal-v800 #journalSummaryModal .journal-summary-verdict{border-color:rgba(117,229,189,.25)!important;background:linear-gradient(135deg,rgba(113,191,255,.07),rgba(117,229,189,.055))!important}
+body.journal-v800 #journalSummaryModal .journal-summary-grid{gap:8px!important;margin:0!important}
+body.journal-v800 #journalSummaryModal .journal-summary-grid article{padding:12px!important;border-color:var(--cc-line)!important;border-radius:14px!important;background:var(--cc-surface-soft)!important}
+body.journal-v800 #journalSummaryModal .cc-score-details{margin:0!important;padding:0!important;border:1px solid var(--cc-line)!important;border-radius:17px!important;background:rgba(3,9,14,.42)!important;overflow:hidden!important}
+body.journal-v800 #journalSummaryModal .cc-score-details>summary{min-height:52px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;list-style:none;color:var(--cc-text);font-size:13px;font-weight:800}
+body.journal-v800 #journalSummaryModal .cc-score-details>summary::-webkit-details-marker{display:none}
+body.journal-v800 #journalSummaryModal .cc-score-details>summary::after{content:"+";grid-column:2;grid-row:1/3;color:var(--cc-blue);font-size:22px;font-weight:500}
+body.journal-v800 #journalSummaryModal .cc-score-details[open]>summary::after{content:"−"}
+body.journal-v800 #journalSummaryModal .cc-score-details>summary small{color:var(--cc-muted);font-size:9px;font-weight:600}
+body.journal-v800 #journalSummaryModal #journalScoreDrivers{padding:0 10px 10px!important}
+body.journal-v800 #journalSummaryModal #journalScoreDrivers>div{padding:11px!important;border-color:rgba(171,205,220,.1)!important;background:rgba(255,255,255,.018)!important}
+body.journal-v800 #journalSummaryModal #journalScoreDrivers em{color:var(--cc-muted)!important;font-size:9px!important}
+
+/* Wasser, Messung, Mahlzeit und Kalender folgen derselben Hierarchie. */
+body.journal-v800 .cc-water-info-copy{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:start;padding:14px;border:1px solid rgba(117,229,189,.24);border-radius:17px;background:rgba(117,229,189,.045)}
+body.journal-v800 .cc-water-info-copy>.cc-symbol{width:44px;height:44px;border-radius:14px;background:rgba(117,229,189,.09);color:var(--cc-mint);font-size:25px}
+body.journal-v800 .cc-water-info-copy strong{font-size:14px;line-height:1.35}
+body.journal-v800 .cc-water-info-copy p{margin:6px 0 0;color:var(--cc-muted);font-size:11px;line-height:1.5}
+body.journal-v800 #mealModal .meal-nutrients-more{padding:12px;border:1px solid var(--cc-line);border-radius:14px;background:rgba(255,255,255,.02)}
+body.journal-v800 #mealModal .meal-nutrients-more summary{min-height:32px;color:var(--cc-text-soft);font-size:12px;font-weight:750;cursor:pointer}
+body.journal-v800 .cc-journal-calendar{z-index:360!important;background:rgba(1,5,8,.78)!important}
+body.journal-v800 .journal-calendar-sheet.cc-journal-sheet{width:min(500px,100%)!important;max-height:min(90dvh,720px)!important}
+body.journal-v800 .journal-calendar-sheet.cc-journal-sheet header{margin:0 0 4px!important}
+body.journal-v800 .journal-calendar-sheet.cc-journal-sheet header strong{color:var(--cc-text)!important;font-size:20px!important}
+body.journal-v800 .journal-calendar-sheet.cc-journal-sheet header button,
+body.journal-v800 .journal-calendar-sheet.cc-journal-sheet footer button{min-height:44px!important;border-color:var(--cc-line)!important;background:var(--cc-surface-soft)!important;box-shadow:none!important}
+body.journal-v800 .journal-calendar-weekdays{color:var(--cc-muted)!important}
+body.journal-v800 .journal-calendar-days{gap:5px!important}
+body.journal-v800 .journal-calendar-days button{border-color:rgba(171,205,220,.08)!important;background:rgba(255,255,255,.025)!important}
+body.journal-v800 .journal-calendar-days button.selected{background:linear-gradient(135deg,var(--cc-blue),var(--cc-mint))!important;color:#06110f!important}
+
+@media(max-width:430px){
+  body.journal-v800 .cc-journal-sheet,
+  body.journal-v800 .journal-calendar-sheet.cc-journal-sheet{padding:12px 12px calc(16px + env(safe-area-inset-bottom))!important;border-radius:24px 24px 0 0!important}
+  body.journal-v800 .cc-sheet-head{grid-template-columns:36px minmax(0,1fr) 44px!important;gap:8px!important}
+  body.journal-v800 .cc-sheet-title-icon{width:36px!important;height:36px!important}
+  body.journal-v800 .cc-sheet-head h2{font-size:21px!important}
+  body.journal-v800 .cc-journal-sheet .two{gap:8px!important}
+  body.journal-v800 #journalMacroModal .journal-macro-hero{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  body.journal-v800 #journalMacroModal .journal-macro-hero>div{padding:9px 7px!important}
+  body.journal-v800 #journalMacroModal .journal-macro-hero strong{font-size:13px!important}
+  body.journal-v800 #journalSummaryModal .journal-summary-hero>span{width:66px!important;height:66px!important;font-size:25px!important}
+  body.journal-v800 .journal-calendar-days{gap:4px!important}
+}
+
+@media(max-height:700px){
+  body.journal-v800 .cc-journal-sheet,
+  body.journal-v800 .journal-calendar-sheet.cc-journal-sheet{max-height:96dvh!important}
 }

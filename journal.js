@@ -261,7 +261,9 @@
     const first=new Date(calendarMonth.getFullYear(),calendarMonth.getMonth(),1,12);
     const offset=(first.getDay()+6)%7,start=new Date(first);start.setDate(first.getDate()-offset);
     const today=todayKey();
-    for(let index=0;index<42;index++){
+    const monthLength=new Date(calendarMonth.getFullYear(),calendarMonth.getMonth()+1,0,12).getDate(),cellCount=Math.max(35,Math.ceil((offset+monthLength)/7)*7);
+    days.setAttribute('aria-rowcount',String(cellCount/7));
+    for(let index=0;index<cellCount;index++){
       const date=new Date(start);date.setDate(start.getDate()+index);
       const key=keyFromDate(date),button=document.createElement('button');
       button.type='button';button.textContent=String(date.getDate());button.dataset.date=key;button.disabled=key>today;
@@ -355,7 +357,7 @@
     clear.addEventListener('click',()=>clearSteps(editor,toggle));
     host.querySelectorAll('[data-journal-water]').forEach(button=>button.addEventListener('click',()=>writeWater(waterFor()+Number(button.dataset.journalWater))));
     host.querySelector('#journalWaterUndo').addEventListener('click',undoWater);
-    host.querySelector('#journalWaterInfo').addEventListener('click',()=>toast?.('Das Tagesziel liegt bei 3 Litern. Der aktuelle Trinkplan berücksichtigt bei heute auch die Tageszeit.'));
+    host.querySelector('#journalWaterInfo').addEventListener('click',()=>{if(document.querySelector('#journalWaterInfoModal')&&typeof openModal==='function'){openModal('journalWaterInfoModal');return}toast?.('Das Tagesziel liegt bei 3 Litern. Der aktuelle Trinkplan berücksichtigt bei heute auch die Tageszeit.')});
     host.querySelector('#journalWeightButton').addEventListener('click',()=>{if(window.CutCoachBodyProgress220?.openMeasurement){window.CutCoachBodyProgress220.openMeasurement(selectedDate);return}const data=day(selectedDate,false),weight=document.querySelector('#weightInput'),remove=document.querySelector('#clearWeight');if(weight)weight.value=data.weight??'';if(remove)remove.hidden=data.weight===null;openModal?.('weightModal')});
     host.querySelectorAll('[data-journal-gym]').forEach(button=>button.addEventListener('click',()=>toggleCheck('gym',button.dataset.journalGym==='true')));
     host.querySelectorAll('[data-journal-alcohol]').forEach(button=>button.addEventListener('click',()=>toggleCheck('alcohol',button.dataset.journalAlcohol==='true')));

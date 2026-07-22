@@ -1,7 +1,7 @@
 'use strict';
 
 (function(root){
-  const VERSION='8.0.1-alpha';
+  const VERSION='8.1.0-alpha';
   const FEEDBACK_KEY='cutcoach_journal_feedback_v800';
   const $=(selector,scope=document)=>scope.querySelector(selector);
   const ICONS=Object.freeze({
@@ -22,9 +22,12 @@
     check:'<svg viewBox="0 0 24 24"><path d="M5 12.5 10 17l9-11"/></svg>',
     coach:'<svg viewBox="0 0 24 24"><path d="m12 3 1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3Z"/><path d="m19 16 .7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7L19 16Z"/></svg>',
     scale:'<svg viewBox="0 0 24 24"><path d="M5 20h14l1-14H4l1 14Z"/><path d="M9 10a3 3 0 0 1 6 0M12 10l2-2"/></svg>',
-    training:'<svg viewBox="0 0 24 24"><path d="M5 9v6M8 7v10M16 7v10M19 9v6M8 12h8M3 12h2M19 12h2"/></svg>'
+    training:'<svg viewBox="0 0 24 24"><path d="M5 9v6M8 7v10M16 7v10M19 9v6M8 12h8M3 12h2M19 12h2"/></svg>',
+    calendar:'<svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z"/><path d="M8 2v4M16 2v4M3 9h18"/></svg>',
+    close:'<svg viewBox="0 0 24 24"><path d="m5 9 7 7 7-7"/></svg>',
+    info:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg>'
   });
-  let rootObserver=null,headObserver=null,frame=0;
+  let rootObserver=null,headObserver=null,dialogObserver=null,frame=0,dialogFrame=0,documentBound=false;
 
   function symbol(name,label=''){
     return `<span class="cc-symbol"${label?` role="img" aria-label="${label}"`:' aria-hidden="true"'}>${ICONS[name]||ICONS.target}</span>`;
@@ -34,7 +37,7 @@
     node.dataset.ccIcon=name;node.innerHTML=ICONS[name]||ICONS.target;node.classList.add('cc-symbol');node.setAttribute('aria-hidden','true');
   }
   function ensureStyleOrder(){
-    const href='src/features/journal/dashboard-v800.css?v=8.0.1-alpha';
+    const href='src/features/journal/dashboard-v800.css?v=8.1.0-alpha';
     let link=[...document.querySelectorAll('link[rel="stylesheet"]')].find(item=>(item.getAttribute('href')||'').includes('dashboard-v800.css'));
     if(!link){link=document.createElement('link');link.rel='stylesheet';link.href=href;link.dataset.dashboardV800='1';document.head.append(link);return}
     const styles=[...document.querySelectorAll('link[rel="stylesheet"]')];if(styles.at(-1)!==link)document.head.append(link);
@@ -60,7 +63,22 @@
     if(trainingArticle&&!$('.journal-training-details',trainingArticle))trainingArticle.insertAdjacentHTML('beforeend','<button type="button" class="journal-training-details" data-journal-training-details>Training protokollieren</button>');
     const activityCopy=$('.journal-energy-stats article:nth-child(3)>div',host);
     if(activityCopy&&!$('.journal-activity-note',activityCopy))activityCopy.insertAdjacentHTML('beforeend','<span class="journal-activity-note">Nicht verrechnet</span>');
+    simplifyCoach(coach);
+    ensureWaterInfo();
     ensureFeedback(host,check);
+  }
+  function simplifyCoach(coach){
+    if(!coach)return;
+    coach.classList.add('coach-v810-focused');coach.classList.remove('coach-v74-collapsed');
+    const toggle=$('#coachV74Toggle',coach),pillars=$('.coach-v71-pillars',coach),coverage=$('#coachV71Coverage',coach),focus=$('.coach-v71-focus',coach);
+    if(toggle){toggle.hidden=true;toggle.tabIndex=-1;toggle.setAttribute('aria-hidden','true')}
+    if(pillars){pillars.hidden=true;pillars.setAttribute('aria-hidden','true')}
+    if(coverage){coverage.hidden=true;coverage.setAttribute('aria-hidden','true')}
+    if(focus){focus.hidden=false;focus.removeAttribute('aria-hidden')}
+  }
+  function ensureWaterInfo(){
+    if($('#journalWaterInfoModal'))return;
+    document.body.insertAdjacentHTML('beforeend',`<div class="modal cc-info-modal" id="journalWaterInfoModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="journalWaterInfoTitle"><div class="sheet"><div class="sheet-head"><h2 id="journalWaterInfoTitle">Dein Trinkziel</h2><button type="button" data-cc-water-close aria-label="Schließen">×</button></div><div class="cc-water-info-copy">${symbol('water')}<div><strong>3,0 Liter sind dein eingestelltes Tagesziel.</strong><p>Der Hinweis im Tagebuch verteilt dieses Ziel nur über den Tag. Mehr zu trinken verbessert die Tagesnote nach Erreichen des Ziels nicht weiter.</p></div></div><p class="cc-sheet-note">Bei Hitze, Sport oder medizinischen Vorgaben kann dein persönlicher Bedarf abweichen.</p></div></div>`);
   }
   function ensureFeedback(host,check){
     let card=$('.journal-feedback-card',host);if(card)return;
@@ -79,14 +97,70 @@
     if(check){const completed=[weight&&!/^\s*[–-]/.test(weight.textContent),Boolean(gym),Boolean(alcohol)].filter(Boolean).length;setText(check,`Basischeck ${completed}/3`);setClass(check,'complete',completed===3)}
     const trainingDetails=$('[data-journal-training-details]',host);if(trainingDetails){const trained=gym?.dataset.journalGym==='true';trainingDetails.hidden=!trained;trainingDetails.setAttribute('aria-hidden',String(!trained))}
     const activity=$('.journal-energy-stats article:nth-child(3)',host);if(activity){const value=$('#journalBurned',activity)?.textContent?.trim()||'';activity.setAttribute('aria-label',`Aktivität ${value}. Wird nicht vom festen Tagesziel abgezogen.`)}
-    const weekday=$('#journalWeekday',host)?.textContent?.trim(),coachTitle=$('#journalCoachTitle',host),scoreText=$('#journalScoreLarge',host)?.textContent?.replace(',','.');
-    if(weekday==='Heute'&&coachTitle&&/^(Dein nächster sinnvoller Schritt|Dein Tagesfokus)$/.test(coachTitle.textContent.trim())){const score=Number(scoreText);if(Number.isFinite(score))setText(coachTitle,score>=8?'Starker Tageskurs':score>=6?'Solider Kurs mit Potenzial':'Jetzt gezielt nachsteuern')}
-    const toggle=$('#coachV74Toggle',host);if(toggle){const collapsed=$('.journal-coach-card',host)?.classList.contains('coach-v74-collapsed');setText(toggle,collapsed?'Analyse anzeigen':'Analyse ausblenden');toggle.setAttribute('aria-label',collapsed?'Coaching-Analyse anzeigen':'Coaching-Analyse ausblenden')}
+    const weekday=$('#journalWeekday',host)?.textContent?.trim(),coachTitle=$('#journalCoachTitle',host),scoreValue=root.CutCoachJournalV72?.score?.();
+    if(Number.isFinite(scoreValue)){
+      const scoreText=new Intl.NumberFormat('de-DE',{maximumFractionDigits:1}).format(scoreValue),scoreLabel=`Tagesnote ${scoreText} von 10`;
+      setText($('#journalScoreLarge',host),scoreText);setText($('#journalScore',host),scoreText);
+      $('.journal-score',host)?.setAttribute('aria-label',scoreLabel);$('.journal-score-status',host)?.setAttribute('aria-label',scoreLabel);
+    }
+    if(coachTitle){
+      const score=Number(scoreValue),title=weekday==='Heute'?(Number.isFinite(score)?score>=8?'Starker Tageskurs':score>=6?'Solider Kurs mit Potenzial':'Jetzt gezielt nachsteuern':'Bereit für deinen Tag'):'Rückblick auf diesen Tag';
+      setText(coachTitle,title);
+    }
+    simplifyCoach($('.journal-coach-card',host));
   }
   function syncIcons(host){
     setIcon($('.journal-score-status .journal-status-icon',host),'score');setIcon($('.journal-streak-status .journal-status-icon',host),'streak');
     [['.journal-energy-stats article:nth-child(1) .stat-icon','meal'],['.journal-energy-stats article:nth-child(2) .stat-icon','target'],['.journal-energy-stats article:nth-child(3) .stat-icon','activity'],['.journal-macros article:nth-child(1) .journal-macro-title>span','protein'],['.journal-macros article:nth-child(2) .journal-macro-title>span','carbs'],['.journal-macros article:nth-child(3) .journal-macro-title>span','fat'],['.journal-meals-card .journal-section-title>div>span','meal'],['.journal-steps-card .journal-card-head>div>span','steps'],['.journal-water-card .journal-card-head>div>span','water'],['.journal-check-card .journal-section-title>div>span','check'],['.journal-coach-icon','coach'],['[data-coach-pillar="nutrition"]>span','meal'],['[data-coach-pillar="movement"]>span','steps'],['[data-coach-pillar="recovery"]>span','water']].forEach(([selector,name])=>setIcon($(selector,host),name));
     $('.journal-meal-row',host)?.parentElement?.querySelectorAll('.journal-meal-row').forEach(row=>{const type=$('[data-add-journal-meal]',row)?.dataset.addJournalMeal;setIcon($('.journal-meal-icon',row),type==='Frühstück'?'breakfast':type==='Mittagessen'?'lunch':type==='Abendessen'?'dinner':'snack')});
+  }
+  function decorateSheet(modal,iconName){
+    if(!modal)return;
+    const sheet=$('.sheet',modal),head=$('.sheet-head',sheet);if(!sheet||!head)return;
+    modal.classList.add('cc-journal-modal');sheet.classList.add('cc-journal-sheet');
+    if(!$('.cc-sheet-handle',sheet))sheet.insertAdjacentHTML('afterbegin','<span class="cc-sheet-handle" aria-hidden="true"></span>');
+    head.classList.add('cc-sheet-head');
+    let icon=$('.cc-sheet-title-icon',head);if(!icon){icon=document.createElement('span');icon.className='cc-sheet-title-icon';head.prepend(icon)}
+    setIcon(icon,iconName);
+    const close=$('button[aria-label="Schließen"],button[aria-label="Schliessen"]',head);if(close)close.classList.add('cc-sheet-close');
+  }
+  function syncSummaryDialog(){
+    const modal=$('#journalSummaryModal');if(!modal)return;
+    decorateSheet(modal,'check');
+    const sheet=$('.journal-summary-sheet',modal);if(!sheet)return;const scoreSection=$('.journal-score-explain',sheet);
+    if(scoreSection&&scoreSection.tagName!=='DETAILS'){
+      const details=document.createElement('details');details.className='journal-score-explain cc-score-details';
+      const drivers=$('#journalScoreDrivers',scoreSection);details.innerHTML='<summary><span>Berechnung ansehen</span><small>Gewichtung und Zwischenziele</small></summary>';
+      if(drivers)details.append(drivers);scoreSection.replaceWith(details);
+    }
+    const hero=$('#journalSummaryHero',sheet),verdict=$('#journalSummaryVerdict',sheet),next=$('#journalSummaryNext',sheet),grid=$('#journalSummaryGrid',sheet),details=$('.cc-score-details',sheet);
+    if(hero){if(verdict&&hero.nextElementSibling!==verdict)hero.after(verdict);if(next&&verdict?.nextElementSibling!==next)verdict?.after(next);if(grid&&next?.nextElementSibling!==grid)next?.after(grid);if(details&&grid?.nextElementSibling!==details)grid?.after(details)}
+  }
+  function syncDialogs(){
+    dialogFrame=0;
+    decorateSheet($('#mealModal'),'meal');decorateSheet($('#bp220MeasurementModal'),'scale');decorateSheet($('#bp220WorkoutModal'),'training');
+    const macro=$('#journalMacroModal');if(macro)decorateSheet(macro,macro.dataset.macro||'protein');
+    decorateSheet($('#journalWaterInfoModal'),'water');syncSummaryDialog();
+    const measurement=$('#bp220MeasurementModal'),measurementSheet=measurement?$('.sheet',measurement):null;
+    if(measurementSheet&&!$('.cc-measurement-intro',measurementSheet)){
+      $('.sheet-head',measurementSheet)?.insertAdjacentHTML('afterend','<p class="cc-sheet-intro cc-measurement-intro" id="ccMeasurementIntro">Speichere mindestens einen Wert. Gewicht, Taille und Körperfett können unabhängig voneinander gepflegt werden.</p>');
+      measurement?.setAttribute('aria-describedby','ccMeasurementIntro');
+    }
+    const mealSheet=$('#mealModal .sheet');if(mealSheet&&!$('.cc-meal-intro',mealSheet))$('.sheet-head',mealSheet)?.insertAdjacentHTML('afterend','<p class="cc-sheet-intro cc-meal-intro">Trage die Nährwerte für die tatsächlich gegessene Menge ein.</p>');
+    const calendar=$('#journalCalendarModal'),calendarSheet=calendar?$('.journal-calendar-sheet',calendar):null;
+    if(calendarSheet){calendar?.classList.add('cc-journal-calendar');calendarSheet.classList.add('cc-journal-sheet');if(!$('.cc-sheet-handle',calendarSheet))calendarSheet.insertAdjacentHTML('afterbegin','<span class="cc-sheet-handle" aria-hidden="true"></span>')}
+  }
+  function queueDialogs(){if(!dialogFrame)dialogFrame=requestAnimationFrame(syncDialogs)}
+  function bindDocument(){
+    if(documentBound)return;documentBound=true;
+    document.addEventListener('click',event=>{
+      const waterInfo=event.target.closest?.('#journalWaterInfo');
+      if(waterInfo){event.preventDefault();event.stopImmediatePropagation();ensureWaterInfo();syncDialogs();if(typeof openModal==='function')openModal('journalWaterInfoModal');return}
+      const waterClose=event.target.closest?.('[data-cc-water-close]');
+      if(waterClose){event.preventDefault();if(typeof closeModal==='function')closeModal(waterClose.closest('.modal'));return}
+      if(event.target?.id==='journalWaterInfoModal'){if(typeof closeModal==='function')closeModal(event.target);return}
+      if(event.target.closest?.('[data-v72-macro],#journalFinishDay,#journalWeightButton,[data-journal-training-details],[data-add-journal-meal],#journalCalendarButton,#journalDateButton'))setTimeout(queueDialogs,0);
+    },true);
   }
   function scrollToNode(node){node?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'})}
   function handleQuick(host,type){
@@ -104,13 +178,21 @@
     });
   }
   function sync(){
-    frame=0;ensureStyleOrder();const host=$('#today560');if(!host)return false;ensureStructure(host);syncIcons(host);syncCopy(host);bind(host);return true;
+    frame=0;ensureStyleOrder();const host=$('#today560');if(!host)return false;
+    rootObserver?.disconnect();
+    ensureStructure(host);syncIcons(host);syncCopy(host);bind(host);bindDocument();syncDialogs();observeHost(host);return true;
   }
   function queue(){if(!frame)frame=requestAnimationFrame(sync)}
+  function observeHost(host){
+    if(!rootObserver)rootObserver=new MutationObserver(queue);
+    rootObserver.disconnect();
+    rootObserver.observe(host,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class','aria-pressed']});
+  }
   function observe(){
     if(!sync()){const bootstrap=new MutationObserver(()=>{if(sync()){bootstrap.disconnect();observe()}});bootstrap.observe(document.body||document.documentElement,{childList:true,subtree:true});return}
-    const host=$('#today560');rootObserver?.disconnect();rootObserver=new MutationObserver(queue);rootObserver.observe(host,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class','aria-pressed']});
+    const host=$('#today560');observeHost(host);
     headObserver?.disconnect();headObserver=new MutationObserver(queue);headObserver.observe(document.head,{childList:true});
+    dialogObserver?.disconnect();dialogObserver=new MutationObserver(records=>{if(records.some(record=>record.addedNodes.length))queueDialogs()});dialogObserver.observe(document.body,{childList:true,subtree:true});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observe,{once:true});else observe();
   root.CutCoachJournalDashboard800=Object.freeze({version:VERSION,refresh:sync,icons:ICONS});
