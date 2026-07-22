@@ -1,0 +1,12 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const read=name=>fs.readFileSync(path.join(root,name),'utf8');
+const nav=read('glass-nav-v131.js'),sw=read('sw.js');
+assert.ok(nav.indexOf("addStyle('body-progress-v210'")<nav.indexOf("addStyle('body-progress-v211'"));
+assert.ok(nav.indexOf("addScript('body-progress-v210'")<nav.indexOf("addScript('body-progress-v211'"));
+assert.match(sw,/body210-live-body211-reference-rebuild/);
+assert.match(sw,/const CACHE_NAME=`\$\{VOICE_CACHE\}-energy143`/);
+console.log('Body Progress 2.1.1: Referenzoberfläche lädt nach der stabilen Datenengine und behält die Cache-Kompatibilitätskette.');
