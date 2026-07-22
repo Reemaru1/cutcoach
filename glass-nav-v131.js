@@ -30,9 +30,11 @@
     addStyle('scrollbar-cleanup-v209','./scrollbar-cleanup-v209.css?v=2.0.9-alpha');
     addStyle('body-progress-v210','./body-progress-v210.css?v=2.1.0-alpha');
     addStyle('body-progress-v211','./body-progress-v211.css?v=2.1.1-reference');
+    addStyle('body-progress-v212-fix','./body-progress-v212-fix.css?v=2.1.2-full-fix');
     if(!window.CutCoachNutritionMath206)addScript('nutrition-ui-consistency-v206','./nutrition-ui-consistency-v206.js?v=2.0.8-loader');
     if(!window.CutCoachBodyProgress210)addScript('body-progress-v210','./body-progress-v210.js?v=2.1.0-alpha');
     if(!window.CutCoachBodyProgress211)addScript('body-progress-v211','./body-progress-v211.js?v=2.1.1-reference');
+    if(!window.CutCoachBodyProgress212)addScript('body-progress-v212-fix','./body-progress-v212-fix.js?v=2.1.2-full-fix');
   }
   function replaceHash(hash){
     try{const url=new URL(location.href);url.hash=hash;history.replaceState(null,'',`${url.pathname}${url.search}${url.hash}`)}catch{history.replaceState(null,'',hash)}
