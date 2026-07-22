@@ -12,7 +12,7 @@ const tests=[
   'v173-stage5-edge-hardening.test.js','v180-stage6-production-acceptance.test.js','v181-stage6-runtime-stress.test.js','v190-intelligent-search-a-z-integrity.test.js',
   'v191-catalog-expansion-search-fixes.test.js','v200-product-catalog.test.js','v200-product-catalog-full-audit.test.js','v201-nutrition-stability.test.js',
   'v201-nutrition-peripherals.test.js','v205-nutrition-a-z-hardening.test.js','v206-nutrition-math-ui.test.js','v207-liquid-glass-ui.test.js',
-  'v208-production-ui-loader.test.js','v202-spoken-intent.test.js','v192-search-ui-overhaul.test.js','v193-search-input-performance.test.js',
+  'v208-production-ui-loader.test.js','body-progress-v220-production.test.js','v202-spoken-intent.test.js','v192-search-ui-overhaul.test.js','v193-search-input-performance.test.js',
   'v194-search-interaction-unlock.test.js','v195-search-stability.test.js','v196-article-sequence-cola.test.js','v198-staging-idle-search.test.js',
   'glass-nav-production-hotfix.test.js','journal-ui-polish-v137.test.js','nutrition-polish-v138.test.js','local-dishes-v140.test.js'
 ];

@@ -4,10 +4,12 @@ const APP_VERSION = '6.8.0';
 const STORAGE_KEY = 'cutcoach_v2';
 const RECOVERY_KEY = 'cutcoach_recovery_raw';
 const PREVIOUS_STATE_KEY = 'cutcoach_previous_state';
-const SCHEMA_VERSION = 6;
+const SCHEMA_VERSION = 7;
 const MAX_DAYS = 5000;
 const MAX_MEALS_PER_DAY = 500;
+const MAX_WORKOUT_EXERCISES = 30;
 const MEAL_TYPES = ['Frühstück', 'Mittagessen', 'Abendessen', 'Snack'];
+const WORKOUT_MUSCLES = ['shoulders','arms','chest','back','legs','core','glutes'];
 const DEFAULTS = {
   settings: { age:28, height:179, calories:2300, maintenance:3000, protein:190, fat:65, carbs:200, steps:6000, gymGoal:5, goalWeight:null },
   days: {}, onboarded:false,
@@ -113,6 +115,28 @@ function sanitizeMeal(meal={},fallbackId=makeId()){
     sourceItemId:/^[A-Za-z0-9._:-]{1,128}$/.test(sourceId)?sourceId:''
   };
 }
+function sanitizeWorkoutExercise(exercise={},fallbackId=makeId()){
+  const name=cleanText(exercise.name,80),muscle=WORKOUT_MUSCLES.includes(exercise.muscle)?exercise.muscle:null;
+  if(!name||!muscle)return null;
+  const secondary=[...new Set(Array.isArray(exercise.secondary)?exercise.secondary:[])].filter(item=>WORKOUT_MUSCLES.includes(item)&&item!==muscle).slice(0,3);
+  return {
+    id:safeId(exercise.id??fallbackId),name,muscle,secondary,
+    sets:bounded(exercise.sets,1,1,20,true),reps:bounded(exercise.reps,1,1,100,true),
+    weight:bounded(exercise.weight,0,0,1000),rpe:nullable(exercise.rpe,1,10)
+  };
+}
+function sanitizeWorkout(workout){
+  if(!workout||typeof workout!=='object'||Array.isArray(workout))return null;
+  const ids=new Set(),exercises=[];
+  if(Array.isArray(workout.exercises)){
+    for(const item of workout.exercises.slice(0,MAX_WORKOUT_EXERCISES)){
+      const exercise=sanitizeWorkoutExercise(item);if(!exercise)continue;
+      while(ids.has(exercise.id))exercise.id=makeId();ids.add(exercise.id);exercises.push(exercise);
+    }
+  }
+  if(!exercises.length)return null;
+  return {duration:nullable(workout.duration,5,360,true),recovery:nullable(workout.recovery,1,10),notes:cleanText(workout.notes,300),exercises};
+}
 function sanitizeDay(raw={},legacyZeroSteps=false){
   const ids=new Set();
   const meals=[];
@@ -128,9 +152,12 @@ function sanitizeDay(raw={},legacyZeroSteps=false){
   return {
     meals,
     weight:nullable(raw.weight,30,300),
+    waist:nullable(raw.waist,40,250),
+    bodyFat:nullable(raw.bodyFat,2,70),
     steps:nullable(rawSteps,0,100000,true),
     gym:typeof raw.gym==='boolean'?raw.gym:null,
-    alcohol:typeof raw.alcohol==='boolean'?raw.alcohol:null
+    alcohol:typeof raw.alcohol==='boolean'?raw.alcohol:null,
+    workout:sanitizeWorkout(raw.workout)
   };
 }
 function keyFromDate(date){ return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`; }
@@ -263,7 +290,7 @@ function day(key=selectedDate,create=true){
   if(!state.days[key]&&create)state.days[key]=sanitizeDay();
   return state.days[key]||sanitizeDay();
 }
-function isDayEmpty(data){ return !data.meals.length && data.weight===null && data.steps===null && data.gym===null && data.alcohol===null; }
+function isDayEmpty(data){ return !data.meals.length && data.weight===null && data.waist===null && data.bodyFat===null && data.steps===null && data.gym===null && data.alcohol===null && data.workout==null; }
 function pruneDay(key=selectedDate){ if(state.days[key]&&isDayEmpty(state.days[key]))delete state.days[key]; }
 function mealCapacity(key=selectedDate){ return Math.max(0,MAX_MEALS_PER_DAY-day(key,false).meals.length); }
 function totals(key=selectedDate){
