@@ -126,6 +126,11 @@ html body>nav.cc-glass-nav-v131 .cc-nav-label{
 }
 html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-icon{width:20px!important;height:20px!important}
 html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-icon svg{width:20px!important;height:20px!important;stroke-width:2!important}
+html body>nav.cc-glass-nav-v131 button[data-tab="food"],
+html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-icon,
+html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-icon svg{color:#06110f!important;stroke:#06110f!important;opacity:1!important;visibility:visible!important}
+html body>nav.cc-glass-nav-v131 .cc-nav-icon,
+html body>nav.cc-glass-nav-v131 .cc-nav-label{opacity:1!important;visibility:visible!important}
 html body>nav.cc-glass-nav-v131 button[data-tab="food"] .cc-nav-label{display:none!important}
 body.cc-glass-nav-active{padding-bottom:calc(58px + env(safe-area-inset-bottom))!important}
 @media(max-width:390px){

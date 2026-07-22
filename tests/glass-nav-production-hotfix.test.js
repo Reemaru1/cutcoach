@@ -58,13 +58,13 @@ assert.match(glassCss,/@media\(max-width:390px\)[\s\S]*width:min\(326px,calc\(10
 assert.ok(live.includes("nav.dataset.glassNavV131==='1'||nav.classList.contains('cc-glass-nav-v131')"),'Live-Journal überschreibt die Glasnavigation weiterhin.');
 assert.ok(live.includes('window.CutCoachGlassNavV131?.enhance?.()'),'Live-Journal stellt die Glasnavigation nicht erneut sicher.');
 assert.ok(smart.includes("journal-live-nav-v127.js?v=1.3.2-alpha"),'Smart-Journal lädt nicht die reparierte Live-Navigation.');
-assert.ok(loader.includes("glass-nav-v131.js?v=1.3.3-alpha"),'Versionsloader lädt nicht die reparierte Glasnavigation.');
-assert.ok(loader.includes("glass-nav-v131.css?v=1.3.6-alpha"),'Versionsloader lädt nicht das Instagram-Dock.');
+assert.ok(loader.includes("glass-nav-v131.js?v=1.3.7-alpha"),'Versionsloader lädt nicht die reparierte Glasnavigation.');
+assert.ok(loader.includes("glass-nav-v131.css?v=1.3.7-alpha"),'Versionsloader lädt nicht das Instagram-Dock.');
 assert.match(loader,/link\.addEventListener\('load',load,[\s\S]*document\.head\.append\(link\)/,'Navigation wird nicht erst nach geladener CSS-Datei gestartet.');
 assert.ok(runtime.includes("version:'2.3.0-alpha'"),'Runtime-Manifest verwendet nicht die aktuelle Generation.');
 assert.ok(runtime.includes("journal-live-nav-v127.js?v=1.3.2-alpha"),'Runtime-Manifest enthält nicht die reparierte Live-Navigation.');
-assert.ok(runtime.includes("glass-nav-v131.js?v=1.3.3-alpha"),'Runtime-Manifest enthält nicht den produktiven UI-Loader.');
-assert.ok(runtime.includes("glass-nav-v131.css?v=1.3.6-alpha"),'Runtime-Manifest enthält nicht das Instagram-Dock.');
+assert.ok(runtime.includes("glass-nav-v131.js?v=1.3.7-alpha"),'Runtime-Manifest enthält nicht den produktiven UI-Loader.');
+assert.ok(runtime.includes("glass-nav-v131.css?v=1.3.7-alpha"),'Runtime-Manifest enthält nicht das Instagram-Dock.');
 assert.ok(sw.includes("runtime-manifest.js?v=2.3.0-alpha"),'Service Worker lädt nicht das aktuelle Runtime-Manifest.');
 assert.ok(sw.includes('-nav136-journal137-nutrition138-dishes140-dashboard810`'),'Service Worker verwendet nicht die aktuelle Navigation-, Tagebuch-, Ernährungs- und Dashboard-Cachegeneration.');
 assert.ok(sw.includes('search196-article-sequence'),'Navigationstest sieht die aktuelle Such-Cachegeneration nicht.');
