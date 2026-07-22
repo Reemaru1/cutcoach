@@ -1,0 +1,19 @@
+/* CutCoach 2.0.9 – unsichtbare Scrollindikatoren bei vollständig erhaltener Touch-Navigation */
+
+/* Firefox und ältere Microsoft-Engines: Scrollen bleibt aktiv, nur die Leiste verschwindet. */
+html,
+body,
+body *{
+  scrollbar-width:none!important;
+  -ms-overflow-style:none!important;
+}
+
+/* Safari, iOS-PWA und Chromium: Dokument, Screens, Listen und Bottom-Sheets ohne sichtbare Scrollleiste. */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+body *::-webkit-scrollbar{
+  width:0!important;
+  height:0!important;
+  display:none!important;
+  background:transparent!important;
+}
