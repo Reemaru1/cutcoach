@@ -12,9 +12,10 @@
   const currentDocument=()=>window.document||null;
   const engine=()=>window.CutCoachIntelligentSearch128||null;
   const input=()=>currentDocument()?.querySelector?.('#nutritionSearch')||null;
+  const looksLikeMulti=value=>/[,;+&|]|\b(?:und|plus|sowie|ausserdem|außerdem|dann\s+noch|danach\s+noch)\b|^\s*\d+(?:[.,]\d+)?\s*(?:g|kg|ml|l|st(?:ü|ue)ck|portion)/i.test(String(value||''));
   let bootstrapObserver=null;
-  function refreshCurrent(){const current=engine(),field=input();if(!current||!field||!String(field.value||'').trim())return false;return Boolean(current.render?.(field))}
-  function ensureFirstHardenedRender(){if(refreshCurrent()){bootstrapObserver?.disconnect();bootstrapObserver=null;return}if(bootstrapObserver)return;const page=currentDocument(),target=page?.body||page?.documentElement;if(!target)return;bootstrapObserver=new MutationObserver(()=>{if(!refreshCurrent())return;bootstrapObserver?.disconnect();bootstrapObserver=null});bootstrapObserver.observe(target,{childList:true,subtree:true})}
+  function refreshCurrent(){const current=engine(),field=input();if(!current||!field||!looksLikeMulti(field.value))return false;return Boolean(current.render?.(field))}
+  function ensureFirstHardenedRender(){const current=engine(),field=input();if(current&&field){if(looksLikeMulti(field.value))refreshCurrent();bootstrapObserver?.disconnect();bootstrapObserver=null;return}if(bootstrapObserver)return;const page=currentDocument(),target=page?.body||page?.documentElement;if(!target)return;bootstrapObserver=new MutationObserver(()=>{if(!engine()||!input())return;bootstrapObserver?.disconnect();bootstrapObserver=null;if(looksLikeMulti(input().value))refreshCurrent()});bootstrapObserver.observe(target,{childList:true,subtree:true})}
   function attachLayers(){let current=engine();current=window.CutCoachSearchExactWhole170?.attach?.(current)||current;current=window.CutCoachSearchConfidenceHardening151?.attach?.(current)||current;current=window.CutCoachPortionHardening153?.attach?.(current)||current;window.CutCoachSearchLearning161?.installLibraryHook?.();queueMicrotask(ensureFirstHardenedRender)}
   function loadAsset(index){
     if(index>=ASSETS.length){attachLayers();return}

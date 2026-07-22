@@ -49,6 +49,6 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   assert.match(loader,/nutrition-voice-111\.js\?v=1\.9\.2-alpha/);assert.match(loader,/nutrition-spoken-intent-v202\.js\?v=2\.0\.2-alpha/);assert.match(loader,/CutCoachSpokenIntent202\?\.attach/);
   assert.ok(runtime.indexOf('nutrition-search-exact-whole-v170.js?v=1.9.6-alpha')<runtime.indexOf('nutrition-spoken-intent-v202.js?v=2.0.2-alpha'));
   assert.ok(runtime.indexOf('nutrition-spoken-intent-v202.js?v=2.0.2-alpha')<runtime.indexOf('nutrition-search-confidence-hardening-v151.js?v=1.9.0-alpha'));
-  assert.match(sw,/search202-spoken-intent/);assert.match(sw,/voice203-direct-permission/);assert.match(sw,/`\$\{VOICE_CACHE\}-energy143-nutrition220-nav137-dashboard820-searchmetrics110-faststart-search710-fluid`/);
+  assert.match(sw,/search202-spoken-intent/);assert.match(sw,/voice203-direct-permission/);assert.match(sw,/`\$\{VOICE_CACHE\}-energy143-nutrition220-nav137-dashboard820-searchmetrics110-faststart-search720-worker-index100`/);
   console.log('Sprachintention 2.0.2: Vierer-Satz, Semmel/Käse, Mengen und direkte iOS-Mikrofonabfrage geprüft.');
 })().catch(error=>{console.error(error);process.exitCode=1});

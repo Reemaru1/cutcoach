@@ -201,8 +201,8 @@ const input=(selector,value)=>{
   assert.equal(window.document.querySelector('#nutritionMealSelect').value,'Frühstück','Mahlzeitenwechsler startet in der falschen Kategorie');
   assert.match(window.document.querySelector('#nutritionDayBudgetLabel').textContent,/Noch 2\.300 kcal/,'Tagesbudget fehlt im Ernährungsbereich');
   input('#nutritionSearch','Pizza');await wait(400);
-  const pizzaSearch=window.CutCoachNutritionSearch710?.performance?.();
-  assert.equal(window.CutCoachNutritionSearch710?.version,'7.1.0','Optimierte Suchengine ist nicht aktiv');
+  const pizzaSearch=window.CutCoachNutritionSearch720?.performance?.();
+  assert.equal(window.CutCoachNutritionSearch720?.version,'7.2.0','Optimierte Suchengine ist nicht aktiv');
   assert.ok(pizzaSearch?.candidateCount>=7064,'Pizza-Suche erfasst nicht den vollständigen Katalog');
   assert.ok(pizzaSearch?.directMatches>=3,'Pizza-Suche findet zu wenige direkte Treffer');
   assert.equal(pizzaSearch?.fuzzyPass,false,'Direkte Pizza-Treffer lösen unnötig die unscharfe Vollsuche aus');
@@ -353,6 +353,7 @@ const input=(selector,value)=>{
 
   assert.equal(test.fillMeals(499),true,'Tageslimit konnte für Grenztest nicht vorbereitet werden');
   window.document.querySelector('.journal-meal-add[data-add-journal-meal="Frühstück"]').click();
+  await wait(500);
   assert.equal(window.document.querySelector('[data-nutrition-add="quick-food"]').disabled,false,'Letzter freier Platz wird zu früh gesperrt');
   click('[data-nutrition-add="quick-food"]');
   assert.equal(test.day(previousDate,false).meals.length,500,'Schnell-Plus nutzt den letzten freien Platz nicht korrekt');

@@ -31,7 +31,7 @@ assert.match(runtime,/scrollbar-cleanup-v209\.css\?v=2\.0\.9-alpha/);
 assert.match(sw,/runtime-manifest\.js\?v=2\.3\.0-alpha/);
 assert.doesNotMatch(sw,/PRODUCTION_UI_ASSETS/,'Produktive UI-Assets werden redundant außerhalb des Runtime-Manifests gepflegt.');
 assert.match(sw,/ui208-production-loader-ui209-hidden-scrollbars/);
-assert.match(sw,/const CACHE_NAME=`\$\{VOICE_CACHE\}-energy143-nutrition220-nav137-dashboard820-searchmetrics110-faststart-search710-fluid`/);
+assert.match(sw,/const CACHE_NAME=`\$\{VOICE_CACHE\}-energy143-nutrition220-nav137-dashboard820-searchmetrics110-faststart-search720-worker-index100`/);
 assert.match(css,/#journalMacroClose/);
 assert.match(css,/backdrop-filter:blur\(34px\)/);
 assert.match(scrollbar,/scrollbar-width:none!important/);
