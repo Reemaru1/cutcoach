@@ -40,7 +40,7 @@ const inject=(window,source)=>{const script=window.document.createElement('scrip
   input.addEventListener('input',()=>{normalRuns++});
 
   input.value='Erdbeere';input.dispatchEvent(new window.Event('input',{bubbles:true}));
-  await wait(280);
+  await wait(360);
   assert.equal(normalRuns,1,'Ein einfacher Einzelbegriff erreicht die normale Suche nicht genau einmal.');
   assert.equal(intelligentRuns,0,'Ein einfacher Einzelbegriff startet unnötig die intelligente Mehrfachsuche.');
   assert.equal(window.CutCoachNutritionPolish138.interactionStats().intelligentEvaluations,0);
@@ -49,16 +49,16 @@ const inject=(window,source)=>{const script=window.document.createElement('scrip
   const values=['T','To','Toa','Toas','Toast'];
   for(const value of values){input.value=value;input.dispatchEvent(new window.Event('input',{bubbles:true}));await wait(120)}
   assert.equal(normalRuns,0,'Die Suche startet bereits innerhalb einer zusammenhängenden Tippserie.');
-  await wait(150);
-  assert.equal(normalRuns,1,'Die Tippserie erzeugt nach 230 ms nicht genau einen finalen Suchlauf.');
+  await wait(250);
+  assert.equal(normalRuns,1,'Die Tippserie erzeugt nach 320 ms nicht genau einen finalen Suchlauf.');
   assert.equal(intelligentRuns,0,'Eine einfache Tippserie startet die intelligente Suche.');
   const inputStats=window.CutCoachSearchInputPerformance193.stats();
-  assert.equal(inputStats.lastDelay,230,'Die feste Ruhephase beträgt nicht 230 ms.');
+  assert.equal(inputStats.lastDelay,320,'Die feste Ruhephase beträgt nicht 320 ms.');
   assert.equal(inputStats.pending,false);
 
   normalRuns=0;intelligentRuns=0;
   input.value='Toastbrot mit Erdbeere';input.dispatchEvent(new window.Event('input',{bubbles:true}));
-  await wait(280);
+  await wait(360);
   assert.equal(intelligentRuns,1,'Eine echte Kombination wird mehrfach intelligent berechnet.');
   assert.equal(normalRuns,0,'Bei einer intelligent übernommenen Kombination läuft zusätzlich die normale Vollkatalogsuche.');
   const host=window.document.querySelector('#nutritionMultiSearch');
@@ -67,6 +67,6 @@ const inject=(window,source)=>{const script=window.document.createElement('scrip
   assert.equal(window.CutCoachNutritionPolish138.interactionStats().intelligentEvaluations,1);
 
   dom.window.close();
-  console.log('Suchstabilität 1.9.8: Nach 230 ms läuft nur der erforderliche Suchpfad.');
+  console.log('Suchstabilität 2.0.0: Nach 320 ms läuft nur der erforderliche Suchpfad.');
   setImmediate(()=>process.exit(0));
 })().catch(error=>{console.error(error);setImmediate(()=>process.exit(1))});
