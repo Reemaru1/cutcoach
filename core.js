@@ -31,6 +31,16 @@ let deferredInstallPrompt = null;
 let lastFocusedElement = null;
 let serviceWorkerRegistration = null;
 let updateRequested = false;
+const APP_BOOT_STARTED_AT=typeof performance==='object'&&typeof performance.now==='function'?performance.now():Date.now();
+
+function completeAppBoot(){
+  if(document.documentElement.classList.contains('cc-app-ready'))return;
+  const now=typeof performance==='object'&&typeof performance.now==='function'?performance.now():Date.now(),duration=Math.max(0,Math.round(now-APP_BOOT_STARTED_AT));
+  document.documentElement.classList.add('cc-app-ready');document.documentElement.dataset.bootReady='1';
+  window.CutCoachBootMetrics=Object.freeze({readyMs:duration,readyAt:new Date().toISOString()});
+  try{window.dispatchEvent(new CustomEvent('cutcoach:app-ready',{detail:{readyMs:duration}}))}catch{}
+  setTimeout(()=>{document.querySelector('#appBootSplash')?.remove();document.querySelector('#criticalBootStyle')?.remove()},260);
+}
 
 function deepClone(value){ return JSON.parse(JSON.stringify(value)); }
 function parseNumber(value){

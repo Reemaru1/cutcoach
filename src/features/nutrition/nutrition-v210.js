@@ -1,7 +1,7 @@
 'use strict';
 
 (function(root){
-  const VERSION='2.1.0-alpha';
+  const VERSION='2.1.1-alpha';
   const $=(selector,scope=document)=>scope?.querySelector?.(selector)||null;
   const $$=(selector,scope=document)=>[...(scope?.querySelectorAll?.(selector)||[])];
   const ICONS=Object.freeze({
@@ -38,29 +38,37 @@
     mealCard.classList.add('nutrition-v210-meal-card');
     setText($('.nutrition-meal-copy small',summary),'Aktuelle Mahlzeit');
     const previous=$('#nutritionCopyPrevious',summary);if(previous){previous.childNodes[0].textContent='Von gestern ';previous.setAttribute('aria-label','Einträge von gestern übernehmen')}
-    const budget=$('#nutritionDayBudgetLabel',day),status=$('#nutritionV210DayStatus',day);if(status&&budget){setText(status,budget.textContent);status.classList.toggle('is-over',/über/i.test(budget.textContent));status.classList.toggle('is-good',/erreicht|noch/i.test(budget.textContent))}
+    const budget=$('#nutritionDayBudgetLabel',day),status=$('#nutritionV210DayStatus',day);if(status&&budget){const isOver=/über/i.test(budget.textContent);setText(status,isOver?'Über Tagesziel':'Noch im Budget');status.classList.toggle('is-over',isOver);status.classList.toggle('is-good',!isOver)}
+  }
+
+  function enhanceAnalysis(screen){
+    const analysis=$('#nutritionV7Analysis',screen),head=$('.nutrition-v7-analysis-head',analysis);if(!analysis||!head||analysis.dataset.nutritionV211Toggle==='1')return;
+    analysis.dataset.nutritionV211Toggle='1';analysis.classList.add('is-collapsed');head.tabIndex=0;head.setAttribute('role','button');head.setAttribute('aria-expanded','false');head.setAttribute('aria-label','Zusatzwerte anzeigen');
+    const toggle=()=>{const collapsed=analysis.classList.toggle('is-collapsed');head.setAttribute('aria-expanded',String(!collapsed));head.setAttribute('aria-label',collapsed?'Zusatzwerte anzeigen':'Zusatzwerte ausblenden')};
+    head.addEventListener('click',toggle);head.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();toggle()}});
   }
 
   function polishMain(screen){
     screen.classList.add('nutrition-v210');document.body.classList.toggle('nutrition-v210-active',screen.classList.contains('active'));
     ensureDayCard(screen);
     const searchIcon=$('.nutrition-search-row>span',screen);setIcon(searchIcon,'search');setIcon($('#nutritionVoice',screen),'voice');
-    const shortcutConfig=[['#nutritionBarcode','barcode','Barcode'],['#nutritionManual','edit','Schnelleingabe'],['#nutritionNewFood','plus','Neu anlegen'],['#nutritionRecipe','recipe','Rezept']];
+    const shortcutConfig=[['#nutritionBarcode','barcode','Barcode'],['#nutritionManual','edit','Schnelleingabe'],['#nutritionNewFood','plus','Lebensmittel'],['#nutritionRecipe','recipe','Rezept']];
     for(const [selector,name,label] of shortcutConfig){const button=$(selector,screen);if(!button)continue;setIcon($('span',button),name);setText($('b',button),label)}
     const scope=$('#nutritionResultScope',screen);if(scope&&/BLS|Bibliothek/i.test(scope.textContent))setText(scope,'Lebensmitteldatenbank');
     const note=$('.nutrition-catalog-note',screen);if(note&&!note.closest('details')){const details=document.createElement('details');details.className='nutrition-v210-sources';details.innerHTML='<summary>Datenquellen & Hinweise</summary>';note.before(details);details.append(note)}
     $$('.nutrition-result-row',screen).forEach(row=>{const target=$('.nutrition-result-icon',row);setIcon(target,'food');const add=$('.nutrition-result-add',row);if(add){add.textContent='+';add.setAttribute('title','Hinzufügen')}});
     $$('.nutrition-current-main>span:first-child',screen).forEach(node=>setIcon(node,'check'));
+    enhanceAnalysis(screen);
   }
 
   function decorateModal(selector,kind,intro=''){
     const modal=$(selector),sheet=$('.sheet',modal),head=$('.sheet-head',sheet);if(!modal||!sheet||!head)return;
     modal.classList.add('nutrition-v210-modal');sheet.classList.add('nutrition-v210-sheet');
-    if(!$('.nutrition-v210-handle',sheet))sheet.insertAdjacentHTML('afterbegin','<span class="nutrition-v210-handle" aria-hidden="true"></span>');
-    head.classList.add('nutrition-v210-sheet-head');
-    if(!$('.nutrition-v210-title-icon',head))head.insertAdjacentHTML('afterbegin',`<span class="nutrition-v210-title-icon">${ICONS[kind]||ICONS.food}</span>`);
-    $('button[aria-label="Schließen"]',head)?.classList.add('nutrition-v210-close');
-    if(intro&&!$('.nutrition-v210-intro',sheet)){head.insertAdjacentHTML('afterend',`<p class="nutrition-v210-intro">${intro}</p>`)}
+    const handles=$$('.nutrition-v210-handle,.cc-sheet-handle',sheet);let handle=handles[0];if(!handle){handle=document.createElement('span');handle.setAttribute('aria-hidden','true')}handle.classList.add('nutrition-v210-handle','cc-sheet-handle');handles.slice(1).forEach(node=>node.remove());sheet.prepend(handle);
+    head.classList.add('nutrition-v210-sheet-head','cc-sheet-head');
+    const icons=$$('.nutrition-v210-title-icon,.cc-sheet-title-icon',head);let titleIcon=icons[0];if(!titleIcon)titleIcon=document.createElement('span');titleIcon.classList.add('nutrition-v210-title-icon','cc-sheet-title-icon');titleIcon.innerHTML=ICONS[kind]||ICONS.food;titleIcon.setAttribute('aria-hidden','true');icons.slice(1).forEach(node=>node.remove());head.prepend(titleIcon);
+    const close=$('button[aria-label="Schließen"],button[aria-label="Schliessen"]',head);if(close){close.classList.add('nutrition-v210-close','cc-sheet-close');head.append(close)}
+    if(intro){const intros=$$('.nutrition-v210-intro,.cc-meal-intro',sheet);let note=intros[0];if(!note)note=document.createElement('p');note.classList.add('nutrition-v210-intro');if(selector==='#mealModal')note.classList.add('cc-sheet-intro','cc-meal-intro');setText(note,intro);intros.slice(1).forEach(node=>node.remove());head.after(note)}
   }
 
   function validPositive(selector){const value=Number(String($(selector)?.value||'').replace(',','.'));return Number.isFinite(value)&&value>0}
@@ -86,7 +94,9 @@
     decorateModal('#libraryUseModal','meal','Passe nur die tatsächlich gegessene Menge an.');
     decorateModal('#recipeV7Modal','recipe','Baue dein Rezept aus Zutaten auf. Nährwerte und Portionen werden automatisch berechnet.');
     decorateModal('#nutritionDetailModal','food','Wähle deine Portion und prüfe die berechneten Nährwerte.');
-    const itemTitle=$('#libraryItemTitle');if(itemTitle&&!/bearbeiten/i.test(itemTitle.textContent))setText(itemTitle,'Lebensmittel speichern');
+    const kindSwitch=$('#libraryItemModal .segmented');if(kindSwitch){kindSwitch.hidden=true;kindSwitch.setAttribute('aria-hidden','true')}
+    const recipeKind=$('#libraryItemModal [data-kind="recipe"]');if(recipeKind){recipeKind.hidden=true;recipeKind.tabIndex=-1}
+    const itemTitle=$('#libraryItemTitle');if(itemTitle)setText(itemTitle,/bearbeiten/i.test(itemTitle.textContent)?'Lebensmittel bearbeiten':'Lebensmittel anlegen');
     const itemSave=$('#saveLibraryItem');if(itemSave)setText(itemSave,'In Bibliothek speichern');
     const recipeSearch=$('#recipeV7Search');if(recipeSearch)recipeSearch.placeholder='Lebensmittel suchen';
     const recipeHint=$('.recipe-v7-search-hint');if(recipeHint&&/BLS/i.test(recipeHint.textContent))setText(recipeHint,'Tippe einen Begriff ein und wähle anschließend die passende Zutat.');
