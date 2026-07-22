@@ -17,8 +17,13 @@
     if(script)return script;
     script=document.createElement('script');script.src=src;script.async=false;script.dataset[key.replace(/-([a-z])/g,(_,char)=>char.toUpperCase())]='1';document.head.append(script);return script;
   }
+  function exposeRuntimeState(){
+    try{if(!Object.getOwnPropertyDescriptor(window,'state')&&typeof state==='object')Object.defineProperty(window,'state',{configurable:true,get:()=>state})}catch{}
+    try{if(!Object.getOwnPropertyDescriptor(window,'selectedDate')&&typeof selectedDate==='string')Object.defineProperty(window,'selectedDate',{configurable:true,get:()=>selectedDate})}catch{}
+  }
   function isDomTest(){return location.hostname==='example.test'||(typeof navigator==='object'&&/jsdom/i.test(navigator.userAgent||''))}
   function ensureProductionUi(){
+    exposeRuntimeState();
     if(isDomTest())return;
     addStyle('nutrition-ui-consistency-v206','./nutrition-ui-consistency-v206.css?v=2.0.8-loader');
     addStyle('liquid-glass-ui-v207','./liquid-glass-ui-v207.css?v=2.0.8-loader');
