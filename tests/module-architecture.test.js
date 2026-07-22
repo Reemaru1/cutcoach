@@ -19,15 +19,15 @@ const modules=[
 
 for(const file of modules){
   assert.ok(fs.existsSync(path.join(root,file)),`Modul fehlt: ${file}`);
-  const url=`${file}?v=${file.endsWith('dashboard-v800.js')?'8.0.0-alpha':'1.0.0-alpha'}`;
+  const url=`${file}?v=${file.endsWith('dashboard-v800.js')?'8.0.1-alpha':'1.0.0-alpha'}`;
   assert.ok(index.includes(`src="${url}"`),`Index lädt ${file} nicht.`);
   assert.ok(manifest.includes(`'./${url}'`),`Offline-Manifest enthält ${file} nicht.`);
 }
 
 for(const file of ['src/shared/design-system-v800.css','src/features/journal/dashboard-v800.css']){
   assert.ok(fs.existsSync(path.join(root,file)),`Designmodul fehlt: ${file}`);
-  assert.ok(index.includes(`${file}?v=8.0.0-alpha`),`Index lädt ${file} nicht.`);
-  assert.ok(manifest.includes(`'./${file}?v=8.0.0-alpha'`),`Offline-Manifest enthält ${file} nicht.`);
+  assert.ok(index.includes(`${file}?v=8.0.1-alpha`),`Index lädt ${file} nicht.`);
+  assert.ok(manifest.includes(`'./${file}?v=8.0.1-alpha'`),`Offline-Manifest enthält ${file} nicht.`);
 }
 
 assert.match(app,/track\('onboarding_shown'\)/,'Onboarding-Anzeige wird nicht gemessen.');

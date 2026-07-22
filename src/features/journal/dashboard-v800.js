@@ -1,7 +1,7 @@
 'use strict';
 
 (function(root){
-  const VERSION='8.0.0-alpha';
+  const VERSION='8.0.1-alpha';
   const FEEDBACK_KEY='cutcoach_journal_feedback_v800';
   const $=(selector,scope=document)=>scope.querySelector(selector);
   const ICONS=Object.freeze({
@@ -34,7 +34,7 @@
     node.dataset.ccIcon=name;node.innerHTML=ICONS[name]||ICONS.target;node.classList.add('cc-symbol');node.setAttribute('aria-hidden','true');
   }
   function ensureStyleOrder(){
-    const href='src/features/journal/dashboard-v800.css?v=8.0.0-alpha';
+    const href='src/features/journal/dashboard-v800.css?v=8.0.1-alpha';
     let link=[...document.querySelectorAll('link[rel="stylesheet"]')].find(item=>(item.getAttribute('href')||'').includes('dashboard-v800.css'));
     if(!link){link=document.createElement('link');link.rel='stylesheet';link.href=href;link.dataset.dashboardV800='1';document.head.append(link);return}
     const styles=[...document.querySelectorAll('link[rel="stylesheet"]')];if(styles.at(-1)!==link)document.head.append(link);
@@ -55,9 +55,11 @@
     if(meals&&meals.nextElementSibling!==balance)meals.after(balance);
     if(steps&&steps.parentElement!==balance)balance.append(steps);if(water&&water.parentElement!==balance)balance.append(water);
     if(balance&&check&&balance.nextElementSibling!==check)balance.after(check);
-    if(check&&!$('.journal-check-intro',check))$('.journal-section-title',check)?.insertAdjacentHTML('afterend','<p class="journal-check-intro">Basisangaben für Tagesnote und Rückblick. Ernährung, Bewegung und Wasser werden separat bewertet.</p>');
+    if(check&&!$('.journal-check-intro',check))$('.journal-section-title',check)?.insertAdjacentHTML('afterend','<p class="journal-check-intro">Gewicht, Training und Alkohol bilden den Basischeck. Ernährung, Schritte und Wasser werden separat bewertet.</p>');
     const trainingArticle=$('[data-journal-gym]',check)?.closest('article');
     if(trainingArticle&&!$('.journal-training-details',trainingArticle))trainingArticle.insertAdjacentHTML('beforeend','<button type="button" class="journal-training-details" data-journal-training-details>Training protokollieren</button>');
+    const activityCopy=$('.journal-energy-stats article:nth-child(3)>div',host);
+    if(activityCopy&&!$('.journal-activity-note',activityCopy))activityCopy.insertAdjacentHTML('beforeend','<span class="journal-activity-note">Nicht verrechnet</span>');
     ensureFeedback(host,check);
   }
   function ensureFeedback(host,check){
@@ -75,6 +77,10 @@
     const summary=$('#journalMealSummary',host);if(summary)setText(summary,summary.textContent.replace(/Eintr(?:ag|äge)/,'Lebensmittel'));
     const weight=$('#journalWeight',host),check=$('#journalCheckStatus',host),gym=$('[data-journal-gym][aria-pressed="true"]',host),alcohol=$('[data-journal-alcohol][aria-pressed="true"]',host);
     if(check){const completed=[weight&&!/^\s*[–-]/.test(weight.textContent),Boolean(gym),Boolean(alcohol)].filter(Boolean).length;setText(check,`Basischeck ${completed}/3`);setClass(check,'complete',completed===3)}
+    const trainingDetails=$('[data-journal-training-details]',host);if(trainingDetails){const trained=gym?.dataset.journalGym==='true';trainingDetails.hidden=!trained;trainingDetails.setAttribute('aria-hidden',String(!trained))}
+    const activity=$('.journal-energy-stats article:nth-child(3)',host);if(activity){const value=$('#journalBurned',activity)?.textContent?.trim()||'';activity.setAttribute('aria-label',`Aktivität ${value}. Wird nicht vom festen Tagesziel abgezogen.`)}
+    const weekday=$('#journalWeekday',host)?.textContent?.trim(),coachTitle=$('#journalCoachTitle',host),scoreText=$('#journalScoreLarge',host)?.textContent?.replace(',','.');
+    if(weekday==='Heute'&&coachTitle&&/^(Dein nächster sinnvoller Schritt|Dein Tagesfokus)$/.test(coachTitle.textContent.trim())){const score=Number(scoreText);if(Number.isFinite(score))setText(coachTitle,score>=8?'Starker Tageskurs':score>=6?'Solider Kurs mit Potenzial':'Jetzt gezielt nachsteuern')}
     const toggle=$('#coachV74Toggle',host);if(toggle){const collapsed=$('.journal-coach-card',host)?.classList.contains('coach-v74-collapsed');setText(toggle,collapsed?'Analyse anzeigen':'Analyse ausblenden');toggle.setAttribute('aria-label',collapsed?'Coaching-Analyse anzeigen':'Coaching-Analyse ausblenden')}
   }
   function syncIcons(host){
