@@ -1,21 +1,17 @@
 'use strict';
 const {spawnSync}=require('node:child_process');
+const fs=require('node:fs');
 const path=require('node:path');
 
-const tests=[
-  'v7-compat-v73.test.js','v73-smoke.test.js','v73-catalog.test.js','v731-ui-cleanup.test.js',
-  'v120-nutrition-multisearch.test.js','v121-nutrition-multisearch-accuracy.test.js','v122-nutrition-exact-intent.test.js','v123-nutrition-multisearch-stability.test.js',
-  'v141-nutrition-combination-search.test.js','v142-intelligent-search-upgrade.test.js','v143-journal-live-energy-status.test.js','v144-intelligent-components.test.js',
-  'v145-intelligent-language-search.test.js','v146-search-engine-consolidation.test.js','v147-search-engine-hardening.test.js','v150-search-confidence.test.js',
-  'v151-search-confidence-hardening.test.js','v152-generic-catalog-resolver.test.js','v153-food-specific-portions-v161.test.js','v154-portion-bugfix.test.js',
-  'v161-stage4-hardening.test.js','v170-stage5-search-matrix.test.js','v171-full-catalog-audit.test.js','v172-exact-whole-runtime.test.js',
-  'v173-stage5-edge-hardening.test.js','v180-stage6-production-acceptance.test.js','v181-stage6-runtime-stress.test.js','v190-intelligent-search-a-z-integrity.test.js',
-  'v191-catalog-expansion-search-fixes.test.js','v200-product-catalog.test.js','v200-product-catalog-full-audit.test.js','v201-nutrition-stability.test.js',
-  'v201-nutrition-peripherals.test.js','v205-nutrition-a-z-hardening.test.js','v206-nutrition-math-ui.test.js','v207-liquid-glass-ui.test.js',
-  'v208-production-ui-loader.test.js','body-progress-v220-production.test.js','v202-spoken-intent.test.js','v192-search-ui-overhaul.test.js','v193-search-input-performance.test.js',
-  'v194-search-interaction-unlock.test.js','v195-search-stability.test.js','v196-article-sequence-cola.test.js','v198-staging-idle-search.test.js',
-  'glass-nav-production-hotfix.test.js','journal-ui-polish-v137.test.js','nutrition-polish-v138.test.js','local-dishes-v140.test.js'
-];
+const requested=process.argv.slice(2);
+const tests=(requested.length?requested:fs.readdirSync(__dirname)
+  .filter(file=>file.endsWith('.test.js')))
+  .sort((left,right)=>left.localeCompare(right,'en'));
+
+if(!tests.length){
+  console.error('[CutCoach CI] Keine Regressionstests gefunden.');
+  process.exit(1);
+}
 
 for(const file of tests){
   const target=path.join(__dirname,file);

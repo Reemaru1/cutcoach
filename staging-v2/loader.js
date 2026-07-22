@@ -9,9 +9,9 @@
     const injection=`
       <base href="../">
       <meta name="robots" content="noindex,nofollow">
-      <link rel="stylesheet" href="staging/staging-nav.css?v=3">
+      <link rel="stylesheet" href="staging-v2/staging-nav.css?v=4">
       <script src="staging-v2/bootstrap.js?v=3"><\/script>
-      <script src="staging/staging-nav.js?v=3" defer><\/script>
+      <script src="staging-v2/staging-nav.js?v=4" defer><\/script>
     `;
     html=html.replace('<head>','<head>'+injection)
       .replace('<title>CutCoach</title>','<title>CutCoach Staging V2</title>')

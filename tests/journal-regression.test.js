@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const {JSDOM,VirtualConsole}=require('/tmp/cutcoach-jsdom/node_modules/jsdom');
+const {JSDOM,VirtualConsole}=require('jsdom');
 
 const project=path.resolve(__dirname,'..');
 const indexSource=fs.readFileSync(path.join(project,'index.html'),'utf8');
@@ -88,7 +88,7 @@ const input=(selector,value)=>{
   assert.equal(window.document.querySelector('#journalQuickAdd'),null,'Doppeltes Schnell-Plus ist zurückgekehrt');
   assert.equal(window.document.querySelectorAll('.journal-meal-add').length,4,'Mahlzeiten-Plus fehlt');
   assert.deepEqual([...window.document.querySelectorAll('[data-journal-alcohol]')].map(node=>node.textContent.trim()),['Ja','Nein'],'Alkohol-Reihenfolge ist falsch');
-  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 6.8.0');
+  assert.equal(window.document.querySelector('#appVersion').textContent,'Version 2.2.1-alpha');
   assert.equal(window.CutCoachFoodCatalog.meta.count,7064,'BLS-Katalog ist unvollständig');
   assert.equal(window.CutCoachFoodCatalog.meta.license,'CC BY 4.0','BLS-Lizenzhinweis fehlt');
   assert.equal(window.CutCoachLibrary.exportData().version,3,'Bibliothek wurde nicht auf das neue Datenmodell migriert');
@@ -372,7 +372,7 @@ const input=(selector,value)=>{
   assert.equal(errors.length,0,`Unerwartete Browserfehler: ${errors.map(error=>error.message).join(' | ')}`);
 
   const manifest=fs.readFileSync(path.join(project,'runtime-manifest.js'),'utf8');
-  assert.match(manifest,/version:'6\.8\.0'/,'Offline-Cache hat falsche Version');
+  assert.match(manifest,/version:'2\.2\.1-alpha'/,'Offline-Cache hat falsche Version');
   for(const match of manifest.matchAll(/'\.\/([^'?]+)(?:\?[^']*)?'/g)){
     const asset=match[1];
     if(asset==='')continue;
@@ -385,11 +385,11 @@ const input=(selector,value)=>{
     assert.ok(fs.existsSync(path.join(project,asset)),`Index verweist auf fehlende Datei: ${asset}`);
   }
   for(const name of scripts){assert.ok(indexSource.includes(`${name}?`),`Produktiver Erststart lädt ${name} nicht direkt`);assert.ok(manifest.includes(`./${name}?`),`Offline-Manifest enthält ${name} nicht`)}
-  assert.ok(indexSource.includes('nutrition.css?v=6.8.0')&&manifest.includes('./nutrition.css?v=6.8.0'),'Neues Ernährungsdesign ist nicht cache-sicher versioniert');
-  assert.ok(indexSource.includes('library.css?v=6.8.0')&&manifest.includes('./library.css?v=6.8.0'),'Neuer Portionsdialog ist nicht cache-sicher versioniert');
+  assert.ok(indexSource.includes('nutrition.css?v=7.0.0')&&manifest.includes('./nutrition.css?v=7.0.0'),'Ernährungsdesign ist nicht cache-sicher versioniert');
+  assert.ok(indexSource.includes('library.css?v=7.0.0')&&manifest.includes('./library.css?v=7.0.0'),'Portionsdialog ist nicht cache-sicher versioniert');
   const updateSource=fs.readFileSync(path.join(project,'update.html'),'utf8');
-  assert.ok(updateSource.includes("location.replace('./?updated=680#today')"),'Update-Seite leitet auf einen veralteten Cache-Marker weiter');
-  assert.ok(indexSource.indexOf('food-catalog.js?v=6.8.0')<indexSource.indexOf('library.js?v=6.8.0'),'Katalog wird nach der Bibliothek geladen');
+  assert.ok(updateSource.includes("location.replace('./?updated=221a#today')"),'Update-Seite leitet auf einen veralteten Cache-Marker weiter');
+  assert.ok(indexSource.indexOf('food-catalog.js?v=7.0.0')<indexSource.indexOf('library.js?v=7.0.0'),'Katalog wird nach der Bibliothek geladen');
   const nutritionCss=fs.readFileSync(path.join(project,'nutrition.css'),'utf8');
   assert.match(nutritionCss,/body\.nutrition-mode\{[^}]*min-height:100dvh/,'Ernährungsansicht füllt den dynamischen iOS-Viewport nicht');
   assert.match(nutritionCss,/body\.journal-mode nav,body\.nutrition-mode nav\{[^}]*inset:auto 0 0 0!important/,'Ernährungsnavigation ist nicht wie im Tagebuch unten verankert');

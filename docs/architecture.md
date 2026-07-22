@@ -25,6 +25,7 @@ Die produktive Ladefolge steht zusätzlich explizit in `index.html`. So hängt d
 - `nutrition.js` und `nutrition.css` – fehlertolerante Mahlzeitensuche, Sprach-/Textmengen wie „200 g Haferflocken“, Routine- und Tages-Fit-Priorisierung, Makro-Kompass, Schnell-Eintragung mit Rückgängig und kategoriegerechte Vortagsübernahme
 - `journal-date.css` und `journal-ui.css` – finale responsive Tagebuch- und Kalenderregeln
 - `upgrade-340.js` – weiterhin aktive Kompatibilitätsschicht für Komplettbackups und fensterübergreifende Bibliotheks-/Wasser-Synchronisierung
+- `body-progress-v220.js` und `body-progress-v220.css` – produktiver Körper- und Trainingsfortschritt mit validierten Eingaben, Trendberechnung und Muskelmapping
 
 Die noch geladenen `upgrade-*.css` enthalten ausschließlich das etablierte visuelle Design. Weitere historische `upgrade-*.js`-Ketten sind nicht mehr produktiv.
 
@@ -41,15 +42,15 @@ Die noch geladenen `upgrade-*.css` enthalten ausschließlich das etablierte visu
 
 ## Nicht produktiv
 
-- `backups/` enthält dokumentierte Rückbaupunkte und wird nicht ausgeführt.
-- `native_app/` ist ein pausierter Flutter-/iOS-Prototyp und gehört nicht zur Web-App.
+- `staging-v2/` lädt die aktuelle App in einer isolierten Vorschau mit getrenntem Browser-Speicher und ohne produktiven Service Worker.
+- Historische Prototypen und Rückbaukopien werden nicht im aktiven Dateibaum behalten. Git-Commits und Tags sind die Rückbaupunkte.
 
 ## Regeln für weitere Entwicklung
 
-1. Release-Version in `core.js`, `runtime-manifest.js`, `sw.js`, `index.html` und `update.html` gemeinsam ändern.
+1. Die App-Version in `package.json`, `core.js`, `version-v7.js`, `runtime-manifest.js`, `sw.js`, `index.html` und `update.html` gemeinsam ändern. `tests/repository-integrity.test.js` prüft die Übereinstimmung.
 2. Neue produktive Dateien in `index.html` laden und in `runtime-manifest.js` für Offline-Nutzung registrieren.
 3. Keine neuen einzelnen Patch-Marker oder Versionsnotizen im Repository-Stamm anlegen.
 4. Entfernte Experimente nicht im aktiven Produktionspfad behalten.
-5. Vor größeren Umbauten einen Rückbaupunkt unter `backups/` dokumentieren.
+5. Vor größeren Umbauten einen klar benannten Git-Branch oder Tag als Rückbaupunkt verwenden.
 6. Tagebuchdaten nur über `commitDayMutation`, globale Einstellungen nur über `commitStateMutation` und komplette Zustände nur über `commitStateReplacement` speichern.
-7. Vor einem Release `node tests/journal-regression.test.js` ausführen.
+7. Vor einem Release vollständig `npm run check` ausführen.

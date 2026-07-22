@@ -1,6 +1,6 @@
 'use strict';
 self.CUTCOACH_RUNTIME=Object.freeze({
-  version:'1.2.7-alpha',
+  version:'2.2.1-alpha',
   baseAssets:Object.freeze([
     './style.css?v=2.3.0','./core.js?v=7.0.0','./render.js?v=7.0.0','./actions.js?v=7.0.0','./app.js?v=7.0.0',
     './manifest.webmanifest?v=2.3.0','./icon.svg','./apple-touch-icon.png?v=2.3.0','./icon-192.png?v=2.3.0','./library.css?v=7.0.0',
@@ -11,12 +11,13 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './upgrade-561.css?v=5.6.1','./upgrade-562.css?v=5.6.2','./upgrade-563.css?v=5.6.3','./upgrade-564.css?v=5.6.4',
     './upgrade-565.css?v=5.6.5','./upgrade-570.css?v=5.7.0','./nutrition.css?v=7.0.0','./journal-date.css?v=6.2.2',
     './journal-ui.css?v=6.2.3','./water-animation.css?v=6.8.5','./nutrition-v7.css?v=7.0.0','./ui-effects-v7.css?v=7.1.0',
-    './journal-v72.css?v=7.2.0','./nutrition-v73.css?v=7.3.0','./nutrition-v73.css?v=7.3.1','./ui-cleanup-v732.css?v=7.3.3',
-    './journal-smart-v740.css?v=1.0.0-alpha','./journal-live-nav-v127.css?v=1.2.7-alpha','./nutrition-cleanup-101.css?v=1.0.3-alpha',
+    './journal-v72.css?v=7.2.0','./nutrition-v73.css?v=7.3.1','./ui-cleanup-v732.css?v=7.3.3',
+    './journal-smart-v740.css?v=1.0.0-alpha','./nutrition-cleanup-101.css?v=1.0.3-alpha',
     './nutrition-v110.css?v=1.1.2-alpha','./nutrition-voice-111.css?v=1.1.2-alpha','./nutrition-multisearch-120.css?v=1.2.3-alpha',
     './nutrition-search-confidence-v150.css?v=1.7.1-alpha','./nutrition-production-acceptance-v180.css?v=1.8.0-alpha',
     './glass-nav-v131.css?v=1.3.6-alpha','./journal-polish-v137.css?v=1.3.7-alpha','./nutrition-polish-v138.css?v=1.3.8-alpha',
-    './nutrition-ui-consistency-v206.css?v=2.0.8-loader','./liquid-glass-ui-v207.css?v=2.0.8-loader','./body-progress-v220.css?v=2.2.1-production'
+    './nutrition-ui-consistency-v206.css?v=2.0.8-loader','./liquid-glass-ui-v207.css?v=2.0.8-loader','./scrollbar-cleanup-v209.css?v=2.0.9-alpha',
+    './body-progress-v220.css?v=2.2.1-production'
   ]),
   scripts:Object.freeze([
     './food-catalog.js?v=7.0.0','./everyday-catalog-v73.js?v=7.3.0','./local-dishes-v140.js?v=1.4.0-alpha',
@@ -30,7 +31,7 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './nutrition-search-exact-whole-v170.js?v=1.9.6-alpha','./nutrition-spoken-intent-v202.js?v=2.0.2-alpha',
     './nutrition-search-confidence-hardening-v151.js?v=1.9.0-alpha','./nutrition-multisearch-canonical-128.js?v=1.5.0-alpha',
     './nutrition-multisearch-120.js?v=1.9.6-compat','./nutrition-production-acceptance-v180.js?v=1.8.0-alpha',
-    './glass-nav-v131.js?v=1.3.3-alpha','./nutrition-stability-v201.js?v=2.0.1-alpha','./version-v7.js?v=1.2.7-alpha',
+    './glass-nav-v131.js?v=1.3.3-alpha','./nutrition-stability-v201.js?v=2.0.1-alpha','./version-v7.js?v=2.2.1-alpha',
     './journal-polish-v137.js?v=1.3.7-alpha','./nutrition-search-input-performance-v193.js?v=1.9.9-alpha',
     './nutrition-polish-v138.js?v=1.3.11-alpha','./nutrition-ui-consistency-v206.js?v=2.0.8-loader','./body-progress-v220.js?v=2.2.1-production'
   ])

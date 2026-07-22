@@ -10,7 +10,7 @@ const source=fs.readFileSync(path.join(root,'local-dishes-v140.js'),'utf8');
 const loader=fs.readFileSync(path.join(root,'version-v7.js'),'utf8');
 const runtime=fs.readFileSync(path.join(root,'runtime-manifest.js'),'utf8');
 const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
-const attribution=fs.readFileSync(path.join(root,'OPEN-FOOD-FACTS-ATTRIBUTION.md'),'utf8');
+const attribution=fs.readFileSync(path.join(root,'docs','open-food-facts-attribution.md'),'utf8');
 
 const dom=new JSDOM('<!doctype html><body></body>',{runScripts:'dangerously',url:'https://example.test/cutcoach/'});
 const {window}=dom;

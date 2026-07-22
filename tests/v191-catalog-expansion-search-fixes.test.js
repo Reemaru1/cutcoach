@@ -80,11 +80,10 @@ assert.equal(rows.length,0,'Der bestehende Köfte Teller wird fälschlich als in
 assert.equal(api.likelyMulti('Köfte Teller'),false,'Der bestehende Köfte Teller wird nicht als vollständiges Einzelgericht geschützt.');
 assert.equal(w.CutCoachFoodCatalog.get('existing-koefte-teller')?.name,'Köfte Teller','Der neutrale Köfte-Eintrag überschreibt den bestehenden Teller.');
 
-const loader=read('version-v7.js'),manifest=read('runtime-manifest.js'),sw=read('sw.js'),packageJson=JSON.parse(read('package.json'));
+const loader=read('version-v7.js'),manifest=read('runtime-manifest.js'),sw=read('sw.js');
 assert.match(loader,/catalog-expansion-v191\.js\?v=1\.9\.1-alpha/,'Produktiver Loader enthält das Paket nicht.');
 assert.match(manifest,/catalog-expansion-v191\.js\?v=1\.9\.1-alpha/,'Offline-Manifest enthält das Paket nicht.');
 assert.match(sw,/catalog191-expansion/,'Eigene Cachegeneration für das Katalogpaket fehlt.');
-assert.match(packageJson.scripts.test,/v191-catalog-expansion-search-fixes\.test\.js/,'Regression fehlt in der Gesamttestkette.');
 
 dom.window.close();
 console.log('Katalogpaket 1.9.1: Screenshot-Suchen, 20 Datensätze, Mengen, Vollnamenschutz und Dublettenprüfung bestanden.');
