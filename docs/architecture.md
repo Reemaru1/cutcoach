@@ -54,3 +54,20 @@ Die noch geladenen `upgrade-*.css` enthalten ausschließlich das etablierte visu
 5. Vor größeren Umbauten einen klar benannten Git-Branch oder Tag als Rückbaupunkt verwenden.
 6. Tagebuchdaten nur über `commitDayMutation`, globale Einstellungen nur über `commitStateMutation` und komplette Zustände nur über `commitStateReplacement` speichern.
 7. Vor einem Release vollständig `npm run check` ausführen.
+
+## Schrittweise Modulstruktur
+
+Neue produktübergreifende Logik beginnt unter `src/`, ohne die stabile Laufzeit in einem einzigen riskanten Umbau zu ersetzen:
+
+- `src/shared/module-registry.js` – gemeinsamer Lebenszyklus und Navigation für Feature-Adapter
+- `src/shared/product-insights.js` – ausschließlich lokale, aggregierte Qualitätsmessung ohne Suchtexte oder Gesundheitswerte
+- `src/shared/ui.js` – gemeinsame Qualitäts-, Export-, Feedback- und Barrierefreiheitsoberfläche
+- `src/features/journal/` – Adapter und künftige Tagebuchmodule
+- `src/features/nutrition/` – Adapter und künftige Ernährungsmodule
+- `src/features/progress/` – Adapter und künftige Fortschrittsmodule
+
+Bestehende Root-Dateien werden erst dann in diese Bereiche verschoben, wenn ihr Verhalten durch Tests abgedeckt und der jeweilige Loader auf einen eindeutigen Einstieg reduziert ist.
+
+## Kundenorientierte Qualitätsmessung
+
+CutCoach misst lokal Onboarding-Abschluss und -Abbruch, Feature-Aufrufe, Suchtreffer, Auswahl nach Suche und automatische Barrierefreiheitsindikatoren. Suchbegriffe, Mahlzeiten, Gewichte und andere Gesundheitsdaten werden nicht in den Qualitätszählern gespeichert. Freitext-Feedback bleibt getrennt auf dem Gerät und wird nur durch einen ausdrücklichen Export des Nutzers geteilt. Eine spätere zentrale Auswertung benötigt vorab Datenschutztext, Einwilligung, Löschkonzept und einen freigegebenen Backend-Endpunkt.
