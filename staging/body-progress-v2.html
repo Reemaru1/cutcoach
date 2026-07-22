@@ -6,8 +6,9 @@
   <meta name="theme-color" content="#05090e">
   <meta name="robots" content="noindex,nofollow">
   <title>CutCoach · Body Progress V2</title>
-  <link rel="stylesheet" href="body-progress-v2.css?v=1">
-  <script src="body-progress-v2.js?v=1" defer></script>
+  <link rel="stylesheet" href="body-progress-v2.css?v=2">
+  <link rel="stylesheet" href="body-progress-v2-mobile-fix.css?v=2">
+  <script src="body-progress-v2.js?v=2" defer></script>
 </head>
 <body>
   <main class="bpv2-app" data-mode="body">
@@ -66,8 +67,8 @@
 
       <div class="bpv2-figure-stage">
         <div class="bpv2-aura" aria-hidden="true"></div>
-        <img id="bpv2BodyFigure" src="body-male-v2.svg" alt="Anatomische Körperdarstellung mit hervorgehobenem Bauch- und Taillenbereich">
-        <img id="bpv2TrainingFigure" src="training-male-v2.svg" alt="Anatomische Körperdarstellung mit hervorgehobenen Trainingsbereichen" hidden>
+        <img id="bpv2BodyFigure" src="body-male-v2.svg?v=2" alt="Anatomische Körperdarstellung mit hervorgehobenem Bauch- und Taillenbereich">
+        <img id="bpv2TrainingFigure" src="training-male-v2.svg?v=2" alt="Anatomische Körperdarstellung mit hervorgehobenen Trainingsbereichen" hidden>
         <div class="bpv2-floor" aria-hidden="true"></div>
       </div>
 
@@ -125,10 +126,21 @@
   </main>
 
   <nav class="bpv2-bottom-nav" aria-label="Vorschau-Navigation">
-    <button type="button"><span>▣</span><small>Tagebuch</small></button>
-    <button type="button" class="active"><span>▥</span><small>Fortschritt</small></button>
-    <button type="button" class="bpv2-add" aria-label="Ernährung hinzufügen"><span>＋</span></button>
-    <button type="button"><span>⚙</span><small>Einstellungen</small></button>
+    <button type="button" aria-label="Tagebuch">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9.5A2.5 2.5 0 0 1 18 6v14.5H8A2 2 0 0 1 6 18.5z"/><path d="M9 3.5v17M11.5 8h4M11.5 12h4"/></svg>
+      <small>Tagebuch</small>
+    </button>
+    <button type="button" class="active" aria-current="page" aria-label="Fortschritt">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M9 19V5M14 19v-7M19 19V3"/><path d="m4 8 5-4 5 6 5-8"/></svg>
+      <small>Fortschritt</small>
+    </button>
+    <button type="button" class="bpv2-add" aria-label="Ernährung hinzufügen">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <button type="button" aria-label="Einstellungen">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.06.06-2.12 2.12-.06-.06a1.8 1.8 0 0 0-1.98-.36 1.8 1.8 0 0 0-1.08 1.65V20.5h-3v-.11a1.8 1.8 0 0 0-1.08-1.65 1.8 1.8 0 0 0-1.98.36l-.06.06-2.12-2.12.06-.06A1.8 1.8 0 0 0 4.6 15a1.8 1.8 0 0 0-1.65-1.08H2.5v-3h.45A1.8 1.8 0 0 0 4.6 9a1.8 1.8 0 0 0-.36-1.98l-.06-.06 2.12-2.12.06.06A1.8 1.8 0 0 0 8.34 5a1.8 1.8 0 0 0 1.08-1.65V3.5h3v-.15A1.8 1.8 0 0 0 13.5 5a1.8 1.8 0 0 0 1.98-.36l.06-.06 2.12 2.12-.06.06A1.8 1.8 0 0 0 17.24 9a1.8 1.8 0 0 0 1.65 1.08h.61v3h-.61A1.8 1.8 0 0 0 17.24 15z"/></svg>
+      <small>Einstellungen</small>
+    </button>
   </nav>
 </body>
 </html>
