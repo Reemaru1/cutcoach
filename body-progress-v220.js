@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='2.2.2-production';
+  const VERSION='2.2.3-production';
   const PERIOD_KEY='cutcoach_body_progress_period_v2';
   const MODE_KEY='cutcoach_body_progress_mode_v2';
   const BODY_ASSET='./assets/body-progress-body-v3.png?v=2.2.0';

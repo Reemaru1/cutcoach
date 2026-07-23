@@ -178,11 +178,13 @@ const input=(selector,value)=>{
   assert.match(update,/updated=710/,'Update-Weiterleitung hat einen veralteten Marker');
   assert.equal(indexSource.includes('nutrition-hardening.js'),false,'Alte Nutrition-Hardening-Schicht wird noch geladen');
 
-  for(const asset of ['ui-effects-v7.js','ui-effects-v7.css','version-v7.js']){
-    assert.ok(indexSource.includes(`${asset}?v=7.1.0`),`Index lädt ${asset} nicht cache-sicher`);
-    assert.ok(manifest.includes(`./${asset}?v=7.1.0`),`Offline-Manifest enthält ${asset} nicht in Version 7.1.0`);
+  for(const asset of ['ui-effects-v7.js','ui-effects-v7.css']){
+    assert.ok(indexSource.includes(`${asset}?v=7.1.1`),`Index lädt ${asset} nicht cache-sicher`);
+    assert.ok(manifest.includes(`./${asset}?v=7.1.1`),`Offline-Manifest enthält ${asset} nicht in Version 7.1.1`);
     assert.ok(fs.existsSync(path.join(project,asset)),`Datei fehlt: ${asset}`);
   }
+  assert.ok(indexSource.includes('version-v7.js?v=2.3.0-alpha'),'Index lädt die Releaseversion nicht cache-sicher');
+  assert.ok(manifest.includes('./version-v7.js?v=2.3.0-alpha'),'Offline-Manifest enthält die aktuelle Releaseversion nicht');
   for(const asset of ['nutrition-v7.js','nutrition-v7.css']){
     assert.ok(indexSource.includes(`${asset}?v=7.0.0`),`Index lädt ${asset} nicht`);
     assert.ok(manifest.includes(`./${asset}?v=7.0.0`),`Offline-Manifest enthält ${asset} nicht`);

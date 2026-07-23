@@ -1,6 +1,6 @@
 'use strict';
 (function(global){
-  const VERSION='2.0.6-alpha';
+  const VERSION='2.0.9-alpha';
   const WATER_KEY='cutcoach_water_v1';
   const $=(selector,scope=document)=>scope?.querySelector?.(selector)||null;
   const $$=(selector,scope=document)=>[...(scope?.querySelectorAll?.(selector)||[])];
@@ -65,13 +65,19 @@
 
   function coachAction(view,data,water){
     const calorieRemaining=view.goals.calories-view.total.calories,proteinRemaining=view.macro.protein.remaining,steps=Number(data.steps)||0,stepGap=Math.max(0,view.goals.steps-steps),pace=waterPace(view.dateKey),missing=[];
+    const today=typeof todayKey==='function'?todayKey():'';
+    if(view.dateKey<today){
+      const notes=[];if(view.total.calories>view.goals.calories+250)notes.push(`${fmt(view.total.calories-view.goals.calories)} kcal über Ziel`);if(proteinRemaining>view.goals.protein*.2)notes.push(`${fmt(proteinRemaining)} g Eiweiß offen`);if(water<3000)notes.push(`${fmt(3000-water)} ml unter Trinkziel`);
+      return{type:'summary',title:notes.length?'Größter Hebel im Rückblick':'Solider dokumentierter Tag',reason:notes.length?`${notes[0]}. Nutze dieses Muster für die nächste Planung, statt einen vergangenen Tag nachträglich zu korrigieren.`:'Die erfassten Werte zeigen keinen dringenden Ausreißer. Entscheidend ist der Trend über mehrere Tage.',label:'Tagesanalyse öffnen'};
+    }
+    if(view.dateKey>today)return{type:'summary',title:'Tag vorausschauend planen',reason:'Für zukünftige Tage bewertet CutCoach noch keinen Ist-Stand. Plane Mahlzeiten und Training erst, wenn sie konkret feststehen.',label:'Planung ansehen'};
     if(view.total.calories<=0)return{type:'meal',title:'Erste Mahlzeit eintragen',reason:'Ohne Mahlzeit fehlen Kalorien- und Makrodaten für eine belastbare Tagesbewertung.',label:'Mahlzeit eintragen',mealType:recommendedMealType()};
     if(view.total.calories>view.goals.calories+250)return{type:'summary',title:'Kalorienkurs beruhigen',reason:`Du liegst aktuell ${fmt(view.total.calories-view.goals.calories)} kcal über deinem Tagesziel.`,label:'Tageskurs prüfen'};
-    if(water<Math.max(250,pace-250))return{type:'water',title:'Trinkplan aufholen',reason:`${fmt(Math.max(250,pace-water))} ml fehlen bis zum aktuellen Trinkplan.`,label:'Zum Wasser'};
-    if(proteinRemaining>20&&calorieRemaining>120)return{type:'meal',title:'Eiweiß gezielt erhöhen',reason:`Aktuell ${fmt(view.total.protein)} von ${fmt(view.goals.protein)} g Eiweiß – noch ${fmt(proteinRemaining)} g bis zum Tagesziel.`,label:'Eiweiß einplanen',mealType:recommendedMealType()};
+    if(water<Math.max(250,pace-250)){const gap=Math.max(250,pace-water),now=Math.min(500,Math.max(250,Math.ceil(Math.min(gap,500)/250)*250)),after=Math.max(0,gap-now);return{type:'water',title:water<=0?`Mit ${fmt(now)} ml ruhig starten`:'Trinkkurs in kleinen Schritten aufholen',reason:`Bis zum aktuellen Trinkkurs fehlen ${fmt(gap)} ml. Trinke jetzt ${fmt(now)} ml${after?` und verteile die übrigen ${fmt(after)} ml über die nächsten Stunden`:''} – nicht alles auf einmal.`,label:'Wasser öffnen'}};
+    if(proteinRemaining>20&&calorieRemaining>120){const nextProtein=Math.min(40,Math.max(20,Math.round(Math.min(proteinRemaining,35)/5)*5));return{type:'meal',title:`${fmt(nextProtein)} g Eiweiß gezielt einplanen`,reason:`Eine Portion mit etwa ${fmt(nextProtein)} g Eiweiß schließt die aktuelle Lücke kontrolliert und lässt ${fmt(Math.max(0,calorieRemaining))} kcal Spielraum.`,label:'Passende Mahlzeit finden',mealType:recommendedMealType()}};
     if(isTodayKey(view.dateKey)&&currentHour()>=18&&calorieRemaining>450)return{type:'meal',title:'Restkalorien sinnvoll verteilen',reason:`${fmt(calorieRemaining)} kcal sind noch bis zum Tagesziel offen.`,label:'Mahlzeit planen',mealType:recommendedMealType()};
     if(view.goals.steps>0&&data.steps===null)return{type:'steps',title:'Schritte erfassen',reason:'Der Bewegungsbereich ist noch leer. Ein aktueller Wert macht die Tagesauswertung belastbarer.',label:'Schritte eintragen'};
-    if(view.goals.steps>0&&stepGap>0&&(!isTodayKey(view.dateKey)||currentHour()>=15))return{type:'steps',title:'Bewegungslücke schließen',reason:`${fmt(stepGap)} Schritte fehlen noch bis zum Tagesziel.`,label:'Schritte ansehen'};
+    if(view.goals.steps>0&&stepGap>0&&currentHour()>=15){const minutes=Math.max(5,Math.ceil(Math.min(stepGap,3000)/100/5)*5);return{type:'steps',title:`${fmt(minutes)} Minuten Bewegung einplanen`,reason:`${fmt(stepGap)} Schritte fehlen bis zum Tagesziel. Etwa ${fmt(minutes)} Minuten zügiges Gehen schließen einen realistischen Teil der Lücke.`,label:'Schritte öffnen'}};
     if(data.weight===null)missing.push('Gewicht');if(data.gym===null)missing.push('Training');if(data.alcohol===null)missing.push('Alkohol');
     if(missing.length)return{type:'check',title:'Tagescheck vervollständigen',reason:`${missing.join(', ')} ${missing.length===1?'ist':'sind'} noch offen.`,label:'Zum Tagescheck'};
     return{type:'summary',title:'Kurs halten und abschließen',reason:'Die wichtigsten Bereiche sind erfasst. Prüfe den Tagesabschluss für die Gesamtbewertung.',label:'Tagesabschluss'};

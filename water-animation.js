@@ -22,6 +22,8 @@
     const amount=readAmount();
     const level=Math.min(100,Math.max(0,amount/TARGET_ML*100));
     ring.style.setProperty('--water-level',level+'%');
+    ring.classList.toggle('water-empty',amount<=0);
+    ring.classList.toggle('water-started',amount>0);
     ring.classList.toggle('water-complete',amount>=TARGET_ML);
     if(lastAmount!==null&&amount!==lastAmount){
       ring.classList.remove('water-pulse');
@@ -34,7 +36,7 @@
   }
   function start(){
     const link=document.createElement('link');
-    link.rel='stylesheet';link.href='water-animation.css?v=6.8.1';
+    link.rel='stylesheet';link.href='water-animation.css?v=6.8.6';
     if(!document.querySelector('link[href*="water-animation.css"]'))document.head.append(link);
     decorate();
     new MutationObserver(decorate).observe(document.body,{childList:true,subtree:true,characterData:true});
