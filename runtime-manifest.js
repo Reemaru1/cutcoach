@@ -43,6 +43,6 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './nutrition-polish-v138.js?v=1.3.11-alpha','./nutrition-ui-consistency-v206.js?v=2.0.9-loader','./body-progress-v220.js?v=2.2.4-production',
     './src/features/journal/dashboard-v800.js?v=8.2.2-alpha','./src/features/nutrition/nutrition-v210.js?v=2.2.2-alpha',
     './src/features/nutrition/nutrition-v230.js?v=2.3.0-alpha','./src/features/profile/profile-v900.js?v=9.0.0-alpha',
-    './src/features/profile/profile-v1000.js?v=10.0.0-alpha'
+    './src/features/profile/profile-state-bridge.js?v=10.0.0-alpha','./src/features/profile/profile-v1000.js?v=10.0.0-alpha'
   ])
 });
