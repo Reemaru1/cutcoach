@@ -4,13 +4,17 @@
   const ASSETS=[
     {id:'profile-v920',type:'style',href:'./src/features/profile/profile-v920.css?v=9.2.0-alpha'},
     {id:'profile-v1000',type:'style',href:'./src/features/profile/profile-v1000.css?v=10.0.0-alpha'},
+    {id:'profile-v1001-hotfix',type:'style',href:'./src/features/profile/profile-v1001-style-hotfix.css?v=10.0.2-alpha'},
     {id:'profile-state-bridge',type:'script',href:'./src/features/profile/profile-state-bridge.js?v=10.0.0-alpha'},
     {id:'profile-v1000-script',type:'script',href:'./src/features/profile/profile-v1000.js?v=10.0.0-alpha'}
   ];
 
   function ensureAsset(asset){
     let element=document.getElementById(asset.id);
-    if(element)return element;
+    if(element){
+      if(element.getAttribute('href')&&element.getAttribute('href')!==asset.href)element.setAttribute('href',asset.href);
+      return element;
+    }
     if(asset.type==='style'){
       element=document.createElement('link');element.rel='stylesheet';element.href=asset.href;
     }else{
