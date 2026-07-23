@@ -307,7 +307,7 @@
     const settings=current.settings||{};
     const weight=latestWeight();
     const completion=profileCompletion(profile,weight);
-    const completed=Boolean(profile.completedAt&&completion.done===completion.total);
+    const completed=completion.done===completion.total;
     const manual=profile.planSource==='manual';
     const firstName=profile.name?.trim().split(/\s+/)[0]||'';
     const goalLabel=GOAL_LABELS[profile.goal]||'Persönliches Ziel';
