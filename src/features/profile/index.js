@@ -4,6 +4,7 @@
   const ASSETS=[
     {id:'profile-v920',type:'style',href:'./src/features/profile/profile-v920.css?v=9.2.0-alpha'},
     {id:'profile-v1000',type:'style',href:'./src/features/profile/profile-v1000.css?v=10.0.0-alpha'},
+    {id:'profile-state-bridge',type:'script',href:'./src/features/profile/profile-state-bridge.js?v=10.0.0-alpha'},
     {id:'profile-v1000-script',type:'script',href:'./src/features/profile/profile-v1000.js?v=10.0.0-alpha'}
   ];
 
