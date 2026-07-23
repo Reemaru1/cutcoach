@@ -33,7 +33,8 @@ assert.match(css,/\.coach-plan-status,.coach-insights,.coach-target-actions\{dis
 assert.match(css,/@media\(max-width:520px\)/);
 
 assert.ok(index.indexOf('profile-state-bridge')<index.indexOf('profile-v1000-script'),'Die Zustandsbrücke muss vor der Coach-Zentrale geladen werden.');
-assert.doesNotMatch(index,/profile-plan-status/);
+assert.doesNotMatch(index,/href:'.*profile-plan-status|src:'.*profile-plan-status/,'Der Planstatus darf nicht als Asset geladen werden.');
+assert.match(index,/profile-plan-status-style'\)\?\.remove/,'Veraltete Planstatus-Styles werden nicht aus bereits geöffneten PWAs entfernt.');
 assert.match(runtime,/profile-v1000\.css\?v=10\.0\.5-alpha/);
 assert.match(runtime,/profile-state-bridge\.js\?v=10\.0\.0-alpha/);
 assert.match(runtime,/profile-v1000\.js\?v=10\.0\.5-alpha/);
