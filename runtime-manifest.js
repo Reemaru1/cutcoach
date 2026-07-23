@@ -20,7 +20,8 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './nutrition-ui-consistency-v206.css?v=2.0.9-loader','./liquid-glass-ui-v207.css?v=2.0.8-loader','./scrollbar-cleanup-v209.css?v=2.0.9-alpha',
     './body-progress-v220.css?v=2.2.4-production','./src/shared/design-system-v800.css?v=8.0.1-alpha',
     './src/features/journal/dashboard-v800.css?v=8.2.2-alpha','./src/features/nutrition/nutrition-v210.css?v=2.2.3-alpha',
-    './src/features/nutrition/nutrition-v230.css?v=2.3.0-alpha','./src/features/profile/profile-v900.css?v=9.0.0-alpha'
+    './src/features/nutrition/nutrition-v230.css?v=2.3.0-alpha','./src/features/profile/profile-v900.css?v=9.0.0-alpha',
+    './src/features/profile/profile-v920.css?v=9.2.0-alpha'
   ]),
   scripts:Object.freeze([
     './src/shared/module-registry.js?v=1.0.0-alpha','./src/shared/product-insights.js?v=1.1.0-alpha','./src/shared/ui.js?v=1.1.0-alpha',
