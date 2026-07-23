@@ -19,7 +19,11 @@
     const now=new Date(),next=new Date(now);next.setHours(24,0,1,0);
     rolloverTimer=setTimeout(()=>{refreshCurrentDay(true);scheduleDayRollover()},Math.max(1000,next-now));
   }
-  function showOnboarding(){openModal('onboardingModal');window.CutCoachInsights?.track('onboarding_shown')}
+  function showOnboarding(){
+    if(window.CutCoachProfile900?.openOnboarding)window.CutCoachProfile900.openOnboarding({mode:'start'});
+    else openModal('onboardingModal');
+    window.CutCoachInsights?.track('onboarding_shown');
+  }
 
   function switchTab(name,updateHash=true){
     const target=$(`[data-screen="${name}"]`),button=$(`[data-tab="${name}"]`);
@@ -83,13 +87,8 @@
     $$('[data-alcohol]').forEach(button=>button.addEventListener('click',()=>{const value=button.dataset.alcohol==='true',current=day(selectedDate,false).alcohol;if(!commitDayMutation(data=>{data.alcohol=current===value?null:value})){toast('Alkohol-Angabe konnte nicht gespeichert werden.');return;}render();}));
 
     $('#saveSettings').addEventListener('click',saveSettings);
-    $('#startApp').addEventListener('click',async()=>{
-      const weight=nullable($('#startWeight').value,30,300);
-      const goal=$('#startGoal').value===''?null:nullable($('#startGoal').value,30,300);
-      if(weight===null){toast('Bitte dein Startgewicht eintragen.');return;}
-      if($('#startGoal').value!==''&&goal===null){toast('Bitte ein gültiges Wunschgewicht eintragen.');return;}
-      if(!commitStateMutation(current=>{const data=current.days[todayKey()]||sanitizeDay();data.weight=weight;current.days[todayKey()]=data;current.settings.goalWeight=goal;current.onboarded=true})){toast('CutCoach konnte nicht gestartet werden. Bitte Speicher prüfen.');return;}
-      window.CutCoachInsights?.track('onboarding_completed');closeModal($('#onboardingModal'));render();await requestPersistentStorage();toast('CutCoach ist gestartet.');
+    $('#startApp').addEventListener('click',()=>{
+      if(window.CutCoachProfile900?.completeOnboarding?.())window.CutCoachInsights?.track('onboarding_completed');
     });
     $('#exportData').addEventListener('click',exportBackup);
     $('#importData').addEventListener('change',event=>{importBackup(event.target.files?.[0]);event.target.value='';});

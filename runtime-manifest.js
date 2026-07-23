@@ -19,11 +19,13 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './glass-nav-v131.css?v=1.3.7-alpha','./journal-polish-v137.css?v=1.3.7-alpha','./nutrition-polish-v138.css?v=1.3.8-alpha',
     './nutrition-ui-consistency-v206.css?v=2.0.9-loader','./liquid-glass-ui-v207.css?v=2.0.8-loader','./scrollbar-cleanup-v209.css?v=2.0.9-alpha',
     './body-progress-v220.css?v=2.2.4-production','./src/shared/design-system-v800.css?v=8.0.1-alpha',
-    './src/features/journal/dashboard-v800.css?v=8.2.2-alpha','./src/features/nutrition/nutrition-v210.css?v=2.2.3-alpha'
+    './src/features/journal/dashboard-v800.css?v=8.2.2-alpha','./src/features/nutrition/nutrition-v210.css?v=2.2.3-alpha',
+    './src/features/nutrition/nutrition-v230.css?v=2.3.0-alpha','./src/features/profile/profile-v900.css?v=9.0.0-alpha'
   ]),
   scripts:Object.freeze([
     './src/shared/module-registry.js?v=1.0.0-alpha','./src/shared/product-insights.js?v=1.1.0-alpha','./src/shared/ui.js?v=1.1.0-alpha',
     './src/features/journal/index.js?v=1.0.0-alpha','./src/features/nutrition/index.js?v=1.1.0-alpha','./src/features/progress/index.js?v=1.0.0-alpha',
+    './src/features/profile/index.js?v=1.0.0-alpha',
     './food-catalog.js?v=7.0.0','./everyday-catalog-v73.js?v=7.3.0','./local-dishes-v140.js?v=1.4.0-alpha',
     './catalog-expansion-v191.js?v=1.9.1-alpha','./product-catalog-v200.js?v=2.0.0-alpha','./library.js?v=7.0.0',
     './library-init.js?v=7.0.0','./scanner-v2.js?v=1.8.1-alpha','./off-lookup.js?v=1.8.1-alpha','./upgrade-340.js?v=7.0.0',
@@ -38,6 +40,7 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './glass-nav-v131.js?v=1.3.7-alpha','./nutrition-stability-v201.js?v=2.0.1-alpha','./version-v7.js?v=2.3.0-alpha',
     './journal-polish-v137.js?v=1.3.7-alpha','./nutrition-search-input-performance-v193.js?v=2.0.0-alpha',
     './nutrition-polish-v138.js?v=1.3.11-alpha','./nutrition-ui-consistency-v206.js?v=2.0.9-loader','./body-progress-v220.js?v=2.2.4-production',
-    './src/features/journal/dashboard-v800.js?v=8.2.2-alpha','./src/features/nutrition/nutrition-v210.js?v=2.2.2-alpha'
+    './src/features/journal/dashboard-v800.js?v=8.2.2-alpha','./src/features/nutrition/nutrition-v210.js?v=2.2.2-alpha',
+    './src/features/nutrition/nutrition-v230.js?v=2.3.0-alpha','./src/features/profile/profile-v900.js?v=9.0.0-alpha'
   ])
 });

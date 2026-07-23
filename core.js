@@ -4,7 +4,7 @@ const APP_VERSION = '2.3.0-alpha';
 const STORAGE_KEY = 'cutcoach_v2';
 const RECOVERY_KEY = 'cutcoach_recovery_raw';
 const PREVIOUS_STATE_KEY = 'cutcoach_previous_state';
-const SCHEMA_VERSION = 7;
+const SCHEMA_VERSION = 8;
 const MAX_DAYS = 5000;
 const MAX_MEALS_PER_DAY = 500;
 const MAX_WORKOUT_EXERCISES = 30;
@@ -12,6 +12,11 @@ const MEAL_TYPES = ['Frühstück', 'Mittagessen', 'Abendessen', 'Snack'];
 const WORKOUT_MUSCLES = ['shoulders','arms','chest','back','legs','core','glutes'];
 const DEFAULTS = {
   settings: { age:28, height:179, calories:2300, maintenance:3000, protein:190, fat:65, carbs:200, steps:6000, gymGoal:5, goalWeight:null },
+  profile: {
+    version:1, name:'', age:28, height:179, calculationSex:'neutral', goal:'lose',
+    baselineWeight:null, goalWeight:null, activityLevel:'light', trainingDays:5,
+    pace:'balanced', completedAt:null, planSource:'legacy'
+  },
   days: {}, onboarded:false,
   meta:{ schemaVersion:SCHEMA_VERSION, createdAt:null, lastBackupAt:null }
 };
@@ -99,11 +104,29 @@ function removeStorage(key){
 }
 function sanitizeSettings(settings={}){
   return {
-    age:bounded(settings.age,28,14,100,true), height:bounded(settings.height,179,120,230,true),
-    calories:bounded(settings.calories,2300,1200,6000,true), maintenance:bounded(settings.maintenance,3000,1500,7000,true),
-    protein:bounded(settings.protein,190,50,350,true), fat:bounded(settings.fat,65,30,200,true),
+    age:bounded(settings.age,28,18,100,true), height:bounded(settings.height,179,120,230,true),
+    calories:bounded(settings.calories,2300,1200,6000,true), maintenance:bounded(settings.maintenance,3000,1200,7000,true),
+    protein:bounded(settings.protein,190,40,350,true), fat:bounded(settings.fat,65,30,200,true),
     carbs:bounded(settings.carbs,200,0,800,true), steps:bounded(settings.steps,6000,0,50000,true),
     gymGoal:bounded(settings.gymGoal,5,0,7,true), goalWeight:nullable(settings.goalWeight,30,300)
+  };
+}
+function sanitizeProfile(profile={},settings={},onboarded=false){
+  const enumValue=(value,allowed,fallback)=>allowed.includes(value)?value:fallback;
+  return {
+    version:1,
+    name:cleanText(profile.name,40),
+    age:bounded(profile.age,settings.age??28,18,100,true),
+    height:bounded(profile.height,settings.height??179,120,230,true),
+    calculationSex:enumValue(profile.calculationSex,['female','male','neutral'],'neutral'),
+    goal:enumValue(profile.goal,['lose','maintain','gain'],'lose'),
+    baselineWeight:nullable(profile.baselineWeight,30,300),
+    goalWeight:nullable(profile.goalWeight??settings.goalWeight,30,300),
+    activityLevel:enumValue(profile.activityLevel,['sedentary','light','active','very-active'],'light'),
+    trainingDays:bounded(profile.trainingDays,settings.gymGoal??3,0,7,true),
+    pace:enumValue(profile.pace,['gentle','balanced','focused'],'balanced'),
+    completedAt:validTimestamp(profile.completedAt),
+    planSource:enumValue(profile.planSource,['legacy','profile','manual'],onboarded?'legacy':'profile')
   };
 }
 function sanitizeMeal(meal={},fallbackId=makeId()){
@@ -207,6 +230,7 @@ function sanitizeState(raw={},options={}){
   const result=deepClone(DEFAULTS);
   result.settings=sanitizeSettings(raw.settings);
   result.onboarded=Boolean(raw.onboarded);
+  result.profile=sanitizeProfile(raw.profile,result.settings,result.onboarded);
   result.meta={
     schemaVersion:SCHEMA_VERSION,
     createdAt:validTimestamp(raw.meta?.createdAt)||new Date().toISOString(),
@@ -234,7 +258,7 @@ function loadState(){
   }catch(error){
     console.error(error);
     writeStorage(RECOVERY_KEY,raw);
-    startupWarning='Beschädigte Altdaten wurden separat gesichert. Du kannst die Rohdaten unter Einstellungen exportieren.';
+    startupWarning='Beschädigte Altdaten wurden separat gesichert. Du kannst die Rohdaten im Profil unter App-Einstellungen exportieren.';
     return sanitizeState(DEFAULTS);
   }
 }

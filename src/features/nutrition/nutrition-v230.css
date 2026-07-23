@@ -1,0 +1,47 @@
+.nutrition-v230-modal{--n230-mint:#74edbd;--n230-blue:#74b8ff;--n230-ink:#06100e}
+.nutrition-v230-modal .nutrition-v230-sheet{
+  position:relative;overflow:auto;max-width:610px;max-height:min(900px,calc(100dvh - 16px));padding:24px;
+  border:1px solid rgba(127,184,196,.26);background:linear-gradient(158deg,#132630 0%,#09151d 62%,#071119 100%);
+  box-shadow:0 -30px 80px rgba(0,0,0,.4),inset 0 1px rgba(255,255,255,.05)
+}
+.nutrition-v230-handle{display:block;width:50px;height:5px;margin:-8px auto 20px;border-radius:99px;background:#566875}
+.nutrition-v230-modal .sheet-head{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:13px}
+.nutrition-v230-modal .sheet-head h2{min-width:0;margin:0;font-size:clamp(1.3rem,5vw,1.8rem);line-height:1.15;overflow-wrap:anywhere}
+.nutrition-v230-title-lockup{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:rgba(116,237,189,.11);color:var(--n230-mint)}
+.nutrition-v230-title-lockup svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8}
+.nutrition-v230-modal .sheet-head button[aria-label]{grid-column:3;width:49px;height:49px;padding:0;border-radius:50%;border:1px solid rgba(158,184,205,.22);background:rgba(5,13,20,.52);font-size:1.45rem}
+.nutrition-v230-result-sheet::before,.nutrition-v230-use-sheet::before{content:"";position:absolute;inset:-180px -80px auto;height:310px;pointer-events:none;background:radial-gradient(circle at 75% 55%,rgba(116,237,189,.2),transparent 48%),radial-gradient(circle at 24% 40%,rgba(116,184,255,.17),transparent 46%)}
+.nutrition-v230-result-sheet>* ,.nutrition-v230-use-sheet>*{position:relative}
+.nutrition-v230-modal .off-result-card,.nutrition-v230-modal .library-use-summary{
+  display:grid;grid-template-columns:auto 1fr;gap:15px;align-items:center;margin-top:20px;padding:17px;border:1px solid rgba(136,176,203,.16);
+  border-radius:22px;background:linear-gradient(145deg,rgba(18,31,43,.88),rgba(7,15,23,.78))
+}
+.nutrition-v230-product-image{display:grid;place-items:center;width:86px;height:86px;overflow:hidden;border:1px solid rgba(147,182,206,.18);border-radius:20px;background:#eef3f4}
+.nutrition-v230-product-image img{width:100%;height:100%;object-fit:contain}
+.nutrition-v230-product-image.is-placeholder{width:58px;height:58px;background:rgba(116,237,189,.09);color:var(--n230-mint)}
+.nutrition-v230-product-image.is-placeholder svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8}
+.nutrition-v230-product-copy{min-width:0}.nutrition-v230-product-copy .nutrition-v230-eyebrow{display:block;margin:0 0 5px;color:var(--n230-mint);font-size:.69rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
+.nutrition-v230-product-copy strong{display:block;color:#f3f8fb;font-size:1.05rem;line-height:1.28;overflow-wrap:anywhere}.nutrition-v230-product-copy p{margin:7px 0 0;color:#a5b4c0;line-height:1.42}.nutrition-v230-product-copy>span{display:block;margin-top:7px;color:#80929f;font-size:.76rem;line-height:1.4}
+.nutrition-v230-modal .off-result-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:17px}
+.nutrition-v230-action{display:flex;align-items:center;justify-content:center;gap:9px;min-height:55px;border-radius:17px;font-weight:900}
+.nutrition-v230-action>span{display:grid;place-items:center}.nutrition-v230-action svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2}
+.nutrition-v230-action.is-primary{grid-column:1/-1;border:0;color:var(--n230-ink);background:linear-gradient(110deg,var(--n230-blue),var(--n230-mint));box-shadow:0 15px 35px rgba(91,218,184,.15)}
+.nutrition-v230-modal .nutrition-v230-action.is-secondary,.nutrition-v230-modal .nutrition-v230-action.is-tertiary{border:1px solid rgba(135,173,201,.21)!important;background:rgba(6,15,22,.58)!important;color:#dbe6ee!important;box-shadow:none!important}
+.nutrition-v230-modal .nutrition-v230-action.is-tertiary{color:#aec0ce!important}
+.nutrition-v230-source{display:flex;justify-content:center;align-items:flex-start;gap:7px;margin:14px 8px 0!important;color:#788b99!important;font-size:.72rem!important;line-height:1.35;text-align:left!important}
+.nutrition-v230-source svg{width:16px;fill:none;stroke:var(--n230-mint);stroke-width:1.7;flex:none}
+.nutrition-v230-use-modal .library-use-summary{margin-bottom:14px}.nutrition-v230-portion-editor{padding:17px!important;border:1px solid rgba(116,237,189,.24)!important;border-radius:22px!important;background:rgba(116,237,189,.045)!important}
+.nutrition-v230-portion-editor>strong{display:block;margin-bottom:12px;font-size:1.05rem}.nutrition-v230-portion-editor .exact-amount{overflow:hidden;border:1px solid rgba(135,177,205,.2);border-radius:16px;background:rgba(3,10,17,.6)}
+.nutrition-v230-portion-editor .exact-amount input{border:0!important;background:transparent!important;font-size:1.2rem;font-weight:850}.nutrition-v230-portion-editor .exact-amount span{padding:0 15px;font-weight:850}
+.nutrition-v230-portion-editor .library-portion-presets{display:flex;gap:8px;overflow-x:auto;padding:3px 0 1px;scrollbar-width:none}.nutrition-v230-portion-editor .library-portion-presets::-webkit-scrollbar{display:none}
+.nutrition-v230-portion-editor .library-portion-presets button{flex:0 0 auto;min-height:43px;padding:0 14px;border-radius:99px}.nutrition-v230-portion-editor .library-portion-presets button.active{border-color:rgba(116,237,189,.55);background:rgba(116,237,189,.12);color:var(--n230-mint)}
+.nutrition-v230-category{display:block;margin-top:16px}.nutrition-v230-category select{width:100%;min-height:56px;margin-top:8px;border-radius:17px}
+.nutrition-v230-preview-label{display:block;margin:18px 0 8px;color:#91a4b1;font-size:.71rem;font-weight:850;letter-spacing:.09em;text-transform:uppercase}
+.nutrition-v230-preview{display:grid!important;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px!important;border:1px solid rgba(116,184,255,.22)!important;border-radius:20px!important;background:rgba(116,184,255,.055)!important}
+.nutrition-v230-preview strong{grid-column:1/-1;font-size:1.55rem}.nutrition-v230-preview span{padding:9px;border-radius:12px;background:rgba(3,10,17,.42);text-align:center}.nutrition-v230-preview small{grid-column:1/-1;color:#8899a6}
+.nutrition-v230-use-sheet>.nutrition-v230-action{width:100%;margin-top:18px}
+@media(max-width:520px){
+  .nutrition-v230-modal .nutrition-v230-sheet{max-height:100dvh;padding:20px 18px;border-radius:28px 28px 0 0}
+  .nutrition-v230-product-image{width:74px;height:74px}.nutrition-v230-modal .off-result-actions{grid-template-columns:1fr}.nutrition-v230-action.is-primary{grid-column:auto}
+}
+@media(prefers-reduced-motion:reduce){.nutrition-v230-modal *{scroll-behavior:auto!important}}
