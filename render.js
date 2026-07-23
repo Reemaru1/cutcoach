@@ -126,7 +126,7 @@ function renderProgress(){
   const weights=weightEntries();
   $('#weightHistory').innerHTML=weights.length?weights.slice(-12).reverse().map(([key,value])=>`<button class="weight-row" data-weight-date="${key}" type="button"><span>${dateFromKey(key).toLocaleDateString('de-DE')}</span><b>${fmt(value.weight,1)} kg</b></button>`).join(''):'<div class="empty">Noch keine Gewichtseinträge.</div>';
   $$('[data-weight-date]').forEach(button=>button.onclick=()=>{selectDate(button.dataset.weightDate);const data=day(selectedDate,false);$('#weightInput').value=data.weight??'';$('#clearWeight').hidden=data.weight===null;openModal('weightModal');});
-  if(settings.goalWeight===null)setText('#goalStatus','Trage dein Wunschgewicht in den Einstellungen ein.');
+  if(settings.goalWeight===null)setText('#goalStatus','Trage dein Wunschgewicht im Profil ein.');
   else if(weights.length){
     const current=weights.at(-1)[1].weight,delta=current-settings.goalWeight;
     setText('#goalStatus',delta>0?`Noch ${fmt(delta,1)} kg bis zum Wunschgewicht.`:'Wunschgewicht erreicht oder unterschritten.');

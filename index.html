@@ -39,6 +39,8 @@
   <link rel="stylesheet" href="src/shared/design-system-v800.css?v=8.0.1-alpha">
   <link rel="stylesheet" href="src/features/journal/dashboard-v800.css?v=8.2.2-alpha">
   <link rel="stylesheet" href="src/features/nutrition/nutrition-v210.css?v=2.2.3-alpha">
+  <link rel="stylesheet" href="src/features/nutrition/nutrition-v230.css?v=2.3.0-alpha">
+  <link rel="stylesheet" href="src/features/profile/profile-v900.css?v=9.0.0-alpha">
   <script src="core.js?v=7.0.0" defer></script>
   <script src="src/shared/module-registry.js?v=1.0.0-alpha" defer></script>
   <script src="src/shared/product-insights.js?v=1.1.0-alpha" defer></script>
@@ -46,6 +48,7 @@
   <script src="src/features/journal/index.js?v=1.0.0-alpha" defer></script>
   <script src="src/features/nutrition/index.js?v=1.1.0-alpha" defer></script>
   <script src="src/features/progress/index.js?v=1.0.0-alpha" defer></script>
+  <script src="src/features/profile/index.js?v=1.0.0-alpha" defer></script>
   <script src="render.js?v=7.0.0" defer></script>
   <script src="actions.js?v=7.0.0" defer></script>
   <script src="app.js?v=7.0.0" defer></script>
@@ -64,6 +67,8 @@
   <script src="body-progress-v220.js?v=2.2.4-production" defer></script>
   <script src="src/features/journal/dashboard-v800.js?v=8.2.2-alpha" defer></script>
   <script src="src/features/nutrition/nutrition-v210.js?v=2.2.2-alpha" defer></script>
+  <script src="src/features/nutrition/nutrition-v230.js?v=2.3.0-alpha" defer></script>
+  <script src="src/features/profile/profile-v900.js?v=9.0.0-alpha" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" async></script>
 </head>
 <body>
@@ -107,15 +112,205 @@
 
     <section class="screen" data-screen="food"><div class="section-title"><h2>Ernährung</h2><div class="section-actions"><button id="copyPreviousMeals" class="secondary" type="button">Vortag</button><button data-open="mealModal" type="button">+ Mahlzeit</button></div></div><div class="stats card"><div><label>Kalorien</label><strong id="foodKcal">0</strong></div><div><label>Eiweiß</label><strong><span id="foodProtein">0</span><small> g</small></strong></div><div><label id="foodBalanceLabel">Noch offen</label><strong><span id="foodOpen">2300</span><small> kcal</small></strong></div></div><div id="mealList"></div></section>
 
-    <section class="screen" data-screen="progress"><div class="section-title"><div><h2>Fortschritt</h2><small class="range-label" id="rangeLabel"></small></div><button data-open="weightModal" type="button">+ Gewicht</button></div><article class="card"><label>Kalorien · letzte 7 Tage <span id="avgCalories">Ø –</span></label><div id="weekBars" class="week-bars"></div></article><div class="grid progress-grid"><article class="card"><label>Gewichtstrend <span id="weightTrendBasis" class="trend-basis"></span></label><strong><span id="weightTrend">–</span><small> kg</small></strong></article><article class="card"><label>Ø Eiweiß</label><strong><span id="avgProtein">–</span><small> g</small></strong></article><article class="card"><label>Gym</label><strong><span id="weekGym">0</span><small> Einheiten</small></strong></article><article class="card"><label>Ø Schritte</label><strong id="avgSteps">–</strong></article></div><div class="notice goal-notice" id="goalStatus">Trage dein Wunschgewicht in den Einstellungen ein.</div><h2>Gewichtsverlauf</h2><article class="card" id="weightHistory"></article><h2>Empfehlung</h2><article class="notice" id="weekAdvice">Nach mindestens sieben Tagen wird die Bewertung aussagekräftiger.</article></section>
+    <section class="screen" data-screen="progress"><div class="section-title"><div><h2>Fortschritt</h2><small class="range-label" id="rangeLabel"></small></div><button data-open="weightModal" type="button">+ Gewicht</button></div><article class="card"><label>Kalorien · letzte 7 Tage <span id="avgCalories">Ø –</span></label><div id="weekBars" class="week-bars"></div></article><div class="grid progress-grid"><article class="card"><label>Gewichtstrend <span id="weightTrendBasis" class="trend-basis"></span></label><strong><span id="weightTrend">–</span><small> kg</small></strong></article><article class="card"><label>Ø Eiweiß</label><strong><span id="avgProtein">–</span><small> g</small></strong></article><article class="card"><label>Gym</label><strong><span id="weekGym">0</span><small> Einheiten</small></strong></article><article class="card"><label>Ø Schritte</label><strong id="avgSteps">–</strong></article></div><div class="notice goal-notice" id="goalStatus">Trage dein Wunschgewicht im Profil ein.</div><h2>Gewichtsverlauf</h2><article class="card" id="weightHistory"></article><h2>Empfehlung</h2><article class="notice" id="weekAdvice">Nach mindestens sieben Tagen wird die Bewertung aussagekräftiger.</article></section>
 
-    <section class="screen" data-screen="settings"><h2>Ziele & Einstellungen</h2><article class="card settings"><div class="two"><label>Alter<input id="setAge" type="number" min="14" max="100" inputmode="numeric"></label><label>Größe (cm)<input id="setHeight" type="number" min="120" max="230" inputmode="numeric"></label></div><div class="two"><label>Kalorienziel<input id="setCalories" type="number" min="1200" max="6000" inputmode="numeric"></label><label>Erhaltungskalorien<input id="setMaintenance" type="number" min="1500" max="7000" inputmode="numeric"></label></div><div class="two"><label>Eiweiß (g)<input id="setProtein" type="number" min="50" max="350" inputmode="numeric"></label><label>Fett (g)<input id="setFat" type="number" min="30" max="200" inputmode="numeric"></label></div><div class="two"><label>Kohlenhydrate (g)<input id="setCarbs" type="number" min="0" max="800" inputmode="numeric"></label><label>Schritte<input id="setSteps" type="number" min="0" max="50000" inputmode="numeric"></label></div><div class="two"><label>Gym/Woche<input id="setGymGoal" type="number" min="0" max="7" inputmode="numeric"></label><label>Wunschgewicht (kg)<input id="setGoalWeight" type="number" min="30" max="300" step="0.1" inputmode="decimal"></label></div><button id="saveSettings" type="button">Einstellungen speichern</button></article><h2>Daten & Sicherheit</h2><div class="notice data-warning" id="dataWarning" hidden><span id="dataWarningMessage"></span><button id="dismissDataWarning" type="button" aria-label="Hinweis schließen">×</button></div><article class="card data-actions"><div class="backup-status" id="backupStatus">Noch kein Backup erstellt.</div><div class="data-summary" id="dataSummary">0 Tage · 0 Mahlzeiten</div><div class="storage-status" id="storageStatus">Lokale Speicherung wird geprüft …</div><button id="exportData" class="secondary" type="button">Backup exportieren</button><label class="secondary file">Backup importieren<input id="importData" type="file" accept=".json,application/json"></label><button id="restorePrevious" class="secondary" type="button" hidden>Vorherigen Stand wiederherstellen</button><button id="exportRecovery" class="secondary" type="button" hidden>Gesicherte Rohdaten exportieren</button><button id="resetData" class="delete-btn" type="button">Alle Daten löschen</button></article><h2>Produktqualität</h2><article class="card quality-card"><label class="quality-toggle" for="qualityMetricsEnabled"><span><b>Lokale Qualitätsmessung</b><small>Nur anonyme Zähler auf diesem Gerät. Keine Suchtexte, Gewichte oder Gesundheitswerte.</small></span><input id="qualityMetricsEnabled" type="checkbox"></label><p id="qualityMetricsSummary" class="quality-summary" aria-live="polite">Qualitätsdaten werden vorbereitet …</p><div class="button-row"><button id="qualityMetricsExport" class="secondary" type="button">Qualität exportieren</button><button id="qualityMetricsClear" class="secondary danger-secondary" type="button">Qualitätsdaten löschen</button></div></article><h2>Dein Feedback</h2><article class="card settings feedback-card"><label for="customerFeedbackCategory">Worum geht es?<select id="customerFeedbackCategory"><option value="clarity">Verständlichkeit</option><option value="helpfulness">Hilfreiche Empfehlungen</option><option value="accessibility">Barrierefreiheit</option><option value="nutrition-search">Ernährungssuche</option><option value="other">Sonstiges</option></select></label><label for="customerFeedbackScore">Wie bewertest du diesen Bereich?<select id="customerFeedbackScore"><option value="">Bitte auswählen</option><option value="5">5 – sehr gut</option><option value="4">4 – gut</option><option value="3">3 – teils/teils</option><option value="2">2 – schwierig</option><option value="1">1 – sehr schwierig</option></select></label><label for="customerFeedbackText">Was sollen wir verbessern? (optional)<textarea id="customerFeedbackText" maxlength="600" rows="4" placeholder="Beschreibe kurz, was unklar oder umständlich war."></textarea></label><button id="customerFeedbackSave" type="button">Feedback lokal speichern</button><p id="customerFeedbackStatus" class="quality-summary" aria-live="polite">Feedback wird noch nicht übertragen. Du kannst es mit dem Qualitätsexport selbst teilen.</p></article><div class="notice">Deine persönlichen Einträge bleiben lokal auf diesem Gerät. Sie werden nicht in dein öffentliches GitHub-Repository hochgeladen.</div><div class="notice health-note">CutCoach ersetzt keine medizinische Beratung. Ein dauerhaftes Defizit von etwa 1 kg pro Woche kann je nach Ausgangsgewicht sehr aggressiv sein.</div><div class="app-meta"><span id="onlineStatus">Online</span><span id="appVersion">Version</span></div></section>
+    <section class="screen profile-screen" data-screen="settings" aria-labelledby="profilePageTitle">
+      <header class="profile-page-head">
+        <div>
+          <small>Dein persönlicher CutCoach</small>
+          <h2 id="profilePageTitle">Profil</h2>
+        </div>
+        <button id="openSettingsCenter" data-open="settingsCenterModal" type="button" aria-label="App-Einstellungen öffnen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.12 2.12-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20h-3v-.08a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-2.12-2.12.06-.06A1.7 1.7 0 0 0 5 15a1.7 1.7 0 0 0-1.56-1.03H3.3v-3h.14A1.7 1.7 0 0 0 5 9.94a1.7 1.7 0 0 0-.34-1.88L4.6 8l2.12-2.12.06.06A1.7 1.7 0 0 0 8.66 6.3 1.7 1.7 0 0 0 9.7 4.73V4.6h3v.13a1.7 1.7 0 0 0 1.03 1.57 1.7 1.7 0 0 0 1.88-.34l.06-.06L17.8 8l-.06.06a1.7 1.7 0 0 0-.34 1.88 1.7 1.7 0 0 0 1.56 1.03h.14v3h-.14A1.7 1.7 0 0 0 19.4 15Z"/></svg>
+        </button>
+      </header>
+      <article class="profile-identity-card">
+        <div class="profile-avatar" id="profileAvatar" aria-hidden="true">C</div>
+        <div>
+          <small id="profileGoalEyebrow">Dein Ziel</small>
+          <h3 id="profileGreeting">Dein persönlicher Plan</h3>
+          <p id="profileSummary">Vervollständige dein Profil, damit CutCoach verlässlich auf dich rechnen kann.</p>
+        </div>
+        <span id="profileStatus">Grundlage offen</span>
+      </article>
+      <div class="profile-completion" id="profileCompletionCard">
+        <div><span>Profilqualität</span><strong id="profileCompletionLabel">Noch nicht personalisiert</strong></div>
+        <div class="profile-completion-bar" aria-hidden="true"><i id="profileCompletionBar"></i></div>
+        <button id="completeProfile" type="button">Profil vervollständigen</button>
+      </div>
+      <section class="profile-plan-card" aria-labelledby="profilePlanTitle">
+        <div class="profile-section-head">
+          <div><small>Automatisch für dich berechnet</small><h3 id="profilePlanTitle">Dein Tagesplan</h3></div>
+          <span id="profilePlanSource">Schätzung</span>
+        </div>
+        <div class="profile-energy">
+          <div><small>Tagesziel</small><strong><span id="profileCalories">–</span> kcal</strong></div>
+          <div><small>Erhaltung</small><strong><span id="profileMaintenance">–</span> kcal</strong></div>
+        </div>
+        <div class="profile-target-grid">
+          <article><span>Eiweiß</span><strong id="profileProtein">– g</strong></article>
+          <article><span>Kohlenhydrate</span><strong id="profileCarbs">– g</strong></article>
+          <article><span>Fett</span><strong id="profileFat">– g</strong></article>
+          <article><span>Schritte</span><strong id="profileSteps">–</strong></article>
+        </div>
+        <p class="profile-estimate-note">Deine Ziele sind eine persönliche Orientierung und reagieren auf Alter, Körperdaten, Alltag, Training und Zielrichtung.</p>
+      </section>
+      <section class="profile-facts" aria-label="Profilgrundlage">
+        <article><span>Körper</span><strong id="profileBodyFacts">Noch offen</strong><small>Alter · Größe · Gewicht</small></article>
+        <article><span>Alltag</span><strong id="profileActivityFacts">Noch offen</strong><small>Aktivität · Training</small></article>
+      </section>
+      <div class="profile-actions">
+        <button id="editProfile" type="button">Profil bearbeiten</button>
+        <button id="recalculateProfile" class="secondary" type="button">Ziele neu berechnen</button>
+      </div>
+      <aside class="profile-privacy">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3"/><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M12 14v3"/></svg>
+        <div><strong>Dein Profil bleibt auf diesem Gerät.</strong><span>Keine Registrierung, kein Cloud-Upload und keine Veröffentlichung über GitHub.</span></div>
+      </aside>
+    </section>
   </main>
 </div>
-<nav aria-label="Hauptnavigation"><button class="active" data-tab="today" type="button" aria-current="page"><span>◉</span>Heute</button><button data-tab="food" type="button" aria-current="false"><span>🍽️</span>Ernährung</button><button data-tab="progress" type="button" aria-current="false"><span>📈</span>Fortschritt</button><button data-tab="settings" type="button" aria-current="false"><span>⚙️</span>Einstellungen</button></nav>
+<nav aria-label="Hauptnavigation"><button class="active" data-tab="today" type="button" aria-current="page"><span>◉</span>Heute</button><button data-tab="food" type="button" aria-current="false"><span>🍽️</span>Ernährung</button><button data-tab="progress" type="button" aria-current="false"><span>📈</span>Fortschritt</button><button data-tab="settings" type="button" aria-current="false"><span>◎</span>Profil</button></nav>
 <div class="modal" id="mealModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="mealModalTitle"><div class="sheet"><div class="sheet-head"><h2 id="mealModalTitle">Mahlzeit hinzufügen</h2><button data-close type="button" aria-label="Schließen">×</button></div><label>Name<input id="mealName" maxlength="80" autocomplete="off" placeholder="z. B. Skyr mit Proteinpulver"></label><label>Kategorie<select id="mealType"><option>Frühstück</option><option>Mittagessen</option><option>Abendessen</option><option>Snack</option></select></label><div class="two"><label>Menge (optional)<input id="mealQuantity" type="number" inputmode="decimal" min="0.1" max="100000" step="0.1" placeholder="z. B. 250"></label><label>Einheit<select id="mealUnit"><option value="">Keine</option><option>g</option><option>ml</option><option>Stück</option><option>Portion</option></select></label></div><div class="two"><label>Kalorien<input id="mealCalories" type="number" inputmode="decimal" min="1" max="10000" step="0.1"></label><label>Eiweiß (g)<input id="mealProtein" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label></div><div class="two"><label>Kohlenhydrate (g)<input id="mealCarbs" type="number" inputmode="decimal" min="0" max="1000" step="0.1"></label><label>Fett (g)<input id="mealFat" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label></div><details class="meal-nutrients-more"><summary>Weitere Nährwerte (optional)</summary><div class="two"><label>Ballaststoffe (g)<input id="mealFiber" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label><label>Zucker (g)<input id="mealSugar" type="number" inputmode="decimal" min="0" max="1000" step="0.1"></label></div><div class="two"><label>Gesättigte Fettsäuren (g)<input id="mealSaturatedFat" type="number" inputmode="decimal" min="0" max="500" step="0.1"></label><label>Salz (g)<input id="mealSalt" type="number" inputmode="decimal" min="0" max="100" step="0.01"></label></div></details><button id="saveMeal" type="button">Mahlzeit speichern</button></div></div>
 <div class="modal" id="weightModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="weightModalTitle"><div class="sheet"><div class="sheet-head"><h2 id="weightModalTitle">Gewicht eintragen</h2><button data-close type="button" aria-label="Schließen">×</button></div><label>Gewicht in kg<input id="weightInput" type="number" inputmode="decimal" min="30" max="300" step="0.1" enterkeyhint="done" placeholder="z. B. 95,0"></label><div class="button-row"><button id="saveWeight" type="button">Gewicht speichern</button><button id="clearWeight" class="secondary danger-secondary" type="button">Eintrag entfernen</button></div></div></div>
-<div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="onboardingTitle"><div class="sheet"><h2 id="onboardingTitle">Willkommen bei CutCoach</h2><div class="notice">Voreingestellt: 2300 kcal, 190 g Eiweiß, 6000 Schritte und fünf Gym-Einheiten pro Woche.</div><label>Startgewicht (kg)<input id="startWeight" type="number" inputmode="decimal" min="30" max="300" step="0.1"></label><label>Wunschgewicht (optional)<input id="startGoal" type="number" inputmode="decimal" min="30" max="300" step="0.1"></label><button id="startApp" type="button">Offiziell starten 💪</button></div></div>
+<div class="modal profile-onboarding-modal" id="onboardingModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="onboardingTitle">
+  <div class="sheet profile-onboarding-sheet">
+    <div class="profile-onboarding-glow" aria-hidden="true"></div>
+    <header class="profile-onboarding-head">
+      <div class="profile-onboarding-brand"><img src="icon.svg" alt=""><span>CutCoach</span></div>
+      <button id="profileOnboardingClose" type="button" aria-label="Profilbearbeitung schließen" hidden>×</button>
+    </header>
+    <div class="profile-onboarding-progress" aria-label="Fortschritt">
+      <div><span id="profileStepLabel">Schritt 1 von 4</span><strong id="profileStepPercent">25%</strong></div>
+      <i><b id="profileStepBar"></b></i>
+    </div>
+    <div id="profileOnboardingSteps">
+      <section class="profile-step active" data-profile-step="0">
+        <div class="profile-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18V8l8-5 8 5v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3Z"/><path d="M9 21v-7h6v7"/></svg></div>
+        <small>Schön, dass du da bist</small>
+        <h2 id="onboardingTitle">Was möchtest du erreichen?</h2>
+        <p>Deine Antwort steuert Kalorien, Makros, Aktivität und die Empfehlungen in der gesamten App.</p>
+        <label class="profile-name-field">Wie dürfen wir dich nennen? <span>optional</span><input id="profileNameInput" maxlength="40" autocomplete="given-name" placeholder="Dein Vorname"></label>
+        <div class="profile-choice-grid profile-goal-grid" role="radiogroup" aria-label="Persönliches Ziel">
+          <label><input type="radio" name="profileGoal" value="lose" checked><span><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l-7 7 7 7"/></svg><b>Fett verlieren</b><small>ruhig und nachhaltig</small></span></label>
+          <label><input type="radio" name="profileGoal" value="maintain"><span><svg viewBox="0 0 24 24"><path d="M5 9h14M5 15h14"/></svg><b>Gewicht halten</b><small>stabil und ausgewogen</small></span></label>
+          <label><input type="radio" name="profileGoal" value="gain"><span><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg><b>Muskeln aufbauen</b><small>kontrollierter Überschuss</small></span></label>
+        </div>
+      </section>
+      <section class="profile-step" data-profile-step="1" hidden>
+        <div class="profile-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M5 21a7 7 0 0 1 14 0"/></svg></div>
+        <small>Deine Berechnungsgrundlage</small>
+        <h2>Körperdaten, die wirklich zählen</h2>
+        <p>Diese Angaben werden nur lokal gespeichert und dienen ausschließlich deiner persönlichen Zielschätzung.</p>
+        <div class="profile-form-grid">
+          <label>Alter<input id="profileAgeInput" type="number" min="18" max="100" inputmode="numeric" placeholder="z. B. 28"></label>
+          <label>Größe (cm)<input id="profileHeightInput" type="number" min="120" max="230" inputmode="numeric" placeholder="z. B. 179"></label>
+          <label>Aktuelles Gewicht (kg)<input id="startWeight" type="number" min="30" max="300" step="0.1" inputmode="decimal" placeholder="z. B. 96,0"></label>
+          <label id="profileGoalWeightField">Wunschgewicht (kg)<input id="startGoal" type="number" min="30" max="300" step="0.1" inputmode="decimal" placeholder="z. B. 85,0"></label>
+        </div>
+        <label>Berechnungsbasis
+          <select id="profileSexInput">
+            <option value="neutral">Neutraler Mittelwert</option>
+            <option value="female">Weiblicher Referenzwert</option>
+            <option value="male">Männlicher Referenzwert</option>
+          </select>
+          <small class="profile-field-help">Wird nur für die Schätzung des Ruheenergieverbrauchs verwendet.</small>
+        </label>
+      </section>
+      <section class="profile-step" data-profile-step="2" hidden>
+        <div class="profile-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 17h4l2-10 4 14 2-8h4"/></svg></div>
+        <small>Alltag und Bewegung</small>
+        <h2>Wie aktiv ist dein echtes Leben?</h2>
+        <p>Wähle deinen durchschnittlichen Alltag. Training erfassen wir separat, damit nichts doppelt gerechnet wird.</p>
+        <div class="profile-choice-grid profile-activity-grid" role="radiogroup" aria-label="Aktivitätsniveau">
+          <label><input type="radio" name="profileActivity" value="sedentary"><span><b>Überwiegend sitzend</b><small>wenig Wege, Büroalltag</small></span></label>
+          <label><input type="radio" name="profileActivity" value="light" checked><span><b>Leicht aktiv</b><small>regelmäßig zu Fuß</small></span></label>
+          <label><input type="radio" name="profileActivity" value="active"><span><b>Aktiver Alltag</b><small>viel stehen und gehen</small></span></label>
+          <label><input type="radio" name="profileActivity" value="very-active"><span><b>Sehr aktiv</b><small>körperliche Arbeit</small></span></label>
+        </div>
+        <label class="profile-training-field">
+          <span><b>Geplante Trainings pro Woche</b><strong id="profileTrainingValue">3</strong></span>
+          <input id="profileTrainingInput" type="range" min="0" max="7" step="1" value="3">
+          <small>Bewegen: <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></small>
+        </label>
+      </section>
+      <section class="profile-step" data-profile-step="3" hidden>
+        <div class="profile-step-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.6 2.6L16.5 9"/></svg></div>
+        <small>Dein persönlicher Startplan</small>
+        <h2>So startet CutCoach mit dir</h2>
+        <p id="profileReviewIntro">Wähle das Tempo, das sich langfristig in deinen Alltag integrieren lässt.</p>
+        <div class="profile-choice-grid profile-pace-grid" role="radiogroup" aria-label="Zieltempo">
+          <label><input type="radio" name="profilePace" value="gentle"><span><b>Sanft</b><small id="profilePaceGentle">kleiner Schritt</small></span></label>
+          <label><input type="radio" name="profilePace" value="balanced" checked><span><b>Ausgewogen</b><small id="profilePaceBalanced">empfohlener Start</small></span></label>
+          <label><input type="radio" name="profilePace" value="focused"><span><b>Fokussiert</b><small id="profilePaceFocused">deutliches Ziel</small></span></label>
+        </div>
+        <div class="profile-plan-preview" aria-live="polite">
+          <div class="profile-preview-energy"><small>Dein Tagesziel</small><strong><span id="profilePreviewCalories">–</span> kcal</strong><em id="profilePreviewGoal">persönlich berechnet</em></div>
+          <div class="profile-preview-grid">
+            <span><small>Eiweiß</small><b id="profilePreviewProtein">– g</b></span>
+            <span><small>Kohlenhydrate</small><b id="profilePreviewCarbs">– g</b></span>
+            <span><small>Fett</small><b id="profilePreviewFat">– g</b></span>
+            <span><small>Schritte</small><b id="profilePreviewSteps">–</b></span>
+          </div>
+          <p id="profilePreviewMethod">Schätzung auf Basis deiner Körperdaten und deines Aktivitätsniveaus.</p>
+        </div>
+      </section>
+    </div>
+    <footer class="profile-onboarding-actions">
+      <button id="profileStepBack" class="secondary" type="button" hidden>Zurück</button>
+      <button id="profileStepNext" type="button">Weiter</button>
+      <button id="startApp" type="button" hidden>Persönlichen Plan übernehmen</button>
+    </footer>
+    <p class="profile-onboarding-trust"><span aria-hidden="true">●</span> Lokal gespeichert · jederzeit änderbar · ohne Registrierung</p>
+  </div>
+</div>
+<div class="modal settings-center-modal" id="settingsCenterModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="settingsCenterTitle">
+  <div class="sheet settings-center-sheet">
+    <div class="sheet-head"><h2 id="settingsCenterTitle">App-Einstellungen</h2><button data-close type="button" aria-label="Schließen">×</button></div>
+    <p class="settings-center-intro">Feinabstimmung, Datenkontrolle und lokale Produktqualität an einem Ort.</p>
+    <details class="settings-group" open>
+      <summary><span>Ziele feinabstimmen</span><small>überschreibt die Profilberechnung</small></summary>
+      <article class="settings settings-center-form">
+        <div class="two"><label>Alter<input id="setAge" type="number" min="18" max="100" inputmode="numeric"></label><label>Größe (cm)<input id="setHeight" type="number" min="120" max="230" inputmode="numeric"></label></div>
+        <div class="two"><label>Kalorienziel<input id="setCalories" type="number" min="1200" max="6000" inputmode="numeric"></label><label>Erhaltungskalorien<input id="setMaintenance" type="number" min="1200" max="7000" inputmode="numeric"></label></div>
+        <div class="two"><label>Eiweiß (g)<input id="setProtein" type="number" min="40" max="350" inputmode="numeric"></label><label>Fett (g)<input id="setFat" type="number" min="30" max="200" inputmode="numeric"></label></div>
+        <div class="two"><label>Kohlenhydrate (g)<input id="setCarbs" type="number" min="0" max="800" inputmode="numeric"></label><label>Schritte<input id="setSteps" type="number" min="0" max="50000" inputmode="numeric"></label></div>
+        <div class="two"><label>Training/Woche<input id="setGymGoal" type="number" min="0" max="7" inputmode="numeric"></label><label>Wunschgewicht (kg)<input id="setGoalWeight" type="number" min="30" max="300" step="0.1" inputmode="decimal"></label></div>
+        <button id="saveSettings" type="button">Feinabstimmung speichern</button>
+      </article>
+    </details>
+    <details class="settings-group">
+      <summary><span>Daten & Sicherheit</span><small>Backup und lokaler Speicher</small></summary>
+      <div class="notice data-warning" id="dataWarning" hidden><span id="dataWarningMessage"></span><button id="dismissDataWarning" type="button" aria-label="Hinweis schließen">×</button></div>
+      <article class="data-actions">
+        <div class="backup-status" id="backupStatus">Noch kein Backup erstellt.</div><div class="data-summary" id="dataSummary">0 Tage · 0 Mahlzeiten</div><div class="storage-status" id="storageStatus">Lokale Speicherung wird geprüft …</div>
+        <button id="exportData" class="secondary" type="button">Backup exportieren</button>
+        <label class="secondary file">Backup importieren<input id="importData" type="file" accept=".json,application/json"></label>
+        <button id="restorePrevious" class="secondary" type="button" hidden>Vorherigen Stand wiederherstellen</button>
+        <button id="exportRecovery" class="secondary" type="button" hidden>Gesicherte Rohdaten exportieren</button>
+        <button id="resetData" class="delete-btn" type="button">Alle Daten löschen</button>
+      </article>
+    </details>
+    <details class="settings-group">
+      <summary><span>Produktqualität</span><small>anonyme lokale Zähler</small></summary>
+      <article class="quality-card">
+        <label class="quality-toggle" for="qualityMetricsEnabled"><span><b>Lokale Qualitätsmessung</b><small>Keine Suchtexte, Gewichte oder Gesundheitswerte.</small></span><input id="qualityMetricsEnabled" type="checkbox"></label>
+        <p id="qualityMetricsSummary" class="quality-summary" aria-live="polite">Qualitätsdaten werden vorbereitet …</p>
+        <div class="button-row"><button id="qualityMetricsExport" class="secondary" type="button">Qualität exportieren</button><button id="qualityMetricsClear" class="secondary danger-secondary" type="button">Qualitätsdaten löschen</button></div>
+      </article>
+    </details>
+    <details class="settings-group">
+      <summary><span>Dein Feedback</span><small>bleibt bis zum Export lokal</small></summary>
+      <article class="settings feedback-card">
+        <label for="customerFeedbackCategory">Worum geht es?<select id="customerFeedbackCategory"><option value="clarity">Verständlichkeit</option><option value="helpfulness">Hilfreiche Empfehlungen</option><option value="accessibility">Barrierefreiheit</option><option value="nutrition-search">Ernährungssuche</option><option value="other">Sonstiges</option></select></label>
+        <label for="customerFeedbackScore">Wie bewertest du diesen Bereich?<select id="customerFeedbackScore"><option value="">Bitte auswählen</option><option value="5">5 – sehr gut</option><option value="4">4 – gut</option><option value="3">3 – teils/teils</option><option value="2">2 – schwierig</option><option value="1">1 – sehr schwierig</option></select></label>
+        <label for="customerFeedbackText">Was sollen wir verbessern? (optional)<textarea id="customerFeedbackText" maxlength="600" rows="4" placeholder="Beschreibe kurz, was unklar oder umständlich war."></textarea></label>
+        <button id="customerFeedbackSave" type="button">Feedback lokal speichern</button><p id="customerFeedbackStatus" class="quality-summary" aria-live="polite">Feedback wird noch nicht übertragen. Du kannst es mit dem Qualitätsexport selbst teilen.</p>
+      </article>
+    </details>
+    <div class="settings-center-footer"><div><span id="onlineStatus">Online</span><span id="appVersion">Version</span></div><p>CutCoach ersetzt keine medizinische Beratung. Persönliche Daten werden nicht in dein öffentliches GitHub-Repository hochgeladen.</p></div>
+  </div>
+</div>
 <div id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

@@ -94,7 +94,7 @@ const input=(selector,value)=>{
   assert.equal(window.CutCoachLibrary.exportData().version,3,'Bibliothek wurde nicht auf das neue Datenmodell migriert');
   assert.equal(window.CutCoachLibrary.exportData().items[0].kind,'recipe','Altes Gericht wurde nicht verlustfrei als Rezept migriert');
   assert.equal(JSON.parse(window.localStorage.getItem('cutcoach_library_v1')).version,3,'Migrierte Bibliothek wurde nicht dauerhaft gespeichert');
-  assert.equal(test.state.meta.schemaVersion,7,'Tagebuchdaten wurden nicht auf das Körper-/Trainingsschema migriert');
+  assert.equal(test.state.meta.schemaVersion,8,'Tagebuchdaten wurden nicht auf das Profil-/Körper-/Trainingsschema migriert');
   assert.equal(test.score(),null,'Leerer Ernährungstag darf keine Tagesnote haben');
 
   const originalDate=test.selectedDate;

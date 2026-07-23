@@ -75,12 +75,21 @@ function saveSettings(){
     protein:$('#setProtein').value,fat:$('#setFat').value,carbs:$('#setCarbs').value,steps:$('#setSteps').value,
     gymGoal:$('#setGymGoal').value,goalWeight:$('#setGoalWeight').value
   };
-  const checks=[['Alter',raw.age,14,100],['Größe',raw.height,120,230],['Kalorienziel',raw.calories,1200,6000],['Erhaltungskalorien',raw.maintenance,1500,7000],['Eiweiß',raw.protein,50,350],['Fett',raw.fat,30,200],['Kohlenhydrate',raw.carbs,0,800],['Schritte',raw.steps,0,50000],['Gym/Woche',raw.gymGoal,0,7]];
+  const checks=[['Alter',raw.age,18,100],['Größe',raw.height,120,230],['Kalorienziel',raw.calories,1200,6000],['Erhaltungskalorien',raw.maintenance,1200,7000],['Eiweiß',raw.protein,40,350],['Fett',raw.fat,30,200],['Kohlenhydrate',raw.carbs,0,800],['Schritte',raw.steps,0,50000],['Training/Woche',raw.gymGoal,0,7]];
   const invalid=checks.find(([,value,min,max])=>parseNumber(value)===null||parseNumber(value)<min||parseNumber(value)>max);
   if(invalid){toast(`${invalid[0]} liegt außerhalb des gültigen Bereichs.`);return;}
   if(raw.goalWeight!==''&&nullable(raw.goalWeight,30,300)===null){toast('Bitte gültiges Wunschgewicht eintragen.');return;}
   const nextSettings=sanitizeSettings(raw);
-  if(!commitStateMutation(current=>{current.settings=nextSettings})){toast('Einstellungen konnten nicht gespeichert werden.');return;}
+  if(!commitStateMutation(current=>{
+    current.settings=nextSettings;
+    if(current.profile){
+      current.profile.age=nextSettings.age;
+      current.profile.height=nextSettings.height;
+      current.profile.goalWeight=nextSettings.goalWeight;
+      current.profile.trainingDays=nextSettings.gymGoal;
+      current.profile.planSource='manual';
+    }
+  })){toast('Einstellungen konnten nicht gespeichert werden.');return;}
   render();
   const macroCalories=state.settings.protein*4+state.settings.carbs*4+state.settings.fat*9;
   if(state.settings.maintenance<state.settings.calories)toast('Gespeichert. Hinweis: Erhaltung liegt unter dem Kalorienziel.');

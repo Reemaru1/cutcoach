@@ -23,7 +23,7 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   if(w.document.readyState==='loading')w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
   await wait(40);
 
-  assert.equal(w.eval('state.meta.schemaVersion'),7,'Altdaten müssen auf das Körper-/Trainingsschema 7 migrieren.');
+  assert.equal(w.eval('state.meta.schemaVersion'),8,'Altdaten müssen auf das Profil-/Körper-/Trainingsschema 8 migrieren.');
   assert.equal(w.eval("state.days['2026-07-22'].waist"),100);
   assert.equal(w.eval("state.days['2026-07-22'].workout.exercises.length"),2);
   assert.equal(w.document.querySelectorAll('.bp220-left article').length,3);

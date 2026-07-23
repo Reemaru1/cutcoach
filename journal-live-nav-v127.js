@@ -3,8 +3,8 @@
   const VERSION='1.3.3-alpha';
   const $=selector=>document.querySelector(selector);
   let refreshTimer=0,renderWrapped=false,libraryWrapped=false,observer=null;
-  const navLabels={today:'Tagebuch',food:'Ernährung',progress:'Fortschritt',settings:'Einstellungen'};
-  const navIcons={today:'▣',food:'🍽️',progress:'⌁',settings:'⚙️'};
+  const navLabels={today:'Tagebuch',food:'Ernährung',progress:'Fortschritt',settings:'Profil'};
+  const navIcons={today:'▣',food:'🍽️',progress:'⌁',settings:'◎'};
 
   function restoreNav(){
     const nav=$('nav[aria-label="Hauptnavigation"]');if(!nav)return;
