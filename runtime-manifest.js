@@ -26,8 +26,8 @@ self.CUTCOACH_RUNTIME=Object.freeze({
   ]),
   scripts:Object.freeze([
     './src/shared/module-registry.js?v=1.0.0-alpha','./src/shared/product-insights.js?v=1.1.0-alpha','./src/shared/ui.js?v=1.1.0-alpha',
-    './src/features/journal/index.js?v=1.0.0-alpha','./src/features/nutrition/index.js?v=1.1.0-alpha','./src/features/progress/index.js?v=1.1.0-alpha',
-    './src/features/profile/index.js?v=1.1.0-alpha','./src/features/progress/progress-goal-v230.js?v=2.3.0-alpha',
+    './src/features/journal/index.js?v=1.0.0-alpha','./src/features/nutrition/index.js?v=1.1.0-alpha','./src/features/progress/index.js?v=1.0.0-alpha',
+    './src/features/profile/index.js?v=1.0.0-alpha','./src/features/progress/progress-goal-v230.js?v=2.3.0-alpha',
     './food-catalog.js?v=7.0.0','./everyday-catalog-v73.js?v=7.3.0','./local-dishes-v140.js?v=1.4.0-alpha',
     './catalog-expansion-v191.js?v=1.9.1-alpha','./product-catalog-v200.js?v=2.0.0-alpha','./library.js?v=7.0.0',
     './library-init.js?v=7.0.0','./scanner-v2.js?v=1.8.1-alpha','./off-lookup.js?v=1.8.1-alpha','./upgrade-340.js?v=7.0.0',
