@@ -1,0 +1,105 @@
+/* Profil 10.0.1 – iPhone-QA: konsequent im dunklen CutCoach-Stil */
+.profile-coach-hub{
+  --coach-card:#0c1820;
+  --coach-card-raised:#101f29;
+  --coach-row:#09151d;
+  --coach-row-hover:#0d1c25;
+  --coach-line:rgba(151,184,202,.17);
+  --coach-line-strong:rgba(151,184,202,.24);
+  --coach-mint:#74edba;
+  --coach-text:#f4f8fb;
+  --coach-muted:#8fa0ad;
+}
+
+/* Keine alten Blau-Mint-Vollflächen innerhalb der Coach-Zentrale. */
+.profile-coach-hub .coach-route,
+.profile-coach-hub .coach-insights,
+.profile-coach-hub .coach-dna,
+.profile-coach-hub .coach-targets,
+.profile-coach-hub .coach-privacy,
+.profile-coach-hub .coach-manual-panel{
+  background:linear-gradient(180deg,rgba(15,29,38,.98),rgba(8,18,25,.99))!important;
+  border-color:var(--coach-line)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.04),0 14px 34px rgba(0,0,0,.16)!important;
+}
+
+.profile-coach-hub .coach-section-title>button,
+.profile-coach-hub .coach-target-actions button,
+.profile-coach-hub .coach-manual-panel #saveSettings{
+  background:linear-gradient(180deg,rgba(22,36,45,.98),rgba(8,17,24,.99))!important;
+  border:1px solid var(--coach-line-strong)!important;
+  color:var(--coach-text)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.06),0 8px 20px rgba(0,0,0,.16)!important;
+}
+.profile-coach-hub .coach-section-title>button{
+  min-height:42px;
+  padding:0 13px!important;
+  border-radius:14px!important;
+  color:#dfffee!important;
+}
+.profile-coach-hub .coach-target-actions button:first-child,
+.profile-coach-hub .coach-manual-panel #saveSettings{
+  border-color:rgba(116,237,186,.28)!important;
+  color:#dfffee!important;
+}
+.profile-coach-hub .coach-section-title>button::before,
+.profile-coach-hub .coach-target-actions button::before,
+.profile-coach-hub .coach-manual-panel #saveSettings::before{
+  content:none!important;
+}
+
+/* Persönliche DNA ist eine editierbare Liste – keine farbigen CTA-Kacheln. */
+.profile-coach-hub .coach-dna-list{
+  background:rgba(3,11,17,.42)!important;
+  border-color:var(--coach-line)!important;
+}
+.profile-coach-hub .coach-dna-list>button{
+  appearance:none;
+  -webkit-appearance:none;
+  background:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  border-bottom:1px solid rgba(151,184,202,.12)!important;
+  border-radius:0!important;
+  color:var(--coach-text)!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  filter:none!important;
+}
+.profile-coach-hub .coach-dna-list>button:last-child{border-bottom:0!important}
+.profile-coach-hub .coach-dna-list>button:active{background:rgba(116,237,186,.045)!important;transform:none!important}
+.profile-coach-hub .coach-row-icon{
+  color:var(--coach-mint)!important;
+  background:rgba(116,237,186,.065)!important;
+  border:1px solid rgba(116,237,186,.1);
+}
+.profile-coach-hub .coach-dna-list small{color:#81929f!important}
+.profile-coach-hub .coach-dna-list strong{color:#f2f7fa!important}
+.profile-coach-hub .coach-dna-list em{color:#8798a5!important}
+.profile-coach-hub .coach-dna-list>button>b{color:#71838f!important}
+
+/* Zielkarten bleiben dunkel; Mint ist Akzent, keine Fläche. */
+.profile-coach-hub .coach-target-grid article,
+.profile-coach-hub .coach-target-grid .coach-target-primary{
+  background:rgba(3,12,18,.43)!important;
+  background-image:none!important;
+  border-color:rgba(151,184,202,.13)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.025)!important;
+}
+.profile-coach-hub .coach-target-grid .coach-target-primary{
+  border-color:rgba(116,237,186,.16)!important;
+}
+
+/* Akzent-Badges bewusst klein und ruhig. */
+.profile-coach-hub #coachPlanBadge,
+.profile-coach-hub .coach-section-title>span{
+  color:var(--coach-mint)!important;
+  background:rgba(116,237,186,.075)!important;
+  border:1px solid rgba(116,237,186,.1);
+}
+
+@media(hover:hover){
+  .profile-coach-hub .coach-dna-list>button:hover{background:rgba(116,237,186,.035)!important}
+  .profile-coach-hub .coach-section-title>button:hover,
+  .profile-coach-hub .coach-target-actions button:hover{border-color:rgba(116,237,186,.3)!important}
+}
