@@ -1,11 +1,12 @@
 'use strict';
 
 (function(root){
-  const VERSION='10.0.4-alpha';
+  const VERSION='10.0.5-alpha';
   const $=selector=>document.querySelector(selector);
   const goalLabels={lose:'Fettverlust',maintain:'Gewicht halten',gain:'Muskelaufbau'};
   const activityLabels={sedentary:'Sitzender Alltag',light:'Leicht aktiv',active:'Aktiver Alltag','very-active':'Sehr aktiv'};
   const paceLabels={gentle:'Ruhiges Tempo',balanced:'Ausgewogenes Tempo',focused:'Fokussiertes Tempo'};
+  let syncing=false;
 
   function appState(){try{return root.state}catch{return null}}
   function number(value,fallback=null){
@@ -34,7 +35,7 @@
   }
   function icon(name){
     const paths={
-      route:'<path d="M5 18c3-7 5-9 8-9 2 0 3 1 3 3 0 3-4 3-4 6"/><circle cx="6" cy="18" r="2"/><circle cx="16" cy="7" r="2"/>',
+      settings:'<circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.12-1.28l2.02-1.56-2-3.46-2.48 1a7.2 7.2 0 0 0-2.22-1.28L13.85 3h-4l-.35 2.42A7.2 7.2 0 0 0 7.28 6.7l-2.48-1-2 3.46 2.02 1.56A7 7 0 0 0 4.7 12c0 .44.04.87.12 1.28L2.8 14.84l2 3.46 2.48-1a7.2 7.2 0 0 0 2.22 1.28l.35 2.42h4l.35-2.42a7.2 7.2 0 0 0 2.22-1.28l2.48 1 2-3.46-2.02-1.56c.08-.41.12-.84.12-1.28Z"/>',
       body:'<circle cx="12" cy="7" r="3"/><path d="M7 21v-4a5 5 0 0 1 10 0v4M9 12l-2 4m8-4 2 4"/>',
       activity:'<path d="M3 13h4l2-7 4 14 2-8h6"/>',
       food:'<path d="M7 3v8m4-8v8M5 7h8M9 11v10M17 3v18m0-18c3 2 3 7 0 9"/>',
@@ -44,6 +45,29 @@
     };
     return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[name]||paths.target}</svg>`;
   }
+  function differs(settings,plan){
+    return ['maintenance','calories','protein','fat','carbs','steps'].some(key=>number(settings?.[key])!==number(plan?.[key]))||number(settings?.gymGoal)!==number(plan?.trainingDays);
+  }
+  function syncAutomaticPlan(){
+    const current=appState(),profile=current?.profile;
+    if(syncing||!current||!profile||profile.planSource==='manual'||!root.CutCoachProfile900?.calculatePlan)return false;
+    const weight=latestWeightEntry(current)?.weight??positive(profile.baselineWeight);
+    if(weight===null)return false;
+    const plan=root.CutCoachProfile900.calculatePlan({...profile,weight});
+    if(!differs(current.settings,plan))return false;
+    syncing=true;
+    const committed=root.commitStateMutation?.(draft=>{
+      Object.assign(draft.settings,{
+        age:plan.age,height:plan.height,maintenance:plan.maintenance,calories:plan.calories,
+        protein:plan.protein,fat:plan.fat,carbs:plan.carbs,steps:plan.steps,gymGoal:plan.trainingDays
+      });
+      draft.profile.baselineWeight=plan.weight;
+      draft.profile.planSource='profile';
+    });
+    syncing=false;
+    if(committed)root.render?.();
+    return Boolean(committed);
+  }
   function ensureStructure(){
     const screen=$('.profile-screen');
     if(!screen||screen.dataset.coachHub===VERSION)return screen;
@@ -52,14 +76,12 @@
     screen.classList.add('profile-coach-hub');
     screen.innerHTML=`
       <header class="coach-hub-head">
-        <div><small>Deine persönliche Steuerzentrale</small><h2>Profil</h2></div>
-        <button id="openSettingsCenter" data-open="settingsCenterModal" type="button" aria-label="App-Einstellungen öffnen">${icon('target')}</button>
+        <h2>Profil</h2>
+        <button id="openSettingsCenter" data-open="settingsCenterModal" type="button" aria-label="App-Einstellungen öffnen">${icon('settings')}</button>
       </header>
       <section class="coach-route coach-plan-overview" aria-labelledby="coachRouteTitle">
         <div class="coach-route-top">
-          <div class="coach-route-mark">${icon('route')}</div>
-          <div><small id="coachGoalLabel">Dein persönlicher Kurs</small><h3 id="coachRouteTitle">Dein CutCoach-Plan</h3><p id="coachRouteCopy">Grundlage für Ernährung, Alltag und Training.</p></div>
-          <span id="coachPlanBadge">Profilgesteuert</span>
+          <div><small>Dein persönlicher Kurs</small><h3 id="coachRouteTitle">Dein CutCoach-Plan</h3><p id="coachRouteCopy">Diese Angaben steuern deinen persönlichen Tagesrahmen.</p></div>
         </div>
         <div class="coach-course-summary">
           <article><span>Ziel</span><strong id="coachCourseGoal">–</strong></article>
@@ -67,7 +89,6 @@
           <article><span>Tempo</span><strong id="coachCoursePace">–</strong></article>
         </div>
       </section>
-      <section class="coach-insights" aria-hidden="true"></section>
       <section class="coach-dna" aria-labelledby="coachDnaTitle">
         <div class="coach-section-title"><div><small>Deine Grundlage</small><h3 id="coachDnaTitle">Persönliche DNA</h3></div><button id="editProfile" type="button">Bearbeiten ${icon('edit')}</button></div>
         <div class="coach-dna-list">
@@ -87,7 +108,6 @@
           <article><span>Schritte</span><strong id="coachSteps">–</strong><small>Alltagsbewegung</small></article>
           <article><span>Training</span><strong id="coachTraining">–</strong><small>pro Woche</small></article>
         </div>
-        <div class="coach-target-actions coach-target-actions-single"><button id="recalculateProfile" type="button">Automatische Ziele aktualisieren</button></div>
       </section>
       <div id="coachManualMount"></div>
       <aside class="coach-privacy">${icon('shield')}<div><strong>Privat und lokal</strong><span>Deine Profil- und Gesundheitsdaten bleiben auf diesem Gerät.</span></div></aside>`;
@@ -96,6 +116,7 @@
       manual.classList.add('coach-manual-panel');
       $('#coachManualMount')?.append(manual);
     }
+    document.querySelector('.coach-plan-status')?.remove();
     return screen;
   }
   function bindRows(){
@@ -105,6 +126,7 @@
     }
   }
   function render(){
+    syncAutomaticPlan();
     const screen=ensureStructure(),current=appState();
     if(!screen||!current)return;
     bindRows();
@@ -115,12 +137,9 @@
     const activity=activityLabels[profile.activityLevel]||'Aktivität offen';
     const pace=paceLabels[profile.pace]||'Tempo offen';
     const trainingDays=number(profile.trainingDays,settings.gymGoal)||0;
-    const name=profile.name?.trim();
 
-    $('#coachRouteTitle').textContent=name?`${name}s ${goal}`:`Dein ${goal}`;
-    $('#coachRouteCopy').textContent='Diese Angaben steuern deinen persönlichen Tagesrahmen.';
-    $('#coachPlanBadge').textContent=manual?'Manuell angepasst':'Profilgesteuert';
-    $('#coachPlanBadge').classList.toggle('manual',manual);
+    $('#coachRouteTitle').textContent='Dein CutCoach-Plan';
+    $('#coachRouteCopy').textContent='Ziel, Alltag und Tempo bilden automatisch deinen Tagesrahmen.';
     $('#coachCourseGoal').textContent=goal;
     $('#coachCourseActivity').textContent=`${activity} · ${trainingDays}× Training`;
     $('#coachCoursePace').textContent=pace;
@@ -129,7 +148,7 @@
     $('#coachBodyMeta').textContent=currentWeight===null?'Aktuelles Gewicht noch offen':`${format(currentWeight,1)} kg aktuell${goalWeight!==null?` · Ziel ${format(goalWeight,1)} kg`:''}`;
     $('#coachActivityValue').textContent=activity;
     $('#coachActivityMeta').textContent=`${trainingDays}× Training · ${format(settings.steps)} Schritte`;
-    $('#coachNutritionMeta').textContent=manual?'Manuelle Zielwerte aktiv':'Aus Körper, Alltag und Ziel berechnet';
+    $('#coachNutritionMeta').textContent=manual?'Manuelle Zielwerte aktiv':'Wird bei Profiländerungen automatisch neu berechnet';
     $('#coachTargetValue').textContent=goal;
     $('#coachTargetMeta').textContent=pace;
 
@@ -140,16 +159,19 @@
     $('#coachCarbs').textContent=`${format(settings.carbs)} g`;
     $('#coachSteps').textContent=format(settings.steps);
     $('#coachTraining').textContent=`${format(settings.gymGoal)}×`;
-    $('#coachTargetSource').textContent=manual?'Manuell angepasst':'Automatisch berechnet';
+    $('#coachTargetSource').textContent=manual?'Manuell angepasst':'Automatisch aktuell';
     $('#coachTargetSource').classList.toggle('manual',manual);
-    $('#recalculateProfile').textContent=manual?'Automatische Ziele wiederherstellen':'Automatische Ziele aktualisieren';
     screen.dataset.profileConfidence=String(confidence);
   }
+  function scheduleRender(delay=80){setTimeout(()=>{syncAutomaticPlan();render();},delay)}
   function boot(){
     ensureStructure();render();
-    root.addEventListener('cutcoach:module-enter',event=>{if(event.detail?.moduleId==='profile')setTimeout(render,0)});
-    document.addEventListener('click',event=>{if(event.target.closest('#editProfile'))setTimeout(render,50);if(event.target.closest('#recalculateProfile,#saveSettings,#startApp'))setTimeout(render,100)});
+    root.addEventListener('cutcoach:module-enter',event=>{if(event.detail?.moduleId==='profile')scheduleRender(0)});
+    document.addEventListener('click',event=>{
+      if(event.target.closest('#editProfile'))scheduleRender(50);
+      if(event.target.closest('#saveSettings,#startApp,#saveWeight,[data-action="save-weight"]'))scheduleRender(120);
+    });
   }
-  root.CutCoachProfile1000=Object.freeze({version:VERSION,render,latestWeightEntry});
+  root.CutCoachProfile1000=Object.freeze({version:VERSION,render,latestWeightEntry,syncAutomaticPlan});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })(window);
