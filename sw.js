@@ -22,7 +22,7 @@ const KEYBOARD_CACHE=`${IDLE_CACHE}-search199-ios-keyboard`;
 const PRODUCT_CACHE=`${KEYBOARD_CACHE}-catalog200-products`;
 const NUTRITION_CACHE=`${PRODUCT_CACHE}-nutrition201-stability`;
 const INTENT_CACHE=`${NUTRITION_CACHE}-search202-spoken-intent`;
-const VOICE_CACHE=`${INTENT_CACHE}-voice203-direct-permission-nutrition204-runtime-hardening-nutrition205-a-z-hardening-nutrition206-math-ui-ui207-liquid-glass-ui208-production-loader-ui209-hidden-scrollbars-body214-rollback-body221-production-audit-nutrition230-profile1000`;
+const VOICE_CACHE=`${INTENT_CACHE}-voice203-direct-permission-nutrition204-runtime-hardening-nutrition205-a-z-hardening-nutrition206-math-ui-ui207-liquid-glass-ui208-production-loader-ui209-hidden-scrollbars-body214-rollback-body221-production-audit-nutrition230-profile920-profile1000`;
 const CACHE_NAME=`${VOICE_CACHE}-energy143-nutrition220-nav137-dashboard820-searchmetrics110-faststart-search721-worker-index100-ui232-entry-flows`;
 const APP_SHELL=['./','./index.html','./runtime-manifest.js?v=2.3.0-alpha',...RUNTIME.baseAssets,...RUNTIME.styles,...RUNTIME.scripts,'./update.html'];
 const EXTERNAL_ASSETS=Object.freeze(['https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js']);
