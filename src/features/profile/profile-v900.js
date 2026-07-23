@@ -1,7 +1,7 @@
 'use strict';
 
 (function(root){
-  const VERSION='9.0.0-alpha';
+  const VERSION='9.1.0-alpha';
   const PAL={sedentary:1.4,light:1.55,active:1.7,'very-active':1.9};
   const GOAL_LABELS={lose:'Gewicht reduzieren',maintain:'Gewicht halten',gain:'Muskeln aufbauen'};
   const ACTIVITY_LABELS={sedentary:'Überwiegend sitzend',light:'Leicht aktiv',active:'Aktiver Alltag','very-active':'Sehr aktiv'};
@@ -208,7 +208,7 @@
     render();
     root.navigator?.storage?.persist?.().catch(()=>{});
     root.CutCoachInsights?.track('onboarding_complete',{goal:plan.goal,activity:plan.activityLevel,mode});
-    root.toast?.(mode==='edit'?'Profil und Ziele aktualisiert.':'Dein persönlicher Startplan ist bereit.');
+    root.toast?.(mode==='edit'?'Profil und automatische Ziele aktualisiert.':'Dein persönlicher Startplan ist bereit.');
     return true;
   }
   function recalculate(){
@@ -224,37 +224,139 @@
       current.profile.baselineWeight=plan.weight;
       current.profile.planSource='profile';
     });
-    if(committed){root.render?.();render();root.toast?.('Dein Plan wurde mit dem aktuellen Gewicht neu berechnet.')}
+    if(committed){root.render?.();render();root.toast?.('Automatische Ziele aus deinem Profil wiederhergestellt.')}
+  }
+
+  function hidePersonalOverrideFields(form){
+    for(const id of ['setAge','setHeight','setGymGoal','setGoalWeight']){
+      const input=$(`#${id}`);
+      const label=input?.closest('label');
+      if(label){label.hidden=true;label.classList.add('profile-hidden-setting')}
+    }
+    for(const row of form?.querySelectorAll('.two')||[]){
+      const visible=[...row.children].some(child=>!child.hidden);
+      row.hidden=!visible;
+    }
+  }
+  function ensureProfileLayout(){
+    const screen=$('.profile-screen');
+    if(!screen||screen.dataset.profileUx==='9.1')return;
+    screen.dataset.profileUx='9.1';
+    screen.classList.add('profile-v910');
+    const pageKicker=screen.querySelector('.profile-page-head small');
+    if(pageKicker)pageKicker.textContent='Profil & persönliche Ziele';
+
+    const identity=screen.querySelector('.profile-identity-card');
+    identity?.classList.add('profile-summary-card');
+    const bodyCard=$('#profileBodyFacts')?.closest('article');
+    const activityCard=$('#profileActivityFacts')?.closest('article');
+    const bodyMeta=bodyCard?.querySelector('small');
+    const activityMeta=activityCard?.querySelector('small');
+    if(bodyMeta)bodyMeta.id='profileBodyMeta';
+    if(activityMeta)activityMeta.id='profileActivityMeta';
+
+    const settingsSheet=$('#settingsCenterModal .settings-center-sheet');
+    const settingsIntro=settingsSheet?.querySelector('.settings-center-intro');
+    if(settingsIntro)settingsIntro.textContent='Backups, Datenschutz, Produktqualität und Feedback – getrennt von deinen persönlichen Zielen.';
+
+    const manualGroup=[...document.querySelectorAll('.settings-group')].find(group=>group.querySelector('#saveSettings'));
+    if(manualGroup){
+      manualGroup.id='profileManualTargets';
+      manualGroup.classList.add('profile-manual-goals');
+      manualGroup.removeAttribute('open');
+      const summary=manualGroup.querySelector('summary');
+      if(summary)summary.innerHTML='<span>Ziele manuell anpassen</span><small id="profileManualSummary">Optional · überschreibt nur deinen Tagesplan</small>';
+      const form=manualGroup.querySelector('.settings-center-form');
+      hidePersonalOverrideFields(form);
+      if(form&&!form.querySelector('.profile-manual-note')){
+        const note=document.createElement('p');
+        note.className='profile-manual-note';
+        note.textContent='Alter, Körperdaten, Wunschgewicht und Training bearbeitest du ausschließlich über „Profil bearbeiten“.';
+        form.prepend(note);
+      }
+      const save=$('#saveSettings');
+      if(save)save.textContent='Manuelle Ziele speichern';
+      const privacy=screen.querySelector('.profile-privacy');
+      screen.insertBefore(manualGroup,privacy||null);
+    }
+
+    const privacyTitle=screen.querySelector('.profile-privacy strong');
+    const privacyText=screen.querySelector('.profile-privacy span');
+    if(privacyTitle)privacyTitle.textContent='Privat auf deinem Gerät';
+    if(privacyText)privacyText.textContent='Profil, Ziele und Einträge werden lokal gespeichert und nicht in dein GitHub-Repository hochgeladen.';
+  }
+
+  function profileCompletion(profile,weight){
+    const checks=[
+      ['Ziel',Boolean(profile.goal)],
+      ['Alter',numeric(profile.age)!==null],
+      ['Größe',numeric(profile.height)!==null],
+      ['Gewicht',numeric(weight)!==null],
+      ['Alltag',Boolean(profile.activityLevel)],
+      ['Training',numeric(profile.trainingDays)!==null],
+      ['Tempo',Boolean(profile.pace)]
+    ];
+    const done=checks.filter(([,complete])=>complete).length;
+    return {done,total:checks.length,percent:Math.round(done/checks.length*100),missing:checks.filter(([,complete])=>!complete).map(([name])=>name)};
   }
   function render(){
+    ensureProfileLayout();
     const current=appState();
     if(!current)return;
     const profile=current.profile||{};
     const settings=current.settings||{};
     const weight=latestWeight();
-    const completed=Boolean(profile.completedAt&&weight);
-    setText('#profileGreeting',profile.name?`Hallo ${profile.name.split(/\s+/)[0]}!`:'Dein persönlicher Startpunkt');
-    setText('#profileGoalEyebrow',GOAL_LABELS[profile.goal]||'Dein Ziel');
-    setText('#profileSummary',completed?`${ACTIVITY_LABELS[profile.activityLevel]} · ${profile.trainingDays} Trainingstage pro Woche`:'Vervollständige dein Profil, damit CutCoach verlässlich auf dich rechnen kann.');
-    setText('#profileStatus',completed?'Persönlicher Plan aktiv':'Grundlage offen');
-    setText('#profileCompletionLabel',completed?'Vollständig personalisiert':'Noch nicht personalisiert');
-    const completion=$('#profileCompletionBar');
-    if(completion)completion.style.width=completed?'100%':`${[profile.age,profile.height,weight,profile.activityLevel].filter(Boolean).length*20}%`;
+    const completion=profileCompletion(profile,weight);
+    const completed=completion.done===completion.total;
+    const manual=profile.planSource==='manual';
+    const firstName=profile.name?.trim().split(/\s+/)[0]||'';
+    const goalLabel=GOAL_LABELS[profile.goal]||'Persönliches Ziel';
+    const activityLabel=ACTIVITY_LABELS[profile.activityLevel]||'Alltag noch offen';
+    const trainingDays=Number(profile.trainingDays??settings.gymGoal??0);
+    const goalWeight=numeric(profile.goalWeight??settings.goalWeight);
+
+    setText('#profileGreeting',firstName?`${firstName}s persönlicher Plan`:'Dein persönlicher Plan');
+    setText('#profileGoalEyebrow',goalLabel);
+    setText('#profileSummary',completed?`${activityLabel} · ${trainingDays}× Training pro Woche`:`Noch ${completion.total-completion.done} Angaben ergänzen, damit alle Ziele zuverlässig berechnet werden.`);
+    setText('#profileStatus',completed?'Profil vollständig':`${completion.total-completion.done} Angaben offen`);
+    const status=$('#profileStatus');
+    status?.classList.toggle('complete',completed);
+    status?.classList.toggle('incomplete',!completed);
+
+    const completionCard=$('#profileCompletionCard');
+    if(completionCard)completionCard.hidden=completed;
+    setText('#profileCompletionLabel',`${completion.percent}% eingerichtet`);
+    const completionBar=$('#profileCompletionBar');
+    if(completionBar)completionBar.style.width=`${completion.percent}%`;
     const completeButton=$('#completeProfile');
-    if(completeButton)completeButton.textContent=completed?'Profil überprüfen':'Profil vervollständigen';
+    if(completeButton)completeButton.textContent='Fehlende Angaben ergänzen';
+
     setText('#profileCalories',Number(settings.calories||0).toLocaleString('de-DE'));
     setText('#profileMaintenance',Number(settings.maintenance||0).toLocaleString('de-DE'));
     setText('#profileProtein',`${Number(settings.protein||0).toLocaleString('de-DE')} g`);
     setText('#profileCarbs',`${Number(settings.carbs||0).toLocaleString('de-DE')} g`);
     setText('#profileFat',`${Number(settings.fat||0).toLocaleString('de-DE')} g`);
     setText('#profileSteps',Number(settings.steps||0).toLocaleString('de-DE'));
-    setText('#profileBodyFacts',weight?`${profile.age} J. · ${profile.height} cm · ${Number(weight).toLocaleString('de-DE',{maximumFractionDigits:1})} kg`:`${profile.age} J. · ${profile.height} cm · Gewicht offen`);
-    setText('#profileActivityFacts',`${ACTIVITY_LABELS[profile.activityLevel]||'Noch offen'} · ${Number(profile.trainingDays??settings.gymGoal??0)}× Training`);
-    setText('#profilePlanSource',profile.planSource==='manual'?'Manuell angepasst':completed?'Profilberechnung':'Schätzung');
+
+    setText('#profileBodyFacts',profile.age&&profile.height?`${profile.age} Jahre · ${profile.height} cm`:'Körperdaten ergänzen');
+    setText('#profileBodyMeta',weight?`${Number(weight).toLocaleString('de-DE',{maximumFractionDigits:1})} kg aktuell${goalWeight?` · Ziel ${goalWeight.toLocaleString('de-DE',{maximumFractionDigits:1})} kg`:''}`:'Gewicht noch offen');
+    setText('#profileActivityFacts',activityLabel);
+    setText('#profileActivityMeta',`${trainingDays}× Training · ${Number(settings.steps||0).toLocaleString('de-DE')} Schritte Ziel`);
+    setText('#profilePlanSource',manual?'Manuell angepasst':completed?'Automatisch berechnet':'Vorläufig berechnet');
+
+    const planCard=$('.profile-plan-card');
+    if(planCard)planCard.dataset.planSource=manual?'manual':completed?'profile':'estimate';
+    const recalculate=$('#recalculateProfile');
+    if(recalculate)recalculate.textContent=manual?'Automatische Ziele wiederherstellen':'Ziele aktualisieren';
+    const manualGroup=$('#profileManualTargets');
+    manualGroup?.classList.toggle('manual-active',manual);
+    setText('#profileManualSummary',manual?'Aktiv · automatische Berechnung überschrieben':'Optional · überschreibt nur deinen Tagesplan');
+
     const avatar=$('#profileAvatar');
-    if(avatar)avatar.textContent=profile.name?profile.name.trim().charAt(0).toUpperCase():'C';
+    if(avatar)avatar.textContent=firstName?firstName.charAt(0).toUpperCase():'C';
   }
   function bind(){
+    ensureProfileLayout();
     document.addEventListener('click',event=>{
       if(event.target.closest('#profileStepNext'))nextStep();
       else if(event.target.closest('#profileStepBack'))showStep(step-1);

@@ -14,7 +14,7 @@ script.textContent=source;
 window.document.head.append(script);
 
 const api=window.CutCoachProfile900;
-assert.equal(api.version,'9.0.0-alpha');
+assert.equal(api.version,'9.1.0-alpha');
 
 const baseline=api.calculatePlan({
   age:30,height:180,weight:90,goalWeight:80,calculationSex:'male',
@@ -38,5 +38,9 @@ const extreme=api.calculatePlan({age:100,height:120,weight:30,goal:'lose',activi
 assert.ok(extreme.calories>=1200,'Das Tagesziel fällt unter die Sicherheitsuntergrenze.');
 assert.ok(extreme.protein>=50&&extreme.carbs>=50&&extreme.fat>=40,'Makro-Untergrenzen werden nicht eingehalten.');
 
+assert.match(source,/Ziele manuell anpassen/,'Manuelle Zielwerte werden nicht als eigener Profilbereich aufgebaut.');
+assert.match(source,/Backups, Datenschutz, Produktqualität und Feedback/,'App-Einstellungen sind nicht klar von persönlichen Zielen getrennt.');
+assert.match(source,/profileCompletion/,'Der kompakte Profilstatus fehlt.');
+
 dom.window.close();
-console.log('Profil 9.0: persönliche Energie-, Makro-, Aktivitäts- und Sicherheitslogik geprüft.');
+console.log('Profil 9.1: Berechnung, klare Informationshierarchie und getrennte App-Einstellungen geprüft.');
