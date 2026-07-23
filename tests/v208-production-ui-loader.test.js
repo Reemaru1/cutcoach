@@ -13,10 +13,10 @@ const scrollbar=read('scrollbar-cleanup-v209.css');
 
 assert.match(nav,/const VERSION='1\.3\.7-alpha'/);
 assert.match(nav,/function ensureProductionUi\(\)/);
-assert.match(nav,/addStyle\('nutrition-ui-consistency-v206','\.\/nutrition-ui-consistency-v206\.css\?v=2\.0\.8-loader'\)/);
+assert.match(nav,/addStyle\('nutrition-ui-consistency-v206','\.\/nutrition-ui-consistency-v206\.css\?v=2\.0\.9-loader'\)/);
 assert.match(nav,/addStyle\('liquid-glass-ui-v207','\.\/liquid-glass-ui-v207\.css\?v=2\.0\.8-loader'\)/);
 assert.match(nav,/addStyle\('scrollbar-cleanup-v209','\.\/scrollbar-cleanup-v209\.css\?v=2\.0\.9-alpha'\)/);
-assert.match(nav,/addScript\('nutrition-ui-consistency-v206','\.\/nutrition-ui-consistency-v206\.js\?v=2\.0\.8-loader'\)/);
+assert.match(nav,/addScript\('nutrition-ui-consistency-v206','\.\/nutrition-ui-consistency-v206\.js\?v=2\.0\.9-loader'\)/);
 assert.match(nav,/function enhance\(\)\{\s*ensureProductionUi\(\);/);
 assert.match(nav,/function start\(\)\{ensureProductionUi\(\);enhance\(\);const observer=new MutationObserver/);
 assert.ok(nav.indexOf("addStyle('nutrition-ui-consistency-v206'")<nav.indexOf("addStyle('liquid-glass-ui-v207'"),'Die Liquid-Glass-Schicht muss nach der Modal-/Berechnungsschicht registriert werden.');
@@ -24,14 +24,14 @@ assert.ok(nav.indexOf("addStyle('liquid-glass-ui-v207'")<nav.indexOf("addStyle('
 
 assert.match(runtime,/version:'2\.3\.0-alpha'/);
 assert.match(runtime,/glass-nav-v131\.js\?v=1\.3\.7-alpha/);
-assert.match(runtime,/nutrition-ui-consistency-v206\.css\?v=2\.0\.8-loader/);
+assert.match(runtime,/nutrition-ui-consistency-v206\.css\?v=2\.0\.9-loader/);
 assert.match(runtime,/liquid-glass-ui-v207\.css\?v=2\.0\.8-loader/);
-assert.match(runtime,/nutrition-ui-consistency-v206\.js\?v=2\.0\.8-loader/);
+assert.match(runtime,/nutrition-ui-consistency-v206\.js\?v=2\.0\.9-loader/);
 assert.match(runtime,/scrollbar-cleanup-v209\.css\?v=2\.0\.9-alpha/);
 assert.match(sw,/runtime-manifest\.js\?v=2\.3\.0-alpha/);
 assert.doesNotMatch(sw,/PRODUCTION_UI_ASSETS/,'Produktive UI-Assets werden redundant außerhalb des Runtime-Manifests gepflegt.');
 assert.match(sw,/ui208-production-loader-ui209-hidden-scrollbars/);
-assert.match(sw,/const CACHE_NAME=`\$\{VOICE_CACHE\}-energy143-nutrition220-nav137-dashboard820-searchmetrics110-faststart-search720-worker-index100`/);
+assert.match(sw,/const CACHE_NAME=`\$\{VOICE_CACHE\}-energy143-nutrition220-nav137-dashboard820-searchmetrics110-faststart-search721-worker-index100-ui231-polish`/);
 assert.match(css,/#journalMacroClose/);
 assert.match(css,/backdrop-filter:blur\(34px\)/);
 assert.match(scrollbar,/scrollbar-width:none!important/);

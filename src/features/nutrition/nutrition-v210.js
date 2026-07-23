@@ -1,7 +1,7 @@
 'use strict';
 
 (function(root){
-  const VERSION='2.2.1-alpha';
+  const VERSION='2.2.2-alpha';
   const $=(selector,scope=document)=>scope?.querySelector?.(selector)||null;
   const $$=(selector,scope=document)=>[...(scope?.querySelectorAll?.(selector)||[])];
   const ICONS=Object.freeze({
@@ -24,7 +24,7 @@
   let scheduled=false,observer=null,bound=false;
 
   function ensureStyleOrder(){
-    const href='src/features/nutrition/nutrition-v210.css?v=2.2.1-alpha';
+    const href='src/features/nutrition/nutrition-v210.css?v=2.2.2-alpha';
     let link=[...document.querySelectorAll('link[rel="stylesheet"]')].find(item=>(item.getAttribute('href')||'').includes('nutrition-v210.css'));
     if(!link){link=document.createElement('link');link.rel='stylesheet';link.href=href;link.dataset.nutritionV210='1';document.head.append(link);return}
     const styles=[...document.querySelectorAll('link[rel="stylesheet"]')];if(styles.at(-1)!==link)document.head.append(link);
@@ -33,6 +33,12 @@
   function icon(name){return `<span class="nutrition-v210-icon" aria-hidden="true">${ICONS[name]||ICONS.food}</span>`}
   function setIcon(node,name){if(!node||node.dataset.nutritionV210Icon===name)return;node.dataset.nutritionV210Icon=name;node.innerHTML=ICONS[name]||ICONS.food;node.classList.add('nutrition-v210-icon');node.setAttribute('aria-hidden','true')}
   function setText(node,value){if(node&&node.textContent!==value)node.textContent=value}
+  function setAction(node,name,label){
+    if(!node||node.dataset.nutritionV210Action===`${name}:${label}`)return;
+    node.dataset.nutritionV210Action=`${name}:${label}`;
+    node.classList.add('nutrition-v210-primary-action');
+    node.innerHTML=`<span class="nutrition-v210-action-icon" aria-hidden="true">${ICONS[name]||ICONS.check}</span><span>${label}</span>`;
+  }
   function numberFrom(node){const match=String(node?.textContent||'').replace(/\./g,'').replace(',','.').match(/-?\d+(?:\.\d+)?/);return match?Number(match[0]):0}
 
   function ensureDayCard(screen){
@@ -93,6 +99,7 @@
     const torch=$('#scannerTorch');if(torch&&!$('.nutrition-v210-action-icon',torch)){torch.innerHTML=`<span class="nutrition-v210-action-icon">${ICONS.light}</span><span>Licht</span>`}
     const photo=$('.scanner-photo');if(photo&&!$('.nutrition-v210-action-icon',photo)){const input=$('input',photo);photo.textContent='';photo.insertAdjacentHTML('afterbegin',`<span class="nutrition-v210-action-icon">${ICONS.camera}</span><span>Barcode fotografieren</span>`);if(input)photo.append(input)}
     const manual=$('.scanner-manual');if(manual&&!$('.nutrition-v210-manual-title',manual))manual.insertAdjacentHTML('afterbegin','<strong class="nutrition-v210-manual-title">Oder Code eingeben</strong>');
+    setAction($('#lookupManualCode')||$('.scanner-manual button'),'search','Suchen');
   }
 
   function polishForms(){
@@ -104,7 +111,10 @@
     const kindSwitch=$('#libraryItemModal .segmented');if(kindSwitch){kindSwitch.hidden=true;kindSwitch.setAttribute('aria-hidden','true')}
     const recipeKind=$('#libraryItemModal [data-kind="recipe"]');if(recipeKind){recipeKind.hidden=true;recipeKind.tabIndex=-1}
     const itemTitle=$('#libraryItemTitle');if(itemTitle)setText(itemTitle,/bearbeiten/i.test(itemTitle.textContent)?'Lebensmittel bearbeiten':'Lebensmittel anlegen');
-    const itemSave=$('#saveLibraryItem');if(itemSave)setText(itemSave,'In Bibliothek speichern');
+    const mealSave=$('#saveMeal');setAction(mealSave,'check',/änderungen/i.test(mealSave?.textContent||'')?'Änderungen speichern':'Mahlzeit speichern');
+    setAction($('#saveLibraryItem'),'check','In Bibliothek speichern');
+    setAction($('#recipeV7Add'),'plus','Zutat übernehmen');
+    setAction($('#recipeV7Save'),'check','Rezept speichern');
     const recipeSearch=$('#recipeV7Search');if(recipeSearch)recipeSearch.placeholder='Lebensmittel suchen';
     const recipeHint=$('.recipe-v7-search-hint');if(recipeHint&&/BLS/i.test(recipeHint.textContent))setText(recipeHint,'Tippe einen Begriff ein und wähle anschließend die passende Zutat.');
     const favorite=$$('.favorite-check');favorite.forEach(label=>{label.classList.add('nutrition-v210-favorite');if(!$('.nutrition-v210-favorite-icon',label))label.insertAdjacentHTML('afterbegin',`<span class="nutrition-v210-favorite-icon">${ICONS.heart}</span>`) });

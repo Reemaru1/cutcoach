@@ -23,7 +23,7 @@ assert.match(css,/button\.active:not\(\[data-tab="food"\]\)[\s\S]*rgba\(255,255,
 assert.match(css,/button\[data-tab="food"\][\s\S]*width:46px!important/,'Der zentrale Ernährungsbutton wurde unerwartet entfernt oder verkleinert.');
 assert.match(css,/@media\(prefers-reduced-transparency:reduce\)/,'Eine solide Fallback-Fläche bei reduzierter Transparenz fehlt.');
 
-const oldStyle=runtime.indexOf('nutrition-ui-consistency-v206.css?v=2.0.8-loader');
+const oldStyle=runtime.indexOf('nutrition-ui-consistency-v206.css?v=2.0.9-loader');
 const newStyle=runtime.indexOf('liquid-glass-ui-v207.css?v=2.0.8-loader');
 assert.ok(oldStyle>=0&&newStyle>oldStyle,'Das Liquid-Glass-Override muss nach allen älteren UI-Regeln geladen werden.');
 assert.ok(sw.includes('ui207-liquid-glass'),'Die Offline-Cachegeneration wurde nicht angehoben.');

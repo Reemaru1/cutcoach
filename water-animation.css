@@ -1,11 +1,16 @@
-.journal-water-ring.water-animated{position:relative;overflow:hidden;isolation:isolate;background:rgba(12,27,45,.92)}
+.journal-water-ring.water-animated{position:relative;overflow:hidden;isolation:isolate;background:radial-gradient(circle at 50% 76%,rgba(70,157,214,.08),transparent 48%),rgba(10,22,34,.94)}
 .journal-water-ring.water-animated>div:not(.water-fill){position:relative;z-index:4;background:transparent!important;box-shadow:none!important}
-.journal-water-ring.water-animated>.water-fill{position:absolute;left:0;right:0;bottom:0;height:var(--water-level,0%);z-index:3;display:block!important;pointer-events:none;overflow:visible;transform:none!important;transition:height .8s cubic-bezier(.22,.8,.28,1)}
+.journal-water-ring.water-animated>.water-fill{position:absolute;left:0;right:0;bottom:0;height:var(--water-level,0%);z-index:3;display:block!important;pointer-events:none;overflow:visible;opacity:1;visibility:visible;transform:none!important;transition:height .8s cubic-bezier(.22,.8,.28,1),opacity .3s ease}
+.journal-water-ring.water-animated.water-empty>.water-fill{height:0!important;opacity:0!important;visibility:hidden!important;overflow:hidden!important}
+.journal-water-ring.water-animated.water-empty .water-v7-bubbles{display:none!important}
+.journal-water-ring.water-animated.water-empty::after{content:"";position:absolute;left:22%;right:22%;bottom:18%;height:1px;border-radius:999px;background:linear-gradient(90deg,transparent,rgba(113,191,255,.25),transparent);opacity:.7}
 .journal-water-ring.water-animated>.water-fill::before,.journal-water-ring.water-animated>.water-fill::after{content:"";position:absolute;left:50%;top:-9px;width:170%;height:20px;border-radius:50%;transform:translate3d(-50%,0,0) scaleY(.82);transform-origin:center;background:rgba(78,184,255,.96);animation:water-wave-drift 3.8s ease-in-out infinite alternate;will-change:transform}
 .journal-water-ring.water-animated>.water-fill::after{top:-5px;width:180%;height:18px;background:rgba(40,137,230,.62);animation-duration:5.2s;animation-direction:alternate-reverse}
-.journal-water-ring.water-animated>.water-fill>.water-fill-body{position:absolute;display:block;left:0;right:0;top:7px;bottom:0;background:linear-gradient(180deg,rgba(73,181,255,.88),rgba(25,104,210,.96));box-shadow:inset 0 8px 22px rgba(255,255,255,.16)}
+.journal-water-ring.water-animated>.water-fill>.water-fill-body{position:absolute;display:block;left:0;right:0;top:7px;bottom:0;background:linear-gradient(180deg,rgba(84,195,255,.88),rgba(28,121,215,.94) 48%,rgba(20,86,180,.97));box-shadow:inset 0 8px 22px rgba(255,255,255,.17),inset 0 -16px 22px rgba(6,43,107,.22)}
+.journal-water-ring.water-animated>.water-fill>.water-fill-body::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 20%,rgba(255,255,255,.12) 44%,transparent 68%);transform:translateX(-75%);animation:water-shimmer 6s ease-in-out infinite}
 .journal-water-ring.water-pulse>.water-fill>.water-fill-body{animation:water-fill-flash .65s ease-out}
 .journal-water-ring.water-complete{box-shadow:0 0 0 1px rgba(83,207,255,.45),0 0 28px rgba(39,154,255,.28)}
 @keyframes water-wave-drift{from{transform:translate3d(-54%,0,0) scaleY(.82)}to{transform:translate3d(-46%,2px,0) scaleY(1)}}
 @keyframes water-fill-flash{0%,100%{filter:brightness(1)}45%{filter:brightness(1.24)}}
-@media (prefers-reduced-motion:reduce){.journal-water-ring.water-animated>.water-fill{transition-duration:.01ms}.journal-water-ring.water-animated>.water-fill::before,.journal-water-ring.water-animated>.water-fill::after,.journal-water-ring.water-pulse>.water-fill>.water-fill-body{animation:none}}
+@keyframes water-shimmer{0%,55%{transform:translateX(-90%)}82%,100%{transform:translateX(110%)}}
+@media (prefers-reduced-motion:reduce){.journal-water-ring.water-animated>.water-fill{transition-duration:.01ms}.journal-water-ring.water-animated>.water-fill::before,.journal-water-ring.water-animated>.water-fill::after,.journal-water-ring.water-pulse>.water-fill>.water-fill-body,.journal-water-ring.water-animated>.water-fill>.water-fill-body::after{animation:none}}

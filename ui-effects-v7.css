@@ -44,7 +44,7 @@
 .coach-v71-focus small{color:#79e6ad;font-size:8px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}
 .coach-v71-focus strong{margin-top:4px;font-size:14px;line-height:1.2}
 .coach-v71-focus p{margin:5px 0 0!important;color:#a9b6c8!important;font-size:9.5px!important;line-height:1.45!important;white-space:normal!important}
-.coach-v71-focus button{min-height:42px!important;max-width:128px;padding:0 12px!important;border:1px solid rgba(112,231,171,.42)!important;border-radius:13px!important;background:linear-gradient(110deg,#68baff,#73e8aa)!important;color:#07111a!important;font-size:10px!important;font-weight:900!important;line-height:1.15!important;box-shadow:0 9px 22px rgba(80,185,183,.14)!important}
+.coach-v71-focus button{min-height:44px!important;max-width:142px;padding:0 13px!important;border:1px solid rgba(112,231,171,.3)!important;border-radius:13px!important;background:rgba(112,231,171,.075)!important;color:#c9fae4!important;font-size:10px!important;font-weight:820!important;line-height:1.2!important;box-shadow:inset 0 1px rgba(255,255,255,.04)!important}
 
 .coach-v71-pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
 .coach-v71-pillars article{--coach-progress:0%;position:relative;display:grid;grid-template-columns:29px minmax(0,1fr);grid-template-rows:auto 4px;align-items:center;gap:7px 8px;min-width:0;padding:10px 9px 9px;overflow:hidden;border:1px solid rgba(132,153,190,.16);border-radius:14px;background:rgba(7,13,23,.7)}

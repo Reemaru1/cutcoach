@@ -61,8 +61,11 @@ setTimeout(()=>{
   assert.equal(document.querySelectorAll('#mealModal :is(.nutrition-v210-intro,.cc-meal-intro)').length,1,'Der Mahlzeitendialog enthält doppelte Einleitungen.');
   assert.ok(document.querySelector('#scannerRetry svg'),'Scanner-Steuerung nutzt weiterhin Textsymbole.');
   assert.ok(document.querySelector('#scannerModal .nutrition-v210-handle'),'Scanner folgt nicht der gemeinsamen Sheet-Sprache.');
+  assert.ok(document.querySelector('#saveMeal .nutrition-v210-action-icon'),'Mahlzeit speichern nutzt weiterhin den alten Vollflächen-Button.');
+  assert.ok(document.querySelector('#saveLibraryItem .nutrition-v210-action-icon'),'Bibliothek speichern nutzt weiterhin den alten Vollflächen-Button.');
+  assert.ok(document.querySelector('.scanner-manual button .nutrition-v210-action-icon'),'Die manuelle Barcode-Suche nutzt weiterhin den alten Vollflächen-Button.');
 
-  const nutritionSource=read('nutrition.js'),navSource=read('glass-nav-v131.js'),css=read('src/features/nutrition/nutrition-v210.css'),dashboard=read('src/features/journal/dashboard-v800.css'),index=read('index.html'),manifest=read('runtime-manifest.js'),sw=read('sw.js'),core=read('core.js'),app=read('app.js');
+  const nutritionSource=read('nutrition.js'),navSource=read('glass-nav-v131.js'),css=read('src/features/nutrition/nutrition-v210.css'),waterCss=read('water-animation.css'),dashboard=read('src/features/journal/dashboard-v800.css'),index=read('index.html'),manifest=read('runtime-manifest.js'),sw=read('sw.js'),core=read('core.js'),app=read('app.js');
   assert.doesNotMatch(nutritionSource,/querySelector\('nav \[data-tab="food"\]'\)\?\.remove/,'Ernährung löscht weiterhin den globalen Plusbutton.');
   assert.match(navSource,/MutationObserver[\s\S]*queueRepair/,'Navigation repariert spätere DOM-Änderungen nicht dauerhaft.');
   assert.match(navSource,/\.cc-nav-icon > svg/,'Die Navigationsprüfung akzeptiert ersetzte Emoji-Icons weiterhin als intaktes SVG-Markup.');
@@ -78,7 +81,10 @@ setTimeout(()=>{
   assert.match(nutritionSource,/cutcoach:search-input-released/,'Released search input is not handled by the canonical renderer.');
   assert.match(nutritionSource,/searchRevision/,'Search attempts have no stable privacy-safe revision.');
   assert.match(css,/nutrition-empty-actions/,'Empty search state has no clear follow-up actions.');
-  for(const asset of ['src/features/nutrition/nutrition-v210.css?v=2.2.1-alpha','src/features/nutrition/nutrition-v210.js?v=2.2.1-alpha']){assert.ok(index.includes(asset));assert.ok(manifest.includes(asset));}
+  assert.match(nutritionSource,/function syncSearchStage\(query=''\)/,'Suchtreffer werden nicht direkt an das Suchfeld verschoben.');
+  assert.match(css,/nutrition-v210\.nutrition-searching \.nutrition-results-stage \.nutrition-tabs\{display:none!important\}/,'Suchtreffer bleiben hinter den Filtertabs versteckt.');
+  assert.match(waterCss,/water-empty/,'Der Nullzustand der Wasseranzeige ist nicht gegen sichtbare Wellen abgesichert.');
+  for(const asset of ['src/features/nutrition/nutrition-v210.css?v=2.2.2-alpha','src/features/nutrition/nutrition-v210.js?v=2.2.2-alpha']){assert.ok(index.includes(asset));assert.ok(manifest.includes(asset));}
   assert.match(sw,/nutrition220-nav137-dashboard820-searchmetrics110-faststart/,'Der Offline-Cache wurde für die stabilisierte Oberfläche nicht invalidiert.');
   assert.match(sw,/navigationResponse\(event,request\)/);
   assert.match(sw,/if\(cached\)\{event\.waitUntil\(network\.then/,'Navigation und Assets nutzen den warmen Cache nicht sofort.');

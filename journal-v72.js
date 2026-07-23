@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-  const VERSION='7.2.1';
+  const VERSION='7.2.2';
   const WATER_KEY='cutcoach_water_v1';
   const WATER_TARGET=3000;
   const $=selector=>document.querySelector(selector);
@@ -169,7 +169,7 @@
   function celebrateWater(water){
     const card=$('.journal-water-card'),ring=$('#journalWaterRing'),date=selectedDate;if(!card||!ring)return;
     card.classList.toggle('v72-water-empty',water<=0);card.classList.toggle('v72-water-ready',water>0&&water<WATER_TARGET);card.classList.toggle('v72-water-complete',water>=WATER_TARGET);
-    const glasses=$('.water-v7-glasses');if(glasses)setText(glasses,water>=WATER_TARGET?`≈ ${fmt(water/250)} Gläser · Ziel erreicht`:`≈ ${fmt(water/250)} Gläser`);
+    const glasses=$('.water-v7-glasses');if(glasses)setText(glasses,water<=0?'Noch leer':water>=WATER_TARGET?`≈ ${fmt(water/250)} Gläser · Ziel erreicht`:`≈ ${fmt(water/250)} Gläser`);
     const previous=previousWater.has(date)?previousWater.get(date):water,celebrationKey=`cutcoach_water_goal_${date}`;
     let celebrated=false;try{celebrated=sessionStorage.getItem(celebrationKey)==='1'}catch{}
     if(previous<WATER_TARGET&&water>=WATER_TARGET&&!celebrated){ring.classList.remove('v72-water-celebrate');void ring.offsetWidth;ring.classList.add('v72-water-celebrate');setTimeout(()=>ring.classList.remove('v72-water-celebrate'),1100);try{sessionStorage.setItem(celebrationKey,'1')}catch{}}

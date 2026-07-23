@@ -143,6 +143,31 @@ html body.body-progress-v220-active .bp220-shell .bp220-history button:last-chil
 }
 @media(prefers-reduced-motion:reduce){.bp220-shell *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
+/* 2.3.1: sichere mobile Formularbreiten und ruhige Premium-Aktionen. */
+html body.body-progress-v220-active .bp220-modal .sheet,
+html body.body-progress-v220-active .bp220-modal .sheet>*,
+html body.body-progress-v220-active .bp220-modal label,
+html body.body-progress-v220-active .bp220-modal .two,
+html body.body-progress-v220-active .bp220-modal input,
+html body.body-progress-v220-active .bp220-modal select{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+html body.body-progress-v220-active .bp220-modal .two{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html body.body-progress-v220-active .bp220-modal input,
+html body.body-progress-v220-active .bp220-modal select{width:100%!important}
+html body.body-progress-v220-active .bp220-modal input[type="date"]{-webkit-appearance:none!important;appearance:none!important}
+html body.body-progress-v220-active .bp220-modal input[type="date"]::-webkit-date-and-time-value{min-width:0;text-align:left}
+html body.body-progress-v220-active .bp220-exercise-head #bp220AddExercise{min-height:42px!important;padding:0 13px!important;border:1px solid rgba(255,112,88,.3)!important;border-radius:13px!important;background:rgba(255,112,88,.075)!important;color:#ffb29e!important;font-size:11px!important;font-weight:800!important;box-shadow:inset 0 1px rgba(255,255,255,.035)!important}
+html body.body-progress-v220-active .bp220-exercise-title{grid-template-columns:minmax(0,1fr) 42px!important;align-items:end!important}
+html body.body-progress-v220-active .bp220-exercise-title button{position:relative;width:42px!important;height:50px!important;border-color:rgba(255,123,114,.28)!important;border-radius:13px!important;background:rgba(255,123,114,.06)!important;color:transparent!important;font-size:0!important}
+html body.body-progress-v220-active .bp220-exercise-title button::before{content:"";position:absolute;left:50%;top:50%;width:13px;height:15px;border:2px solid #ff8f88;border-top:0;border-radius:0 0 3px 3px;transform:translate(-50%,-40%)}
+html body.body-progress-v220-active .bp220-exercise-title button::after{content:"";position:absolute;left:50%;top:34%;width:15px;height:2px;border-radius:2px;background:#ff8f88;box-shadow:0 -3px 0 -1px #ff8f88;transform:translate(-50%,-50%)}
+html body.body-progress-v220-active #bp220SaveMeasurement,
+html body.body-progress-v220-active #bp220SaveWorkout{min-height:52px!important;border:1px solid rgba(117,229,189,.32)!important;border-radius:15px!important;background:linear-gradient(145deg,rgba(117,229,189,.12),rgba(113,191,255,.055))!important;color:#d9fff1!important;font-weight:820!important;box-shadow:inset 0 1px rgba(255,255,255,.05),0 8px 24px rgba(0,0,0,.16)!important}
+html body.body-progress-v220-active #bp220SaveWorkout{border-color:rgba(255,112,88,.32)!important;background:linear-gradient(145deg,rgba(255,112,88,.12),rgba(255,155,101,.045))!important;color:#ffd3c8!important}
+@media(max-width:430px){
+  html body.body-progress-v220-active .bp220-modal .two{gap:8px!important}
+  html body.body-progress-v220-active .bp220-modal .two>label{font-size:10px!important}
+}
+
 /* 2.3: mobile information is rearranged instead of miniaturised. */
 @media(max-width:430px){
   .bp220-shell{padding-left:12px;padding-right:12px;padding-bottom:42px}

@@ -19,7 +19,7 @@ const modules=[
 
 for(const file of modules){
   assert.ok(fs.existsSync(path.join(root,file)),`Modul fehlt: ${file}`);
-  const version=file.endsWith('dashboard-v800.js')?'8.2.1-alpha':file.endsWith('product-insights.js')||file.endsWith('ui.js')||file.endsWith('features/nutrition/index.js')?'1.1.0-alpha':'1.0.0-alpha';
+  const version=file.endsWith('dashboard-v800.js')?'8.2.2-alpha':file.endsWith('product-insights.js')||file.endsWith('ui.js')||file.endsWith('features/nutrition/index.js')?'1.1.0-alpha':'1.0.0-alpha';
   const url=`${file}?v=${version}`;
   assert.ok(index.includes(`src="${url}"`),`Index lädt ${file} nicht.`);
   assert.ok(manifest.includes(`'./${url}'`),`Offline-Manifest enthält ${file} nicht.`);
@@ -27,7 +27,7 @@ for(const file of modules){
 
 for(const file of ['src/shared/design-system-v800.css','src/features/journal/dashboard-v800.css']){
   assert.ok(fs.existsSync(path.join(root,file)),`Designmodul fehlt: ${file}`);
-  const version=file.endsWith('dashboard-v800.css')?'8.2.1-alpha':'8.0.1-alpha';
+  const version=file.endsWith('dashboard-v800.css')?'8.2.2-alpha':'8.0.1-alpha';
   assert.ok(index.includes(`${file}?v=${version}`),`Index lädt ${file} nicht.`);
   assert.ok(manifest.includes(`'./${file}?v=${version}'`),`Offline-Manifest enthält ${file} nicht.`);
 }

@@ -78,10 +78,12 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   assert.doesNotMatch(read('body-progress-v220.js'),/Fettverbrennung im Bauchbereich|92%|18,6\s*t|7,8\s*\/10|\[0,\.2,\.3,\.5\]/,'Die Produktion darf keine erfundenen Referenzmetriken oder Ersatzkurven enthalten.');
   assert.doesNotMatch(read('body-progress-v220.js'),/bp220-five-nav|data-bp220-training-nav|FOOD_PROGRESS_ICON|bp220-topbar/,'Body Progress darf Header und globale Navigation nicht mehr umbauen.');
   assert.doesNotMatch(read('body-progress-v220.css'),/bp220-five-nav|bp220-topbar|bp220-quick-menu/,'Entfernte Header- und Fünfer-Navigationstyles dürfen nicht zurückbleiben.');
+  assert.match(read('body-progress-v220.css'),/\.bp220-modal \.two\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important\}/,'Die Datums- und Dauerfelder sind auf iPhones nicht gegen Überlauf abgesichert.');
+  assert.match(read('body-progress-v220.css'),/#bp220SaveWorkout\{[^}]*background:linear-gradient\(145deg,rgba\(255,112,88,.12\)/,'Die Trainingsaktion nutzt nicht die neue ruhige Premium-Sprache.');
   for(const asset of ['assets/body-progress-body-v3.png','assets/body-progress-training-v3.png','assets/body-progress-neutral-v3.png']){
     const bytes=fs.readFileSync(path.join(root,asset));assert.equal(bytes.subarray(1,4).toString(),'PNG',`${asset} muss als lokales PNG-Asset vorliegen.`);
   }
-  assert.match(read('index.html'),/body-progress-v220\.js\?v=2\.2\.2-production/);
+  assert.match(read('index.html'),/body-progress-v220\.js\?v=2\.2\.3-production/);
   assert.match(read('runtime-manifest.js'),/assets\/body-progress-training-v3\.png\?v=2\.2\.0/);
   assert.match(read('sw.js'),/body221-production-audit/);
   dom.window.close();

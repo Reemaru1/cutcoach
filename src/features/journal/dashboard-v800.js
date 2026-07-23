@@ -1,7 +1,7 @@
 'use strict';
 
 (function(root){
-  const VERSION='8.2.1-alpha';
+  const VERSION='8.2.2-alpha';
   const FEEDBACK_KEY='cutcoach_journal_feedback_v800';
   const $=(selector,scope=document)=>scope.querySelector(selector);
   const ICONS=Object.freeze({

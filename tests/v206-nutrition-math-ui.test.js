@@ -38,7 +38,7 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   w.localStorage.setItem('cutcoach_water_v1',JSON.stringify({'2026-07-21':4000}));
   const script=w.document.createElement('script');script.textContent=read('nutrition-ui-consistency-v206.js');w.document.head.append(script);await wait(120);
 
-  const api=w.CutCoachNutritionMath206;assert.ok(api);assert.equal(api.version,'2.0.6-alpha');
+  const api=w.CutCoachNutritionMath206;assert.ok(api);assert.equal(api.version,'2.0.9-alpha');
   const view=api.snapshot();assert.equal(view.total.protein,160);assert.equal(view.goals.protein,200);assert.equal(view.macro.protein.remaining,40);assert.equal(view.macro.protein.over,0);
   assert.equal(api.uniqueAllCount(),2,'Favorisieren oder zuletzt nutzen darf den Gesamtbestand nicht reduzieren.');
   assert.equal(w.document.querySelector('[data-filter-count="all"]').textContent,'2');
@@ -53,13 +53,13 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   assert.doesNotMatch(w.document.querySelector('.journal-coach-card').textContent,/91 g/,'Der Impuls zeigt weiterhin den veralteten Eiweißstand.');
 
   total={calories:1910,protein:160,carbs:150,fat:55};api.refresh();await wait(80);
-  assert.equal(w.document.querySelector('#coachV71FocusTitle').textContent,'Eiweiß gezielt erhöhen');
-  assert.match(w.document.querySelector('#coachV71FocusReason').textContent,/160 von 200 g Eiweiß/);
-  assert.match(w.document.querySelector('#coachV71FocusReason').textContent,/40 g bis zum Tagesziel/);
+  assert.equal(w.document.querySelector('#coachV71FocusTitle').textContent,'35 g Eiweiß gezielt einplanen');
+  assert.match(w.document.querySelector('#coachV71FocusReason').textContent,/Portion mit etwa 35 g Eiweiß/);
+  assert.match(w.document.querySelector('#coachV71FocusReason').textContent,/390 kcal Spielraum/);
 
   const css=read('nutrition-ui-consistency-v206.css'),runtime=read('runtime-manifest.js'),sw=read('sw.js');
   assert.match(css,/\.cc-close-v206/);assert.match(css,/border-radius:50%/);assert.match(css,/\.cc-bls-hidden-v206/);assert.doesNotMatch(css,/linear-gradient/);
-  assert.ok(runtime.includes('nutrition-ui-consistency-v206.css?v=2.0.8-loader'));assert.ok(runtime.includes('nutrition-ui-consistency-v206.js?v=2.0.8-loader'));
+  assert.ok(runtime.includes('nutrition-ui-consistency-v206.css?v=2.0.9-loader'));assert.ok(runtime.includes('nutrition-ui-consistency-v206.js?v=2.0.9-loader'));
   assert.ok(sw.includes('nutrition206-math-ui'));
   dom.window.close();console.log('Ernährungswerte 2.0.8: BLS-UI entfernt, Gesamtzähler stabil, Makrolücken zentral berechnet, Modalsteuerung vereinheitlicht und produktiv geladen.');
 })().catch(error=>{console.error(error);process.exit(1)});
