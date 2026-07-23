@@ -110,6 +110,11 @@ body.nutrition-mode .nutrition-v210-sources .nutrition-catalog-note{margin:0 0 8
 .nutrition-v210-favorite:has(input:checked) .nutrition-v210-favorite-icon svg{fill:currentColor}
 .nutrition-v210-favorite:has(input:focus-visible){box-shadow:0 0 0 3px rgba(113,191,255,.28)!important}
 .nutrition-v210-sheet .recipe-v7-picker,.nutrition-v210-sheet .recipe-v7-list-section,.nutrition-v210-sheet .recipe-v7-summary{border-color:var(--cc-line)!important;border-radius:17px!important;background:rgba(3,9,14,.45)!important}
+.nutrition-v210-sheet .recipe-v7-search{display:grid!important;grid-template-columns:24px minmax(0,1fr)!important;align-items:center!important;gap:10px!important;min-height:54px!important;padding:0 13px!important;border:1px solid rgba(113,191,255,.22)!important;border-radius:15px!important;background:#080f16!important;box-shadow:inset 0 1px rgba(255,255,255,.025)!important}
+.nutrition-v210-sheet .recipe-v7-search-icon{display:grid!important;width:24px;height:24px;place-items:center;color:var(--cc-blue,#71bfff)!important}
+.nutrition-v210-sheet .recipe-v7-search-icon svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nutrition-v210-sheet .recipe-v7-search input{width:100%!important;min-width:0!important;min-height:0!important;height:52px!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;outline:0!important}
+.nutrition-v210-sheet .recipe-v7-search:focus-within{border-color:rgba(113,191,255,.58)!important;box-shadow:0 0 0 3px rgba(113,191,255,.11)!important}
 .nutrition-v210-sheet .recipe-v7-search-hint{font-size:10px!important;line-height:1.45!important;color:var(--cc-muted)!important}
 .nutrition-v210-sheet .recipe-v7-summary{position:static!important;z-index:auto!important;box-shadow:none!important}
 .nutrition-v210-sheet.scanner-sheet{height:auto!important;max-height:96dvh!important}

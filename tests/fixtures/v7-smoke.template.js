@@ -43,7 +43,7 @@ window.localStorage.setItem('cutcoach_library_v1',JSON.stringify({version:3,item
 const scripts=[
   'core.js','render.js','actions.js','app.js','food-catalog.js','library.js','library-init.js',
   'scanner-v2.js','off-lookup.js','upgrade-340.js','nutrition.js','journal.js','water-animation.js',
-  'nutrition-v7.js','ui-effects-v7.js','version-v7.js'
+  'nutrition-v7.js','nutrition-stability-v201.js','ui-effects-v7.js','version-v7.js'
 ];
 for(const name of scripts){
   const script=window.document.createElement('script');
@@ -101,7 +101,16 @@ const input=(selector,value)=>{
   assert.ok(node('#nutritionV7Analysis'),'Erweiterte Nährwertanalyse fehlt');
 
   input('#nutritionSearch','haferflocken');
-  await wait(30);
+  await wait(120);
+  const firstOatsResult=node('[data-nutrition-open="bls:C133000"]');
+  const oatsAdd=firstOatsResult.closest('.nutrition-result-row')?.querySelector('[data-nutrition-add]');
+  assert.ok(oatsAdd,'Der sichtbare Haferflocken-Treffer besitzt keine Hinzufügen-Aktion');
+  oatsAdd.dispatchEvent(new window.MouseEvent('click',{bubbles:true,cancelable:true}));
+  await wait(40);
+  let quickAddState=JSON.parse(window.localStorage.getItem('cutcoach_v2'));
+  assert.equal(quickAddState.days[todayKey]?.meals?.length,1,'Der Plus-Button muss den sichtbaren Suchtreffer wirklich genau einmal zum Tag hinzufügen');
+  input('#nutritionSearch','haferflocken');
+  await wait(120);
   const oatsResult=node('[data-nutrition-open="bls:C133000"]');
   oatsResult.dispatchEvent(new window.MouseEvent('click',{bubbles:true,cancelable:true}));
   await wait(20);
@@ -158,8 +167,10 @@ const input=(selector,value)=>{
   assert.ok(day?.meals?.some(meal=>meal.name==='Hafer-Testrezept'&&meal.source==='recipe'),'Rezept wurde nicht als Tagesmahlzeit gespeichert');
   assert.equal(day.meals.find(meal=>meal.name==='Hafer-Testrezept').calories,348,'Eingetragene Rezeptportion hat falsche Kalorien');
 
+  node('#nutritionV7Coverage').remove();
   window.render();
   await wait(30);
+  assert.ok(node('#nutritionV7Coverage'),'Die Nährwertanalyse repariert einen während des Renderns ersetzten Unterknoten nicht');
   assert.equal(node('#appVersion').textContent,'Version 7.1.0','Rendern überschreibt die Releaseversion');
   assert.ok(node('#journalSummaryModal'),'Tagesabschluss-Dialog fehlt nach Rendern');
   assert.equal(window.document.querySelectorAll('#today560').length,1,'Rendern dupliziert das Tagebuch');
@@ -185,10 +196,10 @@ const input=(selector,value)=>{
   }
   assert.ok(indexSource.includes('version-v7.js?v=2.3.0-alpha'),'Index lädt die Releaseversion nicht cache-sicher');
   assert.ok(manifest.includes('./version-v7.js?v=2.3.0-alpha'),'Offline-Manifest enthält die aktuelle Releaseversion nicht');
-  for(const asset of ['nutrition-v7.js','nutrition-v7.css']){
-    assert.ok(indexSource.includes(`${asset}?v=7.0.0`),`Index lädt ${asset} nicht`);
-    assert.ok(manifest.includes(`./${asset}?v=7.0.0`),`Offline-Manifest enthält ${asset} nicht`);
-  }
+  assert.ok(indexSource.includes('nutrition-v7.js?v=7.0.1'),'Index lädt die korrigierte Nutrition-Interaktion nicht');
+  assert.ok(manifest.includes('./nutrition-v7.js?v=7.0.1'),'Offline-Manifest enthält die korrigierte Nutrition-Interaktion nicht');
+  assert.ok(indexSource.includes('nutrition-v7.css?v=7.0.0'),'Index lädt das Rezeptdesign nicht');
+  assert.ok(manifest.includes('./nutrition-v7.css?v=7.0.0'),'Offline-Manifest enthält das Rezeptdesign nicht');
 
   console.log('CutCoach 7.1 smoke test: ok');
   dom.window.close();
