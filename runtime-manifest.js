@@ -21,8 +21,8 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './body-progress-v220.css?v=2.2.4-production','./src/features/progress/progress-goal-v230.css?v=2.3.0-alpha','./src/shared/design-system-v800.css?v=8.0.1-alpha',
     './src/features/journal/dashboard-v800.css?v=8.2.2-alpha','./src/features/nutrition/nutrition-v210.css?v=2.2.3-alpha',
     './src/features/nutrition/nutrition-v230.css?v=2.3.0-alpha','./src/features/profile/profile-v900.css?v=9.0.0-alpha',
-    './src/features/profile/profile-v920.css?v=9.2.0-alpha','./src/features/profile/profile-v1000.css?v=10.0.4-alpha',
-    './src/features/profile/profile-v1001-style-hotfix.css?v=10.0.2-alpha','./src/features/profile/profile-plan-status-v1003.css?v=10.0.4-alpha'
+    './src/features/profile/profile-v920.css?v=9.2.0-alpha','./src/features/profile/profile-v1000.css?v=10.0.5-alpha',
+    './src/features/profile/profile-v1001-style-hotfix.css?v=10.0.2-alpha'
   ]),
   scripts:Object.freeze([
     './src/shared/module-registry.js?v=1.0.0-alpha','./src/shared/product-insights.js?v=1.1.0-alpha','./src/shared/ui.js?v=1.1.0-alpha',
@@ -44,7 +44,6 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './nutrition-polish-v138.js?v=1.3.11-alpha','./nutrition-ui-consistency-v206.js?v=2.0.9-loader','./body-progress-v220.js?v=2.2.4-production',
     './src/features/journal/dashboard-v800.js?v=8.2.2-alpha','./src/features/nutrition/nutrition-v210.js?v=2.2.2-alpha',
     './src/features/nutrition/nutrition-v230.js?v=2.3.0-alpha','./src/features/profile/profile-v900.js?v=9.0.0-alpha',
-    './src/features/profile/profile-state-bridge.js?v=10.0.0-alpha','./src/features/profile/profile-v1000.js?v=10.0.4-alpha',
-    './src/features/profile/profile-plan-status-v1003.js?v=10.0.4-alpha'
+    './src/features/profile/profile-state-bridge.js?v=10.0.0-alpha','./src/features/profile/profile-v1000.js?v=10.0.5-alpha'
   ])
 });
