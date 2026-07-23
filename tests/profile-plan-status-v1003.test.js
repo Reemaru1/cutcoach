@@ -17,5 +17,6 @@ assert.match(script,/Gewichtsdaten/,'Datenaktualität wird nicht angezeigt.');
 assert.match(style,/coach-plan-status/,'Planstatus besitzt keine eigene Gestaltung.');
 assert.match(index,/profile-plan-status-v1003\.js/,'Planstatus-Skript wird nicht vom Profilmodul geladen.');
 assert.match(index,/profile-plan-status-v1003\.css/,'Planstatus-Styles werden nicht vom Profilmodul geladen.');
+assert.match(index,/CutCoachProfilePlanStatus/,'Der Planstatus wird beim Betreten des Profilmoduls nicht aktualisiert.');
 
 console.log('Profil 10.0.3: langfristiger Planstatus statt Tageshinweisen geprüft.');
