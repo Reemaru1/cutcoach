@@ -1,0 +1,115 @@
+/* Profil 9.2 – produktive Feinpolitur nach iPhone-QA */
+
+/* Profil ist nicht tagesbezogen: globale Marke und Datumssteuerung ausblenden. */
+body:has(.profile-screen.active) .app-header,
+body:has(.profile-screen.active) .date-nav{
+  display:none!important;
+}
+body:has(.profile-screen.active) main{
+  padding-top:max(8px,env(safe-area-inset-top))!important;
+}
+
+.profile-v910{
+  --profile-action-bg:linear-gradient(180deg,rgba(25,39,50,.96),rgba(10,19,27,.98));
+  --profile-action-border:rgba(154,183,204,.2);
+  --profile-action-shadow:inset 0 1px rgba(255,255,255,.07),0 10px 28px rgba(0,0,0,.2);
+}
+
+/* Kopfbereich: Titel bleibt, Zahnrad wird zum unaufdringlichen Glass-Icon. */
+.profile-v910 .profile-page-head{padding-top:4px}
+.profile-v910 #openSettingsCenter{
+  width:46px;height:46px;border-radius:50%;
+  border:1px solid var(--profile-action-border);
+  background:var(--profile-action-bg)!important;
+  color:#dce8ef;
+  box-shadow:var(--profile-action-shadow);
+  backdrop-filter:blur(22px) saturate(1.15);
+  -webkit-backdrop-filter:blur(22px) saturate(1.15);
+}
+.profile-v910 #openSettingsCenter svg{width:20px;height:20px;stroke:currentColor}
+.profile-v910 #openSettingsCenter:active{transform:scale(.96)}
+
+/* Das bedeutungslose C wird durch ein neutrales Profil-Piktogramm ersetzt. */
+.profile-v910 .profile-avatar{
+  position:relative;
+  width:56px;height:56px;
+  border-radius:18px;
+  font-size:0!important;
+  color:#82edb8;
+  border:1px solid rgba(117,237,189,.2);
+  background:linear-gradient(160deg,rgba(27,48,58,.96),rgba(9,22,29,.98))!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.07),0 12px 28px rgba(0,0,0,.2)!important;
+}
+.profile-v910 .profile-avatar::before{
+  content:"";
+  position:absolute;left:50%;top:12px;
+  width:13px;height:13px;
+  border:2px solid currentColor;border-radius:50%;
+  transform:translateX(-50%);
+  box-sizing:border-box;
+}
+.profile-v910 .profile-avatar::after{
+  content:"";
+  position:absolute;left:50%;bottom:11px;
+  width:27px;height:15px;
+  border:2px solid currentColor;border-bottom:0;
+  border-radius:18px 18px 7px 7px;
+  transform:translateX(-50%);
+  box-sizing:border-box;
+}
+
+/* Einheitliches aktuelles CutCoach-Aktionssystem statt alter Blau-Mint-Flächen. */
+.profile-v910 .profile-actions button,
+.profile-v910 .profile-completion>button,
+.profile-v910 .profile-manual-goals #saveSettings{
+  min-height:52px;
+  border:1px solid var(--profile-action-border)!important;
+  border-radius:17px!important;
+  background:var(--profile-action-bg)!important;
+  color:#f2f7fa!important;
+  box-shadow:var(--profile-action-shadow)!important;
+  backdrop-filter:blur(22px) saturate(1.12);
+  -webkit-backdrop-filter:blur(22px) saturate(1.12);
+  font-weight:850!important;
+  letter-spacing:-.01em;
+}
+.profile-v910 .profile-actions button:first-child{
+  border-color:rgba(117,237,189,.28)!important;
+  color:#dffff0!important;
+}
+.profile-v910 .profile-actions button:first-child::before{
+  content:"";display:inline-block;width:8px;height:8px;margin-right:9px;
+  border-radius:50%;background:#75edbd;box-shadow:0 0 12px rgba(117,237,189,.75)
+}
+.profile-v910 .profile-actions button.secondary{
+  color:#cbd7df!important;
+  border-color:rgba(151,178,197,.16)!important;
+}
+.profile-v910 .profile-manual-goals #saveSettings{
+  color:#dffff0!important;
+  border-color:rgba(117,237,189,.28)!important;
+}
+.profile-v910 .profile-manual-goals #saveSettings::before{
+  content:"✓";display:inline-grid;place-items:center;width:22px;height:22px;margin-right:9px;
+  border-radius:50%;color:#06120e;background:#75edbd;font-size:.8rem;font-weight:950
+}
+.profile-v910 .profile-actions button:active,
+.profile-v910 .profile-completion>button:active,
+.profile-v910 .profile-manual-goals #saveSettings:active{transform:scale(.985)}
+
+/* Profilaktion nicht als übergroßer Fremdkörper darstellen. */
+.profile-v910 .profile-actions{gap:10px}
+.profile-v910 .profile-actions button{width:100%;padding-inline:16px}
+
+@media(max-width:520px){
+  body:has(.profile-screen.active) main{padding-top:max(4px,env(safe-area-inset-top))!important}
+  .profile-v910 .profile-page-head{margin-bottom:2px}
+  .profile-v910 .profile-avatar{width:52px;height:52px;border-radius:17px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .profile-v910 #openSettingsCenter:active,
+  .profile-v910 .profile-actions button:active,
+  .profile-v910 .profile-completion>button:active,
+  .profile-v910 .profile-manual-goals #saveSettings:active{transform:none}
+}
