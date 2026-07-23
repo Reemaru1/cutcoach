@@ -76,6 +76,7 @@ setTimeout(()=>{
   assert.doesNotMatch(css,/nutrition-v7-analysis-head::after\{content:""/,'Die Zusatzwerte erzeugen weiterhin ein zweites Chevron-Symbol.');
   assert.match(css,/\.nutrition-v210-favorite input\{[^}]*width:1px!important[^}]*opacity:0!important/,'Der native schwarze Checkbox-Kreis bleibt sichtbar.');
   assert.match(css,/\.nutrition-v210-sheet \.recipe-v7-summary\{position:static!important/,'Die Rezeptbilanz kann den Zutatenbereich weiterhin überlagern.');
+  assert.match(css,/\.nutrition-v210-sheet \.recipe-v7-search input\{[^}]*border:0!important[^}]*background:transparent!important/,'Die Rezeptsuche zeigt weiterhin ein zweites Eingabefeld im Suchrahmen.');
   assert.match(nutritionSource,/fit\.n\.protein<5\?-180/,'Die Eiweißempfehlungen priorisieren weiterhin kalorienarme Nullsignale vor echten Proteinquellen.');
   assert.match(dashboard,/padding-bottom:calc\(68px \+ env\(safe-area-inset-bottom\)\)/,'Der übergroße Leerraum unter dem Tagebuch bleibt bestehen.');
   assert.match(nutritionSource,/cutcoach:search-input-released/,'Released search input is not handled by the canonical renderer.');
@@ -84,7 +85,8 @@ setTimeout(()=>{
   assert.match(nutritionSource,/function syncSearchStage\(query=''\)/,'Suchtreffer werden nicht direkt an das Suchfeld verschoben.');
   assert.match(css,/nutrition-v210\.nutrition-searching \.nutrition-results-stage \.nutrition-tabs\{display:none!important\}/,'Suchtreffer bleiben hinter den Filtertabs versteckt.');
   assert.match(waterCss,/water-empty/,'Der Nullzustand der Wasseranzeige ist nicht gegen sichtbare Wellen abgesichert.');
-  for(const asset of ['src/features/nutrition/nutrition-v210.css?v=2.2.2-alpha','src/features/nutrition/nutrition-v210.js?v=2.2.2-alpha']){assert.ok(index.includes(asset));assert.ok(manifest.includes(asset));}
+  assert.ok(index.includes('src/features/nutrition/nutrition-v210.css?v=2.2.3-alpha'));assert.ok(manifest.includes('src/features/nutrition/nutrition-v210.css?v=2.2.3-alpha'));
+  assert.ok(index.includes('src/features/nutrition/nutrition-v210.js?v=2.2.2-alpha'));assert.ok(manifest.includes('src/features/nutrition/nutrition-v210.js?v=2.2.2-alpha'));
   assert.match(sw,/nutrition220-nav137-dashboard820-searchmetrics110-faststart/,'Der Offline-Cache wurde für die stabilisierte Oberfläche nicht invalidiert.');
   assert.match(sw,/navigationResponse\(event,request\)/);
   assert.match(sw,/if\(cached\)\{event\.waitUntil\(network\.then/,'Navigation und Assets nutzen den warmen Cache nicht sofort.');
