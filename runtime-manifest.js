@@ -22,12 +22,12 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './src/features/journal/dashboard-v800.css?v=8.2.2-alpha','./src/features/nutrition/nutrition-v210.css?v=2.2.3-alpha',
     './src/features/nutrition/nutrition-v230.css?v=2.3.0-alpha','./src/features/profile/profile-v900.css?v=9.0.0-alpha',
     './src/features/profile/profile-v920.css?v=9.2.0-alpha','./src/features/profile/profile-v1000.css?v=10.0.0-alpha',
-    './src/features/profile/profile-v1001-style-hotfix.css?v=10.0.1-alpha'
+    './src/features/profile/profile-v1001-style-hotfix.css?v=10.0.2-alpha'
   ]),
   scripts:Object.freeze([
     './src/shared/module-registry.js?v=1.0.0-alpha','./src/shared/product-insights.js?v=1.1.0-alpha','./src/shared/ui.js?v=1.1.0-alpha',
     './src/features/journal/index.js?v=1.0.0-alpha','./src/features/nutrition/index.js?v=1.1.0-alpha','./src/features/progress/index.js?v=1.0.0-alpha',
-    './src/features/profile/index.js?v=1.0.0-alpha',
+    './src/features/profile/index.js?v=1.0.2-alpha',
     './food-catalog.js?v=7.0.0','./everyday-catalog-v73.js?v=7.3.0','./local-dishes-v140.js?v=1.4.0-alpha',
     './catalog-expansion-v191.js?v=1.9.1-alpha','./product-catalog-v200.js?v=2.0.0-alpha','./library.js?v=7.0.0',
     './library-init.js?v=7.0.0','./scanner-v2.js?v=1.8.1-alpha','./off-lookup.js?v=1.8.1-alpha','./upgrade-340.js?v=7.0.0',
