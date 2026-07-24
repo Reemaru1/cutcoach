@@ -1,0 +1,18 @@
+/* CutCoach Profil 10.0.8 – ausgewogener Abstand über der festen Navigation */
+body:has(.profile-screen.active) .app{
+  padding-bottom:0!important;
+}
+.profile-coach-hub{
+  /* Die Navigation ist fixed. Nur hier wird ihr Platz reserviert. */
+  padding-bottom:calc(108px + env(safe-area-inset-bottom))!important;
+  scroll-padding-bottom:calc(108px + env(safe-area-inset-bottom));
+}
+.profile-coach-hub> :last-child{
+  margin-bottom:0!important;
+}
+@media(max-width:520px){
+  .profile-coach-hub{
+    padding-bottom:calc(100px + env(safe-area-inset-bottom))!important;
+    scroll-padding-bottom:calc(100px + env(safe-area-inset-bottom));
+  }
+}
