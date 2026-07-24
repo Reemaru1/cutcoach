@@ -1,0 +1,117 @@
+/* CutCoach settings center 10.1.4 */
+#settingsCenterModal.settings-center-modal{
+  background:#03080c!important;
+  padding:0!important;
+}
+#settingsCenterModal .settings-center-sheet{
+  width:min(100%,760px)!important;
+  min-height:100dvh!important;
+  max-height:none!important;
+  margin:0 auto!important;
+  padding:calc(env(safe-area-inset-top,0px) + 18px) 24px calc(env(safe-area-inset-bottom,0px) + 34px)!important;
+  border:0!important;
+  border-radius:0!important;
+  background:#071118!important;
+  box-shadow:none!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-width:none;
+}
+#settingsCenterModal .settings-center-sheet::-webkit-scrollbar{display:none}
+#settingsCenterModal .sheet-head{
+  position:relative!important;
+  top:auto!important;
+  z-index:3;
+  display:flex!important;
+  align-items:center!important;
+  min-height:62px!important;
+  padding:0!important;
+  margin:0 0 10px!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+#settingsCenterModal .sheet-head::before,#settingsCenterModal .sheet-head::after{display:none!important}
+#settingsCenterModal .sheet-head h2{
+  margin:0!important;
+  color:#f7fbfd!important;
+  font-size:clamp(31px,8vw,43px)!important;
+  line-height:1!important;
+  letter-spacing:-.045em!important;
+}
+#settingsCenterModal .sheet-head h2::before{
+  content:'APP & DATENSCHUTZ';display:block;margin-bottom:10px;color:#78e9be;font-size:12px;line-height:1.2;letter-spacing:.18em;font-weight:800
+}
+#settingsCenterModal .sheet-head [data-close]{
+  width:48px!important;height:48px!important;min-width:48px!important;padding:0!important;border:1px solid rgba(151,174,185,.24)!important;border-radius:50%!important;
+  display:grid!important;place-items:center!important;background:#101c25!important;color:#eef7fa!important;font-size:0!important;box-shadow:inset 0 1px rgba(255,255,255,.05)!important
+}
+#settingsCenterModal .sheet-head [data-close]::before{content:'×';font-size:31px;font-weight:300;line-height:1;transform:translateY(-1px)}
+#settingsCenterModal .settings-center-intro{
+  max-width:560px;margin:0 0 24px!important;color:#91a1aa!important;font-size:16px!important;line-height:1.5!important
+}
+#settingsCenterModal .settings-center-intro::after{
+  content:'Alle Inhalte bleiben lokal, solange du sie nicht selbst exportierst.';display:block;margin-top:8px;color:#c7d2d7;font-size:13px
+}
+#settingsCenterModal .settings-group{
+  position:relative;margin:0 0 12px!important;border:1px solid rgba(137,164,177,.18)!important;border-radius:22px!important;background:#09151d!important;overflow:hidden!important;box-shadow:0 12px 32px rgba(0,0,0,.13)!important
+}
+#settingsCenterModal .settings-group[open]{border-color:rgba(117,229,189,.25)!important;background:#0a1720!important}
+#settingsCenterModal .settings-group summary{
+  min-height:88px!important;padding:20px 58px 20px 64px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;position:relative!important;list-style:none!important;cursor:pointer!important
+}
+#settingsCenterModal .settings-group summary::-webkit-details-marker{display:none}
+#settingsCenterModal .settings-group summary::before{
+  content:'';position:absolute;left:20px;top:50%;width:30px;height:30px;transform:translateY(-50%);border-radius:10px;background:#10241f;border:1px solid rgba(117,229,189,.18)
+}
+#settingsCenterModal .settings-group[data-settings-kind='data'] summary::before{content:'↕';display:grid;place-items:center;color:#75e5bd;font-weight:800}
+#settingsCenterModal .settings-group[data-settings-kind='quality'] summary::before{content:'✓';display:grid;place-items:center;color:#75e5bd;font-weight:900}
+#settingsCenterModal .settings-group[data-settings-kind='feedback'] summary::before{content:'✦';display:grid;place-items:center;color:#75e5bd;font-weight:800}
+#settingsCenterModal .settings-group summary::after{
+  content:'›';position:absolute;right:22px;top:50%;transform:translateY(-50%) rotate(90deg);color:#8fa0a9;font-size:30px;line-height:1;transition:transform .18s ease,color .18s ease
+}
+#settingsCenterModal .settings-group[open] summary::after{transform:translateY(-50%) rotate(-90deg);color:#75e5bd}
+#settingsCenterModal .settings-group summary span{color:#f5fafc!important;font-size:19px!important;line-height:1.2!important;font-weight:800!important;letter-spacing:-.02em}
+#settingsCenterModal .settings-group summary small{color:#8d9ca5!important;font-size:13px!important;line-height:1.35!important;font-weight:500!important}
+#settingsCenterModal .settings-group>article,#settingsCenterModal .settings-group>.data-warning{
+  margin:0 18px 18px!important;padding:18px!important;border:1px solid rgba(137,164,177,.14)!important;border-radius:18px!important;background:#071119!important
+}
+#settingsCenterModal .settings-group:not([open])>*:not(summary){display:none!important}
+#settingsCenterModal .settings-center-form label,#settingsCenterModal .feedback-card label{color:#aebbc2!important;font-size:13px!important;font-weight:700!important}
+#settingsCenterModal input,#settingsCenterModal select,#settingsCenterModal textarea{
+  margin-top:8px!important;border:1px solid rgba(137,164,177,.2)!important;border-radius:15px!important;background:#09131c!important;color:#f5fafc!important;box-shadow:none!important
+}
+#settingsCenterModal input:focus,#settingsCenterModal select:focus,#settingsCenterModal textarea:focus{border-color:#75e5bd!important;outline:3px solid rgba(117,229,189,.12)!important}
+#settingsCenterModal button:not([data-close]),#settingsCenterModal label.file{
+  min-height:50px!important;border:1px solid rgba(117,229,189,.28)!important;border-radius:16px!important;background:#0c1a22!important;color:#eefaf6!important;font-weight:800!important;box-shadow:inset 0 1px rgba(255,255,255,.04)!important
+}
+#settingsCenterModal button:not([data-close]):active,#settingsCenterModal label.file:active{transform:scale(.985)}
+#settingsCenterModal .delete-btn,#settingsCenterModal .danger-secondary{border-color:rgba(255,111,125,.42)!important;background:rgba(255,73,92,.06)!important;color:#ff7f8c!important}
+#settingsCenterModal .backup-status{color:#f5fafc!important;font-weight:800!important}
+#settingsCenterModal .data-summary,#settingsCenterModal .storage-status{color:#90a0a9!important}
+#settingsCenterModal .quality-toggle{display:flex!important;align-items:center!important;gap:15px!important;padding:0!important}
+#settingsCenterModal .quality-toggle>span{flex:1}
+#settingsCenterModal .quality-toggle b{display:block;color:#f5fafc;font-size:17px}
+#settingsCenterModal .quality-toggle small{display:block;margin-top:5px;color:#8e9da6;font-weight:500;line-height:1.45}
+#settingsCenterModal #qualityMetricsEnabled{appearance:none;width:52px;height:30px;min-width:52px;margin:0!important;padding:0!important;border-radius:99px!important;background:#26343c!important;position:relative;transition:.18s ease}
+#settingsCenterModal #qualityMetricsEnabled::after{content:'';position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#d8e2e6;transition:.18s ease}
+#settingsCenterModal #qualityMetricsEnabled:checked{background:#49c995!important;border-color:#75e5bd!important}
+#settingsCenterModal #qualityMetricsEnabled:checked::after{transform:translateX(22px);background:#fff}
+#settingsCenterModal .settings-quality-explainer{margin:16px 0 0;padding:14px;border-radius:14px;background:#0d1d25;color:#9eacb4;font-size:13px;line-height:1.5}
+#settingsCenterModal .settings-quality-explainer strong{color:#dce8ec}
+#settingsCenterModal .feedback-counter{display:block;margin:-3px 2px 10px;text-align:right;color:#7f9099;font-size:12px}
+#settingsCenterModal #customerFeedbackSave:disabled{opacity:.42;pointer-events:none}
+#settingsCenterModal .settings-center-footer{margin:22px 4px 0!important;padding:20px 0 0!important;border-top:1px solid rgba(137,164,177,.14)!important;color:#84959e!important}
+#settingsCenterModal .settings-center-footer>div{display:flex!important;gap:10px!important;flex-wrap:wrap!important}
+#settingsCenterModal .settings-center-footer span{padding:7px 10px;border-radius:99px;background:#0d1b23;color:#b8c5cb;font-size:12px;font-weight:800}
+#settingsCenterModal .settings-center-footer p{font-size:12px!important;line-height:1.5!important}
+#settingsCenterModal .settings-privacy-card{margin:12px 0!important}
+@media(max-width:520px){
+ #settingsCenterModal .settings-center-sheet{padding-left:18px!important;padding-right:18px!important}
+ #settingsCenterModal .settings-group summary{padding-left:60px!important}
+ #settingsCenterModal .settings-group>article{margin-left:12px!important;margin-right:12px!important;padding:15px!important}
+ #settingsCenterModal .button-row{grid-template-columns:1fr!important}
+}
+@media(prefers-reduced-motion:reduce){#settingsCenterModal *{scroll-behavior:auto!important;transition:none!important}}
