@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const css=fs.readFileSync(path.join(root,'src/features/profile/profile-v1009-settings-polish.css'),'utf8');
+const loader=fs.readFileSync(path.join(root,'src/features/profile/index.js'),'utf8');
+assert.match(css,/safe-area-inset-top/,'Der Einstellungsdialog berücksichtigt die iPhone-Safe-Area nicht.');
+assert.match(css,/#settingsCenterModal \.sheet-head/,'Der Einstellungsheader wird nicht gezielt stabilisiert.');
+assert.match(css,/#customerFeedbackSave/,'Der alte Feedback-Button wird nicht überschrieben.');
+assert.doesNotMatch(css,/#customerFeedbackSave[\s\S]*linear-gradient\([^)]*#7/i,'Der alte helle Blau-Mint-Buttonstil ist noch aktiv.');
+assert.match(loader,/profile-v1009-settings-polish/,'Profil 10.0.9 wird nicht zuletzt geladen.');
+console.log('Profil 10.0.9: Safe-Area und Feedback-Button geprüft.');
