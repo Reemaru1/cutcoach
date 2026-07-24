@@ -1,0 +1,30 @@
+/* CutCoach settings scroll recovery 10.1.5 */
+#settingsCenterModal.settings-center-modal{
+  overflow:hidden!important;
+  touch-action:pan-y!important;
+}
+#settingsCenterModal .settings-center-sheet{
+  height:100dvh!important;
+  min-height:0!important;
+  max-height:100dvh!important;
+  overflow-x:hidden!important;
+  overflow-y:scroll!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-y:contain!important;
+  touch-action:pan-y!important;
+  scroll-behavior:smooth;
+}
+#settingsCenterModal .settings-center-sheet>*{
+  touch-action:pan-y!important;
+}
+#settingsCenterModal .settings-group summary,
+#settingsCenterModal button,
+#settingsCenterModal input,
+#settingsCenterModal select,
+#settingsCenterModal textarea,
+#settingsCenterModal label{
+  touch-action:manipulation!important;
+}
+@media(prefers-reduced-motion:reduce){
+  #settingsCenterModal .settings-center-sheet{scroll-behavior:auto!important}
+}
