@@ -30,7 +30,11 @@
   }
   function ensureAssets(){ASSETS.forEach(ensureAsset)}
 
-  ['profile-plan-status-style','profile-plan-status-script','profile-v1014-settings-center','profile-v1014-settings-center-script','profile-v1015-settings-scroll-fix'].forEach(id=>document.getElementById(id)?.remove());
+  document.getElementById('profile-plan-status-style')?.remove();
+  document.getElementById('profile-plan-status-script')?.remove();
+  document.getElementById('profile-v1014-settings-center')?.remove();
+  document.getElementById('profile-v1014-settings-center-script')?.remove();
+  document.getElementById('profile-v1015-settings-scroll-fix')?.remove();
   ensureAssets();
   root.CutCoachModules?.register({
     id:'profile',tab:'settings',screenSelector:'[data-screen="settings"]',
