@@ -24,7 +24,7 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './src/features/profile/profile-v920.css?v=9.2.0-alpha','./src/features/profile/profile-v1000.css?v=10.0.5-alpha',
     './src/features/profile/profile-v1001-style-hotfix.css?v=10.0.2-alpha','./src/features/profile/profile-v1006-layout-fix.css?v=10.0.6-alpha',
     './src/features/profile/profile-v1007-spacing-settings-fix.css?v=10.0.7-alpha','./src/features/profile/profile-v1008-bottom-clearance.css?v=10.0.8-alpha',
-    './src/features/profile/profile-v1009-settings-polish.css?v=10.0.9-alpha'
+    './src/features/profile/profile-v1009-settings-polish.css?v=10.0.9-alpha','./src/features/profile/profile-v1011-settings-icon.css?v=10.1.1-alpha'
   ]),
   scripts:Object.freeze([
     './src/shared/module-registry.js?v=1.0.0-alpha','./src/shared/product-insights.js?v=1.1.0-alpha','./src/shared/ui.js?v=1.1.0-alpha',
