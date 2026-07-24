@@ -12,6 +12,7 @@
     {id:'profile-v1011-settings-icon',type:'style',href:'./src/features/profile/profile-v1011-settings-icon.css?v=10.1.1-alpha'},
     {id:'profile-v1012-settings-header-flat',type:'style',href:'./src/features/profile/profile-v1012-settings-header-flat.css?v=10.1.3-alpha'},
     {id:'profile-v1014-settings-center',type:'style',href:'./src/features/profile/profile-v1014-settings-center.css?v=10.1.4-alpha'},
+    {id:'profile-v1015-settings-scroll-fix',type:'style',href:'./src/features/profile/profile-v1015-settings-scroll-fix.css?v=10.1.5-alpha'},
     {id:'profile-state-bridge',type:'script',href:'./src/features/profile/profile-state-bridge.js?v=10.0.0-alpha'},
     {id:'profile-v1000-script',type:'script',href:'./src/features/profile/profile-v1000.js?v=10.0.5-alpha'},
     {id:'profile-v1006-layout-script',type:'script',href:'./src/features/profile/profile-v1006-layout-fix.js?v=10.0.6-alpha'},
