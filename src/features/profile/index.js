@@ -6,9 +6,11 @@
     {id:'profile-v1000',type:'style',href:'./src/features/profile/profile-v1000.css?v=10.0.5-alpha'},
     {id:'profile-v1001-hotfix',type:'style',href:'./src/features/profile/profile-v1001-style-hotfix.css?v=10.0.2-alpha'},
     {id:'profile-v1006-layout',type:'style',href:'./src/features/profile/profile-v1006-layout-fix.css?v=10.0.6-alpha'},
+    {id:'profile-v1007-spacing-settings',type:'style',href:'./src/features/profile/profile-v1007-spacing-settings-fix.css?v=10.0.7-alpha'},
     {id:'profile-state-bridge',type:'script',href:'./src/features/profile/profile-state-bridge.js?v=10.0.0-alpha'},
     {id:'profile-v1000-script',type:'script',href:'./src/features/profile/profile-v1000.js?v=10.0.5-alpha'},
-    {id:'profile-v1006-layout-script',type:'script',href:'./src/features/profile/profile-v1006-layout-fix.js?v=10.0.6-alpha'}
+    {id:'profile-v1006-layout-script',type:'script',href:'./src/features/profile/profile-v1006-layout-fix.js?v=10.0.6-alpha'},
+    {id:'profile-v1007-spacing-settings-script',type:'script',href:'./src/features/profile/profile-v1007-spacing-settings-fix.js?v=10.0.7-alpha'}
   ];
 
   function ensureAsset(asset){
@@ -34,6 +36,7 @@
       root.CutCoachProfile900?.render?.();
       root.CutCoachProfile1000?.render?.();
       root.CutCoachProfile1006?.apply?.();
+      root.CutCoachProfile1007?.apply?.();
       root.CutCoachInsights?.track('feature_view',{feature:'profile'});
     }
   });
