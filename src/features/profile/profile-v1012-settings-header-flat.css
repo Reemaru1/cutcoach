@@ -1,0 +1,18 @@
+/* CutCoach Profil 10.1.2 – ruhiger Einstellungsheader ohne Schattierungsband */
+#settingsCenterModal .sheet-head{
+  background:#0a161e!important;
+  background-image:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  box-shadow:none!important;
+  mask-image:none!important;
+  -webkit-mask-image:none!important;
+}
+#settingsCenterModal .sheet-head::before,
+#settingsCenterModal .sheet-head::after{
+  content:none!important;
+  display:none!important;
+}
+#settingsCenterModal .settings-center-sheet{
+  background:#0a161e!important;
+}
