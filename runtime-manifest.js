@@ -2,7 +2,7 @@
 self.CUTCOACH_RUNTIME=Object.freeze({
   version:'2.3.0-alpha',
   baseAssets:Object.freeze([
-    './style.css?v=2.3.0','./core.js?v=7.0.0','./render.js?v=7.0.0','./actions.js?v=7.0.0','./app.js?v=7.0.0',
+    './style.css?v=2.3.0','./core.js?v=7.0.0','./render.js?v=7.0.0','./actions.js?v=7.0.0','./app.js?v=7.0.1',
     './manifest.webmanifest?v=2.3.0','./icon.svg','./apple-touch-icon.png?v=2.3.0','./icon-192.png?v=2.3.0','./library.css?v=7.0.0',
     './assets/body-progress-body-v3.png?v=2.2.0','./assets/body-progress-training-v3.png?v=2.2.0','./assets/body-progress-neutral-v3.png?v=2.2.0',
     './nutrition-search-worker.js?v=1.0.0','./assets/nutrition-search-index-v1.json?v=1.0.0'
@@ -25,12 +25,12 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './src/features/profile/profile-v1001-style-hotfix.css?v=10.0.2-alpha','./src/features/profile/profile-v1006-layout-fix.css?v=10.0.6-alpha',
     './src/features/profile/profile-v1007-spacing-settings-fix.css?v=10.0.7-alpha','./src/features/profile/profile-v1008-bottom-clearance.css?v=10.0.8-alpha',
     './src/features/profile/profile-v1009-settings-polish.css?v=10.0.9-alpha','./src/features/profile/profile-v1011-settings-icon.css?v=10.1.1-alpha',
-    './src/features/profile/profile-v1012-settings-header-flat.css?v=10.1.3-alpha'
+    './src/features/profile/profile-v1012-settings-header-flat.css?v=10.1.3-alpha','./src/features/profile/profile-v1020-onboarding-editor.css?v=10.2.0-alpha'
   ]),
   scripts:Object.freeze([
     './src/shared/module-registry.js?v=1.0.0-alpha','./src/shared/product-insights.js?v=1.1.0-alpha','./src/shared/ui.js?v=1.1.0-alpha',
     './src/features/journal/index.js?v=1.0.0-alpha','./src/features/nutrition/index.js?v=1.1.0-alpha','./src/features/progress/index.js?v=1.0.0-alpha',
-    './src/features/profile/index.js?v=1.0.0-alpha','./src/features/progress/progress-goal-v230.js?v=2.3.0-alpha',
+    './src/features/profile/index.js?v=1.0.5-alpha','./src/features/progress/progress-goal-v230.js?v=2.3.0-alpha',
     './food-catalog.js?v=7.0.0','./everyday-catalog-v73.js?v=7.3.0','./local-dishes-v140.js?v=1.4.0-alpha',
     './catalog-expansion-v191.js?v=1.9.1-alpha','./product-catalog-v200.js?v=2.0.0-alpha','./library.js?v=7.0.0',
     './library-init.js?v=7.0.0','./scanner-v2.js?v=1.8.1-alpha','./off-lookup.js?v=1.8.1-alpha','./upgrade-340.js?v=7.0.0',
@@ -48,6 +48,7 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './src/features/journal/dashboard-v800.js?v=8.2.2-alpha','./src/features/nutrition/nutrition-v210.js?v=2.2.2-alpha',
     './src/features/nutrition/nutrition-v230.js?v=2.3.0-alpha','./src/features/profile/profile-v900.js?v=9.0.0-alpha',
     './src/features/profile/profile-state-bridge.js?v=10.0.0-alpha','./src/features/profile/profile-v1000.js?v=10.0.5-alpha',
-    './src/features/profile/profile-v1006-layout-fix.js?v=10.0.6-alpha','./src/features/profile/profile-v1007-spacing-settings-fix.js?v=10.0.7-alpha'
+    './src/features/profile/profile-v1006-layout-fix.js?v=10.0.6-alpha','./src/features/profile/profile-v1007-spacing-settings-fix.js?v=10.0.7-alpha',
+    './src/features/profile/profile-v1020-onboarding-editor.js?v=10.2.0-alpha'
   ])
 });
