@@ -20,7 +20,7 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './nutrition-ui-consistency-v206.css?v=2.0.9-loader','./liquid-glass-ui-v207.css?v=2.0.8-loader','./scrollbar-cleanup-v209.css?v=2.0.9-alpha',
     './body-progress-v220.css?v=2.2.4-production','./src/features/progress/progress-goal-v230.css?v=2.3.0-alpha','./src/features/progress/progress-body-v240.css?v=2.4.0-alpha','./src/shared/design-system-v800.css?v=8.0.1-alpha',
     './src/features/journal/dashboard-v800.css?v=8.2.2-alpha','./src/features/nutrition/nutrition-v210.css?v=2.2.3-alpha',
-    './src/features/nutrition/nutrition-v230.css?v=2.3.0-alpha','./src/features/profile/profile-v900.css?v=9.0.0-alpha',
+    './src/features/nutrition/nutrition-v230.css?v=2.3.0-alpha','./src/features/nutrition/nutrition-product-search-v250.css?v=2.5.0-alpha','./src/features/profile/profile-v900.css?v=9.0.0-alpha',
     './src/features/profile/profile-v920.css?v=9.2.0-alpha','./src/features/profile/profile-v1000.css?v=10.0.5-alpha',
     './src/features/profile/profile-v1001-style-hotfix.css?v=10.0.2-alpha','./src/features/profile/profile-v1006-layout-fix.css?v=10.0.6-alpha',
     './src/features/profile/profile-v1007-spacing-settings-fix.css?v=10.0.7-alpha','./src/features/profile/profile-v1008-bottom-clearance.css?v=10.0.8-alpha',
@@ -46,7 +46,7 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './journal-polish-v137.js?v=1.3.7-alpha','./nutrition-search-input-performance-v193.js?v=2.0.0-alpha',
     './nutrition-polish-v138.js?v=1.3.11-alpha','./nutrition-ui-consistency-v206.js?v=2.0.9-loader','./body-progress-v220.js?v=2.2.4-production',
     './src/features/journal/dashboard-v800.js?v=8.2.2-alpha','./src/features/nutrition/nutrition-v210.js?v=2.2.2-alpha',
-    './src/features/nutrition/nutrition-v230.js?v=2.3.0-alpha','./src/features/profile/profile-v900.js?v=9.0.0-alpha',
+    './src/features/nutrition/nutrition-v230.js?v=2.3.0-alpha','./src/features/nutrition/nutrition-product-search-v250.js?v=2.5.0-alpha','./src/features/profile/profile-v900.js?v=9.0.0-alpha',
     './src/features/profile/profile-state-bridge.js?v=10.0.0-alpha','./src/features/profile/profile-v1000.js?v=10.0.5-alpha',
     './src/features/profile/profile-v1006-layout-fix.js?v=10.0.6-alpha','./src/features/profile/profile-v1007-spacing-settings-fix.js?v=10.0.7-alpha',
     './src/features/profile/profile-v1020-onboarding-editor.js?v=10.2.1-alpha'
