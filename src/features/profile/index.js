@@ -11,10 +11,12 @@
     {id:'profile-v1009-settings-polish',type:'style',href:'./src/features/profile/profile-v1009-settings-polish.css?v=10.0.9-alpha'},
     {id:'profile-v1011-settings-icon',type:'style',href:'./src/features/profile/profile-v1011-settings-icon.css?v=10.1.1-alpha'},
     {id:'profile-v1012-settings-header-flat',type:'style',href:'./src/features/profile/profile-v1012-settings-header-flat.css?v=10.1.3-alpha'},
+    {id:'profile-v1020-onboarding-editor',type:'style',href:'./src/features/profile/profile-v1020-onboarding-editor.css?v=10.2.0-alpha'},
     {id:'profile-state-bridge',type:'script',href:'./src/features/profile/profile-state-bridge.js?v=10.0.0-alpha'},
     {id:'profile-v1000-script',type:'script',href:'./src/features/profile/profile-v1000.js?v=10.0.5-alpha'},
     {id:'profile-v1006-layout-script',type:'script',href:'./src/features/profile/profile-v1006-layout-fix.js?v=10.0.6-alpha'},
-    {id:'profile-v1007-spacing-settings-script',type:'script',href:'./src/features/profile/profile-v1007-spacing-settings-fix.js?v=10.0.7-alpha'}
+    {id:'profile-v1007-spacing-settings-script',type:'script',href:'./src/features/profile/profile-v1007-spacing-settings-fix.js?v=10.0.7-alpha'},
+    {id:'profile-v1020-onboarding-editor-script',type:'script',href:'./src/features/profile/profile-v1020-onboarding-editor.js?v=10.2.0-alpha'}
   ];
 
   function ensureAsset(asset){
@@ -40,6 +42,7 @@
     id:'profile',tab:'settings',screenSelector:'[data-screen="settings"]',
     onEnter:()=>{
       ensureAssets();
+      root.CutCoachProfile1020?.migrate?.();
       root.CutCoachProfile900?.render?.();
       root.CutCoachProfile1000?.render?.();
       root.CutCoachProfile1006?.apply?.();
