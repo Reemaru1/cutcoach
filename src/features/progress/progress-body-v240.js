@@ -1,0 +1,32 @@
+'use strict';
+(function(root){
+  const VERSION='2.4.0-alpha';
+  const q=(s,r=document)=>r.querySelector(s);
+  const qa=(s,r=document)=>[...r.querySelectorAll(s)];
+  const num=v=>v===null||v===undefined||v===''?null:(Number.isFinite(Number(v))?Number(v):null);
+  const clamp=(v,min=0,max=1)=>Math.min(max,Math.max(min,Number(v)||0));
+  const fmt=(v,d=1)=>v===null?'–':new Intl.NumberFormat('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
+  let scheduled=false;
+  function state(){return root.state&&typeof root.state==='object'?root.state:null}
+  function weights(){return Object.entries(state()?.days||{}).map(([date,data])=>({date,value:num(data?.weight)})).filter(x=>x.value>0).sort((a,b)=>a.date.localeCompare(b.date))}
+  function goal(){const current=state();return num(current?.profile?.goalWeight)??num(current?.settings?.goalWeight)}
+  function baseline(){const list=weights();return num(state()?.profile?.baselineWeight)??list[0]?.value??null}
+  function currentWeight(){const list=weights();return list.at(-1)?.value??baseline()}
+  function progress(){const start=baseline(),current=currentWeight(),target=goal();if(start===null||current===null||target===null)return null;const distance=target-start;if(Math.abs(distance)<.1)return Math.abs(current-target)<.2?1:0;return clamp((current-start)/distance)}
+  function trend(){const list=weights().slice(-20);if(list.length<2)return null;const start=new Date(list[0].date+'T12:00:00');const points=list.map(item=>({x:(new Date(item.date+'T12:00:00')-start)/86400000,y:item.value}));const meanX=points.reduce((a,b)=>a+b.x,0)/points.length,meanY=points.reduce((a,b)=>a+b.y,0)/points.length;const den=points.reduce((sum,p)=>sum+(p.x-meanX)**2,0);if(!den)return 0;return points.reduce((sum,p)=>sum+(p.x-meanX)*(p.y-meanY),0)/den*7}
+  function towardGoal(){const target=goal(),current=currentWeight(),weekly=trend();if(target===null||current===null||weekly===null||Math.abs(weekly)<.15)return null;return Math.sign(weekly)===Math.sign(target-current)}
+  function articleByLabel(container,label){return qa('article',container).find(article=>q(':scope>span:first-child',article)?.textContent.trim()===label)||null}
+  function patchGoalCard(shell){const card=articleByLabel(q('#bp220Right',shell),'ZIELKURS');if(!card)return;const target=goal(),p=progress();const h3=q('h3',card),bar=q('.bp220-progress i',card),em=q('em',card);if(h3)h3.innerHTML=target===null?'–':`${fmt(target)} <small>kg</small>`;if(bar)bar.style.width=`${Math.round((p??0)*100)}%`;if(em)em.textContent=p===null?'Ziel oder Startgewicht fehlt':`${Math.round(p*100)}% erreicht`;card.dataset.bp240='goal'}
+  function patchStatus(shell){const status=articleByLabel(q('#bp220Left',shell),'KÖRPERSTATUS');const insight=q('#bp220Insight',shell);const weekly=trend(),moving=towardGoal();if(!status||weekly===null)return;let title='Trend stabil',copy='Dein Gewicht ist aktuell weitgehend stabil. Beobachte den Verlauf über mehrere Messungen.',tone='neutral';if(Math.abs(weekly)>1.2){title='Tempo prüfen';copy='Der Gewichtsverlauf verändert sich aktuell sehr schnell. Leistung, Hunger und Erholung mitbeobachten.';tone='warning'}else if(moving===true){title='Auf Kurs';copy='Dein gemessener Gewichtstrend bewegt sich in Richtung deines eingestellten Zielgewichts.';tone='positive'}else if(moving===false){title='Trend beobachten';copy='Der aktuelle Verlauf bewegt sich nicht in Richtung deines eingestellten Zielgewichts.';tone='warning'}const h3=q('h3',status),p=q('p',status);if(h3){h3.textContent=title;h3.className=tone}if(p)p.textContent=copy;if(insight){const ih=q('h3',insight),ip=q('p',insight);if(ih)ih.textContent=title;if(ip)ip.textContent=copy;insight.dataset.tone=tone}}
+  function hasBodyMetrics(){return Object.values(state()?.days||{}).some(day=>num(day?.waist)!==null||num(day?.bodyFat)!==null)}
+  function patchBodyMetrics(shell){const card=articleByLabel(q('#bp220Right',shell),'BAUCHBEREICH');if(!card)return;const empty=!hasBodyMetrics();card.classList.toggle('bp240-metric-empty',empty);const ring=q('.bp220-ring',card),small=q(':scope>small',card);if(ring)ring.hidden=empty;if(small)small.hidden=empty;const label=q('.bp220-mini-status b',card);if(empty&&label)label.textContent='Taille oder Körperfett ergänzen'}
+  function detailedWorkouts(){return Object.values(state()?.days||{}).some(day=>Array.isArray(day?.workout?.exercises)&&day.workout.exercises.length)}
+  function patchTrainingEmpty(shell){const empty=shell.dataset.mode==='training'&&!detailedWorkouts();shell.classList.toggle('bp240-training-empty',empty);let panel=q('.bp240-training-start',shell);if(!empty){panel?.remove();return}if(!panel){panel=document.createElement('section');panel.className='bp240-training-start';panel.innerHTML='<span>DEIN TRAININGSSTART</span><h2>Erste Einheit dokumentieren</h2><p>Erfasse Übungen, Sätze und Wiederholungen. Danach zeigt CutCoach belastete Muskelgruppen, Trainingsfokus und Entwicklung statt leerer Platzhalter.</p><button type="button" data-bp220-primary-action data-bp220-action="workout">Training eintragen</button>';q('.bp220-hero',shell)?.after(panel)}}
+  function patchFigure(shell){const current=currentWeight(),height=num(state()?.profile?.height),p=progress()??0;if(current===null||height===null)return;const bmi=current/Math.pow(height/100,2);const scale=Math.max(.93,Math.min(1.10,.96+(bmi-22)*.009-p*.035));shell.style.setProperty('--bp240-body-scale',scale.toFixed(3));shell.style.setProperty('--bp240-progress',p.toFixed(3))}
+  function apply(){scheduled=false;const shell=q('.bp220-shell');if(!shell)return;patchGoalCard(shell);patchStatus(shell);patchBodyMetrics(shell);patchTrainingEmpty(shell);patchFigure(shell);shell.dataset.bp240='ready'}
+  function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>requestAnimationFrame(apply))}
+  const observer=new MutationObserver(schedule);
+  function boot(){const screen=q('[data-screen="progress"]');if(screen)observer.observe(screen,{childList:true,subtree:true});schedule();root.addEventListener('cutcoach:module-enter',e=>{if(e.detail?.moduleId==='progress')schedule()});document.addEventListener('click',e=>{if(e.target.closest('[data-bp220-mode],[data-bp220-primary-action],[data-save-weight],#saveWeight,#saveWeightEntry'))setTimeout(schedule,180)},true)}
+  root.CutCoachProgressBody240=Object.freeze({version:VERSION,render:apply});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+})(window);
