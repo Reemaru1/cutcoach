@@ -3,9 +3,7 @@
 (function(root){
   const ASSETS=[
     {id:'progress-goal-v230-style',type:'style',href:'./src/features/progress/progress-goal-v230.css?v=2.3.0-alpha'},
-    {id:'progress-body-system-v300-style',type:'style',href:'./src/features/progress/body-system-v300.css?v=3.0.0-alpha'},
-    {id:'progress-goal-v230-script',type:'script',href:'./src/features/progress/progress-goal-v230.js?v=2.3.0-alpha'},
-    {id:'progress-body-system-v300-script',type:'script',href:'./src/features/progress/body-system-v300.js?v=3.0.0-alpha'}
+    {id:'progress-goal-v230-script',type:'script',href:'./src/features/progress/progress-goal-v230.js?v=2.3.0-alpha'}
   ];
   function ensureAsset(asset){
     let element=document.getElementById(asset.id);
@@ -22,7 +20,7 @@
   ensureAssets();
   root.CutCoachModules?.register({
     id:'progress',tab:'progress',screenSelector:'[data-screen="progress"]',
-    onEnter:()=>{ensureAssets();root.CutCoachProgressGoal?.render?.();root.CutCoachBodySystem?.render?.();root.CutCoachInsights?.track('feature_view',{feature:'progress'});}
+    onEnter:()=>{ensureAssets();root.CutCoachProgressGoal?.render?.();root.CutCoachInsights?.track('feature_view',{feature:'progress'});}
   });
   document.addEventListener('click',event=>{
     const button=event.target.closest?.('[data-bp220-primary-action],[data-open="weightModal"]');if(!button||button.disabled)return;
