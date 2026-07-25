@@ -1,0 +1,21 @@
+.bp220-shell[data-bp240="ready"]{padding-bottom:calc(176px + env(safe-area-inset-bottom))}
+.bp220-shell[data-bp240="ready"] .bp220-figure img{transform:translateX(-50%) scale(var(--bp240-body-scale,1));transform-origin:center bottom;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.bp220-shell[data-bp240="ready"] .bp220-figure-glow{opacity:calc(.72 + var(--bp240-progress,0)*.28)}
+.bp240-metric-empty{min-height:0!important;padding-bottom:14px!important}
+.bp240-metric-empty .bp220-mini-status{margin-top:8px;padding:12px 11px}
+.bp240-metric-empty .bp220-mini-status b{font-size:9px;line-height:1.35}
+.bp220-insight[data-tone="positive"]{border-color:rgba(117,229,189,.28)}
+.bp220-insight[data-tone="warning"]{border-color:rgba(255,177,103,.28)}
+.bp240-training-start{position:relative;z-index:6;margin:-4px 0 22px;padding:24px;border:1px solid rgba(255,112,88,.22);border-radius:24px;background:linear-gradient(145deg,rgba(27,20,22,.96),rgba(10,16,21,.94));box-shadow:inset 0 1px rgba(255,255,255,.04),0 18px 44px rgba(0,0,0,.24)}
+.bp240-training-start>span{display:block;margin-bottom:8px;color:#ff8a6f;font-size:11px;font-weight:800;letter-spacing:.12em}
+.bp240-training-start h2{margin:0;color:#f7f8f8;font-size:28px;line-height:1.05;letter-spacing:-1px}
+.bp240-training-start p{max-width:540px;margin:12px 0 18px;color:#95a0a6;font-size:14px;line-height:1.5}
+.bp240-training-start button{width:100%;min-height:54px;border:1px solid rgba(255,112,88,.38);border-radius:17px;color:#170b08;background:linear-gradient(135deg,#ff9b65,#ff624f);font-size:16px;font-weight:850;box-shadow:0 12px 30px rgba(255,98,79,.18)}
+.bp240-training-empty .bp220-column{display:none}
+.bp240-training-empty .bp220-hero{grid-template-columns:1fr;min-height:620px}
+.bp240-training-empty .bp220-figure{grid-column:1;height:620px}
+.bp240-training-empty .bp220-figure img{height:600px;width:300px}
+.bp240-training-empty .bp220-insight{display:none}
+.bp240-training-empty .bp220-history-section{margin-top:8px}
+.bp240-training-empty .bp220-history-section .bp220-empty{padding:24px}
+@media(max-width:560px){.bp220-shell[data-bp240="ready"]{padding-bottom:calc(164px + env(safe-area-inset-bottom))}.bp240-training-start{padding:20px 18px}.bp240-training-start h2{font-size:24px}.bp240-training-empty .bp220-hero{min-height:560px}.bp240-training-empty .bp220-figure{height:560px}.bp240-training-empty .bp220-figure img{height:540px;width:280px}}
