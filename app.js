@@ -19,7 +19,14 @@
     const now=new Date(),next=new Date(now);next.setHours(24,0,1,0);
     rolloverTimer=setTimeout(()=>{refreshCurrentDay(true);scheduleDayRollover()},Math.max(1000,next-now));
   }
+  function hasCompleteProfile(){
+    const profile=state?.profile||{};
+    const valid=value=>Number.isFinite(Number(value))&&Number(value)>0;
+    return Boolean(profile.goal&&valid(profile.age)&&valid(profile.height)&&valid(profile.baselineWeight)&&profile.activityLevel&&Number.isFinite(Number(profile.trainingDays))&&profile.pace);
+  }
+  function needsOnboarding(){return !state.onboarded&&!hasCompleteProfile()}
   function showOnboarding(){
+    if(!needsOnboarding())return;
     if(window.CutCoachProfile900?.openOnboarding)window.CutCoachProfile900.openOnboarding({mode:'start'});
     else openModal('onboardingModal');
     window.CutCoachInsights?.track('onboarding_shown');
@@ -119,7 +126,7 @@
       try{
         const parsed=JSON.parse(event.newValue);
         if(schemaVersionOf(parsed)>SCHEMA_VERSION){toast('Ein anderes Fenster nutzt eine neuere CutCoach-Version.');return;}
-        state=sanitizeState(parsed);lastSavedSnapshot=event.newValue;render();toast('Daten aus einem anderen Fenster übernommen.');
+        state=sanitizeState(parsed);lastSavedSnapshot=event.newValue;render();toast('Daten aus anderem Fenster übernommen.');
       }catch{toast('Änderung aus anderem Fenster konnte nicht übernommen werden.');}
     });
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){refreshCurrentDay(true);checkForUpdates();updateStorageStatus()}});
@@ -188,7 +195,7 @@
   if(!storageReadOnly)saveState();
   $('#datePicker').max=todayKey();
   setupEvents();switchTab(tabFromHash(),false);updateInstallButton();render();completeAppBoot();registerServiceWorker();updateStorageStatus();scheduleDayRollover();
-  if(state.onboarded)requestPersistentStorage();
+  if(state.onboarded||hasCompleteProfile())requestPersistentStorage();
   if(startupWarning)setTimeout(()=>toast(startupWarning),300);
-  if(!state.onboarded)setTimeout(showOnboarding,120);
+  if(needsOnboarding())setTimeout(showOnboarding,120);
 })();
