@@ -26,7 +26,7 @@
     }
     const combined=Object.freeze([...added,...existing]);
     const byId=new Map(combined.map(item=>[String(item.id),item]));
-    root.CutCoachFoodCatalog=Object.freeze({...base,meta:Object.freeze({...base.meta,count:combined.length,bootstrapProductCount:added.length,bootstrapProductVersion:VERSION}),items:()=>combined,get:id=>byId.get(String(id))||base.get?.(id)||null});
+    root.CutCoachFoodCatalog=Object.freeze({...base,meta:Object.freeze({...base.meta,bootstrapProductCount:added.length,bootstrapProductVersion:VERSION,totalRuntimeCount:combined.length}),items:()=>combined,get:id=>byId.get(String(id))||base.get?.(id)||null});
     root.CutCoachLibraryProductBootstrap=Object.freeze({version:VERSION,count:added.length});
   }
   bootstrapProducts();
