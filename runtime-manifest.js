@@ -46,7 +46,7 @@ self.CUTCOACH_RUNTIME=Object.freeze({
     './glass-nav-v131.js?v=1.3.7-alpha','./nutrition-stability-v201.js?v=2.0.1-alpha','./version-v7.js?v=2.3.0-alpha',
     './journal-polish-v137.js?v=1.3.7-alpha','./nutrition-search-input-performance-v193.js?v=2.0.0-alpha',
     './nutrition-polish-v138.js?v=1.3.11-alpha','./nutrition-ui-consistency-v206.js?v=2.0.9-loader','./body-progress-v220.js?v=2.2.4-production',
-    './src/features/journal/dashboard-v800.js?v=8.2.2-alpha','./src/features/nutrition/nutrition-v210.js?v=2.2.2-alpha',
+    './src/features/journal/dashboard-v800.js?v=8.2.2-alpha','./src/features/nutrition/nutrition-v210.js?v=2.2.4-alpha',
     './src/features/nutrition/nutrition-v230.js?v=2.3.0-alpha','./src/features/nutrition/nutrition-product-search-v250.js?v=2.5.1-alpha','./src/features/profile/profile-v900.js?v=9.0.0-alpha',
     './src/features/profile/profile-state-bridge.js?v=10.0.0-alpha','./src/features/profile/profile-v1000.js?v=10.0.5-alpha',
     './src/features/profile/profile-v1006-layout-fix.js?v=10.0.6-alpha','./src/features/profile/profile-v1007-spacing-settings-fix.js?v=10.0.7-alpha',
