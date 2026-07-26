@@ -1,6 +1,6 @@
 'use strict';
 (function(root){
-  const VERSION='7.0.1-product-bootstrap';
+  const VERSION='7.0.2-live-catalog-search';
   function normalize(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('de').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ')}
   function bootstrapProducts(){
     const base=root.CutCoachFoodCatalog;
@@ -29,7 +29,21 @@
     root.CutCoachFoodCatalog=Object.freeze({...base,meta:Object.freeze({...base.meta,bootstrapProductCount:added.length,bootstrapProductVersion:VERSION,totalRuntimeCount:combined.length}),items:()=>combined,get:id=>byId.get(String(id))||base.get?.(id)||null});
     root.CutCoachLibraryProductBootstrap=Object.freeze({version:VERSION,count:added.length});
   }
+  function enforceLiveCatalogSearch(){
+    if(root.CutCoachLiveCatalogSearch||typeof root.Worker!=='function')return;
+    const NativeWorker=root.Worker;
+    function LiveCatalogWorker(url,options){
+      const target=String(url||'');
+      if(/(?:^|\/)nutrition-search-worker\.js(?:\?|$)/.test(target))throw new DOMException('Der aktuelle Live-Katalog wird direkt durchsucht.','NotSupportedError');
+      return new NativeWorker(url,options);
+    }
+    try{Object.setPrototypeOf(LiveCatalogWorker,NativeWorker)}catch{}
+    LiveCatalogWorker.prototype=NativeWorker.prototype;
+    root.Worker=LiveCatalogWorker;
+    root.CutCoachLiveCatalogSearch=Object.freeze({version:VERSION,active:true});
+  }
   bootstrapProducts();
+  enforceLiveCatalogSearch();
   function openLibraryFromHash(){if(location.hash==='#library')document.querySelector('[data-tab="library"]')?.click()}
   function start(){if(root.CutCoachLibrary){root.CutCoachLibrary.mount();openLibraryFromHash()}root.addEventListener('hashchange',openLibraryFromHash)}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
