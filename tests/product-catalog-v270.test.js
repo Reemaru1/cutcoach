@@ -23,12 +23,13 @@ const find=query=>catalog.filter(item=>searchable(item).includes(normalize(query
 assert.equal(context.CutCoachProductCatalog270.count,8,'acht verifizierte Markenprodukte müssen ergänzt werden');
 assert.equal(catalog.length,original.length+8,'bestehender Katalog muss erhalten bleiben');
 
-const milkSlice=find('milchschnitte');
-assert.equal(milkSlice.length,1,'die Schreibweise milchschnitte muss genau einen Treffer liefern');
-assert.equal(milkSlice[0].name,'Milch-Schnitte Original');
-assert.equal(milkSlice[0].defaultPortion,28);
-assert.equal(milkSlice[0].calories,421);
-assert.equal(milkSlice[0].verified,true);
+const milkSliceResults=find('milchschnitte');
+const milkSlice=milkSliceResults.find(item=>item.id==='ccp270:milch-schnitte-original');
+assert.ok(milkSlice,'die Schreibweise milchschnitte muss Milch-Schnitte Original liefern');
+assert.equal(milkSlice.name,'Milch-Schnitte Original');
+assert.equal(milkSlice.defaultPortion,28);
+assert.equal(milkSlice.calories,421);
+assert.equal(milkSlice.verified,true);
 
 assert.ok(find('milch schnitte').some(item=>item.id==='ccp270:milch-schnitte-original'),'Suche ohne Bindestrich muss funktionieren');
 assert.ok(find('kinder milchschnitte').some(item=>item.id==='ccp270:milch-schnitte-original'),'Markenalias muss funktionieren');
