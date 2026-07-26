@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+const source=fs.readFileSync(path.join(__dirname,'..','library-init.js'),'utf8');
+const baseItems=Object.freeze([{id:'base:banana',name:'Banane',aliases:Object.freeze([]),amount:100,unit:'g',calories:89}]);
+const context={console,location:{hash:''},document:{readyState:'loading',addEventListener(){},querySelector(){return null}},addEventListener(){},CutCoachFoodCatalog:Object.freeze({meta:Object.freeze({count:1}),items:()=>baseItems,get:id=>baseItems.find(item=>item.id===id)||null}),CutCoachLibrary:{mount(){}}};
+context.window=context;
+vm.runInNewContext(source,context,{filename:'library-init.js'});
+const items=context.CutCoachFoodCatalog.items();
+const normalize=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,'');
+const find=query=>items.filter(item=>[item.name,...(item.aliases||[])].map(normalize).join(' ').includes(normalize(query)));
+assert.ok(find('milchschnitte').some(item=>item.name==='Milch-Schnitte Original'));
+assert.ok(find('kinder').length>=5);
+assert.ok(find('monte milchschnitte').some(item=>item.name==='Zott Monte Snack Original'));
+assert.ok(context.CutCoachFoodCatalog.get('cc-bootstrap:milch-schnitte-original'));
+console.log('library-init: produktiver Katalog-Bootstrap bestanden');
