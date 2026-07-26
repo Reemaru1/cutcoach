@@ -49,7 +49,7 @@
     const label=$('#nutritionDayBudgetLabel',budget)?.textContent?.trim()||'';
     const track=$('.nutrition-budget-bar',budget);
     const fill=$('#nutritionDayBudgetBar',budget);
-    if(status)status.remove();
+    if(status){status.hidden=true;status.setAttribute('aria-hidden','true')}
     if(copy){copy.hidden=true;copy.setAttribute('aria-hidden','true')}
     budget.classList.add('nutrition-day-progress-only');
     if(track){
@@ -67,9 +67,10 @@
     const mealCard=$('.nutrition-meal-card',screen),summary=$('.nutrition-meal-summary',mealCard);if(!mealCard||!summary)return;
     let day=$('.nutrition-v210-day-card',screen);
     if(!day){
-      day=document.createElement('section');day.className='nutrition-v210-day-card';day.setAttribute('aria-labelledby','nutritionV210DayTitle');day.innerHTML=`<div class="nutrition-v210-section-head">${icon('day')}<div><small>Dein Tageskurs</small><h2 id="nutritionV210DayTitle">Tagesbilanz</h2></div></div>`;mealCard.before(day);
+      day=document.createElement('section');day.className='nutrition-v210-day-card';day.setAttribute('aria-labelledby','nutritionV210DayTitle');day.innerHTML=`<div class="nutrition-v210-section-head">${icon('day')}<div><small>Dein Tageskurs</small><h2 id="nutritionV210DayTitle">Tagesbilanz</h2></div><span id="nutritionV210DayStatus" hidden aria-hidden="true"></span></div>`;mealCard.before(day);
     }
     for(const selector of ['.nutrition-day-budget','.nutrition-coach-row','.nutrition-macro-compass','#nutritionV7Analysis']){const node=$(selector,screen);if(node&&node.parentElement!==day)day.append(node)}
+    const budget=$('#nutritionDayBudgetLabel',day),status=$('#nutritionV210DayStatus',day);if(status&&budget){const isOver=/über/i.test(budget.textContent);setText(status,isOver?'Über Tagesziel':'Noch im Budget')}
     simplifyDayProgress(day);
     mealCard.classList.add('nutrition-v210-meal-card');
     setText($('.nutrition-meal-copy small',summary),'Aktuelle Mahlzeit');
