@@ -1,7 +1,7 @@
 'use strict';
 
 (function(root){
-  const VERSION='2.2.2-alpha';
+  const VERSION='2.2.4-alpha';
   const $=(selector,scope=document)=>scope?.querySelector?.(selector)||null;
   const $$=(selector,scope=document)=>[...(scope?.querySelectorAll?.(selector)||[])];
   const ICONS=Object.freeze({
@@ -41,17 +41,39 @@
   }
   function numberFrom(node){const match=String(node?.textContent||'').replace(/\./g,'').replace(',','.').match(/-?\d+(?:\.\d+)?/);return match?Number(match[0]):0}
 
+  function simplifyDayProgress(day){
+    const budget=$('.nutrition-day-budget',day);if(!budget)return;
+    const copy=budget.querySelector(':scope > div');
+    const status=$('#nutritionV210DayStatus',day);
+    const meta=$('#nutritionDayBudgetMeta',budget)?.textContent?.trim()||'';
+    const label=$('#nutritionDayBudgetLabel',budget)?.textContent?.trim()||'';
+    const track=$('.nutrition-budget-bar',budget);
+    const fill=$('#nutritionDayBudgetBar',budget);
+    if(status)status.remove();
+    if(copy){copy.hidden=true;copy.setAttribute('aria-hidden','true')}
+    budget.classList.add('nutrition-day-progress-only');
+    if(track){
+      const width=Math.max(0,Math.min(100,Number.parseFloat(fill?.style?.width)||0));
+      track.setAttribute('role','progressbar');
+      track.setAttribute('aria-valuemin','0');
+      track.setAttribute('aria-valuemax','100');
+      track.setAttribute('aria-valuenow',String(Math.round(width)));
+      track.setAttribute('aria-label',meta||label||'Fortschritt des Kalorientagesziels');
+      track.title=meta||label||'Kalorienfortschritt';
+    }
+  }
+
   function ensureDayCard(screen){
     const mealCard=$('.nutrition-meal-card',screen),summary=$('.nutrition-meal-summary',mealCard);if(!mealCard||!summary)return;
     let day=$('.nutrition-v210-day-card',screen);
     if(!day){
-      day=document.createElement('section');day.className='nutrition-v210-day-card';day.setAttribute('aria-labelledby','nutritionV210DayTitle');day.innerHTML=`<div class="nutrition-v210-section-head">${icon('day')}<div><small>Dein Tageskurs</small><h2 id="nutritionV210DayTitle">Tagesbilanz</h2></div><span id="nutritionV210DayStatus"></span></div>`;mealCard.before(day);
+      day=document.createElement('section');day.className='nutrition-v210-day-card';day.setAttribute('aria-labelledby','nutritionV210DayTitle');day.innerHTML=`<div class="nutrition-v210-section-head">${icon('day')}<div><small>Dein Tageskurs</small><h2 id="nutritionV210DayTitle">Tagesbilanz</h2></div></div>`;mealCard.before(day);
     }
     for(const selector of ['.nutrition-day-budget','.nutrition-coach-row','.nutrition-macro-compass','#nutritionV7Analysis']){const node=$(selector,screen);if(node&&node.parentElement!==day)day.append(node)}
+    simplifyDayProgress(day);
     mealCard.classList.add('nutrition-v210-meal-card');
     setText($('.nutrition-meal-copy small',summary),'Aktuelle Mahlzeit');
     const previous=$('#nutritionCopyPrevious',summary);if(previous){previous.childNodes[0].textContent='Von gestern ';previous.setAttribute('aria-label','Einträge von gestern übernehmen')}
-    const budget=$('#nutritionDayBudgetLabel',day),status=$('#nutritionV210DayStatus',day);if(status&&budget){const isOver=/über/i.test(budget.textContent);setText(status,isOver?'Über Tagesziel':'Noch im Budget');status.classList.toggle('is-over',isOver);status.classList.toggle('is-good',!isOver)}
   }
 
   function enhanceAnalysis(screen){
